@@ -1,24 +1,63 @@
 <!-- component -->
-<div class="min-h-screen bg-gray-50/50">
-  
-  <app-navbar></app-navbar>
+<div class="min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <app-navbar class="fixed top-0 w-full z-10"></app-navbar>
 
-  <app-sidebar></app-sidebar>
+  <!-- Layout principal con Sidebar y contenido -->
+  <div class="flex flex-grow mt-[72px]">
+    <!-- Ajuste del margen para evitar que el contenido se superponga con el navbar -->
+    <!-- Sidebar -->
+    <app-sidebar class="w-64 fixed top-[72px] h-[calc(100vh-72px)] z-10"></app-sidebar>
 
-  <div class="p-4 xl:ml-80">
-    
-  
-    <div class="mt-12">
-      <div>
-        <p>
-          Reporteria
-        </p>
+    <!-- Contenido -->
+    <div class="flex-grow ml-64 p-4">
+      <div class="mt-12">
+
+        <div>
+          <h1 class="text-3xl font-bold mb-6">Reportes</h1>
+
+          <div class="space-y-8">
+            <!-- Sección 1: Generar Nuevo Reporte -->
+            <section>
+              <h2 class="text-2xl font-semibold mb-4">Generar Nuevo Reporte</h2>
+              <p class="mb-2">Seleccione las opciones para generar un reporte sobre las investigaciones y análisis
+                realizados.</p>
+              <form class="space-y-4">
+                <div>
+                  <label for="tipo-reporte" class="block text-lg font-medium">Tipo de Reporte</label>
+                  <select id="tipo-reporte" class="w-full p-2 border border-gray-300 rounded-md">
+                    <option>Estadísticas de Análisis</option>
+                    <option>Resumen Mensual</option>
+                    <option>Informe Detallado</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="fecha-reporte" class="block text-lg font-medium">Fecha del Reporte</label>
+                  <input type="date" id="fecha-reporte" class="w-full p-2 border border-gray-300 rounded-md">
+                </div>
+              </form>
+            </section>
+
+            <!-- Sección 2: Reportes Generados Recientemente -->
+            <section>
+              <h2 class="text-2xl font-semibold mb-4">Reportes Generados Recientemente</h2>
+              <p class="mb-2">Listado de los reportes generados más recientes.</p>
+              <ul class="list-disc pl-6 space-y-2">
+                <li>Reporte 1: Resumen mensual - Generado el 01/09/2024.</li>
+                <li>Reporte 2: Análisis de ADN - Generado el 15/09/2024.</li>
+                <li>Reporte 3: Informe Detallado de Balística - Generado el 20/09/2024.</li>
+              </ul>
+            </section>
+          </div>
+        </div>
+
+
+        <router-outlet></router-outlet>
       </div>
-      <router-outlet></router-outlet>
     </div>
-   
+
   </div>
 
-  <app-footer></app-footer>
-
+  <!-- Footer -->
+  <app-footer class="w-full"></app-footer>
 </div>
