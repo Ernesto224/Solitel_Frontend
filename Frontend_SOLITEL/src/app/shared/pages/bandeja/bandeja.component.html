@@ -1,24 +1,108 @@
 <!-- component -->
-<div class="min-h-screen bg-gray-50/50">
-  
-  <app-navbar></app-navbar>
+<div class="min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <app-navbar class="fixed top-0 w-full z-10"></app-navbar>
 
-  <app-sidebar></app-sidebar>
+  <!-- Layout principal con Sidebar y contenido -->
+  <div class="flex flex-grow mt-[72px]">
+    <!-- Ajuste del margen para evitar que el contenido se superponga con el navbar -->
+    <!-- Sidebar -->
+    <app-sidebar class="w-64 fixed top-[72px] h-[calc(100vh-72px)] z-10"></app-sidebar>
 
-  <div class="p-4 xl:ml-80">
-    
-  
-    <div class="mt-12">
-      <div>
-        <p>
-          Bandeja
-        </p>
+    <!-- Contenido -->
+    <div class="flex-grow ml-64 p-4">
+      <div class="mt-12">
+
+        <div>
+          <h1 class="text-3xl font-bold mb-6">Bandeja de Solicitudes</h1>
+
+          <div class="space-y-8">
+            <!-- Sección 1 -->
+            <section>
+              <h2 class="text-2xl font-semibold mb-4">Solicitudes Recientes</h2>
+              <p class="mb-2">Aquí puedes ver las solicitudes más recientes que han sido enviadas al sistema.</p>
+              <ul class="list-disc pl-6 space-y-2">
+                <li>Solicitud 1: Análisis de huellas dactilares.</li>
+                <li>Solicitud 2: Investigación de escena del crimen.</li>
+                <li>Solicitud 3: Revisión de cámara de seguridad.</li>
+                <li>Solicitud 4: Análisis forense de dispositivos electrónicos.</li>
+                <li>Solicitud 5: Verificación de documentos legales.</li>
+              </ul>
+            </section>
+
+            <!-- Sección 2 -->
+            <section>
+              <h2 class="text-2xl font-semibold mb-4">Pendientes de Aprobación</h2>
+              <p class="mb-2">Estas solicitudes están pendientes de aprobación por parte del administrador.</p>
+              <ul class="list-disc pl-6 space-y-2">
+                <li>Solicitud 6: Confirmación de datos de la investigación XYZ.</li>
+                <li>Solicitud 7: Solicitud de pruebas de ADN.</li>
+                <li>Solicitud 8: Análisis toxicológico de sustancias encontradas.</li>
+                <li>Solicitud 9: Examen balístico de proyectiles recuperados.</li>
+              </ul>
+            </section>
+
+            <!-- Sección 3 -->
+            <section>
+              <h2 class="text-2xl font-semibold mb-4">Reportes Generados</h2>
+              <p class="mb-2">Esta es la lista de reportes generados automáticamente basados en las solicitudes
+                procesadas.</p>
+              <div class="grid grid-cols-2 gap-6">
+                <div class="bg-white p-4 rounded-md shadow-md">
+                  <h3 class="font-bold">Reporte 1: Resumen mensual</h3>
+                  <p class="text-gray-700">Generado el 01/09/2024. Contiene análisis de 15 investigaciones.</p>
+                </div>
+                <div class="bg-white p-4 rounded-md shadow-md">
+                  <h3 class="font-bold">Reporte 2: Estadísticas forenses</h3>
+                  <p class="text-gray-700">Generado el 15/09/2024. Análisis detallado de pruebas forenses en 10 casos.
+                  </p>
+                </div>
+                <div class="bg-white p-4 rounded-md shadow-md">
+                  <h3 class="font-bold">Reporte 3: Análisis de datos de cámaras</h3>
+                  <p class="text-gray-700">Generado el 20/09/2024. Incluye la revisión de videos en 5 investigaciones.
+                  </p>
+                </div>
+                <div class="bg-white p-4 rounded-md shadow-md">
+                  <h3 class="font-bold">Reporte 4: Exámenes balísticos</h3>
+                  <p class="text-gray-700">Generado el 25/09/2024. Contiene resultados de análisis balísticos en 7
+                    casos.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Sección 4 -->
+            <section>
+              <h2 class="text-2xl font-semibold mb-4">Estadísticas Generales</h2>
+              <p class="mb-4">A continuación se muestran algunas estadísticas importantes del sistema:</p>
+              <div class="grid grid-cols-2 gap-6">
+                <div class="bg-[#1C355C] p-4 text-white rounded-md shadow-md">
+                  <h3 class="font-bold text-lg">Total de Solicitudes Procesadas</h3>
+                  <p class="text-xl font-semibold">1,245</p>
+                </div>
+                <div class="bg-[#92aa34] p-4 text-white rounded-md shadow-md">
+                  <h3 class="font-bold text-lg">Solicitudes Pendientes</h3>
+                  <p class="text-xl font-semibold">328</p>
+                </div>
+                <div class="bg-[#1C355C] p-4 text-white rounded-md shadow-md">
+                  <h3 class="font-bold text-lg">Casos Resueltos</h3>
+                  <p class="text-xl font-semibold">843</p>
+                </div>
+                <div class="bg-[#92aa34] p-4 text-white rounded-md shadow-md">
+                  <h3 class="font-bold text-lg">Reportes Generados</h3>
+                  <p class="text-xl font-semibold">57</p>
+                </div>
+              </div>
+            </section>
+          </div>
+
+        </div>
+
+        <router-outlet></router-outlet>
       </div>
-      <router-outlet></router-outlet>
     </div>
-   
+
   </div>
 
-  <app-footer></app-footer>
-
+  <!-- Footer -->
+  <app-footer class="w-full"></app-footer>
 </div>

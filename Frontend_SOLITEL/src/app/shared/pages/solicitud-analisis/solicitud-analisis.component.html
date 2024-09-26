@@ -1,24 +1,64 @@
 <!-- component -->
-<div class="min-h-screen bg-gray-50/50">
-  
-  <app-navbar></app-navbar>
+<div class="min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <app-navbar class="fixed top-0 w-full z-10"></app-navbar>
 
-  <app-sidebar></app-sidebar>
+  <!-- Layout principal con Sidebar y contenido -->
+  <div class="flex flex-grow mt-[72px]">
+    <!-- Ajuste del margen para evitar que el contenido se superponga con el navbar -->
+    <!-- Sidebar -->
+    <app-sidebar class="w-64 fixed top-[72px] h-[calc(100vh-72px)] z-10"></app-sidebar>
 
-  <div class="p-4 xl:ml-80">
-    
-  
-    <div class="mt-12">
-      <div>
-        <p>
-          Solicitud Analisis
-        </p>
+    <!-- Contenido -->
+    <div class="flex-grow ml-64 p-4">
+      <div class="mt-12">
+
+        <div>
+          <h1 class="text-3xl font-bold mb-6">Solicitudes de Análisis</h1>
+
+          <div class="space-y-8">
+            <!-- Sección 1: Enviar Solicitud de Análisis -->
+            <section>
+              <h2 class="text-2xl font-semibold mb-4">Enviar Solicitud de Análisis</h2>
+              <p class="mb-2">Complete los detalles para enviar una nueva solicitud de análisis al equipo forense.</p>
+              <form class="space-y-4">
+                <div>
+                  <label for="tipo-analisis" class="block text-lg font-medium">Tipo de Análisis</label>
+                  <select id="tipo-analisis" class="w-full p-2 border border-gray-300 rounded-md">
+                    <option>Huellas dactilares</option>
+                    <option>ADN</option>
+                    <option>Balística</option>
+                    <option>Forense digital</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="descripcion-analisis" class="block text-lg font-medium">Descripción del Análisis</label>
+                  <textarea id="descripcion-analisis" class="w-full p-2 border border-gray-300 rounded-md"
+                    rows="4"></textarea>
+                </div>
+              </form>
+            </section>
+
+            <!-- Sección 2: Solicitudes Recientes -->
+            <section>
+              <h2 class="text-2xl font-semibold mb-4">Solicitudes Recientes</h2>
+              <p class="mb-2">Listado de las solicitudes de análisis más recientes enviadas al equipo.</p>
+              <ul class="list-disc pl-6 space-y-2">
+                <li>Solicitud 1: Análisis de huellas dactilares.</li>
+                <li>Solicitud 2: Análisis de ADN.</li>
+                <li>Solicitud 3: Revisión de dispositivos electrónicos.</li>
+              </ul>
+            </section>
+          </div>
+        </div>
+
+
+        <router-outlet></router-outlet>
       </div>
-      <router-outlet></router-outlet>
     </div>
-   
+
   </div>
 
-  <app-footer></app-footer>
-
+  <!-- Footer -->
+  <app-footer class="w-full"></app-footer>
 </div>

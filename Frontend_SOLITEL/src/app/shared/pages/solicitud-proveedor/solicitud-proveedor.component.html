@@ -1,24 +1,62 @@
 <!-- component -->
-<div class="min-h-screen bg-gray-50/50">
-  
-  <app-navbar></app-navbar>
+<div class="min-h-screen flex flex-col">
+  <!-- Navbar -->
+  <app-navbar class="fixed top-0 w-full z-10"></app-navbar>
 
-  <app-sidebar></app-sidebar>
+  <!-- Layout principal con Sidebar y contenido -->
+  <div class="flex flex-grow mt-[72px]">
+    <!-- Ajuste del margen para evitar que el contenido se superponga con el navbar -->
+    <!-- Sidebar -->
+    <app-sidebar class="w-64 fixed top-[72px] h-[calc(100vh-72px)] z-10"></app-sidebar>
 
-  <div class="p-4 xl:ml-80">
-    
-  
-    <div class="mt-12">
-      <div>
-        <p>
-          Solicitud Proveedor
-        </p>
+    <!-- Contenido -->
+    <div class="flex-grow ml-64 p-4">
+      <div class="mt-12">
+
+        <div>
+          <h1 class="text-3xl font-bold mb-6">Formulario de Solicitudes de Proveedor</h1>
+
+          <div class="space-y-8">
+            <!-- Sección 1: Información del Proveedor -->
+            <section>
+              <h2 class="text-2xl font-semibold mb-4">Información del Proveedor</h2>
+              <p class="mb-2">Complete la siguiente información para enviar una solicitud al proveedor.</p>
+              <form class="space-y-4">
+                <div>
+                  <label for="nombre-proveedor" class="block text-lg font-medium">Nombre del Proveedor</label>
+                  <input type="text" id="nombre-proveedor" class="w-full p-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                  <label for="correo-proveedor" class="block text-lg font-medium">Correo Electrónico</label>
+                  <input type="email" id="correo-proveedor" class="w-full p-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                  <label for="descripcion" class="block text-lg font-medium">Descripción de la Solicitud</label>
+                  <textarea id="descripcion" class="w-full p-2 border border-gray-300 rounded-md" rows="4"></textarea>
+                </div>
+              </form>
+            </section>
+
+            <!-- Sección 2: Estado de Solicitudes -->
+            <section>
+              <h2 class="text-2xl font-semibold mb-4">Solicitudes Pendientes</h2>
+              <p class="mb-2">Aquí puede ver el estado de las solicitudes enviadas a los proveedores.</p>
+              <ul class="list-disc pl-6 space-y-2">
+                <li>Solicitud 1: Pendiente de respuesta.</li>
+                <li>Solicitud 2: Aprobada por el proveedor.</li>
+                <li>Solicitud 3: Rechazada por el proveedor.</li>
+              </ul>
+            </section>
+          </div>
+        </div>
+
+
+        <router-outlet></router-outlet>
       </div>
-      <router-outlet></router-outlet>
     </div>
-   
+
   </div>
 
-  <app-footer></app-footer>
-
+  <!-- Footer -->
+  <app-footer class="w-full"></app-footer>
 </div>
