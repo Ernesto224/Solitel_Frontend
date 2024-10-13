@@ -1,0 +1,32 @@
+<table class="min-w-full table-auto border-collapse border border-gray-200">
+    <thead>
+      <tr class="bg-gray-100">
+        @for (header of headers; track header) {
+          <th class="border px-4 py-2">{{ header }}</th>
+        }
+        <th class="border px-4 py-2">Acciones</th> <!-- Columna de acciones -->
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of data; track row.id) {
+        <tr class="hover:bg-gray-50">
+          @for (key of keys; track key) {
+            <td class="border px-4 py-2">{{ row[key] }}</td>
+          }
+          <!-- Columna con el botón de eliminar -->
+          <td class="border px-4 py-2 text-center">
+            <button (click)="onDelete(row)" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-700 focus:outline-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          
+        </tr>
+      }
+    </tbody>
+  </table>
+  

@@ -21,6 +21,10 @@ export const routes: Routes = [
                 path: 'solicitud-proveedor',
                 loadComponent: () => import('./shared/pages/solicitud-proveedor/solicitud-proveedor.component')
             },
+            {
+                path: 'catalogos',
+                loadComponent: () => import('./shared/pages/catalogos/catalogos.component')
+            },
             {//redireccionamiento en caso de ruta vacia
                 path: '',
                 redirectTo: 'bandeja',
