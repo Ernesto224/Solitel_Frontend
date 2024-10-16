@@ -1,59 +1,82 @@
-<!-- component -->
 <div class="min-h-screen flex flex-col">
     <!-- Navbar -->
     <app-navbar class="fixed top-0 w-full z-10"></app-navbar>
 
-    <!-- Layout principal con Sidebar y contenido -->
     <div class="flex flex-grow mt-[72px]">
-        <!-- Ajuste del margen para evitar que el contenido se superponga con el navbar -->
         <!-- Sidebar -->
         <app-sidebar class="w-64 fixed top-[72px] h-[calc(100vh-72px)] z-10"></app-sidebar>
 
         <!-- Contenido -->
         <div class="flex-grow ml-64 p-4">
-            <!-- Dentro de la sección de contenido en tu archivo HTML -->
-            <!-- Dentro de la sección de contenido en tu archivo HTML -->
-            <!-- Formulario centrado y más pequeño -->
-            <div class="flex justify-center items-center min-h-screen">
-                <form class="space-y-4 w-1/3 bg-white p-6 rounded-lg shadow-lg">
+
+            <!-- Formulario más elevado y más grande -->
+            <div class="flex justify-center items-start">
+                <form [formGroup]="catalogoForm" (ngSubmit)="onSubmit()"
+                    class="space-y-4 w-1/2 bg-white p-8 rounded-lg shadow-lg">
                     <!-- Selección de Catálogo -->
                     <div class="flex items-center">
                         <label for="catalog" class="w-40 text-right mr-4">Catálogo a Editar:</label>
-                        <select id="catalog" class="border rounded px-4 py-2 w-full">
-                            <option value="">Seleccione</option>
-                            <option value="catalog1">Catálogo 1</option>
-                            <option value="catalog2">Catálogo 2</option>
-                            <option value="catalog3">Catálogo 3</option>
+                        <select id="catalog" formControlName="catalog" class="border rounded px-4 py-2 w-full">
+                            <option value="CategoriaDelito">Categoria Delito</option>
+                            <option value="Condicion">Condicion</option>
+                            <option value="Delito">Delito</option>
+                            <option value="Fiscalia">Fiscalia</option>
+                            <option value="Modalidad">Modalidad</option>
+                            <option value="SubModalidad">SubModalidad</option>
+                            <option value="TipoDato">Tipo Dato</option>
+                            <option value="TipoSolicitud">Tipo Solicitud</option>
                         </select>
                     </div>
 
                     <!-- Campo de Nombre -->
                     <div class="flex items-center">
                         <label for="name" class="w-40 text-right mr-4">Nombre:</label>
-                        <input id="name" type="text" class="border rounded px-4 py-2 w-full" placeholder="Nombre">
+                        <input id="name" type="text" formControlName="name" class="border rounded px-4 py-2 w-full"
+                            placeholder="Nombre">
                     </div>
 
                     <!-- Campo de Descripción -->
                     <div class="flex items-center">
                         <label for="description" class="w-40 text-right mr-4">Descripción:</label>
-                        <input id="description" type="text" class="border rounded px-4 py-2 w-full"
-                            placeholder="Descripción">
+                        <input id="description" type="text" formControlName="description"
+                            class="border rounded px-4 py-2 w-full" placeholder="Descripción">
                     </div>
 
-                    <!-- Botón de Enviar -->
-                    <div class="flex justify-end">
-                        <button type="submit"
+                    <!-- Campo de Dependencia (con ngFor para dependencias dinámicas) -->
+                    <div class="flex items-center">
+                        <label for="dependency" class="w-40 text-right mr-4">Dependencia:</label>
+                        <select id="dependency" formControlName="dependency" class="border rounded px-4 py-2 w-full">
+                            <option *ngFor="let dep of dependencias" [value]="dep.id">{{ dep.nombre }}</option>
+                        </select>
+                    </div>
+
+                    <!-- Botones Limpiar y Guardar -->
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" (click)="onReset()"
                             class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300">
-                            <i class="fas fa-plus-circle"></i> Agregar
+                            Limpiar
+                        </button>
+                        <button type="submit"
+                            class="bg-[#1976d2] text-[#FFFFFF] px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2">
+                            <span>Guardar</span>
                         </button>
                     </div>
                 </form>
             </div>
 
-        </div>
+            <!-- Tabla dinámica según el catálogo seleccionado -->
+<div class="mt-4">
+    <app-tabla-catalogos 
+      [headers]="encabezadosTabla" 
+      [data]="contenidoTabla" 
+      [onDelete]="eliminarElemento">
+    </app-tabla-catalogos>
+  </div>
+  
 
+
+        </div>
     </div>
 
-    <!-- Footer -->
     <app-footer class="w-full"></app-footer>
 </div>
