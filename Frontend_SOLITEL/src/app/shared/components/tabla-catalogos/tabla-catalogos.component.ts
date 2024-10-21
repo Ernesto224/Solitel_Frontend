@@ -11,7 +11,8 @@ import { CommonModule } from '@angular/common';
 export class TablaCatalogosComponent {
   @Input() headers: string[] = [];  // Los encabezados dinámicos
   @Input() data: any[] = [];        // Los datos dinámicos
-  @Input() onDelete!: (row: any) => void;  // Recibe la función de eliminar por parámetro
+  @Input() catalog: string = '';        // Los datos dinámicos
+  @Input() onDelete!: (catalog: string, row: any) => void;  // Recibe la función de eliminar por parámetro
 
   get keys(): string[] {
     return this.data.length > 0 ? Object.keys(this.data[0]) : [];
