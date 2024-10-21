@@ -1,23 +1,24 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
 @Injectable({
   providedIn: 'root'
 })
-export class DelitoService {
+export class CategoriaDelitoService {
 
-  private urlServices: string = "https://localhost:7211/api/Delito/";
-  private urlObtener: string = "obtenerDelitos";
-  private urlinsertar: string = "insertarDelito";
-  private urleliminar: string = "eliminarDelito";
+  private urlServices: string = "https://localhost:7211/api/CategoriaDelito/";
+  private urlObtener: string = "obtenerCategoriaDelito";
+  private urlinsertar: string = "insertarCategoriaDelito";
+  private urleliminar: string = "eliminarCategoriaDelito";
 
   constructor(private http: HttpClient) { }
 
-  public obtener = (): Observable<any> => {
-    return this.http.get(`${this.urlServices}${this.urlObtener}`);
+  public obtener = (): Observable<any[]> => {
+    return this.http.get<any[]>(`${this.urlServices}${this.urlObtener}`);
   }
 
-  public insertar = (objeto: any): Observable<any> => {
+  public insertar = (objeto: object): Observable<any> => {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'accept': 'text/plain'
@@ -30,5 +31,5 @@ export class DelitoService {
       headers: { 'accept': 'text/plain' }
     });
   }
-
+  
 }
