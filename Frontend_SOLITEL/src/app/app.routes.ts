@@ -6,10 +6,14 @@ export const routes: Routes = [
     /*loadComponent: () => import(''),*/
     children: [
       //se colocan todas las rutas asociadas a las paginas o vistas
-    {
+      {
         path: 'analisis-telefonico',
-        loadComponent: () => import('./shared/pages/analisis-telefonico/analisis-telefonico.component'),
-    },{
+        loadComponent: () =>
+          import(
+            './shared/pages/analisis-telefonico/analisis-telefonico.component'
+          ),
+      },
+      {
         path: 'bandeja',
         loadComponent: () => import('./shared/pages/bandeja/bandeja.component'),
       },

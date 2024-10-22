@@ -1,15 +1,6 @@
-<!-- component --> 
 <div class="min-h-screen flex flex-col">
-  <!-- Navbar -->
-  <app-navbar class="fixed top-0 w-full z-10"></app-navbar>
-
   <!-- Layout principal con Sidebar y contenido -->
   <div class="flex flex-grow mt-[72px]">
-    <!-- Ajuste del margen para evitar que el contenido se superponga con el navbar -->
-    
-    <!-- Sidebar -->
-    <app-sidebar class="w-64 fixed top-[72px] h-[calc(100vh-72px)] z-10"></app-sidebar>
-
     <!-- Contenido principal -->
     <div class="flex-grow ml-64">
       <div class="max-w-5xl mx-auto p-4">
@@ -18,19 +9,23 @@
           <h2 class="text-2xl font-semibold mb-4">Solicitud de análisis telefónico</h2>
 
           <!-- Selección de solicitudes de proveedor -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium text-gray-700">Número único:</label>
-              <select class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select formControlName="numeroUnico" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <option>Seleccione</option>
+                <option *ngFor="let numero of numerosUnicos" [value]="numero">{{ numero }}</option>
               </select>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Solicitudes de proveedor:</label>
-              <select class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                <option>Seleccione</option>
+              <select formControlName="solicitudesProveedor" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <option *ngFor="let solicitud of solicitudesProveedor" [value]="solicitud.TN_IdSolicitudProveedor">
+                  {{ solicitud.TN_IdSolicitudProveedor }} - {{ solicitud.TN_NumeroUnico }} - {{ solicitud.TC_Proveedor }}
+                </option>
               </select>
+
             </div>
 
             <div>
@@ -39,7 +34,7 @@
                 <option>Seleccione</option>
               </select>
             </div>
-          </div>
+          </form>
 
           <!-- Detalle de solicitud -->
           <h3 class="text-lg font-semibold mb-2">Detalle de solicitud</h3>
@@ -47,21 +42,21 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium text-gray-700">Oficina de análisis criminal:</label>
-              <select class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select formControlName="oficinaAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <option>Seleccione</option>
               </select>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Tipo de análisis:</label>
-              <select class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select formControlName="tipoAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <option>Seleccione</option>
               </select>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Objetivos del análisis:</label>
-              <select class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select formControlName="objetivosAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <option>Seleccione</option>
               </select>
             </div>
@@ -70,18 +65,18 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium text-gray-700">Fecha del hecho:</label>
-              <input type="date" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <input formControlName="fechaHecho" type="date" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Otros (objetivos):</label>
-              <input type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <input formControlName="otrosObjetivos" type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
           </div>
 
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700">Otros detalles:</label>
-            <textarea rows="4" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+            <textarea formControlName="otrosDetalles" rows="4" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
           </div>
 
           <!-- Registros de requerimientos -->
@@ -113,30 +108,22 @@
             </div>
           </div>
 
-          <!-- Botones -->
+          <!-- Botones de la tabla -->
           <div class="flex justify-start space-x-4 mb-6">
-            <!-- Botón Limpiar -->
-            <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" />
-              </svg>              
-              Limpiar
-            </button>
-
             <!-- Botón Agregar -->
-            <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center">
+            <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="agregarRequerimiento()">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"/>
               </svg>
               Agregar
             </button>
 
-            <!-- Botón Editar -->
-            <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center">
+            <!-- Botón Guardar -->
+            <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="enviarSolicitud()">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M17.414 2.586a2 2 0 00-2.828 0L5 12.172V15h2.828l9.586-9.586a2 2 0 000-2.828zM7 14v-1.586l9-9L17.586 6l-9 9H7z"/>
+                <path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm4 2a1 1 0 011 1v4a1 1 0 11-2 0V6a1 1 0 011-1zm-2 0H5v4a1 1 0 01-2 0V6a1 1 0 012-1h2z"/>
               </svg>
-              Editar
+              Guardar
             </button>
           </div>
 
@@ -154,56 +141,30 @@
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr>
-                  <!-- Columna de botones -->
+                <tr *ngFor="let requerimiento of requerimientos; let i = index">
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <button class="bg-blue-500 text-white px-2 py-1 rounded-md mr-2" title="Editar">
+                    <button class="bg-blue-500 text-white px-2 py-1 rounded-md mr-2" title="Editar" (click)="cargarRequerimientoEnFormulario(i)">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path d="M17.414 2.586a2 2 0 00-2.828 0L5 12.172V15h2.828l9.586-9.586a2 2 0 000-2.828zM7 14v-1.586l9-9L17.586 6l-9 9H7z"/>
                       </svg>
                     </button>
-                    <!-- Botón de Eliminar con SVG -->
-                    <button class="bg-blue-500 text-white px-2 py-1 rounded-md" title="Eliminar">
+                    <button class="bg-red-500 text-white px-2 py-1 rounded-md" title="Eliminar" (click)="eliminarRequerimiento(i)">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M6 3a1 1 0 011-1h6a1 1 0 011 1v1h3a1 1 0 010 2h-1v11a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h3V3zm3 2h2v10a1 1 0 11-2 0V5z" clip-rule="evenodd" />
+                        <path fill-rule="evenodd" d="M6 3a1 1 0 011-1h6a1 1 0 011 1v1h3a1 1 0 010 2h-1v11a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h3V3zm3 2h2v10a1 1 0 11-2 0V5z" clip-rule="evenodd"/>
                       </svg>
                     </button>
                   </td>
-                  <!-- Datos de la fila -->
-                  <td class="px-6 py-4 whitespace-nowrap">Teléfono</td>
-                  <td class="px-6 py-4 whitespace-nowrap">Teléfono</td>
-                  <td class="px-6 py-4 whitespace-nowrap">00000000</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.tN_IdTipo }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.tC_Objetivo }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.tC_UtilizadoPor }}</td>
                   <td class="px-6 py-4 whitespace-nowrap">Imputado</td>
                   <td class="px-6 py-4 whitespace-nowrap">Abonado</td>
-                  <td class="px-6 py-4 whitespace-nowrap"></td> <!-- Deja vacío si no hay datos -->
                 </tr>
               </tbody>
             </table>
-          </div>
-
-          <!-- Botones de la tabla -->
-          <div class="flex justify-start space-x-4 mt-6">
-            <!-- Botón Agregar -->
-            <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"/>
-              </svg>
-              Agregar
-            </button>
-
-            <!-- Botón Guardar -->
-            <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm4 2a1 1 0 011 1v4a1 1 0 11-2 0V6a1 1 0 011-1zm-2 0H5v4a1 1 0 01-2 0V6a1 1 0 012-1h2z"/>
-              </svg>
-              Guardar
-            </button>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Footer -->
-  <app-footer class="w-full"></app-footer>
 </div>
