@@ -15,7 +15,7 @@
               <div class="form-group">
                 <label for="numero-unico">Número único:</label>
                 <div class="input-group">
-                  <input type="text" id="numero-unico" [(ngModel)]="numeroUnico" name="numeroUnico" >
+                  <input type="text" id="numero-unico" [(ngModel)]="numeroUnico" name="numeroUnico">
                   <button type="button" class="search-btn">🔍</button>
                 </div>
               </div>
@@ -34,48 +34,51 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="numero-caso">Número caso:</label>
-                <input type="text" id="numero-caso" [(ngModel)]="numeroCaso" name="numeroCaso" >
+                <input type="text" id="numero-caso" [(ngModel)]="numeroCaso" name="numeroCaso">
               </div>
 
               <div class="form-group">
                 <label for="oficina">Oficina:</label>
-                <input type="text" id="oficina" value="PLATAFORMA DE INFORMACIÓN POLICIAL" disabled>
+                <select id="oficina" [(ngModel)]="idOficinaSeleccionada" name="idOficinaSeleccionada" required>
+                  <option *ngFor="let oficina of oficinas" [value]="oficina.tN_IdOficina">
+                    {{ oficina.tC_Nombre }}
+                  </option>
+                </select>
               </div>
+              
             </div>
 
             <!-- Tercera fila de campos -->
             <div class="form-row">
               <div class="form-group">
                 <label for="fiscalia">Fiscalía:</label>
-                <select id="fiscalia" class="required-field" required>
+                <select id="fiscalia" class="required-field" [(ngModel)]="idFiscaliaSeleccionada" name="idFiscaliaSeleccionada" required>
                   <option value="">Seleccione</option>
-                  <option value="1">Heredia</option>
-                  <option *ngFor="let fiscalia of fiscalias" [value]="fiscalia.TN_IdFiscalia">
-                    {{ fiscalia.TC_Nombre }}
+                  <option *ngFor="let fiscalia of fiscalias" [value]="fiscalia.tN_IdFiscalia">
+                    {{ fiscalia.tC_Nombre }}
                   </option>
                 </select>
               </div>
+              
 
 
               <div class="form-group">
                 <label for="operadora">Operadora:</label>
-                <select id="operadora" class="required-field" required>
-                  <option value="">Seleccione</option>
-                  <option value="1">ICE</option>
-                  <option value="">Tigo</option>
-                  <option value="">CLARO</option>
-                  <option value="">Movistar</option>
-
+                <select id="operadora" class="required-field" [(ngModel)]="idOperadoraSeleccionada" name="idOperadoraSeleccionada" required>
+                  <option *ngFor="let operadora of operadoras" [value]="operadora.tN_IdProveedor">
+                    {{ operadora.tC_Nombre }}
+                  </option>
                 </select>
               </div>
+              
             </div>
 
             <!-- Cuarta fila de campos -->
             <div class="form-row">
               <div class="form-group">
                 <label for="categoria-delito">Categoría delito:</label>
-                <select id="categoria-delito" class="required-field"  [(ngModel)]="idCategoriaDelitoSeleccionado" name="idCategoriaDelitoSeleccionado" required>
-                  <option value="">Seleccione</option>
+                <select id="categoria-delito" class="required-field" [(ngModel)]="idCategoriaDelitoSeleccionado"
+                  name="idCategoriaDelitoSeleccionado" required>
                   <option *ngFor="let categoria of categoriasDelito" [value]="categoria.idCategoriaDelito">
                     {{ categoria.nombre }}
                   </option>
@@ -86,8 +89,8 @@
 
               <div class="form-group">
                 <label for="delito">Delito:</label>
-                <select id="delito" class="required-field" [(ngModel)]="idDelitoSeleccionado" name="idDelitoSeleccionado" required>
-                  <option value="">Seleccione</option>
+                <select id="delito" class="required-field" [(ngModel)]="idDelitoSeleccionado"
+                  name="idDelitoSeleccionado" required>
                   <option *ngFor="let delito of delitos" [value]="delito.tN_IdDelito">
                     {{ delito.tC_Nombre }}
                   </option>
@@ -101,8 +104,8 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="modalidad">Modalidad:</label>
-                <select id="modalidad" class="required-field" [(ngModel)]="idModalidadSeleccionada" name="idModalidadSeleccionada" required>
-                  <option value="">Seleccione</option>
+                <select id="modalidad" class="required-field" [(ngModel)]="idModalidadSeleccionada"
+                  name="idModalidadSeleccionada" required>
                   <option *ngFor="let modalidad of modalidades" [value]="modalidad.tN_IdModalidad">
                     {{ modalidad.tC_Nombre }}
                   </option>
@@ -112,8 +115,8 @@
 
               <div class="form-group">
                 <label for="submodalidad">Submodalidad:</label>
-                <select id="submodalidad" class="required-field"  [(ngModel)]="idSubModalidadSeleccionada" name="idSubModalidadSeleccionada" required>
-                  <option value="">Seleccione</option>
+                <select id="submodalidad" class="required-field" [(ngModel)]="idSubModalidadSeleccionada"
+                  name="idSubModalidadSeleccionada" required>
                   <option *ngFor="let submodalidad of subModalidades" [value]="submodalidad.tN_IdSubModalidad">
                     {{ submodalidad.tC_Nombre }}
                   </option>
@@ -126,12 +129,12 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="imputado">Imputado:</label>
-                <input type="text" id="imputado" class="required-field"  [(ngModel)]="imputado" name="imputado" required>
+                <input type="text" id="imputado" class="required-field" [(ngModel)]="imputado" name="imputado" required>
               </div>
 
               <div class="form-group">
                 <label for="ofendido">Ofendido:</label>
-                <input type="text" id="ofendido" class="required-field"  [(ngModel)]="ofendido" name="ofendido" required>
+                <input type="text" id="ofendido" class="required-field" [(ngModel)]="ofendido" name="ofendido" required>
               </div>
             </div>
 

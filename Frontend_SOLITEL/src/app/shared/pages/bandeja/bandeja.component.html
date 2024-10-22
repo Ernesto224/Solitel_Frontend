@@ -1,236 +1,246 @@
 <!-- Contenido -->
 <div class="flex flex-col mb-0 pb-0">
 
-<!-- Contenedor con scroll horizontal y vertical si es necesario -->
-<div class="overflow-x-auto overflow-y-auto max-h-screen">
-  <!-- Tabla con columnas ajustadas y paginación -->
-  <table class="min-w-full table-auto border-collapse">
-    <thead>
-      <tr class="bg-[#1C355C] text-white">
-        <th class="border px-4 py-2 text-center">Aprobar</th>
-        <th class="border px-4 py-2 text-center">Sin efecto</th>
-        <th class="border px-4 py-2 text-center">Histórico</th>
-        <th class="border px-4 py-2 text-center">Ver</th>
-        <th class="border px-4 py-2 text-center">Número de Caso</th>
-        <th class="border px-4 py-2 text-center">Número único</th>
-        <th class="border px-4 py-2 text-center">Fecha requerimiento</th>
-        <th class="border px-4 py-2 text-center">Días transcurridos</th>
-        <th class="border px-4 py-2 text-center">Estado</th>
-        <th class="border px-4 py-2 text-center">Urgente</th>
-        <th class="border px-4 py-2 text-center">Creado por</th>
-      </tr>
-    </thead>
-    <tbody class="bg-[#F3F4F6] text-black">
-      <tr *ngFor="let solicitud of solicitudes" class="hover:bg-gray-200">
-        <td class="border px-4 py-2 text-center">
-          <input type="checkbox" class="toggle-checkbox" />
-        </td>
-        <td class="border px-4 py-2 text-center">
-          <button class="bg-blue-500 text-white p-2 rounded">
-            <i class="fas fa-times"></i>
-          </button>
-        </td>
-        <td class="border px-4 py-2 text-center">
-          <button class="bg-blue-500 text-white p-2 rounded">
-            <i class="fas fa-flag-checkered"></i>
-          </button>
-        </td>
-        <td class="border px-4 py-2 text-center">
-          <button class="bg-blue-500 text-white p-2 rounded" (click)="abrirModal(solicitud)">
-            <i class="fas fa-info"></i> Ver
-          </button>
-        </td>
+  <!-- Contenedor con scroll horizontal y vertical si es necesario -->
+  <div class="overflow-x-auto overflow-y-auto max-h-screen">
+    <!-- Tabla con columnas ajustadas y paginación -->
+    <table class="min-w-full table-auto border-collapse">
+      <thead>
+        <tr class="bg-[#1C355C] text-white">
+          <th class="border px-4 py-2 text-center">Aprobar</th>
+          <th class="border px-4 py-2 text-center">Sin efecto</th>
+          <th class="border px-4 py-2 text-center">Histórico</th>
+          <th class="border px-4 py-2 text-center">Ver</th>
+          <th class="border px-4 py-2 text-center">Número de Caso</th>
+          <th class="border px-4 py-2 text-center">Número único</th>
+          <th class="border px-4 py-2 text-center">Fecha requerimiento</th>
+          <th class="border px-4 py-2 text-center">Días transcurridos</th>
+          <th class="border px-4 py-2 text-center">Estado</th>
+          <th class="border px-4 py-2 text-center">Urgente</th>
+          <th class="border px-4 py-2 text-center">Creado por</th>
+        </tr>
+      </thead>
+      <tbody class="bg-[#F3F4F6] text-black">
+        <tr *ngFor="let solicitud of solicitudes" class="hover:bg-gray-200">
+          <td class="border px-4 py-2 text-center">
+            <input type="checkbox" class="toggle-checkbox" />
+          </td>
+          <td class="border px-4 py-2 text-center">
+            <button class="bg-blue-500 text-white p-2 rounded">
+              <i class="fas fa-times"></i>
+            </button>
+          </td>
+          <td class="border px-4 py-2 text-center">
+            <button class="bg-blue-500 text-white p-2 rounded">
+              <i class="fas fa-flag-checkered"></i>
+            </button>
+          </td>
+          <td class="border px-4 py-2 text-center">
+            <button class="bg-blue-500 text-white p-2 rounded" (click)="abrirModal(solicitud)">
+              <i class="fas fa-info"></i> Ver
+            </button>
+          </td>
 
-        <!-- Muestra el número de caso -->
-        <td class="border px-4 py-2 text-center">{{ solicitud.numeroCaso }}</td>
+          <!-- Muestra el número de caso -->
+          <td class="border px-4 py-2 text-center">{{ solicitud.numeroCaso }}</td>
 
-        <!-- Muestra el número único -->
-        <td class="border px-4 py-2 text-center">{{ solicitud.numeroUnico }}</td>
+          <!-- Muestra el número único -->
+          <td class="border px-4 py-2 text-center">{{ solicitud.numeroUnico }}</td>
 
-        <!-- Muestra la fecha del primer requerimiento -->
-        <td class="border px-4 py-2 text-center">
-          {{ solicitud.requerimientos?.[0]?.tF_FechaInicio | date: 'dd/MM/yyyy' }}
-        </td>
+          <!-- Muestra la fecha del primer requerimiento -->
+          <td class="border px-4 py-2 text-center">
+            {{ solicitud.requerimientos?.[0]?.tF_FechaInicio | date: 'dd/MM/yyyy' }}
+          </td>
 
-        <!-- Calcula los días transcurridos desde la fecha de inicio del primer requerimiento -->
-        <td class="border px-4 py-2 text-center">
-          {{ calcularDiasTranscurridos(solicitud.requerimientos?.[0]?.tF_FechaInicio) }}
-        </td>
+          <!-- Calcula los días transcurridos desde la fecha de inicio del primer requerimiento -->
+          <td class="border px-4 py-2 text-center">
+            {{ calcularDiasTranscurridos(solicitud.requerimientos?.[0]?.tF_FechaInicio) }}
+          </td>
 
-        <!-- Muestra el estado de la solicitud -->
-        <td class="border px-4 py-2 text-center">{{ solicitud.estado?.tC_Nombre }}</td>
+          <!-- Muestra el estado de la solicitud -->
+          <td class="border px-4 py-2 text-center">{{ solicitud.estado?.tC_Nombre }}</td>
 
-        <!-- Muestra si es urgente o no -->
-        <td class="border px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
+          <!-- Muestra si es urgente o no -->
+          <td class="border px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
 
-        <!-- Muestra el nombre del creador -->
-        <td class="border px-4 py-2 text-center">
-          {{ solicitud.usuarioCreador?.tC_Nombre }} {{ solicitud.usuarioCreador?.tC_Apellido }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Paginación y tamaño de filas centrados -->
-<div class="flex justify-center items-center mt-4 space-x-8">
-  <!-- Selector de tamaño de filas -->
-  <div class="flex items-center">
-    <label for="pageSize" class="mr-2">Tamaño:</label>
-    <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="border border-gray-300 rounded p-1">
-      <option value="10">10</option>
-      <option value="25">25</option>
-      <option value="50">50</option>
-    </select>
+          <!-- Muestra el nombre del creador -->
+          <td class="border px-4 py-2 text-center">
+            {{ solicitud.usuarioCreador?.tC_Nombre }} {{ solicitud.usuarioCreador?.tC_Apellido }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <!-- Paginación -->
-  <div class="flex items-center space-x-2">
-    <!-- Botón regresar -->
-    <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(-1)">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-    <span>{{ pageNumber }}</span> <!-- Número de página -->
-    <!-- Botón siguiente -->
-    <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(1)">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-      </svg>
-    </button>
-  </div>
-</div>
-
-
-
-<div>
-
-<!-- Modal de solicitud (solo visible cuando modalVisible es true) -->
-<div *ngIf="modalVisible" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-  <div class="flex items-center justify-center min-h-screen text-center sm:block sm:p-0">
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-
-      <!-- Contenedor que centra el modal -->
-      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-      <!-- Contenido del modal centrado y desplazable -->
-
-  <div class="inline-block align-middle bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-4xl sm:w-full">
-    <!-- Encabezado del modal -->
-    <div class="modal-header">
-        <h3 class="text-lg font-medium">Solicitud #{{ solicitudSeleccionada.idSolicitudProveedor }}</h3>
-        <h3 class="text-lg font-medium">Solicitud archivos telefónicos a proveedor</h3>
+  <!-- Paginación y tamaño de filas centrados -->
+  <div class="flex justify-center items-center mt-4 space-x-8">
+    <!-- Selector de tamaño de filas -->
+    <div class="flex items-center">
+      <label for="pageSize" class="mr-2">Tamaño:</label>
+      <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="border border-gray-300 rounded p-1">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+      </select>
     </div>
 
-  <!-- Contenido del formulario -->
-  <div class="modal-body">
-      <!-- Información General -->
-      <div class="grid-section">
-          <div>
-              <label class="label" for="numeroUnico">Número único:</label>
-              <input type="text" id="numeroUnico" class="input" [value]="solicitudSeleccionada.numeroUnico" readonly>
-          </div>
-          <div>
-              <label class="label" for="numeroCaso">Número caso:</label>
-              <input type="text" id="numeroCaso" class="input" [value]="solicitudSeleccionada.numeroCaso" readonly>
-          </div>
-          <div>
-              <label class="label" for="fiscalia">Fiscalía:</label>
-              <input type="text" id="fiscalia" class="input" [value]="solicitudSeleccionada.fiscalia.tC_Nombre" readonly>
-          </div>
-      </div>
+    <!-- Paginación -->
+    <div class="flex items-center space-x-2">
+      <!-- Botón regresar -->
+      <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(-1)">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <span>{{ pageNumber }}</span> <!-- Número de página -->
+      <!-- Botón siguiente -->
+      <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(1)">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  </div>
 
-      <!-- Información sobre Delito y Modalidad -->
-      <div class="grid-section">
-          <div>
-              <label class="label" for="categoriaDelito">Categoría delito:</label>
-              <input type="text" id="categoriaDelito" class="input" [value]="solicitudSeleccionada.categoriaDelito.nombre" readonly>
-          </div>
-          <div>
-              <label class="label" for="modalidad">Modalidad:</label>
-              <input type="text" id="modalidad" class="input" [value]="solicitudSeleccionada.modalidad.tC_Nombre" readonly>
-          </div>
-          <div>
-              <label class="label" for="imputado">Imputado:</label>
-              <input type="text" id="imputado" class="input" [value]="solicitudSeleccionada.imputado" readonly>
-          </div>
-      </div>
+  <div>
 
-      <!-- Información sobre Delito y Sub Modalidad -->
-      <div class="grid-section">
-          <div>
-              <label class="label" for="delito">Delito:</label>
-              <input type="text" id="delito" class="input" [value]="solicitudSeleccionada.delito.tC_Nombre" readonly>
-          </div>
-          <div>
-              <label class="label" for="subModalidad">Sub modalidad:</label>
-              <input type="text" id="subModalidad" class="input" [value]="solicitudSeleccionada.subModalidad.tC_Nombre" readonly>
-          </div>
-          <div>
-              <label class="label" for="ofendido">Ofendido:</label>
-              <input type="text" id="ofendido" class="input" [value]="solicitudSeleccionada.ofendido" readonly>
-          </div>
-      </div>
+    <!-- Modal de solicitud (solo visible cuando modalVisible es true) -->
+    <div *ngIf="modalVisible" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+      aria-modal="true">
+      <div class="flex items-center justify-center min-h-screen text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
 
-      <!-- Botón de urgente -->
-      <div class="grid-section">
-          <div>
-              <label class="label" for="urgente">Urgente:</label>
-              <button type="button" id="urgente" class="bg-red-600 text-white py-2 px-4 rounded-md w-full" [class.active]="solicitudSeleccionada.urgente">Urgente</button>
-          </div>
-          <div>
-              <label class="label" for="oficina">Oficina:</label>
-              <input type="text" id="oficina" class="input" [value]="solicitudSeleccionada.oficina.tC_Nombre" readonly>
-          </div>
-          <div>
-              <label class="label" for="operadora">Operadora:</label>
-              <input type="text" id="operadora" class="input" readonly>
-          </div>
-      </div>
+        <!-- Contenedor que centra el modal -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-      <!-- Sección de "Registros de requerimientos" -->
-      <div class="mt-6">
-          <h4 class="text-lg font-medium">Registros de requerimientos</h4>
-          <div class="border-t mt-2"></div>
-          <table class="table">
-              <thead>
+        <!-- Contenido del modal centrado y desplazable -->
+
+        <div
+          class="inline-block align-middle bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-4xl sm:w-full">
+          <!-- Encabezado del modal -->
+          <div class="modal-header">
+            <h3 class="text-lg font-medium">Solicitud #{{ solicitudSeleccionada.idSolicitudProveedor }}</h3>
+            <h3 class="text-lg font-medium">Solicitud archivos telefónicos a proveedor</h3>
+          </div>
+
+          <!-- Contenido del formulario -->
+          <div class="modal-body">
+            <!-- Información General -->
+            <div class="grid-section">
+              <div>
+                <label class="label" for="numeroUnico">Número único:</label>
+                <input type="text" id="numeroUnico" class="input" [value]="solicitudSeleccionada.numeroUnico" readonly>
+              </div>
+              <div>
+                <label class="label" for="numeroCaso">Número caso:</label>
+                <input type="text" id="numeroCaso" class="input" [value]="solicitudSeleccionada.numeroCaso" readonly>
+              </div>
+              <div>
+                <label class="label" for="fiscalia">Fiscalía:</label>
+                <input type="text" id="fiscalia" class="input" [value]="solicitudSeleccionada.fiscalia.tC_Nombre"
+                  readonly>
+              </div>
+            </div>
+
+            <!-- Información sobre Delito y Modalidad -->
+            <div class="grid-section">
+              <div>
+                <label class="label" for="categoriaDelito">Categoría delito:</label>
+                <input type="text" id="categoriaDelito" class="input"
+                  [value]="solicitudSeleccionada.categoriaDelito.nombre" readonly>
+              </div>
+              <div>
+                <label class="label" for="modalidad">Modalidad:</label>
+                <input type="text" id="modalidad" class="input" [value]="solicitudSeleccionada.modalidad.tC_Nombre"
+                  readonly>
+              </div>
+              <div>
+                <label class="label" for="imputado">Imputado:</label>
+                <input type="text" id="imputado" class="input" [value]="solicitudSeleccionada.imputado" readonly>
+              </div>
+            </div>
+
+            <!-- Información sobre Delito y Sub Modalidad -->
+            <div class="grid-section">
+              <div>
+                <label class="label" for="delito">Delito:</label>
+                <input type="text" id="delito" class="input" [value]="solicitudSeleccionada.delito.tC_Nombre" readonly>
+              </div>
+              <div>
+                <label class="label" for="subModalidad">Sub modalidad:</label>
+                <input type="text" id="subModalidad" class="input"
+                  [value]="solicitudSeleccionada.subModalidad.tC_Nombre" readonly>
+              </div>
+              <div>
+                <label class="label" for="ofendido">Ofendido:</label>
+                <input type="text" id="ofendido" class="input" [value]="solicitudSeleccionada.ofendido" readonly>
+              </div>
+            </div>
+
+            <!-- Botón de urgente -->
+            <div class="grid-section">
+              <div>
+                <label class="label" for="urgente">Urgente:</label>
+                <button type="button" id="urgente" class="bg-red-600 text-white py-2 px-4 rounded-md w-full"
+                  [class.active]="solicitudSeleccionada.urgente">Urgente</button>
+              </div>
+              <div>
+                <label class="label" for="oficina">Oficina:</label>
+                <input type="text" id="oficina" class="input" [value]="solicitudSeleccionada.oficina.tC_Nombre"
+                  readonly>
+              </div>
+              <div>
+                <label class="label" for="operadora">Operadora:</label>
+                <input type="text" id="operadora" class="input" readonly>
+              </div>
+            </div>
+
+            <!-- Sección de "Registros de requerimientos" -->
+            <div class="mt-6">
+              <h4 class="text-lg font-medium">Registros de requerimientos</h4>
+              <div class="border-t mt-2"></div>
+              <table class="table">
+                <thead>
                   <tr>
-                      <th>Requerimiento</th>
-                      <th>Tipo Solicitud</th>
-                      <th>Datos Requeridos</th>
-                      <th>Fecha Inicio</th>
-                      <th>Fecha Final</th>
+                    <th>Requerimiento</th>
+                    <th>Tipo Solicitud</th>
+                    <th>Datos Requeridos</th>
+                    <th>Fecha Inicio</th>
+                    <th>Fecha Final</th>
                   </tr>
-              </thead>
-              <tbody>
+                </thead>
+                <tbody>
                   <tr *ngFor="let requerimiento of solicitudSeleccionada.requerimientos">
-                      <td>{{ requerimiento.tC_Requerimiento }}</td>
-                      <td>
-                          <ul>
-                              <li *ngFor="let tipo of requerimiento.tipoSolicitudes">{{ tipo.tC_Nombre }}: {{ tipo.tC_Descripcion }}</li>
-                          </ul>
-                      </td>
-                      <td>
-                          <ul>
-                              <li *ngFor="let dato of requerimiento.datosRequeridos">{{ dato.tC_DatoRequerido }}: {{ dato.tC_Motivacion }}</li>
-                          </ul>
-                      </td>
-                      <td>{{ requerimiento.tF_FechaInicio | date:'shortDate' }}</td>
-                      <td>{{ requerimiento.tF_FechaFinal | date:'shortDate' }}</td>
+                    <td>{{ requerimiento.tC_Requerimiento }}</td>
+                    <td>
+                      <ul>
+                        <li *ngFor="let tipo of requerimiento.tipoSolicitudes">{{ tipo.tC_Nombre }}: {{
+                          tipo.tC_Descripcion }}</li>
+                      </ul>
+                    </td>
+                    <td>
+                      <ul>
+                        <li *ngFor="let dato of requerimiento.datosRequeridos">{{ dato.tC_DatoRequerido }}: {{
+                          dato.tC_Motivacion }}</li>
+                      </ul>
+                    </td>
+                    <td>{{ requerimiento.tF_FechaInicio | date:'shortDate' }}</td>
+                    <td>{{ requerimiento.tF_FechaFinal | date:'shortDate' }}</td>
                   </tr>
-              </tbody>
-          </table>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Botón de cerrar -->
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button type="button" class="bg-red-600 text-white py-2 px-4 rounded-md"
+              (click)="cerrarModal()">Cerrar</button>
+          </div>
+        </div>
       </div>
-  </div>
+    </div>
 
-  <!-- Botón de cerrar -->
-  <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-      <button type="button" class="bg-red-600 text-white py-2 px-4 rounded-md" (click)="cerrarModal()">Cerrar</button>
   </div>
-</div>
-  </div>
-</div>
-
 
 </div>

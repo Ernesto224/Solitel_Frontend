@@ -6,13 +6,15 @@ import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { DelitoService } from '../../services/delito.service';  // Importar el servicio de delitos
-//import { FiscaliaService } from '../../services/fiscalia.service';  // Importar el servicio de fiscalías
+import { FiscaliaService } from '../../services/fiscalia.service';  // Importar el servicio de fiscalías
 import { CategoriaDelitoService } from '../../services/categoria-delito.service';  // Importar el servicio de fiscalías
 import { ModalidadService } from '../../services/modalidad.service';
 import { SubModalidadService } from '../../services/sub-modalidad.service';
 import { TipoSolicitudService } from '../../services/tipo-solicitud.service';
 import { TipoDatoService } from '../../services/tipo-dato.service';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';  // Agregar el servicio
+import { ProveedorService } from '../../services/proveedor.service'; // Para cargar operadoras
+import { OficinaService } from '../../services/oficina.service'; // Para cargar oficinas
 
 @Component({
   selector: 'app-solicitud-proveedor',
@@ -22,8 +24,12 @@ import { SolicitudProveedorService } from '../../services/solicitud-proveedor.se
   styleUrls: ['./solicitud-proveedor.component.css']
 })
 export default class SolicitudProveedorComponent {
+  // Estados y modales
   isModalOpen = false;
   isUrgent = false;
+  errorMessage: string = '';
+
+  // Listas dinámicas para desplegables (combobox)
   categoriasDelito: any[] = [];
   fiscalias: any[] = [];
   delitos: any[] = [];
@@ -32,31 +38,45 @@ export default class SolicitudProveedorComponent {
   tiposSolicitud: any[] = [];
   tiposDato: any[] = [];
   listaSolicitudes: any[] = [];
+  operadoras: any[] = [];
+  oficinas: any[] = [];
 
-  // Propiedades adicionales
-  tipoSolicitudSeleccionada: any = '';   // Para almacenar el tipo de solicitud seleccionado
-  requerimiento: string = '';            // Para almacenar el requerimiento
-  fechaInicio: string = '';              // Para almacenar la fecha de inicio
-  fechaFinal: string = '';               // Para almacenar la fecha final
-
-  //dato requerido info
-  datoRequerido: string = '';
-  repitaDatoRequerido: string = '';
-  motivation: string = '';
+  // Selección de datos del formulario
+  idOperadoraSeleccionada = 0;
+  idOficinaSeleccionada = 0;
+  idFiscaliaSeleccionada = 0;
+  idDelitoSeleccionado = 0;
+  idCategoriaDelitoSeleccionado = 0;
+  idEstadoSeleccionado = 0;
+  idModalidadSeleccionada = 0;
+  idSubModalidadSeleccionada = 0;
+  tipoSolicitudSeleccionada: any = '';  // Para almacenar el tipo de solicitud seleccionado
   tipoDatoSeleccionado: any = null;
   selectedTipoDato = '';
-  errorMessage: string = '';
-  listaDatosRequeridos: any[] = [];
   selectedDatoRequerido: any = null;
 
-  // Propiedades para el resto de los campos del formulario
+  // Variables del formulario
   numeroUnico: number = 0;
   numeroCaso: number = 0;
   imputado: string = '';
   ofendido: string = '';
   resennia: string = '';
-  operadoras: any[] = [];  // Suponemos que esto se obtiene de otro lado
-  idUsuarioCreador: number = 1;  // Ejemplo
+
+  // Requerimientos adicionales del formulario
+  requerimiento: string = '';
+  fechaInicio: string = '';
+  fechaFinal: string = '';
+
+  // Información de "Datos Requeridos"
+  datoRequerido: string = '';
+  repitaDatoRequerido: string = '';
+  motivation: string = '';
+  listaDatosRequeridos: any[] = [];
+
+  // Información de Usuario
+  idUsuarioCreador: number = 1;  // Ejemplo de usuario por defecto
+
+  // Otros campos de entidad
   idDelito: number = 0;
   idCategoriaDelito: number = 0;
   idEstado: number = 0;
@@ -64,21 +84,13 @@ export default class SolicitudProveedorComponent {
   idOficina: number = 0;
   idModalida: number = 0;
   idSubModalidad: number = 0;
-  idDelitoSeleccionado: number = 0;
-  idCategoriaDelitoSeleccionado: number = 0;
-  idEstadoSeleccionado: number = 0;
-  idOficinaSeleccionada: number = 0;
-  idModalidadSeleccionada: number = 0;
-  idSubModalidadSeleccionada: number = 0;
-
-
-
-
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
     private delitoService: DelitoService,
-    // private fiscaliaService: FiscaliaService,
+    private proveedorService: ProveedorService,
+    private oficinaService: OficinaService,
+    private fiscaliaService: FiscaliaService,
     private categoriaService: CategoriaDelitoService,
     private modalidadService: ModalidadService,
     private subModalidadService: SubModalidadService,
@@ -89,42 +101,126 @@ export default class SolicitudProveedorComponent {
 
   ngOnInit() {
     this.getCategories();
-    // this.getFiscalias();
+    this.getFiscalias();
     this.getDelitos();
     this.getModalidades();
     this.getSubModalidades();
     this.getTiposSolicitud();
     this.getTiposDato();
+    this.getOperadoras();  // Cargar operadoras
+    this.getOficinas();    // Cargar oficinas
+  }
+
+  // Obtener operadoras
+  getOperadoras() {
+    this.proveedorService.obtener().subscribe({
+      next: (data: any[]) => {
+        this.operadoras = data;
+      },
+      error: (err: any) => {
+        console.error();
+      }
+    });
+  }
+
+  // Obtener oficinas
+  getOficinas() {
+    this.oficinaService.obtener().subscribe({
+      next: (data: any[]) => {
+        this.oficinas = data;
+      },
+      error: (err: any) => {
+        console.error();
+      }
+    });
   }
 
   guardarSolicitud() {
     const solicitudProveedor = {
-      idSolicitudProveedor: 1,  // Nuevo registro
-      numeroUnico: this.numeroUnico,
-      numeroCaso: this.numeroCaso,
-      imputado: this.imputado,
-      ofendido: this.ofendido,
-      resennia: this.resennia,
-      urgente: this.isUrgent,
-      requerimientos: this.listaSolicitudes, // Lista de requerimientos
+      idSolicitudProveedor: 0,
+      numeroUnico: this.numeroUnico || 0,
+      numeroCaso: this.numeroCaso || 0,
+      imputado: this.imputado || "string",
+      ofendido: this.ofendido || "string",
+      resennia: this.resennia || "string",
+      urgente: this.isUrgent || false,
 
-      // Operadoras con valor quemado para ICE
+      requerimientos: this.listaSolicitudes.map(solicitud => ({
+        tN_IdRequerimientoProveedor: 0,
+        tF_FechaInicio: solicitud.tF_FechaInicio || new Date().toISOString(),
+        tF_FechaFinal: solicitud.tF_FechaFinal || new Date().toISOString(),
+        tC_Requerimiento: solicitud.tC_Requerimiento || "string",
+
+        tipoSolicitudes: solicitud.tipoSolicitudes.map((tipo: any) => ({
+          tN_IdTipoSolicitud: tipo.tN_IdTipoSolicitud || 0,
+          tC_Nombre: tipo.tC_Nombre || "string",
+          tC_Descripcion: tipo.tC_Descripcion || "string"
+        })),
+
+        datosRequeridos: solicitud.datosRequeridos.map((dato: any) => ({
+          tN_IdDatoRequerido: dato.tN_IdDatoRequerido || 0,
+          tC_DatoRequerido: dato.tC_DatoRequerido || "string",
+          tC_Motivacion: dato.tC_Motivacion || "string",
+          tN_IdTipoDato: dato.tN_IdTipoDato || 0
+        }))
+      })),
+
       operadoras: [
         {
-          tN_IdProveedor: 1,  // Valor de operadora quemada: ICE
-          tC_Nombre: "ICE"    // El nombre de la operadora seleccionada
+          tN_IdProveedor: this.idOperadoraSeleccionada,  // Operadora seleccionada
+          tC_Nombre: this.operadoras.find(o => o.tN_IdProveedor === this.idOperadoraSeleccionada)?.tC_Nombre || 'Desconocido'
         }
       ],
 
-      // Asignar la fiscalía seleccionada (id)
-      idFiscalia: 1,
-      idUsuarioCreador: 1, // Suponemos que es un usuario por defecto
-      idDelito: this.idDelitoSeleccionado,
-      idCategoriaDelito: this.idCategoriaDelitoSeleccionado,
-      idEstado: 1,
-      idOficina: 2,
-      idModalida: this.idModalidadSeleccionada,
-      idSubModalidad: this.idSubModalidadSeleccionada
+      usuarioCreador: {
+        tN_IdUsuario: 1,
+        tC_Nombre: "Juan",
+        tC_Apellido: "Pérez",
+        tC_Usuario: "jperez",
+        tC_CorreoElectronico: "jperez@example.com"
+      },
+
+      delito: {
+        tN_IdDelito: this.idDelitoSeleccionado || 0,
+        tC_Nombre: "Delito X",
+        tC_Descripcion: "Descripción del delito",
+        tN_IdCategoriaDelito: this.idCategoriaDelitoSeleccionado || 0
+      },
+
+      categoriaDelito: {
+        idCategoriaDelito: this.idCategoriaDelitoSeleccionado || 0,
+        nombre: "Categoría X",
+        descripcion: "Descripción de la categoría"
+      },
+
+      estado: {
+        tN_IdEstado: 1,
+        tC_Nombre: "Creado",
+        tC_Descripcion: "Solicitud creada"
+      },
+
+      fiscalia: {
+        tN_IdFiscalia: this.idFiscaliaSeleccionada,
+        tC_Nombre: this.fiscalias.find(f => f.tN_IdFiscalia === this.idFiscaliaSeleccionada)?.tC_Nombre || "Desconocido"
+      },
+
+      oficina: {
+        tN_IdOficina: this.idOficinaSeleccionada,
+        tC_Nombre: this.oficinas.find(o => o.tN_IdOficina === this.idOficinaSeleccionada)?.tC_Nombre || "Desconocido"
+      },
+
+      modalidad: {
+        tN_IdModalidad: this.idModalidadSeleccionada || 0,
+        tC_Nombre: "Modalidad X",
+        tC_Descripcion: "Descripción de la modalidad"
+      },
+
+      subModalidad: {
+        tN_IdSubModalidad: this.idSubModalidadSeleccionada || 0,
+        tC_Nombre: "Submodalidad X",
+        tC_Descripcion: "Descripción de la submodalidad",
+        tN_IdModalida: this.idModalidadSeleccionada || 0
+      }
     };
 
     // Llamar al servicio para enviar la solicitud
@@ -156,6 +252,7 @@ export default class SolicitudProveedorComponent {
     this.requerimiento = '';
     this.listaDatosRequeridos = [];
   }
+
   agregarSolicitud() {
 
 
@@ -195,9 +292,6 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-
-
-
   // Método para obtener delitos
   getDelitos() {
     this.delitoService.obtener().subscribe({
@@ -205,7 +299,7 @@ export default class SolicitudProveedorComponent {
         this.delitos = data;
       },
       error: (err: any) => {
-        console.error('Error al obtener delitos:', err);
+
       }
     });
   }
@@ -216,7 +310,7 @@ export default class SolicitudProveedorComponent {
         this.tiposDato = data;
       },
       error: (err: any) => {
-        console.error('Error al obtener tipos de dato:', err);
+        console.error('');
       }
     });
   }
@@ -227,7 +321,7 @@ export default class SolicitudProveedorComponent {
         this.tiposSolicitud = data;
       },
       error: (err: any) => {
-        console.error('Error al obtener tipos de solicitud:', err);
+        console.error('');
       }
     });
   }
@@ -238,11 +332,10 @@ export default class SolicitudProveedorComponent {
         this.subModalidades = data;
       },
       error: (err: any) => {
-        console.error('Error al obtener submodalidades:', err);
+        console.error('');
       }
     });
   }
-
 
   getModalidades() {
     this.modalidadService.obtener().subscribe({
@@ -250,11 +343,10 @@ export default class SolicitudProveedorComponent {
         this.modalidades = data;
       },
       error: (err: any) => {
-        console.error('Error al obtener modalidades:', err);
+        console.error();
       }
     });
   }
-
 
   // Método para obtener categorías de delito
   getCategories() {
@@ -263,36 +355,34 @@ export default class SolicitudProveedorComponent {
         this.categoriasDelito = data;
       },
       error: (err: any) => {
-        console.error('Error al obtener categorías de delito:', err);
+
       }
     });
   }
 
   // Método para obtener fiscalías
-  /*getFiscalias() {
-    this.fiscaliaService.obtenerFiscalias().subscribe({
+  getFiscalias() {
+    this.fiscaliaService.obtener().subscribe({
       next: (data: any[]) => {
         this.fiscalias = data;
         console.log(this.fiscalias);
       },
       error: (err: any) => {
-        console.error('Error al obtener fiscalías:', err);
+        console.error();
       }
     });
-  }*/
+  }
+
   resetForm() {
     this.datoRequerido = '';
     this.repitaDatoRequerido = '';
     this.motivation = '';
     this.tipoDatoSeleccionado = '';
   }
+
   logTipoDato() {
     console.log("Tipo de Dato seleccionado:", this.tipoDatoSeleccionado);
   }
-
-
-
-
 
   agregarDatoRequerido() {
     console.log("tipoDatoSeleccionado antes de agregar:", this.tipoDatoSeleccionado); // Verificación
@@ -325,12 +415,6 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-
-
-
-
-
-
   onDatoRequeridoChange(event: any) {
     const idSeleccionado = event.target.value;  // Obtenemos el ID del dato requerido seleccionado
     console.log("ID seleccionado para eliminar:", idSeleccionado);
@@ -343,7 +427,6 @@ export default class SolicitudProveedorComponent {
 
     console.log("Dato seleccionado:", this.selectedDatoRequerido);
   }
-
 
   getListaDatosFormateados(): string {
     return this.listaDatosRequeridos.map(item => `${item.tC_DatoRequerido}`).join(', ');
@@ -367,15 +450,6 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-
-
-
-
-
-
-
-
-
   // Deshabilitar el cambio de tipo de dato después de seleccionarlo
   onTipoDatoChange(event: any) {
     if (this.listaDatosRequeridos.length === 0) {
@@ -384,8 +458,6 @@ export default class SolicitudProveedorComponent {
       this.errorMessage = 'No se puede cambiar el tipo de dato hasta que termine la operación actual.';
     }
   }
-
-
 
   toggleUrgente() {
     // Cambiar el estado de urgente (true/false)

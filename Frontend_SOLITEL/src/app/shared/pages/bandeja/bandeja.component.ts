@@ -19,13 +19,20 @@ import { CommonModule } from '@angular/common';
   templateUrl: './bandeja.component.html',
   styleUrl: './bandeja.component.css'
 })
-export default class BandejaComponent {
+export default class BandejaComponent implements OnInit {
 
   solicitudes: any[] = [];  // Aquí guardamos los datos de las solicitudes
   pageNumber: number = 1;   // Número de página inicial
-  pageSize: number = 10;    // Tamaño de página
+  pageSize: number = 5;    // Tamaño de página
   modalVisible = false;
   solicitudSeleccionada: any = null;
+
+  constructor(private solicitudProveedorService: SolicitudProveedorService) { }
+
+  ngOnInit(): void {
+    // Hacemos la solicitud después de que la vista esté completamente cargada
+    this.obtenerSolicitudes(this.pageNumber, this.pageSize);
+  }
 
   // Abre el modal con la solicitud seleccionada
   abrirModal(solicitud: any) {
@@ -40,19 +47,16 @@ export default class BandejaComponent {
     this.solicitudSeleccionada = null;
   }
 
-  constructor(private solicitudProveedorService: SolicitudProveedorService) {}
-
-  ngOnInit(): void {
-    this.obtenerSolicitudes(this.pageNumber, this.pageSize);
-  }
-
   obtenerSolicitudes(pageNumber: number, pageSize: number): void {
     this.solicitudProveedorService.obtener(pageNumber, pageSize).subscribe({
       next: (data: any) => {
         this.solicitudes = data;  // Guardamos los datos de la solicitud
       },
       error: (err) => {
-        console.error('Error al cargar las solicitudes:', err);
+        console.log('');
+        if (err.status === 0) {
+          console.log('');
+        }
       }
     });
   }
@@ -72,7 +76,7 @@ export default class BandejaComponent {
     }
     this.obtenerSolicitudes(this.pageNumber, this.pageSize);
   }
-  
+
   cambiarTamanoPagina(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
     this.pageSize = +value;
