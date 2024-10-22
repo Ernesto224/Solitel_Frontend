@@ -1,108 +1,108 @@
-<!-- component -->
-<div class="min-h-screen flex flex-col">
-  <!-- Navbar -->
-  <app-navbar class="fixed top-0 w-full z-10"></app-navbar>
+<!-- Contenido -->
+<div class="flex flex-col mb-0 pb-0">
 
-  <!-- Layout principal con Sidebar y contenido -->
-  <div class="flex flex-grow mt-[72px]">
-    <!-- Ajuste del margen para evitar que el contenido se superponga con el navbar -->
-    <!-- Sidebar -->
-    <app-sidebar class="w-64 fixed top-[72px] h-[calc(100vh-72px)] z-10"></app-sidebar>
+<!-- Contenedor con scroll horizontal y vertical si es necesario -->
+<div class="overflow-x-auto overflow-y-auto max-h-screen">
+  <!-- Tabla con columnas ajustadas y paginación -->
+  <table class="min-w-full table-auto border-collapse">
+    <thead>
+      <tr class="bg-[#1C355C] text-white">
+        <th class="border px-4 py-2 text-center">Aprobar</th>
+        <th class="border px-4 py-2 text-center">Sin efecto</th>
+        <th class="border px-4 py-2 text-center">Histórico</th>
+        <th class="border px-4 py-2 text-center">Ver</th>
+        <th class="border px-4 py-2 text-center">Número de Caso</th>
+        <th class="border px-4 py-2 text-center">Número único</th>
+        <th class="border px-4 py-2 text-center">Fecha requerimiento</th>
+        <th class="border px-4 py-2 text-center">Días transcurridos</th>
+        <th class="border px-4 py-2 text-center">Estado</th>
+        <th class="border px-4 py-2 text-center">Urgente</th>
+        <th class="border px-4 py-2 text-center">Creado por</th>
+      </tr>
+    </thead>
+    <tbody class="bg-[#F3F4F6] text-black">
+      <tr *ngFor="let solicitud of solicitudes" class="hover:bg-gray-200">
+        <td class="border px-4 py-2 text-center">
+          <input type="checkbox" class="toggle-checkbox" />
+        </td>
+        <td class="border px-4 py-2 text-center">
+          <button class="bg-blue-500 text-white p-2 rounded">
+            <i class="fas fa-times"></i>
+          </button>
+        </td>
+        <td class="border px-4 py-2 text-center">
+          <button class="bg-blue-500 text-white p-2 rounded">
+            <i class="fas fa-flag-checkered"></i>
+          </button>
+        </td>
+        <td class="border px-4 py-2 text-center">
+          <button class="bg-blue-500 text-white p-2 rounded">
+            <i class="fas fa-info"></i>
+          </button>
+        </td>
 
-    <!-- Contenido -->
-    <div class="flex-grow ml-64 p-4">
-      <div class="mt-12">
+        <!-- Muestra el número de caso -->
+        <td class="border px-4 py-2 text-center">{{ solicitud.numeroCaso }}</td>
 
-        <div>
-          <h1 class="text-3xl font-bold mb-6">Bandeja de Solicitudes</h1>
+        <!-- Muestra el número único -->
+        <td class="border px-4 py-2 text-center">{{ solicitud.numeroUnico }}</td>
 
-          <div class="space-y-8">
-            <!-- Sección 1 -->
-            <section>
-              <h2 class="text-2xl font-semibold mb-4">Solicitudes Recientes</h2>
-              <p class="mb-2">Aquí puedes ver las solicitudes más recientes que han sido enviadas al sistema.</p>
-              <ul class="list-disc pl-6 space-y-2">
-                <li>Solicitud 1: Análisis de huellas dactilares.</li>
-                <li>Solicitud 2: Investigación de escena del crimen.</li>
-                <li>Solicitud 3: Revisión de cámara de seguridad.</li>
-                <li>Solicitud 4: Análisis forense de dispositivos electrónicos.</li>
-                <li>Solicitud 5: Verificación de documentos legales.</li>
-              </ul>
-            </section>
+        <!-- Muestra la fecha del primer requerimiento -->
+        <td class="border px-4 py-2 text-center">
+          {{ solicitud.requerimientos?.[0]?.tF_FechaInicio | date: 'dd/MM/yyyy' }}
+        </td>
 
-            <!-- Sección 2 -->
-            <section>
-              <h2 class="text-2xl font-semibold mb-4">Pendientes de Aprobación</h2>
-              <p class="mb-2">Estas solicitudes están pendientes de aprobación por parte del administrador.</p>
-              <ul class="list-disc pl-6 space-y-2">
-                <li>Solicitud 6: Confirmación de datos de la investigación XYZ.</li>
-                <li>Solicitud 7: Solicitud de pruebas de ADN.</li>
-                <li>Solicitud 8: Análisis toxicológico de sustancias encontradas.</li>
-                <li>Solicitud 9: Examen balístico de proyectiles recuperados.</li>
-              </ul>
-            </section>
+        <!-- Calcula los días transcurridos desde la fecha de inicio del primer requerimiento -->
+        <td class="border px-4 py-2 text-center">
+          {{ calcularDiasTranscurridos(solicitud.requerimientos?.[0]?.tF_FechaInicio) }}
+        </td>
 
-            <!-- Sección 3 -->
-            <section>
-              <h2 class="text-2xl font-semibold mb-4">Reportes Generados</h2>
-              <p class="mb-2">Esta es la lista de reportes generados automáticamente basados en las solicitudes
-                procesadas.</p>
-              <div class="grid grid-cols-2 gap-6">
-                <div class="bg-white p-4 rounded-md shadow-md">
-                  <h3 class="font-bold">Reporte 1: Resumen mensual</h3>
-                  <p class="text-gray-700">Generado el 01/09/2024. Contiene análisis de 15 investigaciones.</p>
-                </div>
-                <div class="bg-white p-4 rounded-md shadow-md">
-                  <h3 class="font-bold">Reporte 2: Estadísticas forenses</h3>
-                  <p class="text-gray-700">Generado el 15/09/2024. Análisis detallado de pruebas forenses en 10 casos.
-                  </p>
-                </div>
-                <div class="bg-white p-4 rounded-md shadow-md">
-                  <h3 class="font-bold">Reporte 3: Análisis de datos de cámaras</h3>
-                  <p class="text-gray-700">Generado el 20/09/2024. Incluye la revisión de videos en 5 investigaciones.
-                  </p>
-                </div>
-                <div class="bg-white p-4 rounded-md shadow-md">
-                  <h3 class="font-bold">Reporte 4: Exámenes balísticos</h3>
-                  <p class="text-gray-700">Generado el 25/09/2024. Contiene resultados de análisis balísticos en 7
-                    casos.</p>
-                </div>
-              </div>
-            </section>
+        <!-- Muestra el estado de la solicitud -->
+        <td class="border px-4 py-2 text-center">{{ solicitud.estado?.tC_Nombre }}</td>
 
-            <!-- Sección 4 -->
-            <section>
-              <h2 class="text-2xl font-semibold mb-4">Estadísticas Generales</h2>
-              <p class="mb-4">A continuación se muestran algunas estadísticas importantes del sistema:</p>
-              <div class="grid grid-cols-2 gap-6">
-                <div class="bg-[#1C355C] p-4 text-white rounded-md shadow-md">
-                  <h3 class="font-bold text-lg">Total de Solicitudes Procesadas</h3>
-                  <p class="text-xl font-semibold">1,245</p>
-                </div>
-                <div class="bg-[#92aa34] p-4 text-white rounded-md shadow-md">
-                  <h3 class="font-bold text-lg">Solicitudes Pendientes</h3>
-                  <p class="text-xl font-semibold">328</p>
-                </div>
-                <div class="bg-[#1C355C] p-4 text-white rounded-md shadow-md">
-                  <h3 class="font-bold text-lg">Casos Resueltos</h3>
-                  <p class="text-xl font-semibold">843</p>
-                </div>
-                <div class="bg-[#92aa34] p-4 text-white rounded-md shadow-md">
-                  <h3 class="font-bold text-lg">Reportes Generados</h3>
-                  <p class="text-xl font-semibold">57</p>
-                </div>
-              </div>
-            </section>
-          </div>
+        <!-- Muestra si es urgente o no -->
+        <td class="border px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
 
-        </div>
+        <!-- Muestra el nombre del creador -->
+        <td class="border px-4 py-2 text-center">
+          {{ solicitud.usuarioCreador?.tC_Nombre }} {{ solicitud.usuarioCreador?.tC_Apellido }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-        <router-outlet></router-outlet>
-      </div>
-    </div>
-
+<!-- Paginación y tamaño de filas centrados -->
+<div class="flex justify-center items-center mt-4 space-x-8">
+  <!-- Selector de tamaño de filas -->
+  <div class="flex items-center">
+    <label for="pageSize" class="mr-2">Tamaño:</label>
+    <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="border border-gray-300 rounded p-1">
+      <option value="10">10</option>
+      <option value="25">25</option>
+      <option value="50">50</option>
+    </select>
   </div>
 
-  <!-- Footer -->
-  <app-footer class="w-full"></app-footer>
+  <!-- Paginación -->
+  <div class="flex items-center space-x-2">
+    <!-- Botón regresar -->
+    <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(-1)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <span>{{ pageNumber }}</span> <!-- Número de página -->
+    <!-- Botón siguiente -->
+    <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(1)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-4 h-4">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  </div>
+</div>
+
+
+
+
 </div>
