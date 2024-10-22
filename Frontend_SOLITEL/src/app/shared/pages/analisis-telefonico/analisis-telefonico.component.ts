@@ -5,7 +5,10 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
+import {
+  AnalisisTelefonicoService,
+  SolicitudProveedor,
+} from '../../services/analisis-telefonico.service';
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { RouterOutlet } from '@angular/router';
@@ -31,6 +34,12 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   solicitudAnalisisId: number = 1; // Cambia esto por el ID correspondiente
   requerimientos: any[] = [];
+  solicitudesProveedor: {
+    TN_IdSolicitudProveedor: number;
+    TN_NumeroUnico: number;
+    TC_Proveedor: string;
+  }[] = []; // Para almacenar solicitudes de proveedor filtradas
+  numerosUnicos: number[] = [101, 102, 103, 104, 105]; // Datos quemados de números únicos
   private subscription: Subscription = new Subscription();
 
   constructor(
@@ -49,6 +58,15 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       objetivo: ['', Validators.required],
       utilizadoPor: ['', Validators.required],
       tipoObjetivo: ['', Validators.required],
+      numeroUnico: ['', Validators.required], // Campo para seleccionar el número único
+      solicitudesProveedor: [[], Validators.required], // Debe ser un array para almacenar múltiples selecciones
+    });
+
+    // Escuchar cambios en el campo "numeroUnico"
+    this.form.get('numeroUnico')?.valueChanges.subscribe((numeroUnico) => {
+      if (numeroUnico) {
+        this.cargarSolicitudesProveedorPorNumeroUnico(numeroUnico);
+      }
     });
   }
 
@@ -68,6 +86,33 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
         tN_IdTipo: 2,
       },
     ];
+  }
+
+  // Método para cargar la lista de solicitudes de proveedor filtrada por número único
+  cargarSolicitudesProveedorPorNumeroUnico(numeroUnico: number): void {
+    this.analisisTelefonicoService
+      .obtenerSolicitudesProveedorPorNumeroUnico(numeroUnico)
+      .subscribe(
+        (
+          data: {
+            TN_IdSolicitudProveedor: number;
+            TN_NumeroUnico: number;
+            TC_Proveedor: string;
+          }[]
+        ) => {
+          this.solicitudesProveedor = data;
+          console.log(
+            'Solicitudes de proveedor filtradas por número único:',
+            this.solicitudesProveedor
+          );
+        },
+        (error) => {
+          console.error(
+            'Error al obtener las solicitudes de proveedor:',
+            error
+          );
+        }
+      );
   }
 
   // Agregar un nuevo requerimiento desde el formulario

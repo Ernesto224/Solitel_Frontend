@@ -1,23 +1,20 @@
 import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tabla-catalogos',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './tabla-catalogos.component.html',
-  styleUrl: './tabla-catalogos.component.css'
+  styleUrls: ['./tabla-catalogos.component.css']
 })
 export class TablaCatalogosComponent {
-  @Input() headers: string[] = [];  // Encabezados de la tabla
-  @Input() data: any[] = [];        // Datos para las filas de la tabla
+  @Input() headers: string[] = [];  // Los encabezados dinámicos
+  @Input() data: any[] = [];        // Los datos dinámicos
+  @Input() catalog: string = '';        // Los datos dinámicos
+  @Input() onDelete!: (catalog: string, row: any) => void;  // Recibe la función de eliminar por parámetro
 
   get keys(): string[] {
     return this.data.length > 0 ? Object.keys(this.data[0]) : [];
-  }
-
-  // Método para eliminar una fila
-  onDelete(row: any) {
-    this.data = this.data.filter(item => item !== row);
-    console.log('Fila eliminada:', row);
   }
 }

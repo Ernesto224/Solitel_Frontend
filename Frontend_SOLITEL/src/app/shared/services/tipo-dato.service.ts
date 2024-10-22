@@ -1,20 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
 @Injectable({
   providedIn: 'root'
 })
-export class DelitoService {
+export class TipoDatoService {
 
-  private urlServices: string = "https://localhost:7211/api/Delito/";
-  private urlObtener: string = "obtenerDelitos";
-  private urlinsertar: string = "insertarDelito";
-  private urleliminar: string = "eliminarDelito";
+  private urlServices: string = "https://localhost:7211/api/TipoDato/";
+  private urlObtener: string = "obtenerTipoDato";
+  private urlinsertar: string = "insertarTipoDato";
+  private urleliminar: string = "eliminarTipoDato";
 
   constructor(private http: HttpClient) { }
 
-  public obtener = (): Observable<any> => {
-    return this.http.get(`${this.urlServices}${this.urlObtener}`);
+  public obtener = (): Observable<any[]> => {
+    return this.http.get<any[]>(`${this.urlServices}${this.urlObtener}`);
   }
 
   public insertar = (objeto: any): Observable<any> => {
