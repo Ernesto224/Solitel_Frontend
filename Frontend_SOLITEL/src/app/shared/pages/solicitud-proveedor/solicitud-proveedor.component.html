@@ -15,7 +15,7 @@
               <div class="form-group">
                 <label for="numero-unico">Número único:</label>
                 <div class="input-group">
-                  <input type="text" id="numero-unico">
+                  <input type="text" id="numero-unico" [(ngModel)]="numeroUnico" name="numeroUnico" >
                   <button type="button" class="search-btn">🔍</button>
                 </div>
               </div>
@@ -34,7 +34,7 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="numero-caso">Número caso:</label>
-                <input type="text" id="numero-caso">
+                <input type="text" id="numero-caso" [(ngModel)]="numeroCaso" name="numeroCaso" >
               </div>
 
               <div class="form-group">
@@ -126,12 +126,12 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="imputado">Imputado:</label>
-                <input type="text" id="imputado" class="required-field" required>
+                <input type="text" id="imputado" class="required-field"  [(ngModel)]="imputado" name="imputado" required>
               </div>
 
               <div class="form-group">
                 <label for="ofendido">Ofendido:</label>
-                <input type="text" id="ofendido" class="required-field" required>
+                <input type="text" id="ofendido" class="required-field"  [(ngModel)]="ofendido" name="ofendido" required>
               </div>
             </div>
 
