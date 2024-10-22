@@ -11,6 +11,9 @@ import { ModalidadService } from '../../services/modalidad.service';
 import { SubModalidadService } from '../../services/sub-modalidad.service';
 import { TipoDatoService } from '../../services/tipo-dato.service';
 import { TipoSolicitudService } from '../../services/tipo-solicitud.service';
+import { OficinaService } from '../../services/oficina.service';
+import { ProveedorService } from '../../services/proveedor.service';
+import { FiscaliaService } from '../../services/fiscalia.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -43,9 +46,11 @@ export default class CatalogosComponent implements OnInit {
     { value: 'Modalidad', nombre: 'Modalidad' },
     { value: 'SubModalidad', nombre: 'Submodalidad' },
     { value: 'TipoDato', nombre: 'Tipo de Dato' },
-    { value: 'TipoSolicitud', nombre: 'Tipo de Solicitud' }
+    { value: 'TipoSolicitud', nombre: 'Tipo de Solicitud' },
+    { value: 'Oficina', nombre: 'Oficina' },
+    { value: 'Proveedor', nombre: 'Proveedor' }
   ];
-  
+
   constructor(
     private delitoService: DelitoService,
     private categoriaService: CategoriaDelitoService,
@@ -53,7 +58,10 @@ export default class CatalogosComponent implements OnInit {
     private modalidadService: ModalidadService,
     private subModalidadService: SubModalidadService,
     private tipoDatoService: TipoDatoService,
-    private tipoSolicitudService: TipoSolicitudService
+    private tipoSolicitudService: TipoSolicitudService,
+    private oficinaService: OficinaService,
+    private proveedorService: ProveedorService,
+    private fiscaliaService: FiscaliaService
   ) {
 
     this.servicios = {
@@ -63,7 +71,10 @@ export default class CatalogosComponent implements OnInit {
       'Condicion': this.condicionService,
       'CategoriaDelito': this.categoriaService,
       'TipoDato': this.tipoDatoService,
-      'TipoSolicitud': this.tipoSolicitudService
+      'TipoSolicitud': this.tipoSolicitudService,
+      'Oficina': this.oficinaService,
+      'Proveedor': this.proveedorService,
+      'Fiscalia': this.fiscaliaService
     };
 
   }
@@ -83,6 +94,7 @@ export default class CatalogosComponent implements OnInit {
         this.catalogoSeleccionado = selectedCatalog; // Guardamos el catálogo seleccionado
         this.activarDependencias(selectedCatalog);
         this.actualizarTabla(selectedCatalog);
+        this.bloquearCamposSegunCatalogo(selectedCatalog);
       }
     });
   }
@@ -131,7 +143,10 @@ export default class CatalogosComponent implements OnInit {
       'Modalidad': { tN_IdModalidad: 0, tC_Nombre: name, tC_Descripcion: description },
       'SubModalidad': { tN_IdSubModalidad: 0, tC_Nombre: name, tC_Descripcion: description, tN_IdModalida: dependency },
       'TipoDato': { tN_IdTipoDato: 0, tC_Nombre: name, tC_Descripcion: description },
-      'TipoSolicitud': { tN_IdTipoSolicitud: 0, tC_Nombre: name, tC_Descripcion: description }
+      'TipoSolicitud': { tN_IdTipoSolicitud: 0, tC_Nombre: name, tC_Descripcion: description },
+      'Oficina': { tN_IdOficina: 0, tC_Nombre: name },
+      'Proveedor': { tN_IdProveedor: 0, tC_Nombre: name },
+      'Fiscalia': { tN_IdFiscalia: 0, tC_Nombre: name }
     };
 
     const servicio = this.servicios[catalog];
@@ -201,6 +216,20 @@ export default class CatalogosComponent implements OnInit {
       dependencyControl?.disable();  // Deshabilitar el control
     }
 
+  }
+
+  bloquearCamposSegunCatalogo(catalog: string): void {
+    const descriptionControl = this.formulario.get('description');
+    const dependencyControl = this.formulario.get('dependency');
+
+    // Bloquear los campos si el catálogo seleccionado es Fiscalía, Oficina o Proveedor
+    if (catalog === 'Fiscalia' || catalog === 'Oficina' || catalog === 'Proveedor') {
+      descriptionControl?.disable();  // Deshabilitar el campo de descripción
+      dependencyControl?.disable();   // Deshabilitar el campo de dependencia
+    } else {
+      descriptionControl?.enable();   // Habilitar el campo de descripción
+      dependencyControl?.enable();    // Habilitar el campo de dependencia (si corresponde)
+    }
   }
 
 }
