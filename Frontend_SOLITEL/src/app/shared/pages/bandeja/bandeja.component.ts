@@ -24,6 +24,21 @@ export default class BandejaComponent {
   solicitudes: any[] = [];  // Aquí guardamos los datos de las solicitudes
   pageNumber: number = 1;   // Número de página inicial
   pageSize: number = 10;    // Tamaño de página
+  modalVisible = false;
+  solicitudSeleccionada: any = null;
+
+  // Abre el modal con la solicitud seleccionada
+  abrirModal(solicitud: any) {
+    this.solicitudSeleccionada = solicitud;
+    this.modalVisible = true;
+    console.log('Solicitud seleccionada:', this.solicitudSeleccionada);
+  }
+
+  // Cierra el modal
+  cerrarModal() {
+    this.modalVisible = false;
+    this.solicitudSeleccionada = null;
+  }
 
   constructor(private solicitudProveedorService: SolicitudProveedorService) {}
 

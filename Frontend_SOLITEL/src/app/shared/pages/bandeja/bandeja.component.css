@@ -1,0 +1,55 @@
+/* styles.css o en el archivo de estilos del componente */
+.modal-container {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem; /* Espaciado interno */
+}
+
+.modal-header {
+    background-color: #1C355C;
+    color: white;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    max-height: 80vh; /* Limitar la altura del contenido */
+}
+
+.grid-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adaptar columnas */
+    gap: 1.5rem; /* Espaciado entre columnas */
+    margin-bottom: 1.5rem; /* Espaciado entre secciones */
+}
+
+.label {
+    font-weight: bold;
+}
+
+.input {
+    border: 1px solid #ccc; /* Color del borde */
+    border-radius: 0.25rem; /* Bordes redondeados */
+    padding: 0.5rem; /* Espaciado interno del input */
+    width: 100%; /* Ancho completo */
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse; /* Colapsar bordes de la tabla */
+    margin-top: 1rem; /* Margen superior para separación */
+}
+
+.table th, .table td {
+    border: 1px solid #ddd; /* Bordes de celdas */
+    padding: 0.5rem; /* Espaciado interno */
+    text-align: left; /* Alinear texto a la izquierda */
+}
+
+.table th {
+    background-color: #f2f2f2; /* Color de fondo de encabezados */
+}
