@@ -181,8 +181,13 @@
             <div class="grid-section">
               <div>
                 <label class="label" for="urgente">Urgente:</label>
-                <button type="button" id="urgente" class="bg-red-600 text-white py-2 px-4 rounded-md w-full"
-                  [class.active]="solicitudSeleccionada.urgente">Urgente</button>
+                <button 
+                  type="button" 
+                  id="urgente" 
+                  class="text-white py-2 px-4 rounded-md w-full" 
+                  [ngClass]="{'bg-red-600': solicitudSeleccionada.urgente, 'bg-gray-400': !solicitudSeleccionada.urgente}">
+                  Urgente
+                </button>
               </div>
               <div>
                 <label class="label" for="oficina">Oficina:</label>
@@ -191,7 +196,7 @@
               </div>
               <div>
                 <label class="label" for="operadora">Operadora:</label>
-                <input type="text" id="operadora" class="input" readonly>
+                <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras[0].tC_Nombre" readonly>
               </div>
             </div>
 
@@ -214,14 +219,12 @@
                     <td>{{ requerimiento.tC_Requerimiento }}</td>
                     <td>
                       <ul>
-                        <li *ngFor="let tipo of requerimiento.tipoSolicitudes">{{ tipo.tC_Nombre }}: {{
-                          tipo.tC_Descripcion }}</li>
+                        <li *ngFor="let tipo of requerimiento.tipoSolicitudes">{{ tipo.tC_Nombre }},</li>
                       </ul>
                     </td>
                     <td>
                       <ul>
-                        <li *ngFor="let dato of requerimiento.datosRequeridos">{{ dato.tC_DatoRequerido }}: {{
-                          dato.tC_Motivacion }}</li>
+                        <li *ngFor="let dato of requerimiento.datosRequeridos">{{ dato.tC_DatoRequerido }},</li>
                       </ul>
                     </td>
                     <td>{{ requerimiento.tF_FechaInicio | date:'shortDate' }}</td>
