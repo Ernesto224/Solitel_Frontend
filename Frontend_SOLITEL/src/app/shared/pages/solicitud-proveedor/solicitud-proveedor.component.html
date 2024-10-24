@@ -37,11 +37,22 @@
                 <input type="text" id="numero-caso" [(ngModel)]="numeroCaso" name="numeroCaso">
               </div>
 
+              <!--
               <div class="form-group">
                 <label for="oficina">Oficina:</label>
                 <select id="oficina" [(ngModel)]="idOficinaSeleccionada" name="idOficinaSeleccionada" required>
                   <option *ngFor="let oficina of oficinas" [value]="oficina.tN_IdOficina">
                     {{ oficina.tC_Nombre }}
+                  </option>
+                </select>
+              </div>
+              -->
+
+              <div class="form-group">
+                <label for="oficina">Oficina:</label>
+                <select id="oficina" name="idOficinaSeleccionada" required>
+                  <option [value]="1">
+                    Oficina Quemada
                   </option>
                 </select>
               </div>
@@ -53,7 +64,6 @@
               <div class="form-group">
                 <label for="fiscalia">Fiscalía:</label>
                 <select id="fiscalia" class="required-field" [(ngModel)]="idFiscaliaSeleccionada" name="idFiscaliaSeleccionada" required>
-                  <option value="">Seleccione</option>
                   <option *ngFor="let fiscalia of fiscalias" [value]="fiscalia.tN_IdFiscalia">
                     {{ fiscalia.tC_Nombre }}
                   </option>

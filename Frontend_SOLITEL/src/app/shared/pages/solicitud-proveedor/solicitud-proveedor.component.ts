@@ -56,8 +56,8 @@ export default class SolicitudProveedorComponent {
   selectedDatoRequerido: any = null;
 
   // Variables del formulario
-  numeroUnico: number = 0;
-  numeroCaso: number = 0;
+  numeroUnico: string = '';
+  numeroCaso: string = '';
   imputado: string = '';
   ofendido: string = '';
   resennia: string = '';
@@ -138,8 +138,8 @@ export default class SolicitudProveedorComponent {
   guardarSolicitud() {
     const solicitudProveedor = {
       idSolicitudProveedor: 0,
-      numeroUnico: this.numeroUnico || 0,
-      numeroCaso: this.numeroCaso || 0,
+      numeroUnico: this.numeroUnico || "string",
+      numeroCaso: this.numeroCaso || "string",
       imputado: this.imputado || "string",
       ofendido: this.ofendido || "string",
       resennia: this.resennia || "string",
@@ -222,6 +222,8 @@ export default class SolicitudProveedorComponent {
         tN_IdModalida: this.idModalidadSeleccionada || 0
       }
     };
+
+    console.log(solicitudProveedor);
 
     // Llamar al servicio para enviar la solicitud
     this.solicitudProveedorService.insertarSolicitudProveedor(solicitudProveedor).subscribe({
