@@ -116,13 +116,13 @@ export default class SolicitudProveedorComponent {
 
     this.getCategories();
     this.getFiscalias();
-    //this.getDelitos();
+    this.getDelitos();
     this.getModalidades();
-    //this.getSubModalidades();
+    this.getSubModalidades();
     this.getTiposSolicitud();
     this.getTiposDato();
     this.getOperadoras();  // Cargar operadoras
-    this.getOficinas();    // Cargar oficinas
+    //this.getOficinas();    // Cargar oficinas
 
     // Configuración para el Multi-Select Dropdown
     this.dropdownSettings = {
@@ -213,10 +213,11 @@ export default class SolicitudProveedorComponent {
 
   guardarSolicitud() {
     console.log(this.operadoraSeleccionada)
+    console.log(this.tipoSolicitudSeleccionada);
     const solicitudProveedor = {
       idSolicitudProveedor: 0,
       numeroUnico: this.numeroUnico || 0,
-      numeroCaso: this.numeroCaso || 0,
+      numeroCaso: this.numeroCaso || "string",
       imputado: this.imputado || "string",
       ofendido: this.ofendido || "string",
       resennia: this.resennia || "string",
@@ -229,22 +230,22 @@ export default class SolicitudProveedorComponent {
         tC_Requerimiento: solicitud.tC_Requerimiento || "string",
 
         tipoSolicitudes: solicitud.tipoSolicitudes.map((tipo: any) => ({
-          tN_IdTipoSolicitud: tipo.tN_IdTipoSolicitud || 0,
-          tC_Nombre: tipo.tC_Nombre || "string",
-          tC_Descripcion: tipo.tC_Descripcion || "string"
+          IdTipoSolicitud: tipo.idTipoSolicitud,
+          Nombre: tipo.nombre,
+          Descripcion: tipo.descripcion || "Descripción no proporcionada"
         })),
 
         datosRequeridos: solicitud.datosRequeridos.map((dato: any) => ({
           tN_IdDatoRequerido: dato.tN_IdDatoRequerido || 0,
           tC_DatoRequerido: dato.tC_DatoRequerido || "string",
           tC_Motivacion: dato.tC_Motivacion || "string",
-          tN_IdTipoDato: dato.tN_IdTipoDato || 0
+          tN_IdTipoDato: dato.tN_IdTipoDato
         }))
       })),
 
       operadoras: this.operadoraSeleccionada,
 
-      usuarioCreador: {
+      usuarioCreador: { // Quemado
         tN_IdUsuario: 1,
         tC_Nombre: "Juan",
         tC_Apellido: "Pérez",
@@ -253,27 +254,27 @@ export default class SolicitudProveedorComponent {
       },
 
       delito: {
-        tN_IdDelito: this.idDelitoSeleccionado || 0,
-        tC_Nombre: "Delito X",
-        tC_Descripcion: "Descripción del delito",
-        tN_IdCategoriaDelito: this.idCategoriaDelitoSeleccionado || 0
+        IdDelito: this.idDelitoSeleccionado,
+        Nombre: "Delito X",
+        Descripcion: "Descripción del delito",
+        IdCategoriaDelito: this.idCategoriaDelitoSeleccionado
       },
 
       categoriaDelito: {
-        idCategoriaDelito: this.idCategoriaDelitoSeleccionado || 0,
-        nombre: "Categoría X",
-        descripcion: "Descripción de la categoría"
+        IdCategoriaDelito: this.idCategoriaDelitoSeleccionado,
+        Nombre: "Categoría X",
+        Descripcion: "Descripción de la categoría"
       },
 
       estado: {
-        tN_IdEstado: 1,
-        tC_Nombre: "Creado",
-        tC_Descripcion: "Solicitud creada"
+        TN_IdEstado: 1,
+        TC_Nombre: "Creado",
+        TC_Descripcion: "Solicitud creada"
       },
 
       fiscalia: {
-        tN_IdFiscalia: this.idFiscaliaSeleccionada,
-        tC_Nombre: this.fiscalias.find(f => f.tN_IdFiscalia === this.idFiscaliaSeleccionada)?.tC_Nombre || "Desconocido"
+        IdFiscalia: this.idFiscaliaSeleccionada,
+        Nombre: this.fiscalias.find(f => f.tN_IdFiscalia === this.idFiscaliaSeleccionada)?.tC_Nombre || "Desconocido"
       },
 
       oficina: {
@@ -282,18 +283,21 @@ export default class SolicitudProveedorComponent {
       },
 
       modalidad: {
-        tN_IdModalidad: this.idModalidadSeleccionada || 0,
-        tC_Nombre: "Modalidad X",
-        tC_Descripcion: "Descripción de la modalidad"
+        IdModalidad: this.idModalidadSeleccionada,
+        Nombre: "Modalidad X",
+        Descripcion: "Descripción de la modalidad"
       },
 
       subModalidad: {
-        tN_IdSubModalidad: this.idSubModalidadSeleccionada || 0,
-        tC_Nombre: "Submodalidad X",
-        tC_Descripcion: "Descripción de la submodalidad",
-        tN_IdModalida: this.idModalidadSeleccionada || 0
+        IdSubModalidad: this.idSubModalidadSeleccionada,
+        Nombre: "Submodalidad X",
+        Descripcion: "Descripción de la submodalidad",
+        IdModalida: this.idModalidadSeleccionada
       }
     };
+
+    console.log(solicitudProveedor.requerimientos);
+    console.log(solicitudProveedor.subModalidad)
 
     // Llamar al servicio para enviar la solicitud
     this.solicitudProveedorService.insertarSolicitudProveedor(solicitudProveedor).subscribe({
@@ -328,7 +332,7 @@ export default class SolicitudProveedorComponent {
   agregarSolicitud() {
 
 
-    console.log("Tipo de Solicitud Seleccionada: ", this.tipoSolicitudSeleccionada);
+
     console.log("Requerimiento: ", this.requerimiento);
     console.log("Fecha Inicio: ", this.fechaInicio);
     console.log("Fecha Final: ", this.fechaFinal);
@@ -360,7 +364,7 @@ export default class SolicitudProveedorComponent {
   }
 
   // Método para obtener delitos
-  /*getDelitos() {
+  getDelitos() {
     this.delitoService.obtener().subscribe({
       next: (data: any[]) => {
         this.delitos = data;
@@ -369,7 +373,7 @@ export default class SolicitudProveedorComponent {
 
       }
     });
-  }*/
+  }
 
   getTiposDato() {
     this.tipoDatoService.obtener().subscribe({
@@ -386,6 +390,7 @@ export default class SolicitudProveedorComponent {
     this.tipoSolicitudService.obtener().subscribe({
       next: (data: any[]) => {
         this.tiposSolicitud = data;
+        console.log(this.tiposSolicitud);
       },
       error: (err: any) => {
         console.error('');
@@ -393,7 +398,7 @@ export default class SolicitudProveedorComponent {
     });
   }
 
-  /*getSubModalidades() {
+  getSubModalidades() {
      this.subModalidadService.obtener().subscribe({
        next: (data: any[]) => {
          this.subModalidades = data;
@@ -402,7 +407,7 @@ export default class SolicitudProveedorComponent {
          console.error('');
        }
      });
-   }*/
+   }
 
   getModalidades() {
     this.modalidadService.obtener().subscribe({
@@ -462,7 +467,7 @@ export default class SolicitudProveedorComponent {
           tN_IdDatoRequerido: this.tipoDatoSeleccionado.tN_IdTipoDato, // Asigna el ID correcto
           tC_DatoRequerido: this.datoRequerido,
           tC_Motivacion: this.motivation,
-          tN_IdTipoDato: this.tipoDatoSeleccionado.tN_IdTipoDato, // El ID del tipo de dato seleccionado
+          tN_IdTipoDato: this.tipoDatoSeleccionado.idTipoDato, // El ID del tipo de dato seleccionado
           tC_NombreTipoDato: this.tipoDatoSeleccionado.tC_Nombre // El nombre del tipo de dato seleccionado
         };
 
