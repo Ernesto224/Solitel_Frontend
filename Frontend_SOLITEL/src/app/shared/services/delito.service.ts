@@ -14,6 +14,10 @@ export class DelitoService {
     return this.http.get(`${this.urlServices}`);
   }
 
+  public obtenerPorCategoria = (id: number): Observable<any> => {
+    return this.http.get(`${this.urlServices}/PorCategoria/${id}`);
+  }
+
   public insertar = (objeto: object): Observable<any> => {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',

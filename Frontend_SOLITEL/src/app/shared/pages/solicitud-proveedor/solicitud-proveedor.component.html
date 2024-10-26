@@ -2,16 +2,22 @@
 <div class="flex flex-col mb-0 pb-0">
   <main class="flex-grow ml-64 p-4">
     <div class="mt-12">
+
       <h1 class="text-3xl font-bold mb-6">Formulario de Solicitudes de Proveedor</h1>
 
       <div class="space-y-8">
+
         <!-- Formulario de solicitudes -->
         <section class="form-container">
+
           <h2>Solicitud archivos telefónicos a proveedor</h2>
           <hr>
+
           <form>
+
             <!-- Primera fila de campos -->
             <div class="form-row">
+
               <div class="form-group">
                 <label for="numero-unico">Número único:</label>
                 <div class="input-group">
@@ -32,6 +38,7 @@
 
             <!-- Segunda fila de campos -->
             <div class="form-row">
+
               <div class="form-group">
                 <label for="numero-caso">Número caso:</label>
                 <input type="text" id="numero-caso" [(ngModel)]="numeroCaso" name="numeroCaso">
@@ -40,85 +47,87 @@
               <div class="form-group">
                 <label for="oficina">Oficina:</label>
                 <select id="oficina" [(ngModel)]="idOficinaSeleccionada" name="idOficinaSeleccionada" required>
-                  <option *ngFor="let oficina of oficinas" [value]="oficina.tN_IdOficina">
+                  <option value="1">Oficina Gneral</option>
+                  <!--option *ngFor="let oficina of oficinas" [value]="oficina.tN_IdOficina">
                     {{ oficina.tC_Nombre }}
-                  </option>
+                  </option-->
                 </select>
               </div>
-              
+
             </div>
 
             <!-- Tercera fila de campos -->
             <div class="form-row">
+
               <div class="form-group">
                 <label for="fiscalia">Fiscalía:</label>
-                <select id="fiscalia" class="required-field" [(ngModel)]="idFiscaliaSeleccionada" name="idFiscaliaSeleccionada" required>
-                  <option value="">Seleccione</option>
-                  <option *ngFor="let fiscalia of fiscalias" [value]="fiscalia.tN_IdFiscalia">
-                    {{ fiscalia.tC_Nombre }}
+                <select id="fiscalia" class="required-field" [(ngModel)]="idFiscaliaSeleccionada"
+                  name="idFiscaliaSeleccionada" required>
+                  <option value="0">Seleccione</option>
+                  <option *ngFor="let fiscalia of fiscalias" [value]="fiscalia.idFiscalia">
+                    {{ fiscalia.nombre }}
                   </option>
                 </select>
               </div>
-              
-
 
               <div class="form-group">
                 <label for="operadora">Operadora:</label>
-                <select id="operadora" class="required-field" [(ngModel)]="idOperadoraSeleccionada" name="idOperadoraSeleccionada" required>
-                  <option *ngFor="let operadora of operadoras" [value]="operadora.tN_IdProveedor">
-                    {{ operadora.tC_Nombre }}
-                  </option>
-                </select>
+                <ng-multiselect-dropdown class="custom-multiselect-dropdown" [placeholder]="'Seleccione'"
+                  [data]="operadoras" [(ngModel)]="operadoraSeleccionada" [settings]="dropdownSettings"
+                  name="idOperadoraSeleccionada" required>
+                </ng-multiselect-dropdown>
               </div>
-              
+
             </div>
 
             <!-- Cuarta fila de campos -->
             <div class="form-row">
+
               <div class="form-group">
                 <label for="categoria-delito">Categoría delito:</label>
                 <select id="categoria-delito" class="required-field" [(ngModel)]="idCategoriaDelitoSeleccionado"
-                  name="idCategoriaDelitoSeleccionado" required>
+                  (change)="onCategoriaDelitoChange()" name="idCategoriaDelitoSeleccionado" required>
+                  <option value="0">Seleccione</option>
                   <option *ngFor="let categoria of categoriasDelito" [value]="categoria.idCategoriaDelito">
                     {{ categoria.nombre }}
                   </option>
                 </select>
               </div>
 
-
-
               <div class="form-group">
                 <label for="delito">Delito:</label>
                 <select id="delito" class="required-field" [(ngModel)]="idDelitoSeleccionado"
                   name="idDelitoSeleccionado" required>
-                  <option *ngFor="let delito of delitos" [value]="delito.tN_IdDelito">
-                    {{ delito.tC_Nombre }}
+                  <option value="0">Seleccione</option>
+                  <option *ngFor="let delito of delitos" [value]="delito.idDelito">
+                    {{ delito.nombre }}
                   </option>
                 </select>
               </div>
-
 
             </div>
 
             <!-- Quinta fila de campos -->
             <div class="form-row">
+
               <div class="form-group">
                 <label for="modalidad">Modalidad:</label>
                 <select id="modalidad" class="required-field" [(ngModel)]="idModalidadSeleccionada"
-                  name="idModalidadSeleccionada" required>
-                  <option *ngFor="let modalidad of modalidades" [value]="modalidad.tN_IdModalidad">
-                    {{ modalidad.tC_Nombre }}
+                  (change)="onModalidadChange()" name="idModalidadSeleccionada" required>
+                  <option value="0">Seleccione</option>
+                  <option *ngFor="let modalidad of modalidades" [value]="modalidad.idModalidad">
+                    {{ modalidad.nombre }}
                   </option>
                 </select>
               </div>
-
 
               <div class="form-group">
                 <label for="submodalidad">Submodalidad:</label>
                 <select id="submodalidad" class="required-field" [(ngModel)]="idSubModalidadSeleccionada"
                   name="idSubModalidadSeleccionada" required>
-                  <option *ngFor="let submodalidad of subModalidades" [value]="submodalidad.tN_IdSubModalidad">
-                    {{ submodalidad.tC_Nombre }}
+                  <option value="0">Seleccione</option>
+                  <option *ngFor="let submodalidad of subModalidades" [value]="submodalidad.idSubModalidad">
+                    {{ submodalidad.nombre }}
                   </option>
                 </select>
               </div>
@@ -138,7 +147,6 @@
               </div>
             </div>
 
-
             <!-- Reseña -->
             <div class="form-group">
               <label for="resena">Reseña:</label>
@@ -152,15 +160,13 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="tipo-solicitud">Tipo de Solicitud:</label>
-                <select id="tipo-solicitud" [(ngModel)]="tipoSolicitudSeleccionada" name="tipoSolicitudSeleccionada"
-                  class="required-field" required>
-                  <option value="">Seleccione</option>
-                  <option *ngFor="let tipo of tiposSolicitud" [ngValue]="tipo">
-                    {{ tipo.tC_Nombre }}
-                  </option>
-                </select>
+                <ng-multiselect-dropdown id="tipo-solicitud" [(ngModel)]="tipoSolicitudSeleccionada"
+                  [data]="tiposSolicitud" [settings]="dropdownSettings2" [placeholder]="'Seleccione tipos de solicitud'"
+                  name="tipoSolicitudSeleccionada" class="custom-multiselect-dropdown" required>
+                </ng-multiselect-dropdown>
               </div>
             </div>
+
 
             <div class="form-row">
               <div class="form-group">
@@ -171,7 +177,6 @@
                 </div>
               </div>
             </div>
-
 
             <!-- Fechas -->
             <div class="form-row">
@@ -218,7 +223,7 @@
                     <!-- Mostrar los tipos de solicitud -->
                     <td>
                       <span *ngFor="let tipo of solicitud.tipoSolicitudes; let last = last">
-                        {{ tipo.tC_Nombre }}<span *ngIf="!last">, </span>
+                        {{ tipo.nombre }}<span *ngIf="!last">, </span>
                       </span>
                     </td>
 
@@ -246,8 +251,8 @@
                 </tbody>
               </table>
             </section>
-          </form>
 
+          </form>
         </section>
 
         <!-- Botones -->
@@ -256,26 +261,10 @@
           <button type="button" class="btn btn-secondary" (click)="guardarSolicitud()">Guardar</button>
         </div>
 
-
       </div>
     </div>
   </main>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <!-- Modal -->
 <div class="modal-container" [ngClass]="{ 'hidden': !isModalOpen }">
@@ -295,7 +284,7 @@
           <select id="tipo-dato" [(ngModel)]="tipoDatoSeleccionado" name="tipoDatoSeleccionado" required>
             <option value="">Seleccione un tipo de dato</option>
             <option *ngFor="let tipo of tiposDato" [ngValue]="tipo"> <!-- Guardar el objeto completo -->
-              {{ tipo.tC_Nombre }} <!-- Mostrar el nombre, pero guardar todo el objeto -->
+              {{ tipo.nombre }} <!-- Mostrar el nombre, pero guardar todo el objeto -->
             </option>
           </select>
         </div>

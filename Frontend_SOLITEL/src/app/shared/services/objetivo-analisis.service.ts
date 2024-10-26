@@ -5,18 +5,14 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class SubModalidadService {
+export class ObjetivoAnalisisService {
 
-  private urlServices: string = "https://localhost:7211/api/SubModalidad";
+  private urlServices: string = "https://localhost:7211/api/ObjetivoAnalisis";
 
   constructor(private http: HttpClient) { }
 
   public obtener = (): Observable<any[]> => {
-    return this.http.get<any[]>(`${this.urlServices}`);
-  }
-
-  public obtenerPorModalidad = (id: number): Observable<any> => {
-    return this.http.get(`${this.urlServices}/PorModalidad/${id}`);
+    return this.http.get<any[]>(`${this.urlServices}/obtenerObjetivoAnalisis`);
   }
 
   public insertar = (objeto: object): Observable<any> => {
@@ -24,11 +20,11 @@ export class SubModalidadService {
       'Content-Type': 'application/json',
       'accept': 'text/plain'
     });
-    return this.http.post(`${this.urlServices}`, objeto, { headers });
+    return this.http.post(`${this.urlServices}/insertarObjetivoAnalisis`, objeto, { headers });
   }
 
   public eliminar = (id: number): Observable<any> => {
-    return this.http.delete(`${this.urlServices}/${id}`, {
+    return this.http.delete(`${this.urlServices}/eliminarObjetivoAnalisis?idObjetivoAnalisis=${id}`, {
       headers: { 'accept': 'text/plain' }
     });
   }

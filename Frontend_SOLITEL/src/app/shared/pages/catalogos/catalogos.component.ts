@@ -16,6 +16,7 @@ import { OficinaService } from '../../services/oficina.service';
 import { ProveedorService } from '../../services/proveedor.service';
 import { FiscaliaService } from '../../services/fiscalia.service';
 import { TipoAnalisisService } from '../../services/tipo-analisis.service';
+import { ObjetivoAnalisisService } from '../../services/objetivo-analisis.service';
 
 import { CommonModule } from '@angular/common';
 
@@ -52,7 +53,8 @@ export default class CatalogosComponent implements OnInit {
     { value: 'TipoSolicitud', nombre: 'Tipo de Solicitud' },
     { value: 'TipoAnalisis', nombre: 'Tipo de Analisis' },
     { value: 'Oficina', nombre: 'Oficina' },
-    { value: 'Proveedor', nombre: 'Proveedor' }
+    { value: 'Proveedor', nombre: 'Proveedor' },
+    { value: 'ObjetivoAnalisis', nombre: 'Objetivo Analisis' }
   ];
 
   constructor(
@@ -66,7 +68,8 @@ export default class CatalogosComponent implements OnInit {
     private oficinaService: OficinaService,
     private proveedorService: ProveedorService,
     private fiscaliaService: FiscaliaService,
-    private tipoAnalisisService: TipoAnalisisService
+    private tipoAnalisisService: TipoAnalisisService,
+    private objetivoAnalisis: ObjetivoAnalisisService
   ) {
 
     this.servicios = {
@@ -80,7 +83,8 @@ export default class CatalogosComponent implements OnInit {
       'Oficina': this.oficinaService,
       'Proveedor': this.proveedorService,
       'Fiscalia': this.fiscaliaService,
-      'TipoAnalisis': this.tipoAnalisisService
+      'TipoAnalisis': this.tipoAnalisisService,
+      'ObjetivoAnalisis': this.objetivoAnalisis
     };
 
   }
@@ -162,7 +166,8 @@ export default class CatalogosComponent implements OnInit {
       'Oficina': { idOficina: 0, nombre: name },
       'Proveedor': { idProveedor: 0, nombre: name },
       'Fiscalia': { idFiscalia: 0, nombre: name },
-      'TipoAnalisis': {idTipoAnalisis: 0, nombre: name, descripcion: description}
+      'TipoAnalisis': { idTipoAnalisis: 0, nombre: name, descripcion: description },
+      'ObjetivoAnalisis': { tN_IdObjetivoAnalisis: 0, tC_Nombre: name, tC_Descripcion: description }
     };
 
     const servicio = this.servicios[catalog];
