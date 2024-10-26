@@ -1,15 +1,17 @@
 import { Routes } from '@angular/router';
+import DistribucionComponent from './shared/pages/distribucion/distribucion.component';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    loadComponent: () =>
+      import('./shared/pages/login/login.component'),
+  },
+  {
     path: '',
-    /*loadComponent: () => import(''),*/
+    component: DistribucionComponent,
     children: [
       //se colocan todas las rutas asociadas a las paginas o vistas
-      {
-        path: 'login',
-        loadComponent: () => import('./shared/pages/login/login.component'),
-      },
       {
         path: 'analisis-telefonico',
         loadComponent: () =>
@@ -49,6 +51,6 @@ export const routes: Routes = [
   {
     //redireccion en caso de ruta no existente
     path: '**',
-    redirectTo: 'bandeja',
+    redirectTo: 'login',
   },
 ];

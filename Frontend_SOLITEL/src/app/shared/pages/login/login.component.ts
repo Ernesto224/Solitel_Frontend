@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { NavbarSimpleComponent } from '../../components/navbar-simple/navbar-simple.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 
 @Component({
@@ -11,6 +12,7 @@ import { FooterComponent } from '../../components/footer/footer.component';
     RouterOutlet,
     CommonModule,
     ReactiveFormsModule,
+    NavbarSimpleComponent,
     FooterComponent
   ],
   templateUrl: './login.component.html',
