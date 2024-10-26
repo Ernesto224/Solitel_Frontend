@@ -1,22 +1,24 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs'; // Aquí se añade la importación
+import { Subscription } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import {
   AnalisisTelefonicoService,
   SolicitudProveedor,
   OficinaAnalisis,
   RequerimentoAnalisis,
   SolicitudAnalisis,
-  ObjetivoAnalisis
+  ObjetivoAnalisis,
+  Archivo
 } from '../../services/analisis-telefonico.service';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Asegúrate de incluir FormsModule
 
 @Component({
   selector: 'app-analisis-telefonico',
   templateUrl: './analisis-telefonico.component.html',
   styleUrls: ['./analisis-telefonico.component.css'],
-  standalone: true, // Marca este componente como standalone
-  imports: [CommonModule, FormsModule], // Asegúrate de importar FormsModule y CommonModule
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgMultiSelectDropDownModule],
 })
 export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   solicitudAnalisisId: number = 1;
@@ -25,26 +27,55 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   oficinasAnalisis: OficinaAnalisis[] = [];
   numerosUnicos: number[] = [];
   objetivosAnalista: ObjetivoAnalisis[] = [];
-
-  // Propiedades vinculadas con ngModel
   numeroUnico: number | null = null;
-  solicitudesProveedorSeleccionadas: number[] = [];
-  oficinaAnalisis: number | null = null; // Cambiado a number, no string
+  solicitudesProveedorSeleccionadas: any[] = [];
+  archivosAnalizarSeleccionados: any[] = [];
+  objetivosAnalisisSeleccionados: any[] = [];
+  oficinaAnalisis: number | null = null;
   tipoAnalisis: string = 'Análisis Telefónico';
-  objetivosAnalisis: string = '';
-  fechaHecho: string = ''; // Inicialmente como string, luego lo convertiremos a Date
+  fechaHecho: string = '';
   otrosObjetivos: string = '';
   otrosDetalles: string = '';
   tipoObjetivo: string = '';
   objetivo: string = '';
   utilizadoPor: string = '';
   condicion: string = '';
-
-  // Nueva propiedad para manejar archivos a analizar
-  archivosAnalizar: string = ''; // Si es solo un archivo seleccionado, utiliza string. Si es una lista, utiliza string[].
-
   selectedIndex: number | null = null;
-  editMode: boolean = false;
+  archivos: Archivo[] = [
+    { idArchivo: 1, nombreArchivo: 'Archivo 1' },
+    { idArchivo: 2, nombreArchivo: 'Archivo 2' },
+    { idArchivo: 3, nombreArchivo: 'Archivo 3' }
+  ];
+
+  dropdownSettingsSolicitudes = {
+    singleSelection: false,
+    idField: 'idSolicitudProveedor',
+    textField: 'nombreProveedor',
+    selectAllText: 'Seleccionar todos',
+    unSelectAllText: 'Deseleccionar todos',
+    itemsShowLimit: 3,
+    allowSearchFilter: true
+  };
+
+  dropdownSettingsArchivos = {
+    singleSelection: false,
+    idField: 'idArchivo',
+    textField: 'nombreArchivo',
+    selectAllText: 'Seleccionar todos',
+    unSelectAllText: 'Deseleccionar todos',
+    itemsShowLimit: 3,
+    allowSearchFilter: true
+  };
+
+  dropdownSettingsObjetivos = {
+    singleSelection: false,
+    idField: 'idObjetivo',
+    textField: 'TC_Nombre',
+    selectAllText: 'Seleccionar todos',
+    unSelectAllText: 'Deseleccionar todos',
+    itemsShowLimit: 3,
+    allowSearchFilter: true
+  };
 
   private subscription = new Subscription();
 
@@ -53,80 +84,58 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.cargarNumerosUnicos();
     this.cargarOficinasAnalisis();
-
-    // Cargar las solicitudes según el número único
-    this.numeroUnicoChange();
+    this.cargarObjetivosAnalisis();
   }
 
-  numeroUnicoChange(): void {
-    if (this.numeroUnico) {
-      this.cargarSolicitudesPorNumeroUnico(this.numeroUnico);
-    }
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
-  // Cargar los números únicos desde el servicio
   cargarNumerosUnicos(): void {
-    this.analisisService.obtenerNumerosUnicos().subscribe(
-      (numeros) => {
-        this.numerosUnicos = numeros;
-      },
-      (error) => {
-        console.error('Error al cargar números únicos:', error);
-      }
+    this.subscription.add(
+      this.analisisService.obtenerNumerosUnicos().subscribe(
+        (numeros) => (this.numerosUnicos = numeros),
+        (error) => console.error('Error al cargar números únicos:', error)
+      )
     );
   }
 
-  // Cargar oficinas de análisis desde el servicio
   cargarOficinasAnalisis(): void {
-    this.analisisService.obtenerOficinasAnalisis().subscribe(
-      (oficinas) => {
-        this.oficinasAnalisis = oficinas;
-      },
-      (error) => {
-        console.error('Error al cargar oficinas de análisis:', error);
-      }
+    this.subscription.add(
+      this.analisisService.obtenerOficinasAnalisis().subscribe(
+        (oficinas) => (this.oficinasAnalisis = oficinas),
+        (error) => console.error('Error al cargar oficinas de análisis:', error)
+      )
     );
   }
 
-  // Cargar solicitudes vinculadas al número único seleccionado
-  cargarSolicitudesPorNumeroUnico(numeroUnico: number): void {
-    this.analisisService
-      .obtenerSolicitudesPorNumeroUnico(numeroUnico)
-      .subscribe(
-        (solicitudes) => {
-          this.solicitudesProveedor = solicitudes;
-        },
-        (error) => {
-          console.error('Error al cargar solicitudes:', error);
-        }
-      );
+  cargarObjetivosAnalisis(): void {
+    this.subscription.add(
+      this.analisisService.obtenerObjetivosAnalisis().subscribe(
+        (objetivos) => (this.objetivosAnalista = objetivos),
+        (error) => console.error('Error al cargar objetivos de análisis:', error)
+      )
+    );
   }
 
-  // Método para agregar un nuevo requerimiento o actualizar uno existente
   agregarRequerimiento(): void {
     const nuevoRequerimiento: RequerimentoAnalisis = {
-      TN_IdRequerimento: this.requerimientos.length + 1, // Generamos un ID automáticamente
+      TN_IdRequerimento: this.requerimientos.length + 1,
       TC_TipoObjetivo: this.tipoObjetivo,
       TC_Objetivo: this.objetivo,
       TC_UtilizadoPor: this.utilizadoPor,
       TC_Condicion: this.condicion,
     };
 
-    if (this.editMode && this.selectedIndex !== null) {
-      // Actualizar el requerimiento existente
+    if (this.selectedIndex !== null) {
       this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
-      this.editMode = false;
       this.selectedIndex = null;
     } else {
-      // Agregar un nuevo requerimiento
       this.requerimientos.push(nuevoRequerimiento);
     }
-
-    // Limpiar los campos del formulario de requerimientos
     this.limpiarCamposRequerimiento();
   }
 
-  // Limpiar los campos del formulario de requerimientos
   limpiarCamposRequerimiento(): void {
     this.tipoObjetivo = '';
     this.objetivo = '';
@@ -134,12 +143,10 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.condicion = '';
   }
 
-  // Cargar el requerimiento seleccionado en el formulario para edición
   cargarRequerimientoEnFormulario(index: number): void {
     if (index !== null && index >= 0 && index < this.requerimientos.length) {
       const requerimiento = this.requerimientos[index];
       this.selectedIndex = index;
-      this.editMode = true;
       this.tipoObjetivo = requerimiento.TC_TipoObjetivo;
       this.objetivo = requerimiento.TC_Objetivo;
       this.utilizadoPor = requerimiento.TC_UtilizadoPor;
@@ -147,7 +154,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Eliminar un requerimiento
   eliminarRequerimiento(index: number): void {
     if (index !== null && index >= 0 && index < this.requerimientos.length) {
       this.requerimientos.splice(index, 1);
@@ -155,40 +161,42 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Enviar la solicitud completa
   enviarSolicitud(): void {
     if (!this.numeroUnico || !this.oficinaAnalisis || !this.fechaHecho || this.requerimientos.length === 0) {
       alert('Por favor, complete todos los campos requeridos.');
-      return; // Stop the submission process if any field is empty
+      return;
     }
+
     const solicitudCompleta: SolicitudAnalisis = {
       TN_IdSolicitudAnalisis: this.solicitudAnalisisId,
-      TF_FechaDelHecho: new Date(this.fechaHecho), // Convertir string a Date
+      TF_FechaDelHecho: new Date(this.fechaHecho),
       TC_OtrosDetalles: this.otrosDetalles,
       TC_OtrosObjetivosDeAnalisis: this.otrosObjetivos,
-      TB_Aprobado: false, // Por defecto no aprobado
+      TB_Aprobado: false,
       TN_NumeroSolicitud: this.numeroUnico!,
-      TN_IdOficina: Number(this.oficinaAnalisis), // Convertir string a number
+      TN_IdOficina: Number(this.oficinaAnalisis),
       requerimentos: this.requerimientos,
     };
+
+    this.analisisService.agregarSolicitudAnalisis(solicitudCompleta).subscribe(
+      (response) => {
+        console.log('Solicitud enviada con éxito:', response);
+        this.limpiarFormulario();
+      },
+      (error) => console.error('Error al enviar la solicitud:', error)
+    );
   }
 
-  // Limpiar el formulario completo
   limpiarFormulario(): void {
     this.numeroUnico = null;
     this.solicitudesProveedorSeleccionadas = [];
+    this.archivosAnalizarSeleccionados = [];
+    this.objetivosAnalisisSeleccionados = [];
     this.oficinaAnalisis = null;
     this.tipoAnalisis = 'Análisis Telefónico';
-    this.objetivosAnalisis = '';
     this.fechaHecho = '';
     this.otrosObjetivos = '';
     this.otrosDetalles = '';
     this.limpiarCamposRequerimiento();
-    this.editMode = false;
-    this.selectedIndex = null;
-  }
-
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 }
