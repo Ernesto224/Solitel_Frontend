@@ -6,6 +6,7 @@ import {
   OficinaAnalisis,
   RequerimentoAnalisis,
   SolicitudAnalisis,
+  ObjetivoAnalisis
 } from '../../services/analisis-telefonico.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // Asegúrate de incluir FormsModule
@@ -23,6 +24,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   solicitudesProveedor: SolicitudProveedor[] = [];
   oficinasAnalisis: OficinaAnalisis[] = [];
   numerosUnicos: number[] = [];
+  objetivosAnalista: ObjetivoAnalisis[] = [];
 
   // Propiedades vinculadas con ngModel
   numeroUnico: number | null = null;
@@ -155,6 +157,10 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
 
   // Enviar la solicitud completa
   enviarSolicitud(): void {
+    if (!this.numeroUnico || !this.oficinaAnalisis || !this.fechaHecho || this.requerimientos.length === 0) {
+      alert('Por favor, complete todos los campos requeridos.');
+      return; // Stop the submission process if any field is empty
+    }
     const solicitudCompleta: SolicitudAnalisis = {
       TN_IdSolicitudAnalisis: this.solicitudAnalisisId,
       TF_FechaDelHecho: new Date(this.fechaHecho), // Convertir string a Date
@@ -165,16 +171,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       TN_IdOficina: Number(this.oficinaAnalisis), // Convertir string a number
       requerimentos: this.requerimientos,
     };
-
-    console.log('Solicitud enviada con éxito:', solicitudCompleta);
-    this.analisisService.agregarSolicitudAnalisis(solicitudCompleta).subscribe(
-      (response) => {
-        console.log('Respuesta del servidor:', response);
-      },
-      (error) => {
-        console.error('Error al enviar la solicitud:', error);
-      }
-    );
   }
 
   // Limpiar el formulario completo

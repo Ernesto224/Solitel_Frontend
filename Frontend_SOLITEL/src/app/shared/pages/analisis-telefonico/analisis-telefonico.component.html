@@ -60,6 +60,7 @@
             <div>
               <label class="block text-sm font-medium text-gray-700">Objetivos del análisis:</label>
               <select [(ngModel)]="objetivosAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <option *ngFor = "let objetivo of objetivosAnalista" [value]="objetivo">{{objetivo.TC_Nombre}}</option>
                 <option value="">Seleccione</option>
                 <option value="consultaBaseMaestra">Consulta en la base Maestra</option>
                 <option value="cronologiaComunicaciones">Cronología de comunicaciones</option>

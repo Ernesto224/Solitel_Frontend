@@ -36,6 +36,12 @@ export interface RequerimentoAnalisis {
   TC_Condicion: string;
 }
 
+export interface ObjetivoAnalisis{
+  TN_IdObjetivoAnalisis: number;
+  TC_Nombre: string;
+  TC_Descripcion: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -45,16 +51,17 @@ export class AnalisisTelefonicoService {
   private urlObtenerSolicitudesProveedor: string = 'SolicitudProveedor/listarNumerosUnicosTramitados';
   private urlObtenerOficinas: string = 'Oficina/consultarOficinas'; 
   private urlObtenerSolicitudesPorNumeroUnico: string = 'SolicitudProveedor/consultarSolicitudesProveedorPorNumeroUnico';
+  private urlObtenerObjetivoAnalisis: string = ' ObjetivoAnalisis/obtenerObjetivoAnalisis';
 
   constructor(private http: HttpClient) {}
 
   // Enviar solicitud de análisis completa
-  agregarSolicitudAnalisis(solicitudAnalisis: any): Observable<any> {
+    agregarSolicitudAnalisis(solicitudAnalisis: any): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       accept: 'text/plain',
     });
-    return this.http.post(`${this.baseUrl}${this.urlInsertar}`, solicitudAnalisis, { headers });
+    return  this.http.post(`${this.baseUrl}${this.urlInsertar}`, solicitudAnalisis, { headers });
   }
 
   // Obtener la lista de números únicos de solicitudes
@@ -82,5 +89,13 @@ export class AnalisisTelefonicoService {
       accept: 'application/json',
     });
     return this.http.get<SolicitudProveedor[]>(`${this.baseUrl}${this.urlObtenerSolicitudesPorNumeroUnico}?numeroUnico=${numeroUnico}`, { headers });
+  }
+
+  obtenerObjetivosAnalisis(): Observable<ObjetivoAnalisis[]> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      accept: 'application/json',
+    });
+    return this.http.get<ObjetivoAnalisis[]>(`${this.baseUrl}${this.urlObtenerObjetivoAnalisis}`, { headers });
   }
 }
