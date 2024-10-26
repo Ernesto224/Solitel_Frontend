@@ -15,6 +15,7 @@ import { TipoDatoService } from '../../services/tipo-dato.service';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';  // Agregar el servicio
 import { ProveedorService } from '../../services/proveedor.service'; // Para cargar operadoras
 import { OficinaService } from '../../services/oficina.service'; // Para cargar oficinas
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-solicitud-proveedor',
@@ -85,6 +86,8 @@ export default class SolicitudProveedorComponent {
   idModalida: number = 0;
   idSubModalidad: number = 0;
 
+  selectedFile: File | null = null;
+
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
     private delitoService: DelitoService,
@@ -95,9 +98,45 @@ export default class SolicitudProveedorComponent {
     private modalidadService: ModalidadService,
     private subModalidadService: SubModalidadService,
     private tipoSolicitudService: TipoSolicitudService,
-    private tipoDatoService: TipoDatoService
+    private tipoDatoService: TipoDatoService,
+    private http: HttpClient
 
   ) { }
+
+  insertarArchivo(): void {
+    if (this.selectedFile) {
+      const formData = new FormData();
+      formData.append('TC_Nombre', this.selectedFile.name);
+      formData.append('file', this.selectedFile);  // Renombrado a 'file'
+      formData.append('TC_FormatoAchivo', this.selectedFile.type);
+      formData.append('TF_FechaModificacion', '2024-10-10');
+
+      console.log(formData);
+  
+      this.http.post('https://localhost:7211/insertarArchivo_RequerimientoProveedor', formData).subscribe((response) => {
+        console.log('Archivo subido con éxito', response);
+      }, (error) => {
+        console.error('Error al subir el archivo', error);
+      });
+    }
+  }
+
+  convertBase64ToByteArray(base64: string): Uint8Array {
+    const binaryString = atob(base64);
+    const length = binaryString.length;
+    const bytes = new Uint8Array(length);
+    for (let i = 0; i < length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    }
+  }
 
   ngOnInit() {
     this.getCategories();
