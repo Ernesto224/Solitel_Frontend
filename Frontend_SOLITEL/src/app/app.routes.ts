@@ -23,13 +23,6 @@ export const routes: Routes = [
           import('./shared/pages/reporteria/reporteria.component'),
       },
       {
-        path: 'solicitud-analisis',
-        loadComponent: () =>
-          import(
-            './shared/pages/solicitud-analisis/solicitud-analisis.component'
-          ),
-      },
-      {
         path: 'solicitud-proveedor',
         loadComponent: () =>
           import(
