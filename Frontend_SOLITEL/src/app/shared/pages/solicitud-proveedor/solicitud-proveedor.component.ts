@@ -15,12 +15,18 @@ import { TipoDatoService } from '../../services/tipo-dato.service';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';  // Agregar el servicio
 import { ProveedorService } from '../../services/proveedor.service'; // Para cargar operadoras
 import { OficinaService } from '../../services/oficina.service'; // Para cargar oficinas
-import { HttpClient } from '@angular/common/http';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 @Component({
   selector: 'app-solicitud-proveedor',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, RouterOutlet, NavbarComponent, FooterComponent, FormsModule],
+  imports: [CommonModule,
+    SidebarComponent,
+    RouterOutlet,
+    NavbarComponent,
+    FooterComponent,
+    FormsModule,
+    NgMultiSelectDropDownModule],
   templateUrl: './solicitud-proveedor.component.html',
   styleUrls: ['./solicitud-proveedor.component.css']
 })
@@ -42,6 +48,13 @@ export default class SolicitudProveedorComponent {
   operadoras: any[] = [];
   oficinas: any[] = [];
 
+  // Declarar variables para el multi-select
+  dropdownSettings = {};
+  dropdownSettings2 = {};
+  operadoraSeleccionada: any[] = [];
+
+  tipoSolicitudSeleccionada: any[] = [];  // Array para almacenar las opciones seleccionadas
+
   // Selección de datos del formulario
   idOperadoraSeleccionada = 0;
   idOficinaSeleccionada = 0;
@@ -51,7 +64,6 @@ export default class SolicitudProveedorComponent {
   idEstadoSeleccionado = 0;
   idModalidadSeleccionada = 0;
   idSubModalidadSeleccionada = 0;
-  tipoSolicitudSeleccionada: any = '';  // Para almacenar el tipo de solicitud seleccionado
   tipoDatoSeleccionado: any = null;
   selectedTipoDato = '';
   selectedDatoRequerido: any = null;
@@ -86,8 +98,6 @@ export default class SolicitudProveedorComponent {
   idModalida: number = 0;
   idSubModalidad: number = 0;
 
-  selectedFile: File | null = null;
-
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
     private delitoService: DelitoService,
@@ -98,56 +108,83 @@ export default class SolicitudProveedorComponent {
     private modalidadService: ModalidadService,
     private subModalidadService: SubModalidadService,
     private tipoSolicitudService: TipoSolicitudService,
-    private tipoDatoService: TipoDatoService,
-    private http: HttpClient
+    private tipoDatoService: TipoDatoService
 
   ) { }
 
-  insertarArchivo(): void {
-    if (this.selectedFile) {
-      const formData = new FormData();
-      formData.append('TC_Nombre', this.selectedFile.name);
-      formData.append('file', this.selectedFile);  // Renombrado a 'file'
-      formData.append('TC_FormatoAchivo', this.selectedFile.type);
-      formData.append('TF_FechaModificacion', '2024-10-10');
-
-      console.log(formData);
-  
-      this.http.post('https://localhost:7211/insertarArchivo_RequerimientoProveedor', formData).subscribe((response) => {
-        console.log('Archivo subido con éxito', response);
-      }, (error) => {
-        console.error('Error al subir el archivo', error);
-      });
-    }
-  }
-
-  convertBase64ToByteArray(base64: string): Uint8Array {
-    const binaryString = atob(base64);
-    const length = binaryString.length;
-    const bytes = new Uint8Array(length);
-    for (let i = 0; i < length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
-  }
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-    }
-  }
-
   ngOnInit() {
+
     this.getCategories();
     this.getFiscalias();
-    this.getDelitos();
+    //this.getDelitos();
     this.getModalidades();
-    this.getSubModalidades();
+    //this.getSubModalidades();
     this.getTiposSolicitud();
     this.getTiposDato();
     this.getOperadoras();  // Cargar operadoras
     this.getOficinas();    // Cargar oficinas
+
+    // Configuración para el Multi-Select Dropdown
+    this.dropdownSettings = {
+      singleSelection: false,
+      idField: 'idProveedor',
+      textField: 'nombre',
+      selectAllText: 'Seleccionar Todo',
+      unSelectAllText: 'Deseleccionar Todo',
+      itemsShowLimit: 3,
+      allowSearchFilter: true
+    };
+
+    this.dropdownSettings2 = {
+      singleSelection: false,
+      idField: 'idTipoSolicitud',       // Cambia 'id' por el campo de ID que uses en `tiposSolicitud`
+      textField: 'nombre', // Cambia 'nombre' por el campo de texto que uses en `tiposSolicitud`
+      selectAllText: 'Seleccionar Todo',
+      unSelectAllText: 'Deseleccionar Todo',
+      itemsShowLimit: 3,
+      allowSearchFilter: true
+    };
+
+  }
+
+  // Método que se llama al cambiar la categoría de delito
+  onCategoriaDelitoChange(): void {
+    if (this.idCategoriaDelitoSeleccionado) {
+      this.delitoService.obtenerPorCategoria(this.idCategoriaDelitoSeleccionado)
+        .subscribe(
+          (response: any) => {
+            this.delitos = response; // Cargar delitos en el dropdown
+            this.idDelitoSeleccionado = 0; // Resetear el valor de "Delito" seleccionado
+          },
+          (error: any) => {
+            console.error('Error al obtener delitos:', error);
+            this.delitos = []; // Dejar vacío si hay un error
+          }
+        );
+    } else {
+      this.delitos = []; // Dejar vacío si no hay categoría seleccionada
+      this.idDelitoSeleccionado = 0;
+    }
+  }
+
+  // Método para obtener las submodalidades al cambiar la modalidad seleccionada
+  onModalidadChange(): void {
+    if (this.idModalidadSeleccionada) {
+      this.subModalidadService.obtenerPorModalidad(this.idModalidadSeleccionada)
+        .subscribe(
+          (response: any) => {
+            this.subModalidades = response; // Cargar submodalidades en el dropdown
+            this.idSubModalidadSeleccionada = 0; // Resetear el valor de "Submodalidad" seleccionado
+          },
+          (error: any) => {
+            console.error('Error al obtener submodalidades:', error);
+            this.subModalidades = []; // Dejar vacío si hay un error
+          }
+        );
+    } else {
+      this.subModalidades = []; // Dejar vacío si no hay modalidad seleccionada
+      this.idSubModalidadSeleccionada = 0;
+    }
   }
 
   // Obtener operadoras
@@ -175,10 +212,11 @@ export default class SolicitudProveedorComponent {
   }
 
   guardarSolicitud() {
+    console.log(this.operadoraSeleccionada)
     const solicitudProveedor = {
       idSolicitudProveedor: 0,
-      numeroUnico: this.numeroUnico || "string",
-      numeroCaso: this.numeroCaso || "string",
+      numeroUnico: this.numeroUnico || 0,
+      numeroCaso: this.numeroCaso || 0,
       imputado: this.imputado || "string",
       ofendido: this.ofendido || "string",
       resennia: this.resennia || "string",
@@ -204,12 +242,7 @@ export default class SolicitudProveedorComponent {
         }))
       })),
 
-      operadoras: [
-        {
-          tN_IdProveedor: this.idOperadoraSeleccionada,  // Operadora seleccionada
-          tC_Nombre: this.operadoras.find(o => o.tN_IdProveedor === this.idOperadoraSeleccionada)?.tC_Nombre || 'Desconocido'
-        }
-      ],
+      operadoras: this.operadoraSeleccionada,
 
       usuarioCreador: {
         tN_IdUsuario: 1,
@@ -262,8 +295,6 @@ export default class SolicitudProveedorComponent {
       }
     };
 
-    console.log(solicitudProveedor);
-
     // Llamar al servicio para enviar la solicitud
     this.solicitudProveedorService.insertarSolicitudProveedor(solicitudProveedor).subscribe({
       next: response => {
@@ -302,6 +333,7 @@ export default class SolicitudProveedorComponent {
     console.log("Fecha Inicio: ", this.fechaInicio);
     console.log("Fecha Final: ", this.fechaFinal);
     console.log("Datos Requeridos: ", this.listaDatosRequeridos);
+
     if (this.tipoSolicitudSeleccionada && this.requerimiento && this.fechaInicio && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
       // Crear el objeto de solicitud con la estructura solicitada
       const nuevaSolicitud = {
@@ -309,13 +341,7 @@ export default class SolicitudProveedorComponent {
         tF_FechaInicio: this.fechaInicio, // Fecha inicio desde el formulario
         tF_FechaFinal: this.fechaFinal,   // Fecha final desde el formulario
         tC_Requerimiento: this.requerimiento, // Requerimiento desde el formulario
-        tipoSolicitudes: [
-          {
-            tN_IdTipoSolicitud: this.tipoSolicitudSeleccionada.tN_IdTipoSolicitud,
-            tC_Nombre: this.tipoSolicitudSeleccionada.tC_Nombre,
-            tC_Descripcion: this.tipoSolicitudSeleccionada.tC_Descripcion || ''
-          }
-        ],
+        tipoSolicitudes: this.tipoSolicitudSeleccionada,
         datosRequeridos: this.listaDatosRequeridos // Lista de datos requeridos
       };
 
@@ -334,7 +360,7 @@ export default class SolicitudProveedorComponent {
   }
 
   // Método para obtener delitos
-  getDelitos() {
+  /*getDelitos() {
     this.delitoService.obtener().subscribe({
       next: (data: any[]) => {
         this.delitos = data;
@@ -343,7 +369,7 @@ export default class SolicitudProveedorComponent {
 
       }
     });
-  }
+  }*/
 
   getTiposDato() {
     this.tipoDatoService.obtener().subscribe({
@@ -367,16 +393,16 @@ export default class SolicitudProveedorComponent {
     });
   }
 
-  getSubModalidades() {
-    this.subModalidadService.obtener().subscribe({
-      next: (data: any[]) => {
-        this.subModalidades = data;
-      },
-      error: (err: any) => {
-        console.error('');
-      }
-    });
-  }
+  /*getSubModalidades() {
+     this.subModalidadService.obtener().subscribe({
+       next: (data: any[]) => {
+         this.subModalidades = data;
+       },
+       error: (err: any) => {
+         console.error('');
+       }
+     });
+   }*/
 
   getModalidades() {
     this.modalidadService.obtener().subscribe({

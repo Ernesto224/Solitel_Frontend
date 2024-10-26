@@ -66,7 +66,7 @@
                 <td *ngFor="let key of keys" class="border px-4 py-2 text-center">{{ row[key] }}</td>
                 <!-- Columna de eliminar -->
                 <td class="border px-4 py-2 text-center">
-                    <button (click)="eliminarCatalogoSeleccionado(catalogoSeleccionado, optenerId(row))"
+                    <button (click)="eliminar(catalogoSeleccionado, optenerId(row))"
                         class="bg-red-500 text-white p-2 rounded hover:bg-red-700">
                         Eliminar
                     </button>
@@ -74,53 +74,5 @@
             </tr>
         </tbody>
     </table>
-
-    <!-- Paginación y tamaño de filas centrados -->
-    <div class="flex justify-center items-center mt-4 space-x-8">
-        <!-- Selector de tamaño de filas -->
-        <div class="flex items-center">
-            <label for="pageSize" class="mr-2">Tamaño:</label>
-            <select id="pageSize" class="border border-gray-300 rounded p-1">
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-            </select>
-        </div>
-
-        <!-- Paginación -->
-        <div class="flex items-center space-x-2">
-            <!-- Botón ir al inicio -->
-            <button class="p-2 rounded bg-gray-200 hover:bg-gray-300">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 12H5M9 16l-4-4 4-4M19 16l-4-4 4-4" />
-                </svg>
-            </button>
-            <!-- Botón regresar -->
-            <button class="p-2 rounded bg-gray-200 hover:bg-gray-300">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-            <span>1</span> <!-- Número de página -->
-            <!-- Botón siguiente -->
-            <button class="p-2 rounded bg-gray-200 hover:bg-gray-300">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </button>
-            <!-- Botón ir al final -->
-            <button class="p-2 rounded bg-gray-200 hover:bg-gray-300">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M5 12h14M15 8l4 4-4 4M5 8l4 4-4 4" />
-                </svg>
-            </button>
-        </div>
-    </div>
 
 </div>

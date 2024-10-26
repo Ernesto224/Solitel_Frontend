@@ -6,27 +6,28 @@ import { Observable } from 'rxjs';
 })
 export class DelitoService {
 
-  private urlServices: string = "https://localhost:7211/api/Delito/";
-  private urlObtener: string = "obtenerDelitos";
-  private urlinsertar: string = "insertarDelito";
-  private urleliminar: string = "eliminarDelito";
+  private urlServices: string = "https://localhost:7211/api/Delito";
 
   constructor(private http: HttpClient) { }
 
   public obtener = (): Observable<any> => {
-    return this.http.get(`${this.urlServices}${this.urlObtener}`);
+    return this.http.get(`${this.urlServices}`);
   }
 
-  public insertar = (objeto: any): Observable<any> => {
+  public obtenerPorCategoria = (id: number): Observable<any> => {
+    return this.http.get(`${this.urlServices}/PorCategoria/${id}`);
+  }
+
+  public insertar = (objeto: object): Observable<any> => {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'accept': 'text/plain'
     });
-    return this.http.post(`${this.urlServices}${this.urlinsertar}`, objeto, { headers });
+    return this.http.post(`${this.urlServices}`, objeto, { headers });
   }
 
   public eliminar = (id: number): Observable<any> => {
-    return this.http.delete(`${this.urlServices}${this.urleliminar}/${id}`, {
+    return this.http.delete(`${this.urlServices}/${id}`, {
       headers: { 'accept': 'text/plain' }
     });
   }

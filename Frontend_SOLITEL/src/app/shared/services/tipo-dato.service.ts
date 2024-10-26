@@ -7,15 +7,12 @@ import { Observable } from 'rxjs';
 })
 export class TipoDatoService {
 
-  private urlServices: string = "https://localhost:7211/api/TipoDato/";
-  private urlObtener: string = "obtenerTipoDato";
-  private urlinsertar: string = "insertarTipoDato";
-  private urleliminar: string = "eliminarTipoDato";
+  private urlServices: string = "https://localhost:7211/api/TipoDato";
 
   constructor(private http: HttpClient) { }
 
   public obtener = (): Observable<any[]> => {
-    return this.http.get<any[]>(`${this.urlServices}${this.urlObtener}`);
+    return this.http.get<any[]>(`${this.urlServices}`);
   }
 
   public insertar = (objeto: any): Observable<any> => {
@@ -23,11 +20,11 @@ export class TipoDatoService {
       'Content-Type': 'application/json',
       'accept': 'text/plain'
     });
-    return this.http.post(`${this.urlServices}${this.urlinsertar}`, objeto, { headers });
+    return this.http.post(`${this.urlServices}`, objeto, { headers });
   }
 
   public eliminar = (id: number): Observable<any> => {
-    return this.http.delete(`${this.urlServices}${this.urleliminar}/${id}`, {
+    return this.http.delete(`${this.urlServices}/${id}`, {
       headers: { 'accept': 'text/plain' }
     });
   }
