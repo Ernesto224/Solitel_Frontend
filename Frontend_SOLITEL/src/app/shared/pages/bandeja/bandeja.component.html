@@ -137,7 +137,7 @@
               </div>
               <div>
                 <label class="label" for="fiscalia">Fiscalía:</label>
-                <input type="text" id="fiscalia" class="input" [value]="solicitudSeleccionada.fiscalia.tC_Nombre"
+                <input type="text" id="fiscalia" class="input" [value]="solicitudSeleccionada.fiscalia.nombre"
                   readonly>
               </div>
             </div>
@@ -151,7 +151,7 @@
               </div>
               <div>
                 <label class="label" for="modalidad">Modalidad:</label>
-                <input type="text" id="modalidad" class="input" [value]="solicitudSeleccionada.modalidad.tC_Nombre"
+                <input type="text" id="modalidad" class="input" [value]="solicitudSeleccionada.modalidad.nombre"
                   readonly>
               </div>
               <div>
@@ -164,12 +164,12 @@
             <div class="grid-section">
               <div>
                 <label class="label" for="delito">Delito:</label>
-                <input type="text" id="delito" class="input" [value]="solicitudSeleccionada.delito.tC_Nombre" readonly>
+                <input type="text" id="delito" class="input" [value]="solicitudSeleccionada.delito.nombre" readonly>
               </div>
               <div>
                 <label class="label" for="subModalidad">Sub modalidad:</label>
                 <input type="text" id="subModalidad" class="input"
-                  [value]="solicitudSeleccionada.subModalidad.tC_Nombre" readonly>
+                  [value]="solicitudSeleccionada.subModalidad.nombre" readonly>
               </div>
               <div>
                 <label class="label" for="ofendido">Ofendido:</label>
@@ -196,7 +196,7 @@
               </div>
               <div>
                 <label class="label" for="operadora">Operadora:</label>
-                <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras[0].tC_Nombre" readonly>
+                <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras[0].nombre" readonly>
               </div>
             </div>
 
@@ -219,7 +219,7 @@
                     <td>{{ requerimiento.tC_Requerimiento }}</td>
                     <td>
                       <ul>
-                        <li *ngFor="let tipo of requerimiento.tipoSolicitudes">{{ tipo.tC_Nombre }},</li>
+                        <li *ngFor="let tipo of requerimiento.tipoSolicitudes">{{ tipo.nombre }},</li>
                       </ul>
                     </td>
                     <td>
