@@ -5,9 +5,9 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class CategoriaDelitoService {
+export class TipoAnalisisService {
 
-  private urlServices: string = "https://localhost:7211/api/CategoriaDelito";
+  private urlServices: string = "https://localhost:7211/api/TipoAnalisis";
 
   constructor(private http: HttpClient) { }
 
@@ -28,5 +28,4 @@ export class CategoriaDelitoService {
       headers: { 'accept': 'text/plain' }
     });
   }
-  
 }

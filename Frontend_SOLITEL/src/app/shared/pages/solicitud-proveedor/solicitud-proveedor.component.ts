@@ -15,11 +15,18 @@ import { TipoDatoService } from '../../services/tipo-dato.service';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';  // Agregar el servicio
 import { ProveedorService } from '../../services/proveedor.service'; // Para cargar operadoras
 import { OficinaService } from '../../services/oficina.service'; // Para cargar oficinas
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 @Component({
   selector: 'app-solicitud-proveedor',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, RouterOutlet, NavbarComponent, FooterComponent, FormsModule],
+  imports: [CommonModule,
+    SidebarComponent,
+    RouterOutlet,
+    NavbarComponent,
+    FooterComponent,
+    FormsModule,
+    NgMultiSelectDropDownModule],
   templateUrl: './solicitud-proveedor.component.html',
   styleUrls: ['./solicitud-proveedor.component.css']
 })
@@ -41,6 +48,13 @@ export default class SolicitudProveedorComponent {
   operadoras: any[] = [];
   oficinas: any[] = [];
 
+  // Declarar variables para el multi-select
+  dropdownSettings = {};
+  dropdownSettings2 = {};
+  operadoraSeleccionada: any[] = [];
+
+  tipoSolicitudSeleccionada: any[] = [];  // Array para almacenar las opciones seleccionadas
+
   // Selección de datos del formulario
   idOperadoraSeleccionada = 0;
   idOficinaSeleccionada = 0;
@@ -50,14 +64,13 @@ export default class SolicitudProveedorComponent {
   idEstadoSeleccionado = 0;
   idModalidadSeleccionada = 0;
   idSubModalidadSeleccionada = 0;
-  tipoSolicitudSeleccionada: any = '';  // Para almacenar el tipo de solicitud seleccionado
   tipoDatoSeleccionado: any = null;
   selectedTipoDato = '';
   selectedDatoRequerido: any = null;
 
   // Variables del formulario
-  numeroUnico: number = 0;
-  numeroCaso: number = 0;
+  numeroUnico: string = '';
+  numeroCaso: string = '';
   imputado: string = '';
   ofendido: string = '';
   resennia: string = '';
@@ -100,15 +113,78 @@ export default class SolicitudProveedorComponent {
   ) { }
 
   ngOnInit() {
+
     this.getCategories();
     this.getFiscalias();
-    this.getDelitos();
+    //this.getDelitos();
     this.getModalidades();
-    this.getSubModalidades();
+    //this.getSubModalidades();
     this.getTiposSolicitud();
     this.getTiposDato();
     this.getOperadoras();  // Cargar operadoras
     this.getOficinas();    // Cargar oficinas
+
+    // Configuración para el Multi-Select Dropdown
+    this.dropdownSettings = {
+      singleSelection: false,
+      idField: 'idProveedor',
+      textField: 'nombre',
+      selectAllText: 'Seleccionar Todo',
+      unSelectAllText: 'Deseleccionar Todo',
+      itemsShowLimit: 3,
+      allowSearchFilter: true
+    };
+
+    this.dropdownSettings2 = {
+      singleSelection: false,
+      idField: 'idTipoSolicitud',       // Cambia 'id' por el campo de ID que uses en `tiposSolicitud`
+      textField: 'nombre', // Cambia 'nombre' por el campo de texto que uses en `tiposSolicitud`
+      selectAllText: 'Seleccionar Todo',
+      unSelectAllText: 'Deseleccionar Todo',
+      itemsShowLimit: 3,
+      allowSearchFilter: true
+    };
+
+  }
+
+  // Método que se llama al cambiar la categoría de delito
+  onCategoriaDelitoChange(): void {
+    if (this.idCategoriaDelitoSeleccionado) {
+      this.delitoService.obtenerPorCategoria(this.idCategoriaDelitoSeleccionado)
+        .subscribe(
+          (response: any) => {
+            this.delitos = response; // Cargar delitos en el dropdown
+            this.idDelitoSeleccionado = 0; // Resetear el valor de "Delito" seleccionado
+          },
+          (error: any) => {
+            console.error('Error al obtener delitos:', error);
+            this.delitos = []; // Dejar vacío si hay un error
+          }
+        );
+    } else {
+      this.delitos = []; // Dejar vacío si no hay categoría seleccionada
+      this.idDelitoSeleccionado = 0;
+    }
+  }
+
+  // Método para obtener las submodalidades al cambiar la modalidad seleccionada
+  onModalidadChange(): void {
+    if (this.idModalidadSeleccionada) {
+      this.subModalidadService.obtenerPorModalidad(this.idModalidadSeleccionada)
+        .subscribe(
+          (response: any) => {
+            this.subModalidades = response; // Cargar submodalidades en el dropdown
+            this.idSubModalidadSeleccionada = 0; // Resetear el valor de "Submodalidad" seleccionado
+          },
+          (error: any) => {
+            console.error('Error al obtener submodalidades:', error);
+            this.subModalidades = []; // Dejar vacío si hay un error
+          }
+        );
+    } else {
+      this.subModalidades = []; // Dejar vacío si no hay modalidad seleccionada
+      this.idSubModalidadSeleccionada = 0;
+    }
   }
 
   // Obtener operadoras
@@ -136,6 +212,7 @@ export default class SolicitudProveedorComponent {
   }
 
   guardarSolicitud() {
+    console.log(this.operadoraSeleccionada)
     const solicitudProveedor = {
       idSolicitudProveedor: 0,
       numeroUnico: this.numeroUnico || 0,
@@ -165,12 +242,7 @@ export default class SolicitudProveedorComponent {
         }))
       })),
 
-      operadoras: [
-        {
-          tN_IdProveedor: this.idOperadoraSeleccionada,  // Operadora seleccionada
-          tC_Nombre: this.operadoras.find(o => o.tN_IdProveedor === this.idOperadoraSeleccionada)?.tC_Nombre || 'Desconocido'
-        }
-      ],
+      operadoras: this.operadoraSeleccionada,
 
       usuarioCreador: {
         tN_IdUsuario: 1,
@@ -261,6 +333,7 @@ export default class SolicitudProveedorComponent {
     console.log("Fecha Inicio: ", this.fechaInicio);
     console.log("Fecha Final: ", this.fechaFinal);
     console.log("Datos Requeridos: ", this.listaDatosRequeridos);
+
     if (this.tipoSolicitudSeleccionada && this.requerimiento && this.fechaInicio && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
       // Crear el objeto de solicitud con la estructura solicitada
       const nuevaSolicitud = {
@@ -268,13 +341,7 @@ export default class SolicitudProveedorComponent {
         tF_FechaInicio: this.fechaInicio, // Fecha inicio desde el formulario
         tF_FechaFinal: this.fechaFinal,   // Fecha final desde el formulario
         tC_Requerimiento: this.requerimiento, // Requerimiento desde el formulario
-        tipoSolicitudes: [
-          {
-            tN_IdTipoSolicitud: this.tipoSolicitudSeleccionada.tN_IdTipoSolicitud,
-            tC_Nombre: this.tipoSolicitudSeleccionada.tC_Nombre,
-            tC_Descripcion: this.tipoSolicitudSeleccionada.tC_Descripcion || ''
-          }
-        ],
+        tipoSolicitudes: this.tipoSolicitudSeleccionada,
         datosRequeridos: this.listaDatosRequeridos // Lista de datos requeridos
       };
 
@@ -293,7 +360,7 @@ export default class SolicitudProveedorComponent {
   }
 
   // Método para obtener delitos
-  getDelitos() {
+  /*getDelitos() {
     this.delitoService.obtener().subscribe({
       next: (data: any[]) => {
         this.delitos = data;
@@ -302,7 +369,7 @@ export default class SolicitudProveedorComponent {
 
       }
     });
-  }
+  }*/
 
   getTiposDato() {
     this.tipoDatoService.obtener().subscribe({
@@ -326,16 +393,16 @@ export default class SolicitudProveedorComponent {
     });
   }
 
-  getSubModalidades() {
-    this.subModalidadService.obtener().subscribe({
-      next: (data: any[]) => {
-        this.subModalidades = data;
-      },
-      error: (err: any) => {
-        console.error('');
-      }
-    });
-  }
+  /*getSubModalidades() {
+     this.subModalidadService.obtener().subscribe({
+       next: (data: any[]) => {
+         this.subModalidades = data;
+       },
+       error: (err: any) => {
+         console.error('');
+       }
+     });
+   }*/
 
   getModalidades() {
     this.modalidadService.obtener().subscribe({
