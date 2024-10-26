@@ -7,6 +7,10 @@ export const routes: Routes = [
     children: [
       //se colocan todas las rutas asociadas a las paginas o vistas
       {
+        path: 'login',
+        loadComponent: () => import('./shared/pages/login/login.component'),
+      },
+      {
         path: 'analisis-telefonico',
         loadComponent: () =>
           import(
