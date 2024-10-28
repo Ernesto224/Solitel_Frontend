@@ -18,25 +18,22 @@
               </select>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Solicitudes de proveedor:</label>
-              <ng-multiselect-dropdown
-              [(ngModel)]="solicitudesProveedorSeleccionadas"
-              [data]="solicitudesProveedor"
-              [settings]="dropdownSettingsSolicitudes"
-              placeholder="Seleccione solicitudes"
-              class="mt-1 block w-full"
-            ></ng-multiselect-dropdown>
+            <div class="form-group">
+              <label for="operadora">Operadora:</label>
+              <ng-multiselect-dropdown class="custom-multiselect-dropdown" [placeholder]="'Seleccione'"
+                [data]="archivos" [(ngModel)]="archivosAnalizarSeleccionados" [settings]="dropdownSettingsArchivos"
+                name="idOperadoraSeleccionada" required>
+              </ng-multiselect-dropdown>
             </div>
+
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Archivos a analizar:</label>
-              <ng-multiselect-dropdown
+              <ng-multiselect-dropdown class="custom-multiselect-dropdown"
               [(ngModel)]="archivosAnalizarSeleccionados"
               [data]="archivos"
               [settings]="dropdownSettingsArchivos"
               placeholder="Seleccione archivos"
-              class="custom-multiselect-dropdown"
             ></ng-multiselect-dropdown>
             </div>
           </div>

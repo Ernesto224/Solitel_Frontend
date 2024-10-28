@@ -20,7 +20,7 @@ import {
   standalone: true,
   imports: [CommonModule, FormsModule, NgMultiSelectDropDownModule],
 })
-export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
+export default class AnalisisTelefonicoComponent implements OnInit {
   solicitudAnalisisId: number = 1;
   requerimientos: RequerimentoAnalisis[] = [];
   solicitudesProveedor: SolicitudProveedor[] = [];
@@ -31,6 +31,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   solicitudesProveedorSeleccionadas: any[] = [];
   archivosAnalizarSeleccionados: any[] = [];
   objetivosAnalisisSeleccionados: any[] = [];
+  dropdownSettingsArchivos = {};
   oficinaAnalisis: number | null = null;
   tipoAnalisis: string = 'Análisis Telefónico';
   fechaHecho: string = '';
@@ -41,11 +42,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   utilizadoPor: string = '';
   condicion: string = '';
   selectedIndex: number | null = null;
-  archivos: Archivo[] = [
-    { idArchivo: 1, nombreArchivo: 'Archivo 1' },
-    { idArchivo: 2, nombreArchivo: 'Archivo 2' },
-    { idArchivo: 3, nombreArchivo: 'Archivo 3' }
-  ];
+  archivos: any[] = [];
 
   dropdownSettingsSolicitudes = {
     singleSelection: false,
@@ -57,15 +54,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     allowSearchFilter: true
   };
 
-  dropdownSettingsArchivos = {
-    singleSelection: false,
-    idField: 'idArchivo',
-    textField: 'nombreArchivo',
-    selectAllText: 'Seleccionar todos',
-    unSelectAllText: 'Deseleccionar todos',
-    itemsShowLimit: 3,
-    allowSearchFilter: true
-  };
+  
 
   dropdownSettingsObjetivos = {
     singleSelection: false,
@@ -84,11 +73,23 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.cargarNumerosUnicos();
     this.cargarOficinasAnalisis();
-    this.cargarObjetivosAnalisis();
-  }
+    //this.cargarObjetivosAnalisis();
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    this.archivos = [{ idArchivo: 1, nombreArchivo: 'Archivo 1' },
+      { idArchivo: 2, nombreArchivo: 'Archivo 2' },
+      { idArchivo: 3, nombreArchivo: 'Archivo 3' }];
+
+      console.log(this.archivos)
+      
+    this.dropdownSettingsArchivos = {
+      singleSelection: false,
+      idField: 'idArchivo',
+      textField: 'nombreArchivo',
+      selectAllText: 'Seleccionar todos',
+      unSelectAllText: 'Deseleccionar todos',
+      itemsShowLimit: 4,
+      allowSearchFilter: true
+    };
   }
 
   cargarNumerosUnicos(): void {
@@ -109,14 +110,14 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     );
   }
 
-  cargarObjetivosAnalisis(): void {
+ /* cargarObjetivosAnalisis(): void {
     this.subscription.add(
       this.analisisService.obtenerObjetivosAnalisis().subscribe(
         (objetivos) => (this.objetivosAnalista = objetivos),
         (error) => console.error('Error al cargar objetivos de análisis:', error)
       )
     );
-  }
+  }*/
 
   agregarRequerimiento(): void {
     const nuevoRequerimiento: RequerimentoAnalisis = {
