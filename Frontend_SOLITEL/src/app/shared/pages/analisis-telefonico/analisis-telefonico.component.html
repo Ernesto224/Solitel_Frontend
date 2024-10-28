@@ -18,21 +18,23 @@
               </select>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Solicitudes de proveedor:</label>
-              <select [(ngModel)]="solicitudesProveedor" multiple class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                <option *ngFor="let solicitud of solicitudesProveedor" [value]="solicitud.idSolicitudProveedor">
-                  {{ solicitud.idSolicitudProveedor }} - {{ solicitud.numeroUnico }} - {{ solicitud.nombreProveedor }}
-                </option>
-              </select>
+            <div class="form-group">
+              <label for="operadora">Operadora:</label>
+              <ng-multiselect-dropdown class="custom-multiselect-dropdown" [placeholder]="'Seleccione'"
+                [data]="archivos" [(ngModel)]="archivosAnalizarSeleccionados" [settings]="dropdownSettingsArchivos"
+                name="idOperadoraSeleccionada" required>
+              </ng-multiselect-dropdown>
             </div>
+
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Archivos a analizar:</label>
-              <select [(ngModel)]="archivosAnalizar" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                <option value="">Seleccione</option>
-                <!-- Opciones dinámicas si es necesario -->
-              </select>
+              <ng-multiselect-dropdown class="custom-multiselect-dropdown"
+              [(ngModel)]="archivosAnalizarSeleccionados"
+              [data]="archivos"
+              [settings]="dropdownSettingsArchivos"
+              placeholder="Seleccione archivos"
+            ></ng-multiselect-dropdown>
             </div>
           </div>
 
@@ -59,23 +61,13 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Objetivos del análisis:</label>
-              <select [(ngModel)]="objetivosAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                <option *ngFor = "let objetivo of objetivosAnalista" [value]="objetivo">{{objetivo.TC_Nombre}}</option>
-                <option value="">Seleccione</option>
-                <option value="consultaBaseMaestra">Consulta en la base Maestra</option>
-                <option value="cronologiaComunicaciones">Cronología de comunicaciones</option>
-                <option value="cronologiaRadioBases">Cronología de comunicaciones con radio bases</option>
-                <option value="cronologiaLlamadasInternacionales">Cronología de llamadas internacionales</option>
-                <option value="frecuenciaComunicaciones">Frecuencia de comunicaciones</option>
-                <option value="flujogramasObservados">Flujogramas entre observados</option>
-                <option value="flujogramasComunes">Flujogramas de comunicaciones en común</option>
-                <option value="flujogramasLlamadasInternacionales">Flujogramas de llamadas internacionales</option>
-                <option value="flujogramasIMEI">Flujogramas de uso de IMEI</option>
-                <option value="mapasRadioBases">Mapas de radio bases</option>
-                <option value="sumatoriaRadioBases">Sumatoria de radio bases</option>
-                <option value="utilizacionIMEI">Utilización de IMEI</option>
-                <option value="otros">Otros</option>
-              </select>
+              <ng-multiselect-dropdown
+              [(ngModel)]="objetivosAnalisisSeleccionados"
+              [data]="objetivosAnalista"
+              [settings]="dropdownSettingsObjetivos"
+              placeholder="Seleccione objetivos"
+              class="mt-1 block w-full"
+            ></ng-multiselect-dropdown>
             </div>
           </div>
 

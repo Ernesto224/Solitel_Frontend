@@ -35,6 +35,10 @@ export interface RequerimentoAnalisis {
   TC_UtilizadoPor: string;
   TC_Condicion: string;
 }
+export interface Archivo {
+  idArchivo: number;
+  nombreArchivo: string;
+}
 
 export interface ObjetivoAnalisis{
   TN_IdObjetivoAnalisis: number;
