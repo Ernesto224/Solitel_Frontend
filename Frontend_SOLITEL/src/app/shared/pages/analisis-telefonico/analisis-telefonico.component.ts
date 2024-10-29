@@ -3,15 +3,15 @@ import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import {
-  AnalisisTelefonicoService,
-  SolicitudProveedor,
-  OficinaAnalisis,
-  RequerimentoAnalisis,
-  SolicitudAnalisis,
-  ObjetivoAnalisis,
-  Archivo
-} from '../../services/analisis-telefonico.service';
+import { AnalisisTelefonicoService, Archivo } from '../../services/analisis-telefonico.service';
+
+interface Requerimiento {
+  TN_IdRequerimento: number;
+  TC_TipoObjetivo: string;
+  TC_Objetivo: string;
+  TC_UtilizadoPor: string;
+  TC_Condicion: string;
+}
 
 @Component({
   selector: 'app-analisis-telefonico',
@@ -22,16 +22,20 @@ import {
 })
 export default class AnalisisTelefonicoComponent implements OnInit {
   solicitudAnalisisId: number = 1;
-  requerimientos: RequerimentoAnalisis[] = [];
-  solicitudesProveedor: SolicitudProveedor[] = [];
-  oficinasAnalisis: OficinaAnalisis[] = [];
+  requerimientos: Requerimiento[] = [];
+  oficinasAnalisis: any[] = [];
   numerosUnicos: number[] = [];
-  objetivosAnalista: ObjetivoAnalisis[] = [];
+  objetivosAnalista: any[] = [];
+  operadoras: any[] = [];
+  dropdownSettingsSolicitudes: any = {};
+  dropdownSettingsArchivos: any = {};
+  dropdownSettingsObjetivos: any = {};
+  dropdownSettings: any = {};
+  operadoraSeleccionada: any[] = [];
   numeroUnico: number | null = null;
   solicitudesProveedorSeleccionadas: any[] = [];
-  archivosAnalizarSeleccionados: any[] = [];
+  archivosAnalizarSeleccionados: Archivo[] = [];
   objetivosAnalisisSeleccionados: any[] = [];
-  dropdownSettingsArchivos = {};
   oficinaAnalisis: number | null = null;
   tipoAnalisis: string = 'Análisis Telefónico';
   fechaHecho: string = '';
@@ -42,53 +46,76 @@ export default class AnalisisTelefonicoComponent implements OnInit {
   utilizadoPor: string = '';
   condicion: string = '';
   selectedIndex: number | null = null;
-  archivos: any[] = [];
-
-  dropdownSettingsSolicitudes = {
-    singleSelection: false,
-    idField: 'idSolicitudProveedor',
-    textField: 'nombreProveedor',
-    selectAllText: 'Seleccionar todos',
-    unSelectAllText: 'Deseleccionar todos',
-    itemsShowLimit: 3,
-    allowSearchFilter: true
-  };
-
-  
-
-  dropdownSettingsObjetivos = {
-    singleSelection: false,
-    idField: 'idObjetivo',
-    textField: 'TC_Nombre',
-    selectAllText: 'Seleccionar todos',
-    unSelectAllText: 'Deseleccionar todos',
-    itemsShowLimit: 3,
-    allowSearchFilter: true
-  };
+  solicitudesProveedor: any[] = [];
+  archivos: Archivo[] = [];
+  idObjetivoAnalisis: number = -1;
+  condicionesAnalisis: any[] = [];
+  tiposAnalisis: any[] = [];
 
   private subscription = new Subscription();
 
-  constructor(private analisisService: AnalisisTelefonicoService) {}
+  constructor(
+    private analisisService: AnalisisTelefonicoService,
+  ) { }
 
   ngOnInit(): void {
     this.cargarNumerosUnicos();
     this.cargarOficinasAnalisis();
-    //this.cargarObjetivosAnalisis();
+    this.cargarObjetivosAnalisis();
+    this.inicializarDropdownSettings();
+    this.obtenerCondiciones();
+    this.obtenerTipoAnalisis();
+  }
 
-    this.archivos = [{ idArchivo: 1, nombreArchivo: 'Archivo 1' },
-      { idArchivo: 2, nombreArchivo: 'Archivo 2' },
-      { idArchivo: 3, nombreArchivo: 'Archivo 3' }];
+  cargarSolicitudesPorNumeroUnico(numeroUnico: string): void {
+    this.subscription.add(
+      this.analisisService.obtenerSolicitudesPorNumeroUnico(numeroUnico).subscribe(
+        (solicitudes) => {
+          this.solicitudesProveedor = solicitudes;
+          console.log("Solicitudes Proveedor");
+        },
+        (error) => console.error('Error al cargar solicitudes:', error)
+      )
 
-      console.log(this.archivos)
-      
+    );
+  }
+
+  inicializarDropdownSettings(): void {
+    this.dropdownSettingsSolicitudes = {
+      singleSelection: false,
+      idField: 'idSolicitudProveedor',
+      textField: 'nombreProveedor',
+      selectAllText: 'Seleccionar todos',
+      unSelectAllText: 'Deseleccionar todos',
+      itemsShowLimit: 3,
+      allowSearchFilter: true,
+    };
+    this.dropdownSettings = {
+      singleSelection: false,
+      idField: 'idProveedor',
+      textField: 'nombre',
+      selectAllText: 'Seleccionar Todo',
+      unSelectAllText: 'Deseleccionar Todo',
+      itemsShowLimit: 3,
+      allowSearchFilter: true,
+    };
     this.dropdownSettingsArchivos = {
       singleSelection: false,
       idField: 'idArchivo',
       textField: 'nombreArchivo',
       selectAllText: 'Seleccionar todos',
       unSelectAllText: 'Deseleccionar todos',
-      itemsShowLimit: 4,
-      allowSearchFilter: true
+      itemsShowLimit: 3,
+      allowSearchFilter: true,
+    };
+    this.dropdownSettingsObjetivos = {
+      singleSelection: false,
+      idField: 'tN_IdObjetivoAnalisis',
+      textField: 'tC_Nombre',
+      selectAllText: 'Seleccionar todos',
+      unSelectAllText: 'Deseleccionar todos',
+      itemsShowLimit: 3,
+      allowSearchFilter: true,
     };
   }
 
@@ -110,17 +137,25 @@ export default class AnalisisTelefonicoComponent implements OnInit {
     );
   }
 
- /* cargarObjetivosAnalisis(): void {
+  cargarObjetivosAnalisis(): void {
     this.subscription.add(
-      this.analisisService.obtenerObjetivosAnalisis().subscribe(
-        (objetivos) => (this.objetivosAnalista = objetivos),
+      this.analisisService.obtenerObjetivosAnalisis(this.idObjetivoAnalisis).subscribe(
+        (objetivos) => {
+          console.log("Objetivos recibidos:", objetivos); // Verifica la respuesta
+          this.objetivosAnalista = objetivos; // Asigna los datos a la propiedad
+          this.archivos = [
+            { idArchivo: 1, nombreArchivo: 'Archivo 1' },
+            { idArchivo: 2, nombreArchivo: 'Archivo 2' },
+            { idArchivo: 3, nombreArchivo: 'Archivo 3' },
+          ];
+        },
         (error) => console.error('Error al cargar objetivos de análisis:', error)
       )
     );
-  }*/
+  }
 
   agregarRequerimiento(): void {
-    const nuevoRequerimiento: RequerimentoAnalisis = {
+    const nuevoRequerimiento: Requerimiento = {
       TN_IdRequerimento: this.requerimientos.length + 1,
       TC_TipoObjetivo: this.tipoObjetivo,
       TC_Objetivo: this.objetivo,
@@ -128,7 +163,7 @@ export default class AnalisisTelefonicoComponent implements OnInit {
       TC_Condicion: this.condicion,
     };
 
-    if (this.selectedIndex !== null) {
+    if (this.selectedIndex !== null && this.selectedIndex >= 0) {
       this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
       this.selectedIndex = null;
     } else {
@@ -145,7 +180,7 @@ export default class AnalisisTelefonicoComponent implements OnInit {
   }
 
   cargarRequerimientoEnFormulario(index: number): void {
-    if (index !== null && index >= 0 && index < this.requerimientos.length) {
+    if (index >= 0 && index < this.requerimientos.length) {
       const requerimiento = this.requerimientos[index];
       this.selectedIndex = index;
       this.tipoObjetivo = requerimiento.TC_TipoObjetivo;
@@ -156,9 +191,9 @@ export default class AnalisisTelefonicoComponent implements OnInit {
   }
 
   eliminarRequerimiento(index: number): void {
-    if (index !== null && index >= 0 && index < this.requerimientos.length) {
+    if (index >= 0 && index < this.requerimientos.length) {
       this.requerimientos.splice(index, 1);
-      this.limpiarFormulario();
+      this.limpiarCamposRequerimiento();
     }
   }
 
@@ -168,8 +203,7 @@ export default class AnalisisTelefonicoComponent implements OnInit {
       return;
     }
 
-    const solicitudCompleta: SolicitudAnalisis = {
-      TN_IdSolicitudAnalisis: this.solicitudAnalisisId,
+    const solicitudCompleta = {
       TF_FechaDelHecho: new Date(this.fechaHecho),
       TC_OtrosDetalles: this.otrosDetalles,
       TC_OtrosObjetivosDeAnalisis: this.otrosObjetivos,
@@ -177,7 +211,21 @@ export default class AnalisisTelefonicoComponent implements OnInit {
       TN_NumeroSolicitud: this.numeroUnico!,
       TN_IdOficina: Number(this.oficinaAnalisis),
       requerimentos: this.requerimientos,
+      objetivosAnalisis: this.objetivosAnalisisSeleccionados.map(objetivo => ({
+        IdObjetivoAnalisis: objetivo.tN_IdObjetivoAnalisis,
+      })),
+      solicitudesProveedor: this.solicitudesProveedorSeleccionadas.map(solicitud => ({
+        IdSolicitud: solicitud.idSolicitudProveedor,
+      })),
+      condiciones: this.requerimientos.map(requerimiento => ({
+        IdCondicion: this.condicionesAnalisis.find(cond => cond.nombre === requerimiento.TC_Condicion)?.idCondicion,
+      })),
+      archivos: this.archivosAnalizarSeleccionados.map(archivo => ({
+        IdArchivo: archivo.idArchivo,
+        NombreArchivo: archivo.nombreArchivo,
+      }))
     };
+    console.log(solicitudCompleta)
 
     this.analisisService.agregarSolicitudAnalisis(solicitudCompleta).subscribe(
       (response) => {
@@ -185,6 +233,26 @@ export default class AnalisisTelefonicoComponent implements OnInit {
         this.limpiarFormulario();
       },
       (error) => console.error('Error al enviar la solicitud:', error)
+    );
+  }
+
+  obtenerCondiciones(): void {
+    this.analisisService.obtenerCondiciones().subscribe(
+      (condiciones) => {
+        console.log("Condiciones recibidas:", condiciones); // Verifica la respuesta
+        this.condicionesAnalisis = condiciones;
+      },
+      (error) => console.error('Error al cargar condiciones de análisis:', error)
+    );
+  }
+
+  obtenerTipoAnalisis(): void {
+    this.analisisService.obtenerTipoAnalisis().subscribe(
+      (tipos) => {
+        console.log("Tipos recibidos:", tipos); // Verifica la respuesta
+        this.tiposAnalisis = tipos;
+      },
+      (error) => console.error('Error al cargar tipos de análisis:', error)
     );
   }
 
