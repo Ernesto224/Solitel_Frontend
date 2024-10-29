@@ -1,6 +1,8 @@
 <!-- Contenido principal -->
 <div class="flex flex-col mb-0 pb-0">
+
   <main class="flex-grow ml-64 p-4">
+
     <div class="mt-12">
 
       <h1 class="text-3xl font-bold mb-6">Formulario de Solicitudes de Proveedor</h1>
@@ -22,7 +24,9 @@
                 <label for="numero-unico">Número único:</label>
                 <div class="input-group">
                   <input type="text" id="numero-unico" [(ngModel)]="numeroUnico" name="numeroUnico">
-                  <button type="button" class="search-btn">🔍</button>
+                  <button type="button" class="search-btn">
+                    <i class="material-icons">search</i>
+                  </button>
                 </div>
               </div>
 
@@ -136,6 +140,7 @@
 
             <!-- Sexta fila de campos -->
             <div class="form-row">
+
               <div class="form-group">
                 <label for="imputado">Imputado:</label>
                 <input type="text" id="imputado" class="required-field" [(ngModel)]="imputado" name="imputado" required>
@@ -145,6 +150,7 @@
                 <label for="ofendido">Ofendido:</label>
                 <input type="text" id="ofendido" class="required-field" [(ngModel)]="ofendido" name="ofendido" required>
               </div>
+
             </div>
 
             <!-- Reseña -->
@@ -158,6 +164,7 @@
 
             <!-- Registros de requerimientos -->
             <div class="form-row">
+
               <div class="form-group">
                 <label for="tipo-solicitud">Tipo de Solicitud:</label>
                 <ng-multiselect-dropdown id="tipo-solicitud" [(ngModel)]="tipoSolicitudSeleccionada"
@@ -165,21 +172,26 @@
                   name="tipoSolicitudSeleccionada" class="custom-multiselect-dropdown" required>
                 </ng-multiselect-dropdown>
               </div>
+
             </div>
 
-
             <div class="form-row">
+
               <div class="form-group">
                 <label for="dato-requerido">Dato requerido:</label>
                 <div class="input-group">
                   <input type="text" id="lista-datos-requeridos" [value]="getListaDatosFormateados()" disabled>
-                  <button type="button" class="search-btn" (click)="openModal()">🔍</button>
+                  <button type="button" class="search-btn" (click)="openModal()">
+                    <i class="material-icons">phone_enabled</i>
+                  </button>
                 </div>
               </div>
+
             </div>
 
             <!-- Fechas -->
             <div class="form-row">
+
               <div class="form-group">
                 <label for="fecha-inicio">Fecha inicio:</label>
                 <input type="datetime-local" id="fecha-inicio" [(ngModel)]="fechaInicio" name="fechaInicio" required>
@@ -189,37 +201,88 @@
                 <label for="fecha-final">Fecha final:</label>
                 <input type="datetime-local" id="fecha-final" [(ngModel)]="fechaFinal" name="fechaFinal" required>
               </div>
+
             </div>
 
             <!-- Requerimiento -->
             <div class="form-group">
+
               <label for="requerimiento">Requerimiento:</label>
               <textarea id="requerimiento" [(ngModel)]="requerimiento" name="requerimiento" class="required-field"
                 required></textarea>
+
             </div>
 
             <!-- Botones -->
-            <div class="buttons-row">
-              <button type="button" class="btn btn-primary" (click)="limpiarFormulario()">Limpiar</button>
-              <button type="button" class="btn btn-secondary" (click)="agregarSolicitud()">Agregar</button>
-              <button type="button" class="btn btn-tertiary">Editar</button>
+            <div class="buttons-row space-x-4">
+
+              <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+              py-2 rounded 
+              focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                (click)="limpiarFormulario()">
+                <i class="material-icons">remove</i>
+                <span>Limpiar</span>
+              </button>
+
+              <button type="button" class="btn btn-secondary text-[#FFFFFF] px-4 
+              py-2 rounded
+              focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                (click)="agregarSolicitud()">
+                <i class="material-icons">save</i>
+                <span>Guardar</span>
+              </button>
+
+              <button type="button" class="btn btn-tertiary text-[#FFFFFF] px-4 
+              py-2 rounded 
+              focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2">
+                <i class="material-icons">edit_square</i>
+                <span>Editar</span>
+              </button>
+
             </div>
 
             <!-- Tabla para mostrar las solicitudes agregadas -->
             <section class="mt-8">
+
               <h2>Lista de Solicitudes Agregadas</h2>
+              <hr>
+
               <table class="styled-table">
+
                 <thead>
                   <tr>
+                    <th>Acciones</th>
                     <th>Tipo de Solicitud</th>
                     <th>Requerimiento</th>
                     <th>Dato Requerido</th>
                     <th>Rango de Fechas</th>
-                    <th>Acciones</th> <!-- Columna para las acciones -->
                   </tr>
                 </thead>
+
                 <tbody>
+
                   <tr *ngFor="let solicitud of listaSolicitudes; let i = index">
+
+                    <!-- Botón de eliminar -->
+                    <td>
+                      <div class="buttons-row space-x-4">
+
+                        <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                        py-2 rounded 
+                        focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                          (click)="eliminarSolicitud(i)">
+                          <i class="material-icons">delete</i>
+                        </button>
+
+                        <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                        py-2 rounded 
+                        focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2">
+                          <i class="material-icons">edit</i>
+                        </button>
+
+                      </div>
+                    </td>
+
                     <!-- Mostrar los tipos de solicitud -->
                     <td>
                       <span *ngFor="let tipo of solicitud.tipoSolicitudes; let last = last">
@@ -243,16 +306,37 @@
                       {{ solicitud.tF_FechaFinal | date: 'dd/MM/yyyy HH:mm' }}
                     </td>
 
-                    <!-- Botón de eliminar -->
-                    <td>
-                      <button class="btn btn-danger" (click)="eliminarSolicitud(i)">Eliminar</button>
-                    </td>
                   </tr>
+
                 </tbody>
+
               </table>
+
             </section>
 
           </form>
+
+          <!-- Botones -->
+          <div class="buttons-row space-x-4">
+
+            <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                    py-2 rounded 
+                    focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+              (click)="limpiarFormulario()">
+              <i class="material-icons">remove</i>
+              <span>Limpiar</span>
+            </button>
+
+            <button type="button" class="btn btn-secondary text-[#FFFFFF] px-4 
+                    py-2 rounded
+                    focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+              (click)="guardarSolicitud()">
+              <i class="material-icons">save</i>
+              <span>Guardar</span>
+            </button>
+
+          </div>
+
         </section>
 
         <!-- Botones -->
@@ -281,13 +365,18 @@
 
 
       </div>
+
     </div>
+
   </main>
+
 </div>
 
 <!-- Modal -->
 <div class="modal-container" [ngClass]="{ 'hidden': !isModalOpen }">
+
   <div class="modal-content">
+
     <!-- Modal Header -->
     <div class="modal-header">
       <h5>Dato requerido</h5>
@@ -297,6 +386,7 @@
     <!-- Modal Body -->
     <div class="modal-body">
       <form>
+
         <!-- Tipo Dato -->
         <div class="form-group">
           <label for="tipo-dato">Tipo de Dato:</label>
@@ -307,6 +397,7 @@
             </option>
           </select>
         </div>
+
         <!-- Dato requerido -->
         <div class="form-group">
           <label for="dato-requerido">Dato requerido:</label>
@@ -324,18 +415,25 @@
           <label for="motivation">Ingrese una motivación:</label>
           <textarea id="motivation" [(ngModel)]="motivation" name="motivation" required></textarea>
           <div class="motivation-buttons">
-            <!-- Botón para eliminar el dato requerido seleccionado -->
-            <button type="button" class="btn-remove" (click)="eliminarDatoRequerido()">Eliminar</button>
-
-            <!-- Botón para agregar un nuevo dato requerido -->
-            <button type="button" class="btn-remove" (click)="agregarDatoRequerido()">+</button>
+            <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                    py-2 rounded 
+                    focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+              (click)="eliminarDatoRequerido()">
+              <i class="material-icons">remove</i>
+            </button>
+            <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                    py-2 rounded 
+                    focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+              (click)="agregarDatoRequerido()">
+              <i class="material-icons">add</i>
+            </button>
           </div>
         </div>
+
         <!-- Mensaje de error -->
         <div *ngIf="errorMessage" class="error-message" style="color: red;">
           {{ errorMessage }}
         </div>
-
 
         <!-- Lista de datos requeridos -->
         <div class="form-group">
@@ -348,13 +446,15 @@
           </select>
         </div>
 
-
       </form>
+
     </div>
 
     <!-- Modal Footer -->
     <div class="modal-footer">
       <button type="button" class="btn-primary" (click)="closeModal()">Aceptar</button>
     </div>
+
   </div>
+
 </div>

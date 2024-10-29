@@ -3,11 +3,12 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FooterComponent } from '../footer/footer.component';
+import BandejaComponent from "../../pages/bandeja/bandeja.component";
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [SidebarComponent, CommonModule, RouterLink, RouterLinkActive, FooterComponent],
+  imports: [SidebarComponent, CommonModule, RouterLink, RouterLinkActive, FooterComponent, BandejaComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })

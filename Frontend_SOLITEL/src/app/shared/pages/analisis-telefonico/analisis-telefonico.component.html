@@ -9,32 +9,34 @@
           <h2 class="text-2xl font-semibold mb-4">Solicitud de análisis telefónico</h2>
 
           <!-- Selección de solicitudes de proveedor -->
-          <form [formGroup]="form" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium text-gray-700">Número único:</label>
-              <select formControlName="numeroUnico" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select [(ngModel)]="numeroUnico" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <option value="">Seleccione</option>
                 <option *ngFor="let numero of numerosUnicos" [value]="numero">{{ numero }}</option>
               </select>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Solicitudes de proveedor:</label>
-              <select formControlName="solicitudesProveedor" multiple class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                <option *ngFor="let solicitud of solicitudesProveedor" [value]="solicitud.idSolicitudProveedor">
-                  {{ solicitud.idSolicitudProveedor }} - {{ solicitud.numeroUnico }} - {{ solicitud.nombreProveedor }}
-                </option>
-              </select>
+            <div class="form-group">
+              <label for="operadora">Operadora:</label>
+              <ng-multiselect-dropdown class="custom-multiselect-dropdown" [placeholder]="'Seleccione'"
+                [data]="archivos" [(ngModel)]="archivosAnalizarSeleccionados" [settings]="dropdownSettingsArchivos"
+                name="idOperadoraSeleccionada" required>
+              </ng-multiselect-dropdown>
             </div>
+
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Archivos a analizar:</label>
-              <select formControlName="archivosAnalizar" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                <option value="">Seleccione</option>
-                <!-- Opciones dinámicas si es necesario -->
-              </select>
+              <ng-multiselect-dropdown class="custom-multiselect-dropdown"
+              [(ngModel)]="archivosAnalizarSeleccionados"
+              [data]="archivos"
+              [settings]="dropdownSettingsArchivos"
+              placeholder="Seleccione archivos"
+            ></ng-multiselect-dropdown>
             </div>
-          </form>
+          </div>
 
           <!-- Detalle de solicitud -->
           <h3 class="text-lg font-semibold mb-2">Detalle de solicitud</h3>
@@ -42,7 +44,7 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium text-gray-700">Oficina de análisis criminal:</label>
-              <select formControlName="oficinaAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select [(ngModel)]="oficinaAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <option value="">Seleccione</option>
                 <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.tN_IdOficina">
                   {{ oficina.tC_Nombre }}
@@ -52,47 +54,38 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Tipo de análisis:</label>
-              <select formControlName="tipoAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select [(ngModel)]="tipoAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <option value="Análisis Telefónico">Análisis Telefónico</option>
               </select>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Objetivos del análisis:</label>
-              <select formControlName="objetivosAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                <option value="">Seleccione</option>
-                <option value="consultaBaseMaestra">Consulta en la base Maestra</option>
-                <option value="cronologiaComunicaciones">Cronología de comunicaciones</option>
-                <option value="cronologiaRadioBases">Cronología de comunicaciones con radio bases</option>
-                <option value="cronologiaLlamadasInternacionales">Cronología de llamadas internacionales</option>
-                <option value="frecuenciaComunicaciones">Frecuencia de comunicaciones</option>
-                <option value="flujogramasObservados">Flujogramas entre observados</option>
-                <option value="flujogramasComunes">Flujogramas de comunicaciones en común</option>
-                <option value="flujogramasLlamadasInternacionales">Flujogramas de llamadas internacionales</option>
-                <option value="flujogramasIMEI">Flujogramas de uso de IMEI</option>
-                <option value="mapasRadioBases">Mapas de radio bases</option>
-                <option value="sumatoriaRadioBases">Sumatoria de radio bases</option>
-                <option value="utilizacionIMEI">Utilización de IMEI</option>
-                <option value="otros">Otros</option>
-              </select>
+              <ng-multiselect-dropdown
+              [(ngModel)]="objetivosAnalisisSeleccionados"
+              [data]="objetivosAnalista"
+              [settings]="dropdownSettingsObjetivos"
+              placeholder="Seleccione objetivos"
+              class="mt-1 block w-full"
+            ></ng-multiselect-dropdown>
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium text-gray-700">Fecha del hecho:</label>
-              <input formControlName="fechaHecho" type="date" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <input [(ngModel)]="fechaHecho" type="date" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Otros (objetivos):</label>
-              <input formControlName="otrosObjetivos" type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <input [(ngModel)]="otrosObjetivos" type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
           </div>
 
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700">Otros detalles:</label>
-            <textarea formControlName="otrosDetalles" rows="4" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+            <textarea [(ngModel)]="otrosDetalles" rows="4" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
           </div>
 
           <!-- Registros de requerimientos -->
@@ -101,32 +94,32 @@
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium text-gray-700">Tipo Objetivo:</label>
-              <select formControlName="tipoObjetivo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select [(ngModel)]="tipoObjetivo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 <option value="">Seleccione</option>
-                <option>Teléfono</option>
-                <option>IMEI</option>
-                <option>Radio Base</option>
-                <option>SIM</option>
+                <option value="Teléfono">Teléfono</option>
+                <option value="IMEI">IMEI</option>
+                <option value="Radio Base">Radio Base</option>
+                <option value="SIM">SIM</option>
               </select>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Objetivo:</label>
-              <input formControlName="objetivo" type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <input [(ngModel)]="objetivo" type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Utilizado por:</label>
-              <input formControlName="utilizadoPor" type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <input [(ngModel)]="utilizadoPor" type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Condición:</label>
-              <select formControlName="condicion" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                <option>Seleccione</option>
-                <option>Abonado</option>
-                <option>Usuario</option>
-                <option>Aportado por</option>
+              <select [(ngModel)]="condicion" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <option value="">Seleccione</option>
+                <option value="Abonado">Abonado</option>
+                <option value="Usuario">Usuario</option>
+                <option value="Aportado por">Aportado por</option>
               </select>
             </div>
           </div>
@@ -156,7 +149,6 @@
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Objetivo</th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Utilizado por</th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Condición</th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Aportado por</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
@@ -173,7 +165,6 @@
                   <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.TC_Objetivo }}</td>
                   <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.TC_UtilizadoPor }}</td>
                   <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.TC_Condicion }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap"></td>
                 </tr>
               </tbody>
             </table>
