@@ -16,6 +16,10 @@ import { SolicitudProveedorService } from '../../services/solicitud-proveedor.se
 import { ProveedorService } from '../../services/proveedor.service'; // Para cargar operadoras
 import { OficinaService } from '../../services/oficina.service'; // Para cargar oficinas
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { ArchivoService} from '../../services/archivo.service';
+import { HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-solicitud-proveedor',
@@ -31,6 +35,11 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
   styleUrls: ['./solicitud-proveedor.component.css']
 })
 export default class SolicitudProveedorComponent {
+
+  selectedFile: File | null = null;
+
+  fileId: number = 0;
+
   // Estados y modales
   isModalOpen = false;
   isUrgent = false;
@@ -108,9 +117,74 @@ export default class SolicitudProveedorComponent {
     private modalidadService: ModalidadService,
     private subModalidadService: SubModalidadService,
     private tipoSolicitudService: TipoSolicitudService,
-    private tipoDatoService: TipoDatoService
+    private tipoDatoService: TipoDatoService,
+    private archivoService: ArchivoService
 
   ) { }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
+  insertarArchivo() {
+    if (this.selectedFile) {
+      const formData = new FormData();
+      formData.append('TC_Nombre', this.selectedFile.name);
+      formData.append('file', this.selectedFile);  // Renombrado a 'file'
+      formData.append('TC_FormatoAchivo', this.selectedFile.type);
+      formData.append('TF_FechaModificacion', '2024-10-10');
+
+      console.log(formData);
+  
+      this.archivoService.insertarArchivo(formData).subscribe({
+        next: response => {
+          console.log('Archivo guardado con exito', response);
+          alert('Archivo guardado con éxito');
+        },
+        error: err => {
+          console.error('Error al guardar el archivo:', err);
+        }
+      });
+    }
+  }
+
+  
+  descargarArchivo(id: number): void {
+    this.archivoService.descargarArchivo(id).subscribe(response => {
+      // Decodifica el contenido Base64 a un Blob
+      const byteCharacters = atob(response.contenidoArchivo);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: response.tipoArchivo });
+  
+      // Crea la URL para el archivo Blob
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = response.nombreArchivo; // Usa el nombre del archivo desde la respuesta
+      document.body.appendChild(a);
+      a.click();
+  
+      // Limpia el DOM y revoca la URL
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, error => {
+      console.error('Error al descargar el archivo:', error);
+    });
+  }
+
+  // Método auxiliar para extraer el nombre del archivo desde el encabezado 'content-disposition'
+  private getFileName(contentDisposition: string): string {
+    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+    const matches = filenameRegex.exec(contentDisposition);
+    return (matches != null && matches[1]) ? matches[1].replace(/['"]/g, '') : 'archivo_descargado';
+  }
 
   ngOnInit() {
 
