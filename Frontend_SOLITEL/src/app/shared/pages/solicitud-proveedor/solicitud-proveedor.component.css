@@ -413,6 +413,38 @@ textarea {
   border-color: red;
 }
 
+.invalid .dropdown-btn {
+  border-color: red;
+}
+
+/* Estilo para borde rojo en campos inválidos */
+.required-field.ng-invalid.ng-touched {
+  border-color: red !important;
+  border-width: 2px !important;  /* Ajustar el grosor del borde */
+  border-style: solid !important;
+}
+
+/* Ajuste adicional para el dropdown en caso de error */
+::ng-deep .custom-multiselect-dropdown .dropdown-btn.ng-invalid.ng-touched {
+  border-color: red !important;
+  border-width: 2px !important;
+}
+
+::ng-deep .invalid {
+  border: 1px solid red !important;
+}
+/* Borde rojo cuando el campo es inválido */
+.invalid {
+  border-color: red;
+}
+
+
+/* Ajuste adicional para los dropdowns */
+::ng-deep .custom-multiselect-dropdown .dropdown-btn:invalid {
+  border-color: red;
+
+}
+
 /* Clase para ocultar el modal */
 .hidden {
   display: none;
