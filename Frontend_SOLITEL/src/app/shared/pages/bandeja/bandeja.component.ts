@@ -6,6 +6,7 @@ import { FooterComponent } from '../../components/footer/footer.component';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-bandeja',
@@ -15,7 +16,8 @@ import { CommonModule } from '@angular/common';
     FooterComponent,
     RouterOutlet,
     NavbarComponent,
-    CommonModule
+    CommonModule,
+    FormsModule
   ],
   templateUrl: './bandeja.component.html',
   styleUrl: './bandeja.component.css'
@@ -29,6 +31,14 @@ export default class BandejaComponent implements OnInit {
   modalHistoricoVisible = false;
   solicitudSeleccionada: any = null;
   historicoDeSolicitudSeleccionada: any = null;
+  filtroCaracter: string = '';
+
+  //Filtro
+  estadoSeleccionado: string = 'Pendiente';
+  numeroUnicoFiltro: string = '';
+  fechaInicioFiltro: string = '';
+  fechaFinFiltro: string = '';
+  cantidadSolicitudes: number = 0;
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
@@ -134,5 +144,44 @@ export default class BandejaComponent implements OnInit {
     const value = (event.target as HTMLSelectElement).value;
     this.pageSize = +value;
     this.obtenerSolicitudes(this.pageNumber, this.pageSize);
+  }
+
+  filtrarPorEstado() {
+    const solicitudesFiltradas = this.solicitudes.filter(solicitud => solicitud.estado === this.estadoSeleccionado);
+    this.cantidadSolicitudes = solicitudesFiltradas.length;  // Actualiza la cantidad en el badge
+  }
+
+  limpiarFiltros() {
+    this.estadoSeleccionado = 'Pendiente';
+    this.numeroUnicoFiltro = '';
+    this.fechaInicioFiltro = '';
+    this.fechaFinFiltro = '';
+    this.filtrarPorEstado();
+  }
+
+  filtrarSolicitudes() {
+    let solicitudesFiltradas = this.solicitudes;
+
+    // Filtro por estado
+    if (this.estadoSeleccionado) {
+      solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => solicitud.estado === this.estadoSeleccionado);
+    }
+
+    // Filtro por número único
+    if (this.numeroUnicoFiltro) {
+      solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => solicitud.numeroUnico.includes(this.numeroUnicoFiltro));
+    }
+
+    // Filtro por fecha de inicio
+    if (this.fechaInicioFiltro) {
+      solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => new Date(solicitud.fecha) >= new Date(this.fechaInicioFiltro));
+    }
+
+    // Filtro por fecha de fin
+    if (this.fechaFinFiltro) {
+      solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => new Date(solicitud.fecha) <= new Date(this.fechaFinFiltro));
+    }
+
+    console.log('Solicitudes filtradas:', solicitudesFiltradas);
   }
 }

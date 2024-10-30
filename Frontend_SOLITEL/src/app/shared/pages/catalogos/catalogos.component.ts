@@ -52,9 +52,9 @@ export default class CatalogosComponent implements OnInit {
     { value: 'TipoDato', nombre: 'Tipo de Dato' },
     { value: 'TipoSolicitud', nombre: 'Tipo de Solicitud' },
     { value: 'TipoAnalisis', nombre: 'Tipo de Analisis' },
-    { value: 'Oficina', nombre: 'Oficina' },
+    //{ value: 'Oficina', nombre: 'Oficina' },
     { value: 'Proveedor', nombre: 'Proveedor' },
-    { value: 'ObjetivoAnalisis', nombre: 'Objetivo Analisis' }
+    //{ value: 'ObjetivoAnalisis', nombre: 'Objetivo Analisis' }
   ];
 
   constructor(

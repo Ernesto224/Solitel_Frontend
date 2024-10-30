@@ -5,8 +5,6 @@
 
     <div class="mt-12">
 
-      <h1 class="text-3xl font-bold mb-6">Formulario de Solicitudes de Proveedor</h1>
-
       <div class="space-y-8">
 
         <!-- Formulario de solicitudes -->
@@ -23,7 +21,8 @@
               <div class="form-group">
                 <label for="numero-unico">Número único:</label>
                 <div class="input-group">
-                  <input type="text" id="numero-unico" [(ngModel)]="numeroUnico" name="numeroUnico">
+                  <input type="text" id="numero-unico" [(ngModel)]="numeroUnico" name="numeroUnico"
+                    placeholder="00-000000-0000-ab">
                   <button type="button" class="search-btn">
                     <i class="material-icons">search</i>
                   </button>
@@ -67,18 +66,19 @@
                 <label for="fiscalia">Fiscalía:</label>
                 <select id="fiscalia" class="required-field" [(ngModel)]="idFiscaliaSeleccionada"
                   name="idFiscaliaSeleccionada" required>
-                  <option value="0">Seleccione</option>
-                  <option *ngFor="let fiscalia of fiscalias" [value]="fiscalia.idFiscalia">
-                    {{ fiscalia.nombre }}
+                  <option value="">Seleccione</option>
+                  <option *ngFor="let fiscalia of fiscalias" [value]="fiscalia.idFiscalia">{{ fiscalia.nombre }}
                   </option>
                 </select>
               </div>
 
+
+              <!-- Campo de operadora usando multiselect -->
               <div class="form-group">
                 <label for="operadora">Operadora:</label>
                 <ng-multiselect-dropdown class="custom-multiselect-dropdown" [placeholder]="'Seleccione'"
                   [data]="operadoras" [(ngModel)]="operadoraSeleccionada" [settings]="dropdownSettings"
-                  name="idOperadoraSeleccionada" required>
+                  name="idOperadoraSeleccionada" required [ngClass]="{'invalid': operadoraSeleccionada.length === 0}">
                 </ng-multiselect-dropdown>
               </div>
 
@@ -91,7 +91,7 @@
                 <label for="categoria-delito">Categoría delito:</label>
                 <select id="categoria-delito" class="required-field" [(ngModel)]="idCategoriaDelitoSeleccionado"
                   (change)="onCategoriaDelitoChange()" name="idCategoriaDelitoSeleccionado" required>
-                  <option value="0">Seleccione</option>
+                  <option value="">Seleccione</option>
                   <option *ngFor="let categoria of categoriasDelito" [value]="categoria.idCategoriaDelito">
                     {{ categoria.nombre }}
                   </option>
@@ -102,7 +102,7 @@
                 <label for="delito">Delito:</label>
                 <select id="delito" class="required-field" [(ngModel)]="idDelitoSeleccionado"
                   name="idDelitoSeleccionado" required>
-                  <option value="0">Seleccione</option>
+                  <option value="">Seleccione</option>
                   <option *ngFor="let delito of delitos" [value]="delito.idDelito">
                     {{ delito.nombre }}
                   </option>
@@ -165,13 +165,16 @@
             <!-- Registros de requerimientos -->
             <div class="form-row">
 
+              <!-- Tipo de Solicitud -->
               <div class="form-group">
                 <label for="tipo-solicitud">Tipo de Solicitud:</label>
                 <ng-multiselect-dropdown id="tipo-solicitud" [(ngModel)]="tipoSolicitudSeleccionada"
                   [data]="tiposSolicitud" [settings]="dropdownSettings2" [placeholder]="'Seleccione tipos de solicitud'"
-                  name="tipoSolicitudSeleccionada" class="custom-multiselect-dropdown" required>
+                  name="tipoSolicitudSeleccionada" class="custom-multiselect-dropdown" required
+                  [ngClass]="{'invalid': tipoSolicitudSeleccionada.length === 0}">
                 </ng-multiselect-dropdown>
               </div>
+
 
             </div>
 
@@ -180,12 +183,14 @@
               <div class="form-group">
                 <label for="dato-requerido">Dato requerido:</label>
                 <div class="input-group">
-                  <input type="text" id="lista-datos-requeridos" [value]="getListaDatosFormateados()" disabled>
+                  <input type="text" id="lista-datos-requeridos" [value]="getListaDatosFormateados()"
+                    class="required-field" [ngClass]="{'invalid': getListaDatosFormateados() === ''}" disabled>
                   <button type="button" class="search-btn" (click)="openModal()">
                     <i class="material-icons">phone_enabled</i>
                   </button>
                 </div>
               </div>
+
 
             </div>
 
@@ -208,8 +213,7 @@
             <div class="form-group">
 
               <label for="requerimiento">Requerimiento:</label>
-              <textarea id="requerimiento" [(ngModel)]="requerimiento" name="requerimiento" class="required-field"
-                required></textarea>
+              <textarea id="requerimiento" [(ngModel)]="requerimiento" name="requerimiento" class="required-field" required></textarea>
 
             </div>
 
@@ -232,12 +236,14 @@
                 <span>Guardar</span>
               </button>
 
-              <button type="button" class="btn btn-tertiary text-[#FFFFFF] px-4 
-              py-2 rounded 
-              focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2">
+              <!-- <button type="button" class="btn btn-tertiary text-[#FFFFFF] px-4 
+                py-2 rounded 
+                focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                (click)="actualizarSolicitud()">
                 <i class="material-icons">edit_square</i>
                 <span>Editar</span>
               </button>
+            -->
 
             </div>
 
@@ -275,10 +281,11 @@
                         </button>
 
                         <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
-                        py-2 rounded 
-                        focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2">
+                          py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                          (click)="editarSolicitud(i)">
                           <i class="material-icons">edit</i>
                         </button>
+
 
                       </div>
                     </td>
@@ -390,7 +397,8 @@
         <!-- Tipo Dato -->
         <div class="form-group">
           <label for="tipo-dato">Tipo de Dato:</label>
-          <select id="tipo-dato" [(ngModel)]="tipoDatoSeleccionado" name="tipoDatoSeleccionado" required>
+          <select id="tipo-dato" class="required-field" [(ngModel)]="tipoDatoSeleccionado" name="tipoDatoSeleccionado"
+            (change)="onTipoDatoChange()" [disabled]="tipoDatoSeleccionadoBloqueado" required>
             <option value="">Seleccione un tipo de dato</option>
             <option *ngFor="let tipo of tiposDato" [ngValue]="tipo"> <!-- Guardar el objeto completo -->
               {{ tipo.nombre }} <!-- Mostrar el nombre, pero guardar todo el objeto -->
@@ -398,17 +406,22 @@
           </select>
         </div>
 
+
         <!-- Dato requerido -->
         <div class="form-group">
           <label for="dato-requerido">Dato requerido:</label>
-          <input type="text" id="dato-requerido" [(ngModel)]="datoRequerido" name="datoRequerido" required>
+          <input type="text" id="dato-requerido" [(ngModel)]="datoRequerido" name="datoRequerido"
+            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required>
         </div>
 
         <!-- Repita el dato requerido -->
         <div class="form-group">
           <label for="repita-dato">Repita el dato requerido:</label>
-          <input type="text" id="repita-dato" [(ngModel)]="repitaDatoRequerido" name="repitaDatoRequerido" required>
+          <input type="text" id="repita-dato" [(ngModel)]="repitaDatoRequerido" name="repitaDatoRequerido"
+            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required>
         </div>
+
+
 
         <!-- Ingrese una motivación -->
         <div class="form-group">
@@ -438,13 +451,16 @@
         <!-- Lista de datos requeridos -->
         <div class="form-group">
           <label for="lista-datos">Lista de datos requeridos:</label>
-          <select id="lista-datos" (change)="onDatoRequeridoChange($event)">
+          <select id="lista-datos" [(ngModel)]="selectedDatoRequerido" name="listaDatosRequeridos" 
+                  [ngClass]="{}">
             <option value="">Seleccione un dato requerido</option>
-            <option *ngFor="let item of listaDatosRequeridos" [value]="item.tN_IdDatoRequerido">
+            <option *ngFor="let item of listaDatosRequeridos" [ngValue]="item">
               {{ item.tC_DatoRequerido }}
             </option>
           </select>
         </div>
+        
+        
 
       </form>
 

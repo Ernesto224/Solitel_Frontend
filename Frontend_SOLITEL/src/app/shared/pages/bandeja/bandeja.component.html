@@ -1,7 +1,71 @@
 <div class="flex flex-col mb-0 pb-0">
 
+
   <!-- Contenedor con scroll horizontal y vertical si es necesario -->
   <div class="overflow-x-auto overflow-y-auto max-h-screen">
+
+
+    <!--Filtro de -->
+    <div class="filter-container">
+      <h2>Filtro de solicitudes telefónicas</h2>
+    
+      <div class="filter-form">
+        <!-- Filtrar por carácter - ocupa toda la fila -->
+        <div class="form-group filter-full-width">
+          <label for="filtro-caracter">Filtrar por carácter:</label>
+          <input type="text" id="filtro-caracter" class="w-full p-2 border rounded" placeholder="Ingrese carácter"
+            [(ngModel)]="filtroCaracter">
+        </div>
+    
+        <!-- Estado -->
+        <div class="form-group">
+          <label for="estado">Estado:</label>
+          <div class="badge-container">
+            <select id="estado" [(ngModel)]="estadoSeleccionado" (change)="filtrarPorEstado()" class="w-full p-2 border rounded">
+              <option value="Pendiente">Pendiente</option>
+              <option value="Aprobado">Aprobado</option>
+              <option value="Rechazado">Rechazado</option>
+            </select>
+            <span class="badge ml-2 bg-blue-500 text-white px-2 py-1 rounded">{{cantidadSolicitudes}}</span>
+          </div>
+        </div>
+    
+        <!-- Número único -->
+        <div class="form-group">
+          <label for="numero-unico">Número único:</label>
+          <input type="text" id="numero-unico" class="w-full p-2 border rounded" placeholder="Número único"
+            [(ngModel)]="numeroUnicoFiltro">
+        </div>
+    
+        <!-- Fecha inicio -->
+        <div class="form-group">
+          <label for="fecha-inicio">Fecha inicio:</label>
+          <input type="date" id="fecha-inicio" class="w-full p-2 border rounded" [(ngModel)]="fechaInicioFiltro">
+        </div>
+    
+        <!-- Fecha fin -->
+        <div class="form-group">
+          <label for="fecha-fin">Fecha fin:</label>
+          <input type="date" id="fecha-fin" class="w-full p-2 border rounded" [(ngModel)]="fechaFinFiltro">
+        </div>
+    
+        <!-- Botones centrados respecto al cuadro -->
+        <div class="button-group">
+          <button type="button" class="btn limpiar" (click)="limpiarFiltros()">
+            <i class="material-icons">cached</i> Limpiar
+          </button>
+    
+          <button type="button" class="btn filtrar" (click)="filtrarSolicitudes()">
+            <i class="material-icons">filter_alt</i> Filtrar
+          </button>
+        </div>
+      </div>
+    </div>
+    
+
+
+
+
 
     <!-- Tabla con columnas ajustadas y paginación -->
     <table class="min-w-full table-auto border-collapse">
