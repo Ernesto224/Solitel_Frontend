@@ -117,13 +117,21 @@
             </div>
           </div>
 
+          <!-- Validación y campos con longitud mínima de 20 caracteres -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700">Otros detalles:</label>
             <textarea
               [(ngModel)]="otrosDetalles"
+              (blur)="validarOtrosDetalles()"
               rows="4"
               class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             ></textarea>
+            <p *ngIf="otrosDetalles.length < 20" class="text-red-500 text-xs mt-1">
+              Este campo debe tener al menos 20 caracteres.
+            </p>
+            <p *ngIf="!validarOtrosDetalles() && otrosDetalles.length >= 20" class="text-red-500 text-xs mt-1">
+              Solo se permiten letras, números y signos de puntuación básicos.
+            </p>
           </div>
 
           <!-- Registros de requerimientos -->
@@ -144,28 +152,45 @@
               </select>
             </div>
 
+            <!-- Validación de "Objetivo" -->
             <div>
               <label class="block text-sm font-medium text-gray-700">Objetivo:</label>
               <input
                 [(ngModel)]="objetivo"
+                (blur)="validarObjetivo()"
+                mask="00000000" 
                 type="text"
                 class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
+              <p *ngIf="objetivo.length < 8" class="text-red-500 text-xs mt-1">
+                El objetivo debe tener al menos 8 numeros.
+              </p>
+              <p *ngIf="!validarObjetivo() && objetivo.length >= 20" class="text-red-500 text-xs mt-1">
+                Solo se permiten letras y espacios.
+              </p>
             </div>
 
+            <!-- Validación de "Utilizado por" -->
             <div>
               <label class="block text-sm font-medium text-gray-700">Utilizado por:</label>
               <input
                 [(ngModel)]="utilizadoPor"
+                (blur)="validarUtilizadoPor()"
                 type="text"
                 class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
+              <p *ngIf="utilizadoPor.length < 20" class="text-red-500 text-xs mt-1">
+                Este campo debe tener al menos 20 caracteres.
+              </p>
+              <p *ngIf="!validarUtilizadoPor() && utilizadoPor.length >= 20" class="text-red-500 text-xs mt-1">
+                Solo se permiten letras y espacios.
+              </p>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Condición:</label>
               <select
-                [(ngModel)]="condicion"
+                [(ngModel)]="condicionAnalisisEscogida"
                 class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
                 <option value="">Seleccione</option>
@@ -201,6 +226,7 @@
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Objetivo</th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Utilizado por</th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Condición</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Aportado por</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
@@ -228,8 +254,8 @@
 
   <!-- Botones generales de la tabla -->
   <div class="center-buttons">
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="agregarRequerimiento()">
-      Agregar
+    <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="limpiarFormulario()">
+      Limpiar
     </button>
 
     <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="enviarSolicitud()">

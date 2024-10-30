@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 export interface Archivo {
   idArchivo: number;
   nombreArchivo: string;
+  TC_FormatoAchivo:string;
 }
 
 @Injectable({
@@ -19,6 +20,7 @@ export class AnalisisTelefonicoService {
   private urlObtenerObjetivoAnalisis: string = 'ObjetivoAnalisis/obtenerObjetivoAnalisis';
   private urlCondicionesAnalisis: string = "Condicion"
   private urlTiposAnalisis: string = "TipoAnalisis";
+  private urlArchivoSoliProveedor: string = 'obtenerArchivosDeSolicitudesProveedor';
 
   constructor(private http: HttpClient) {}
 
@@ -82,5 +84,13 @@ obtenerCondiciones(): Observable<any[]>{
   return this.http.get<any[]>(`${this.baseUrl}${this.urlCondicionesAnalisis}`, { headers });
 }
 
+obtenerArchivosSolicitudProveedor(idSolicitudProveedor: number): Observable<any[]> {
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  });
+  const url = `${this.baseUrl}${this.urlArchivoSoliProveedor}/${idSolicitudProveedor}`;
+  return this.http.get<any[]>(url, { headers });
+}
 
 }
