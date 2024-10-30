@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { AnalisisTelefonicoService, Archivo } from '../../services/analisis-telefonico.service';
-
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 interface Requerimiento {
   TN_IdRequerimento: number;
   TC_TipoObjetivo: string;
@@ -117,7 +117,8 @@ interface SubModalidad {
   templateUrl: './analisis-telefonico.component.html',
   styleUrls: ['./analisis-telefonico.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, NgMultiSelectDropDownModule],
+  imports: [CommonModule, FormsModule, NgMultiSelectDropDownModule, NgxMaskDirective],
+  providers:[provideNgxMask()]
 })
 export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   solicitudAnalisisId: number = 1;
@@ -247,9 +248,9 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
           console.log("Objetivos recibidos:", objetivos);
           this.objetivosAnalista = objetivos;
           this.archivos = [
-            { idArchivo: 1, nombreArchivo: 'Archivo 1' },
-            { idArchivo: 2, nombreArchivo: 'Archivo 2' },
-            { idArchivo: 3, nombreArchivo: 'Archivo 3' },
+            { idArchivo: 1, nombreArchivo: 'Archivo 1', TC_FormatoAchivo:'.pdf' },
+            { idArchivo: 2, nombreArchivo: 'Archivo 2', TC_FormatoAchivo:'.exe'},
+            { idArchivo: 3, nombreArchivo: 'Archivo 3' ,TC_FormatoAchivo:'.doc'},
           ];
         },
         (error) => console.error('Error al cargar objetivos de análisis:', error)
@@ -273,6 +274,16 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       this.requerimientos.push(nuevoRequerimiento);
     }
     this.limpiarCamposRequerimiento();
+  }
+
+  obtenerArchivosSolicitudProveedor(): void{
+    this.analisisService.obtenerArchivosSolicitudProveedor(1).subscribe(
+      (archivos) => {
+        console.log("Archivos recibidos:", archivos);
+        this.archivos = archivos;
+      },
+      (error) => console.error('Error al cargar archivos de la solicitud:', error)
+    );
   }
 
   limpiarCamposRequerimiento(): void {
@@ -433,7 +444,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
             tN_IdArchivo: archivo.idArchivo || 0,
             tC_Nombre: "Archivo no especificado",
             tV_Contenido: "",
-            tC_FormatoAchivo: "Formato no especificado",
+            tC_FormatoAchivo: archivo.TC_FormatoAchivo || "Sin formato",
             tF_FechaModificacion: new Date().toISOString()
         }))
     };
@@ -483,4 +494,27 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.otrosDetalles = '';
     this.limpiarCamposRequerimiento();
   }
+  validarObjetivo(): boolean {
+    const regex = /^[a-zA-Z\s]+$/;
+    return regex.test(this.objetivo) && this.objetivo.length ==8 ;
+  }
+
+  // Validación para el campo "Utilizado Por" (letras y espacios, mínimo 20 caracteres)
+  validarUtilizadoPor(): boolean {
+    const regex = /^[a-zA-Z\s]+$/;
+    return regex.test(this.utilizadoPor) && this.utilizadoPor.length >= 20;
+  }
+
+  // Validación para "Otros Detalles" (letras, números, signos de puntuación, mínimo 20 caracteres)
+  validarOtrosDetalles(): boolean {
+    const regex = /^[a-zA-Z0-9\s.,;:!?()\-]+$/;
+    return regex.test(this.otrosDetalles) && this.otrosDetalles.length >= 20;
+  }
+
+  // Método general para verificar todas las validaciones
+  validarCampos(): boolean {
+    return this.validarObjetivo() && this.validarUtilizadoPor() && this.validarOtrosDetalles();
+  }
 }
+
+
