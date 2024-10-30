@@ -20,6 +20,11 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'bandeja-analista',
+        loadComponent: () =>
+          import('./shared/pages/bandeja-analista/bandeja-analista.component'),
+      },
+      {
         path: 'bandeja',
         loadComponent: () => import('./shared/pages/bandeja/bandeja.component'),
       },
