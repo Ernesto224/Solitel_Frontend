@@ -30,6 +30,7 @@ export default class BandejaComponent implements OnInit {
   modalVisible = false;
   modalHistoricoVisible = false;
   solicitudSeleccionada: any = null;
+  historicoDeSolicitudSeleccionada: any = null;
   filtroCaracter: string = '';
 
   //Filtro
@@ -38,7 +39,6 @@ export default class BandejaComponent implements OnInit {
   fechaInicioFiltro: string = '';
   fechaFinFiltro: string = '';
   cantidadSolicitudes: number = 0;
-  historicoDeSolicitudSeleccionada: any = null;
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
