@@ -283,20 +283,18 @@ export default class SolicitudProveedorComponent {
   }
 
   guardarSolicitud() {
-
+    
     if (
       (this.validarNumUnico(this.numeroUnico) == true || this.numeroCaso) &&  
       this.validarNombrePersona(this.imputado) &&        
       this.validarNombrePersona(this.ofendido) &&        
-      this.validarResenaYRequerimiento(this.resennia) && 
-      this.validarResenaYRequerimiento(this.requerimiento) && 
-      this.idFiscaliaSeleccionada &&                     
+      this.validarResenaYRequerimiento(this.resennia) &&  
+      !!this.idFiscaliaSeleccionada &&                     
       this.operadoraSeleccionada.length >= 1 &&           
-      this.idOficinaSeleccionada &&                      
-      this.idCategoriaDelitoSeleccionado &&              
-      this.idDelitoSeleccionado &&
-      this.tipoSolicitudSeleccionada.length >= 1 &&
-      this.listaDatosRequeridos.length >= 1
+      !!this.idOficinaSeleccionada &&                      
+      !!this.idCategoriaDelitoSeleccionado &&              
+      !!this.idDelitoSeleccionado &&
+      this.listaSolicitudes.length >= 1
     ) {
 
         const solicitudProveedor = {
@@ -396,6 +394,44 @@ export default class SolicitudProveedorComponent {
           }
         });
 
+      }else {
+        let errores = [];
+      
+        if (!(this.validarNumUnico(this.numeroUnico) == true || this.numeroCaso)) {
+          errores.push("Número único o número de caso");
+        }
+        if (!this.validarNombrePersona(this.imputado)) {
+          errores.push("Nombre del imputado");
+        }
+        if (!this.validarNombrePersona(this.ofendido)) {
+          errores.push("Nombre del ofendido");
+        }
+        if (!this.validarResenaYRequerimiento(this.resennia)) {
+          errores.push("Reseña y requerimiento");
+        }
+        if (!this.idFiscaliaSeleccionada) {
+          errores.push("Fiscalía seleccionada");
+        }
+        if (this.operadoraSeleccionada.length < 1) {
+          errores.push("Operadora seleccionada");
+        }
+        if (!this.idOficinaSeleccionada) {
+          errores.push("Oficina seleccionada");
+        }
+        if (!this.idCategoriaDelitoSeleccionado) {
+          errores.push("Categoría de delito seleccionada");
+        }
+        if (!this.idDelitoSeleccionado) {
+          errores.push("Delito seleccionado");
+        }
+        if (this.listaSolicitudes.length < 1) {
+          errores.push("Lista de solicitudes con al menos un elemento");
+        }
+      
+        // Mostrar alert con los errores
+        if (errores.length > 0) {
+          alert("Los siguientes campos son requeridos o tienen errores:\n- " + errores.join("\n- "));
+        }
       }
     
   }
