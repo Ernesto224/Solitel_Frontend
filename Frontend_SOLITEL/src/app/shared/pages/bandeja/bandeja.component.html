@@ -21,13 +21,14 @@
         <div class="form-group">
           <label for="estado">Estado:</label>
           <div class="badge-container">
-            <select id="estado" [(ngModel)]="estadoSeleccionado" (change)="filtrarPorEstado()"
-              class="w-full p-2 border rounded">
-              <option value="Pendiente">Pendiente</option>
-              <option value="Aprobado">Aprobado</option>
-              <option value="Rechazado">Rechazado</option>
+            <select id="estado" [(ngModel)]="estadoSeleccionado" class="w-full p-2 border rounded">
+              <option value="" disabled selected>Solicitud Proveedor</option>
+              <!-- Opciones dinámicas -->
+              <option *ngFor="let estado of estados" [value]="estado.tN_IdEstado">
+                {{ estado.tC_Nombre }} ({{ estado.tC_Tipo }})
+              </option>
             </select>
-            <span class="badge ml-2 bg-blue-500 text-white px-2 py-1 rounded">{{cantidadSolicitudes}}</span>
+            <span class="badge ml-2 bg-blue-500 text-white px-2 py-1 rounded">{{estados.length}}</span>
           </div>
         </div>
 
@@ -70,7 +71,6 @@
 
     <!-- Tabla con columnas ajustadas y paginación -->
     <table class="min-w-full table-auto border-collapse">
-
       <thead>
         <tr class="bg-[#1C355C] text-white">
           <th class="border px-4 py-2 text-center">Aprobar</th>
@@ -79,7 +79,7 @@
           <th class="border px-4 py-2 text-center">Ver</th>
           <th class="border px-4 py-2 text-center">Número de Caso</th>
           <th class="border px-4 py-2 text-center">Número único</th>
-          <th class="border px-4 py-2 text-center">Fecha requerimiento</th>
+          <th class="border px-4 py-2 text-center">Fecha creación</th> <!-- Cambiado a 'Fecha creación' -->
           <th class="border px-4 py-2 text-center">Días transcurridos</th>
           <th class="border px-4 py-2 text-center">Estado</th>
           <th class="border px-4 py-2 text-center">Urgente</th>
@@ -88,9 +88,7 @@
       </thead>
 
       <tbody class="bg-[#F3F4F6] text-black">
-
         <tr *ngFor="let solicitud of solicitudes" class="hover:bg-gray-200">
-
           <td class="border px-4 py-2 text-center">
             <input type="checkbox" class="toggle-checkbox" />
           </td>
@@ -99,10 +97,9 @@
           <!-- Sin Efecto -->
           <td class="border px-4 py-2 text-center">
             <div class="flex justify-center">
-              <button (click)="cambiarEstadoASinEfeceto(solicitud)" class="bg-blue-500 text-white px-4 py-2 rounded 
-                focus:outline-none focus:ring flex items-center 
-                space-x-2">
-                <i class="material-icons">info</i>
+              <button (click)="abrirModal(solicitud)"
+                class="bg-blue-500 text-white px-4 py-2 rounded focus:outline-none focus:ring flex items-center space-x-2">
+                <i class="material-icons">scan_delete</i>
               </button>
             </div>
           </td>
@@ -110,10 +107,9 @@
           <!-- Boton Historico -->
           <td class="border px-4 py-2 text-center">
             <div class="flex justify-center">
-              <button (click)="abrirModalHistorico(solicitud)" class="bg-blue-500 text-white px-4 py-2 rounded 
-                focus:outline-none focus:ring flex items-center 
-                space-x-2">
-                <i class="material-icons">info</i>
+              <button (click)="abrirModal(solicitud)"
+                class="bg-blue-500 text-white px-4 py-2 rounded focus:outline-none focus:ring flex items-center space-x-2">
+                <i class="material-icons">scan_delete</i>
               </button>
             </div>
           </td>
@@ -121,9 +117,8 @@
           <!-- Boton Ver -->
           <td class="border px-4 py-2 text-center">
             <div class="flex justify-center">
-              <button (click)="abrirModal(solicitud)" class="bg-blue-500 text-white px-4 py-2 rounded 
-                focus:outline-none focus:ring flex items-center 
-                space-x-2">
+              <button (click)="abrirModal(solicitud)"
+                class="bg-blue-500 text-white px-4 py-2 rounded focus:outline-none focus:ring flex items-center space-x-2">
                 <i class="material-icons">info</i>
               </button>
             </div>
@@ -135,14 +130,14 @@
           <!-- Muestra el número único -->
           <td class="border px-4 py-2 text-center">{{ solicitud.numeroUnico }}</td>
 
-          <!-- Muestra la fecha del primer requerimiento -->
+          <!-- Muestra la fecha de creación (fechaCrecion) -->
           <td class="border px-4 py-2 text-center">
-            {{ solicitud.requerimientos?.[0]?.tF_FechaInicio | date: 'dd/MM/yyyy' }}
+            {{ solicitud.fechaCrecion | date: 'dd/MM/yyyy' }} <!-- Cambiado a fechaCrecion -->
           </td>
 
-          <!-- Calcula los días transcurridos desde la fecha de inicio del primer requerimiento -->
+          <!-- Calcula los días transcurridos -->
           <td class="border px-4 py-2 text-center">
-            {{ calcularDiasTranscurridos(solicitud.requerimientos?.[0]?.tF_FechaInicio) }}
+            {{ calcularDiasTranscurridos(solicitud.fechaCrecion) }} <!-- Cambiado a fechaCrecion -->
           </td>
 
           <!-- Muestra el estado de la solicitud -->
@@ -153,14 +148,13 @@
 
           <!-- Muestra el nombre del creador -->
           <td class="border px-4 py-2 text-center">
-            {{ solicitud.usuarioCreador?.tC_Nombre }} {{ solicitud.usuarioCreador?.tC_Apellido }}
+            {{ solicitud.usuarioCreador?.tC_Nombre }} {{ solicitud.usuarioCreador?.tC_Apellido || '' }}
+            <!-- Muestra el apellido si está presente -->
           </td>
-
         </tr>
-
       </tbody>
-
     </table>
+
 
   </div>
 
