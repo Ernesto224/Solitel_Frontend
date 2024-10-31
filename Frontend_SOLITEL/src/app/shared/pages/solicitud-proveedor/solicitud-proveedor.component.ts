@@ -350,7 +350,7 @@ export default class SolicitudProveedorComponent {
           },
     
           estado: {
-            TN_IdEstado: 4,
+            TN_IdEstado: 3,
             TC_Nombre: "Creado",
             TC_Descripcion: "Solicitud creada"
           },
