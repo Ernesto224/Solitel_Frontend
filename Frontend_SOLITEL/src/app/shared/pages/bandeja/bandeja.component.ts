@@ -207,9 +207,9 @@ export default class BandejaComponent implements OnInit {
         urgente: true,
         creadoPor: true
       };
-    } else if (estado === 'Tramitado') {
+    } else if (estado === 'Finalizado') {
       this.columnasVisibles = {
-        finalizar: true,
+        devolver: true,
         historico: true,
         sinEfecto: true,
         requerimientos: true,
@@ -254,7 +254,7 @@ export default class BandejaComponent implements OnInit {
         urgente: true,
         creadoPor: true
       };
-    } else if (estado === 'Finalizado') {
+    } else if (estado === 'Tramitado') {
       this.columnasVisibles = {
         finalizar: true,
         historico: true,

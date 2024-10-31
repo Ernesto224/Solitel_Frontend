@@ -110,8 +110,8 @@
         </tr>
 
         <!-- Estado “tramitado” -->
-        <tr *ngIf="estadoSeleccionado === 'Tramitado'" class="bg-[#1C355C] text-white">
-          <th *ngIf="columnasVisibles['finalizar']" class="border px-4 py-2 text-center">Finalizar</th>
+        <tr *ngIf="estadoSeleccionado === 'Finalizado'" class="bg-[#1C355C] text-white">
+          <th *ngIf="columnasVisibles['devolver']" class="border px-4 py-2 text-center">Devolver</th>
           <th *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">Histórico</th>
           <th *ngIf="columnasVisibles['sinEfecto']" class="border px-4 py-2 text-center">Sin efecto</th>
           <th *ngIf="columnasVisibles['requerimientos']" class="border px-4 py-2 text-center">Requerimientos</th>
@@ -160,7 +160,7 @@
         </tr>
 
         <!-- Estado “finalizado” -->
-        <tr *ngIf="estadoSeleccionado === 'Finalizado'" class="bg-[#1C355C] text-white">
+        <tr *ngIf="estadoSeleccionado === 'Tramitado'" class="bg-[#1C355C] text-white">
           <th *ngIf="columnasVisibles['finalizar']" class="border px-4 py-2 text-center">Finalizar</th>
           <th *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">Histórico</th>
           <th *ngIf="columnasVisibles['legajo']" class="border px-4 py-2 text-center">Legajo</th>
@@ -434,8 +434,8 @@
               </button>
             </td>
             <td *ngIf="columnasVisibles['requerimientos']" class="border px-4 py-2 text-center">
-              <button (click)="abrirModal(solicitud)" class="text-white px-4 py-2 rounded focus:outline-none focus:ring"
-                style="background-color: #1C355C;">
+              <button (click)="abrirModalRequerimientos(solicitud)"
+                class="text-white px-4 py-2 rounded focus:outline-none focus:ring" style="background-color: #1C355C;">
                 <i class="material-icons">description</i>
               </button>
             </td>
@@ -464,12 +464,12 @@
 
         <!-- Fila de datos para el Estado “Tramitado -->
 
-        <ng-container *ngIf="estadoSeleccionado === 'Tramitado'">
+        <ng-container *ngIf="estadoSeleccionado === 'Finalizado'">
           <tr *ngFor="let solicitud of solicitudesFiltradas" class="hover:bg-gray-200">
-            <td *ngIf="columnasVisibles['finalizar']" class="border px-4 py-2 text-center">
-              <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Finalizar')"
+            <td *ngIf="columnasVisibles['devolver']" class="border px-4 py-2 text-center">
+              <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Devolver')"
                 class="text-white px-4 py-2 rounded focus:outline-none focus:ring" style="background-color: #1C355C;">
-                <i class="material-icons">start</i>
+                <i class="material-icons">redo</i>
               </button>
             </td>
             <td *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">
@@ -521,7 +521,7 @@
 
         <!-- Fila de datos para el Estado "Finalizado" -->
 
-        <ng-container *ngIf="estadoSeleccionado === 'Finalizado'">
+        <ng-container *ngIf="estadoSeleccionado === 'Tramitado'">
           <tr *ngFor="let solicitud of solicitudesFiltradas" class="hover:bg-gray-200">
             <td *ngIf="columnasVisibles['finalizar']" class="border px-4 py-2 text-center">
               <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Finalizar')"
@@ -920,15 +920,6 @@
                   style="background-color: #1C355C;" (click)="cargarArchivos(requerimiento.idRequerimientoProveedor)">
                   <i class="material-icons">folder</i>
                 </button>
-
-                <!-- Contenedor para botones de archivos -->
-                <div *ngIf="archivos && archivos.length > 0" class="mt-4">
-                  <button *ngFor="let archivo of archivos"
-                    class="text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring"
-                    style="background-color: #1C355C;" (click)="descargarArchivo(archivo)">
-                    {{ archivo.nombre }}
-                  </button>
-                </div>
               </td>
               <td class="px-4 py-2">{{ requerimiento.requerimiento }}</td>
               <td class="px-4 py-2">
@@ -941,6 +932,16 @@
               </td>
               <td class="px-4 py-2">{{ requerimiento.fechaInicio }} al {{ requerimiento.fechaFinal }}</td>
               <td class="px-4 py-2">{{ requerimiento.observacion }}</td>
+            </tr>
+            <tr class="px-4 py-2 text-center">
+              <!-- Contenedor para botones de archivos -->
+              <div *ngIf="archivos && archivos.length > 0" class="mt-4">
+                <button *ngFor="let archivo of archivos"
+                  class="text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring"
+                  style="background-color: #1C355C;" (click)="descargarArchivo(archivo)">
+                  {{ archivo.nombre }}
+                </button>
+              </div>
             </tr>
 
           </tbody>
