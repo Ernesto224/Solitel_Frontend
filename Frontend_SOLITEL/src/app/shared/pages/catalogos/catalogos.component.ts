@@ -4,7 +4,6 @@ import { FooterComponent } from '../../components/footer/footer.component';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
-
 import { CategoriaDelitoService } from '../../services/categoria-delito.service';
 import { DelitoService } from '../../services/delito.service';
 import { CondicionService } from '../../services/condicion.service';
@@ -17,7 +16,6 @@ import { ProveedorService } from '../../services/proveedor.service';
 import { FiscaliaService } from '../../services/fiscalia.service';
 import { TipoAnalisisService } from '../../services/tipo-analisis.service';
 import { ObjetivoAnalisisService } from '../../services/objetivo-analisis.service';
-
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -41,7 +39,7 @@ export default class CatalogosComponent implements OnInit {
   formulario!: FormGroup;
   contenido: any[] = [];
   encabezados: any[] = [];
-  catalogoSeleccionado!: string;
+  contenidoPaginado: any[] = [];
   catalogos: { value: string, nombre: string }[] = [
     { value: 'CategoriaDelito', nombre: 'Categoría Delito' },
     { value: 'Condicion', nombre: 'Condición' },
@@ -52,10 +50,13 @@ export default class CatalogosComponent implements OnInit {
     { value: 'TipoDato', nombre: 'Tipo de Dato' },
     { value: 'TipoSolicitud', nombre: 'Tipo de Solicitud' },
     { value: 'TipoAnalisis', nombre: 'Tipo de Analisis' },
-    //{ value: 'Oficina', nombre: 'Oficina' },
+    { value: 'Oficina', nombre: 'Oficina' },
     { value: 'Proveedor', nombre: 'Proveedor' },
-    //{ value: 'ObjetivoAnalisis', nombre: 'Objetivo Analisis' }
+    { value: 'ObjetivoAnalisis', nombre: 'Objetivo Analisis' }
   ];
+  pageNumber: number = 1;
+  pageSize: number = 5;
+  catalogoSeleccionado!: string;
 
   constructor(
     private delitoService: DelitoService,
@@ -91,17 +92,16 @@ export default class CatalogosComponent implements OnInit {
 
   ngOnInit(): void {
 
-    // Inicializamos el FormGroup con los controles
     this.formulario = new FormGroup({
       catalog: new FormControl('', Validators.required),
       name: new FormControl('', Validators.required),
       description: new FormControl('', Validators.required),
-      dependency: new FormControl({ value: '', disabled: true }, Validators.required)  // Deshabilitado inicialmente
+      dependency: new FormControl({ value: '', disabled: true }, Validators.required)
     });
 
-    // Escuchar cambios en el campo "catalog"
     this.formulario.get('catalog')?.valueChanges.subscribe(catalogo => {
       if (catalogo) {
+        this.pageNumber = 1;
         this.obtenerDatos(catalogo);
         this.cargarDependencias(catalogo);
         this.bloquearCampos(catalogo);
@@ -120,17 +120,11 @@ export default class CatalogosComponent implements OnInit {
 
   onReset(): void {
     this.formulario.reset();
-    this.encabezados = []; // Encabezado vacío para casos no implementados
-    this.contenido = []; // Tabla vacía
-  }
-
-  get keys(): string[] {
-    return this.contenido.length > 0 ? Object.keys(this.contenido[0]) : [];
-  }
-
-  optenerId(row: any): any {
-    //devuelve la primera propiedad
-    return row[Object.keys(row)[0]];
+    this.encabezados = [];
+    this.contenido = [];
+    this.contenidoPaginado = [];
+    this.pageNumber = 1;
+    this.pageSize = 5;
   }
 
   obtenerDatos(catalogo: string): void {
@@ -141,6 +135,8 @@ export default class CatalogosComponent implements OnInit {
       (response: any) => {
         this.contenido = response;
         this.encabezados = this.keys;
+        this.pageNumber = 1;
+        this.actualizarContenidoPaginado();
       },
       (error: any) => {
         this.encabezados = [];
@@ -149,6 +145,38 @@ export default class CatalogosComponent implements OnInit {
       }
     );
 
+  }
+
+  cambiarTamanoPagina(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.pageSize = +target.value;
+    this.pageNumber = 1; // Reinicia a la primera página
+    this.actualizarContenidoPaginado();
+  }
+
+  cambiarPagina(direccion: number) {
+    const maxPage = Math.ceil(this.contenido.length / this.pageSize);
+    const nuevaPagina = this.pageNumber + direccion;
+
+    if (nuevaPagina >= 1 && nuevaPagina <= maxPage) {
+      this.pageNumber = nuevaPagina;
+      this.actualizarContenidoPaginado();
+    }
+  }
+
+  actualizarContenidoPaginado() {
+    const inicio = (this.pageNumber - 1) * this.pageSize;
+    const fin = inicio + this.pageSize;
+    this.contenidoPaginado = this.contenido.slice(inicio, fin);
+  }
+
+  get keys(): string[] {
+    return this.contenido.length > 0 ? Object.keys(this.contenido[0]) : [];
+  }
+
+  obtenerId(row: any): any {
+    //devuelve la primera propiedad
+    return row[Object.keys(row)[0]];
   }
 
   guardar(formulario: any) {
@@ -163,7 +191,7 @@ export default class CatalogosComponent implements OnInit {
       'SubModalidad': { idSubModalidad: 0, nombre: name, descripcion: description, idModalida: dependency },
       'TipoDato': { idTipoDato: 0, nombre: name, descripcion: description },
       'TipoSolicitud': { idTipoSolicitud: 0, nombre: name, descripcion: description },
-      'Oficina': { idOficina: 0, nombre: name },
+      'Oficina': { idOficina: 0, nombre: name, tipo: description },
       'Proveedor': { idProveedor: 0, nombre: name },
       'Fiscalia': { idFiscalia: 0, nombre: name },
       'TipoAnalisis': { idTipoAnalisis: 0, nombre: name, descripcion: description },
@@ -255,7 +283,7 @@ export default class CatalogosComponent implements OnInit {
     const dependencyControl = this.formulario.get('dependency');
 
     // Bloquear los campos si el catálogo seleccionado es Fiscalía, Oficina o Proveedor
-    if (catalogo === 'Fiscalia' || catalogo === 'Oficina' || catalogo === 'Proveedor') {
+    if (catalogo === 'Fiscalia' || catalogo === 'Proveedor') {
       descriptionControl?.disable();  // Deshabilitar el campo de descripción
       dependencyControl?.disable();   // Deshabilitar el campo de dependencia
     } else {
