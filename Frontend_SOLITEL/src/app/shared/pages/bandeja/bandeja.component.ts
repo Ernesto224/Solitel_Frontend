@@ -53,6 +53,8 @@ export default class BandejaComponent implements OnInit {
   observacion: string = '';
   solicitudIdParaActualizar: number | null = null;
   nuevoEstado: string = '';
+  modalRequerimientosVisible: boolean = false;
+  filtroRequerimiento: string = '';
 
   columnasVisibles: { [key: string]: boolean } = {
     aprobar: false,
@@ -390,6 +392,18 @@ export default class BandejaComponent implements OnInit {
 
   }
 
+  abrirModalRequerimientos(solicitud: any) {
+    this.solicitudSeleccionada = solicitud; // Asigna la solicitud seleccionada
+    this.modalRequerimientosVisible = true; // Muestra el modal de requerimientos
+  }
+  
+  cerrarModalRequerimientos() {
+    this.modalRequerimientosVisible = false; // Cierra el modal de requerimientos
+    this.solicitudSeleccionada = null; // Limpia la solicitud seleccionada
+  }
+  
+
+
 
   //Actualizacion de estados
 
@@ -423,13 +437,13 @@ export default class BandejaComponent implements OnInit {
       ).subscribe(
         response => {
           console.log(`Estado actualizado a '${this.nuevoEstado}' para la solicitud con ID:`, this.solicitudIdParaActualizar);
-  
+
           // Eliminar la solicitud de la lista de solicitudes filtradas
           this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud => solicitud.idSolicitudProveedor !== this.solicitudIdParaActualizar);
-  
+
           this.cerrarModalCambioEstado();
           this.obtenerSolicitudes();
-          
+
         },
         error => {
           console.error("Error al actualizar el estado:", error);
@@ -438,7 +452,7 @@ export default class BandejaComponent implements OnInit {
     }
     this.contarSolicitudesPorEstado();
   }
-  
+
 
 
 }

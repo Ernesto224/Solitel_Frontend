@@ -334,8 +334,8 @@
               </button>
             </td>
             <td *ngIf="columnasVisibles['requerimientos']" class="border px-4 py-2 text-center">
-              <button class="text-white px-4 py-2 rounded focus:outline-none focus:ring"
-                style="background-color: #1C355C;">
+              <button (click)="abrirModalRequerimientos(solicitud)"
+                class="text-white px-4 py-2 rounded focus:outline-none focus:ring" style="background-color: #1C355C;">
                 <i class="material-icons">description</i>
               </button>
             </td>
@@ -481,8 +481,8 @@
               </button>
             </td>
             <td *ngIf="columnasVisibles['requerimientos']" class="border px-4 py-2 text-center">
-              <button (click)="abrirModal(solicitud)" class="text-white px-4 py-2 rounded focus:outline-none focus:ring"
-                style="background-color: #1C355C;">
+              <button (click)="abrirModalRequerimientos(solicitud)"
+                class="text-white px-4 py-2 rounded focus:outline-none focus:ring" style="background-color: #1C355C;">
                 <i class="material-icons">description</i>
               </button>
             </td>
@@ -538,8 +538,8 @@
               </button>
             </td>
             <td *ngIf="columnasVisibles['requerimientos']" class="border px-4 py-2 text-center">
-              <button (click)="abrirModal(solicitud)" class="text-white px-4 py-2 rounded focus:outline-none focus:ring"
-                style="background-color: #1C355C;">
+              <button (click)="abrirModalRequerimientos(solicitud)"
+                class="text-white px-4 py-2 rounded focus:outline-none focus:ring" style="background-color: #1C355C;">
                 <i class="material-icons">description</i>
               </button>
             </td>
@@ -825,6 +825,65 @@
         class="px-4 py-2 text-white rounded-md focus:outline-none">Confirmar</button>
       <button (click)="cerrarModalCambioEstado()"
         class="px-4 py-2 bg-gray-400 text-white rounded-md focus:outline-none">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal para mostrar los requerimientos de la solicitud -->
+<div *ngIf="modalRequerimientosVisible"
+  class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-[80%] max-w-4xl">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold">Requerimientos de Solicitud #{{ solicitudSeleccionada.numeroUnico }}</h2>
+      <button (click)="cerrarModalRequerimientos()" aria-label="Close" class="text-gray-500 hover:text-gray-700">
+        &times;
+      </button>
+    </div>
+
+    <!-- Tabla de requerimientos -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-200">
+        <thead class="bg-[#1C355C] text-white">
+          <tr>
+            <th class="px-4 py-2 text-center">Archivos</th>
+            <th class="px-4 py-2 text-left">Requerimiento</th>
+            <th class="px-4 py-2 text-left">Núm. requerido</th>
+            <th class="px-4 py-2 text-left">Rango de fechas</th>
+            <th class="px-4 py-2 text-left">Observación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let requerimiento of solicitudSeleccionada?.requerimientos" class="border-b border-gray-200">
+            <td class="px-4 py-2 text-center">
+              <button class="text-white px-4 py-2 rounded focus:outline-none focus:ring"
+                style="background-color: #1C355C;">
+                <i class="material-icons">folder</i>
+              </button>
+            </td>
+            <td class="px-4 py-2">{{ requerimiento.requerimiento }}</td>
+            <td class="px-4 py-2">
+              <!-- Iteración sobre datosRequeridos para mostrar datoRequeridoContenido -->
+              <ul>
+                <li *ngFor="let dato of requerimiento.datosRequeridos">
+                  {{ dato.datoRequeridoContenido }}
+                </li>
+              </ul>
+            </td>
+            <td class="px-4 py-2">{{ requerimiento.fechaInicio }} al {{ requerimiento.fechaFinal }}</td>
+            <td class="px-4 py-2">{{ requerimiento.observacion }}</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Botón de cerrar -->
+    <div class="mt-6 flex justify-end">
+      <button (click)="cerrarModalRequerimientos()" class="px-4 py-2 text-white rounded-md"
+        style="background-color: #1C355C;">
+        Cerrar
+      </button>
     </div>
   </div>
 </div>
