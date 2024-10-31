@@ -10,7 +10,9 @@ export class SolicitudProveedorService {
   private urlServices: string = "https://localhost:7211/api/SolicitudProveedor/";
   private urlObtener: string = "consultarSolicitudesProveedor";
   private urlInsertar: string = "insertarSolicitudProveedor";
+  private urlMoverEstadoSinEfecto: string = "moverEstadoASinEfecto";
   private urlObtenerPorEstado: string = "obtenerSolicitudesProveedorPorEstado";
+  private urlMoverEstadoATramitado: string = "actualizarEstadoTramitado";
 
   constructor(private http: HttpClient) { }
 
@@ -29,6 +31,25 @@ export class SolicitudProveedorService {
     return this.http.post(`${this.urlServices}${this.urlInsertar}`, solicitud, { headers });
   }
 
+  public moverEstadoASinEfecto = (idSolicitudProveedor: number): Observable<any> => {
+    const headers = new HttpHeaders({
+      'accept': 'text/plain'
+    });
+    return this.http.put<any[]>(`${this.urlServices}${this.urlMoverEstadoSinEfecto}/${idSolicitudProveedor}`, {}, { headers });
+  };
+
+  moverEstadoATramitado(idSolicitudProveedor: number, idUsuario: number, observacion: string | null): Observable<any> {
+    const headers = new HttpHeaders({
+      'accept': 'text/plain',
+      'Content-Type': 'application/json'
+    });
+  
+    // Construye la URL con los parámetros
+    const url = `${this.urlServices}${this.urlMoverEstadoATramitado}?idSolicitudProveedor=${idSolicitudProveedor}&idUsuario=${idUsuario}&observacion=${observacion}`;
+  
+    // Realiza la solicitud PUT a la URL construida
+    return this.http.put<any>(url, {}, { headers });
+  }
 
 }
 

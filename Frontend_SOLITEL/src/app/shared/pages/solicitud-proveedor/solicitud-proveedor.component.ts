@@ -16,6 +16,10 @@ import { SolicitudProveedorService } from '../../services/solicitud-proveedor.se
 import { ProveedorService } from '../../services/proveedor.service'; // Para cargar operadoras
 import { OficinaService } from '../../services/oficina.service'; // Para cargar oficinas
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { ArchivoService} from '../../services/archivo.service';
+import { HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-solicitud-proveedor',
@@ -31,6 +35,11 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
   styleUrls: ['./solicitud-proveedor.component.css']
 })
 export default class SolicitudProveedorComponent {
+
+  selectedFile: File | null = null;
+
+  fileId: number = 0;
+
   // Estados y modales
   isModalOpen = false;
   isUrgent = false;
@@ -114,9 +123,74 @@ export default class SolicitudProveedorComponent {
     private modalidadService: ModalidadService,
     private subModalidadService: SubModalidadService,
     private tipoSolicitudService: TipoSolicitudService,
-    private tipoDatoService: TipoDatoService
+    private tipoDatoService: TipoDatoService,
+    private archivoService: ArchivoService
 
   ) { }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
+  insertarArchivo() {
+    if (this.selectedFile) {
+      const formData = new FormData();
+      formData.append('TC_Nombre', this.selectedFile.name);
+      formData.append('file', this.selectedFile);  // Renombrado a 'file'
+      formData.append('TC_FormatoAchivo', this.selectedFile.type);
+      formData.append('TF_FechaModificacion', '2024-10-10');
+
+      console.log(formData);
+  
+      this.archivoService.insertarArchivo(formData).subscribe({
+        next: response => {
+          console.log('Archivo guardado con exito', response);
+          alert('Archivo guardado con éxito');
+        },
+        error: err => {
+          console.error('Error al guardar el archivo:', err);
+        }
+      });
+    }
+  }
+
+  
+  descargarArchivo(id: number): void {
+    this.archivoService.descargarArchivo(id).subscribe(response => {
+      // Decodifica el contenido Base64 a un Blob
+      const byteCharacters = atob(response.contenidoArchivo);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: response.tipoArchivo });
+  
+      // Crea la URL para el archivo Blob
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = response.nombreArchivo; // Usa el nombre del archivo desde la respuesta
+      document.body.appendChild(a);
+      a.click();
+  
+      // Limpia el DOM y revoca la URL
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, error => {
+      console.error('Error al descargar el archivo:', error);
+    });
+  }
+
+  // Método auxiliar para extraer el nombre del archivo desde el encabezado 'content-disposition'
+  private getFileName(contentDisposition: string): string {
+    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+    const matches = filenameRegex.exec(contentDisposition);
+    return (matches != null && matches[1]) ? matches[1].replace(/['"]/g, '') : 'archivo_descargado';
+  }
 
   ngOnInit() {
 
@@ -283,157 +357,157 @@ export default class SolicitudProveedorComponent {
   }
 
   guardarSolicitud() {
-    
     if (
-      (this.validarNumUnico(this.numeroUnico) == true || this.numeroCaso) &&  
-      this.validarNombrePersona(this.imputado) &&        
-      this.validarNombrePersona(this.ofendido) &&        
-      this.validarResenaYRequerimiento(this.resennia) &&  
-      !!this.idFiscaliaSeleccionada &&                     
-      this.operadoraSeleccionada.length >= 1 &&           
-      !!this.idOficinaSeleccionada &&                      
-      !!this.idCategoriaDelitoSeleccionado &&              
+      (this.validarNumUnico(this.numeroUnico) == true || this.numeroCaso) &&
+      this.validarNombrePersona(this.imputado) &&
+      this.validarNombrePersona(this.ofendido) &&
+      this.validarResenaYRequerimiento(this.resennia) &&
+      !!this.idFiscaliaSeleccionada &&
+      this.operadoraSeleccionada.length >= 1 &&
+      !!this.idOficinaSeleccionada &&
+      !!this.idCategoriaDelitoSeleccionado &&
       !!this.idDelitoSeleccionado &&
       this.listaSolicitudes.length >= 1
     ) {
-
-        const solicitudProveedor = {
-          idSolicitudProveedor: 0,
-          numeroUnico: this.numeroUnico || 0,
-          numeroCaso: this.numeroCaso || "string",
-          imputado: this.imputado || "string",
-          ofendido: this.ofendido || "string",
-          resennia: this.resennia || "string",
-          urgente: this.isUrgent || false,
-    
-          requerimientos: this.listaSolicitudes.map(solicitud => ({
-            tN_IdRequerimientoProveedor: 0,
-            tF_FechaInicio: solicitud.tF_FechaInicio || new Date().toISOString(),
-            tF_FechaFinal: solicitud.tF_FechaFinal || new Date().toISOString(),
-            tC_Requerimiento: solicitud.tC_Requerimiento || "string",
-    
-            tipoSolicitudes: solicitud.tipoSolicitudes.map((tipo: any) => ({
-              IdTipoSolicitud: tipo.idTipoSolicitud,
-              Nombre: tipo.nombre,
-              Descripcion: tipo.descripcion || "Descripción no proporcionada"
-            })),
-    
-            datosRequeridos: solicitud.datosRequeridos.map((dato: any) => ({
-              tN_IdDatoRequerido: dato.tN_IdDatoRequerido || 0,
-              tC_DatoRequerido: dato.tC_DatoRequerido || "string",
-              tC_Motivacion: dato.tC_Motivacion || "string",
-              tN_IdTipoDato: dato.tN_IdTipoDato
-            }))
+      const solicitudProveedor = {
+        idSolicitudProveedor: 0,
+        numeroUnico: this.numeroUnico || "",
+        numeroCaso: this.numeroCaso || "",
+        imputado: this.imputado || "string",
+        ofendido: this.ofendido || "string",
+        resennia: this.resennia || "string",
+        urgente: this.isUrgent || false,
+        fechaCreacion: new Date().toISOString(),
+        
+        requerimientos: this.listaSolicitudes.map(solicitud => ({
+          idRequerimientoProveedor: 0,
+          fechaInicio: solicitud.tF_FechaInicio || new Date().toISOString(),
+          fechaFinal: solicitud.tF_FechaFinal || new Date().toISOString(),
+          requerimiento: solicitud.tC_Requerimiento || "string",
+          
+          tipoSolicitudes: solicitud.tipoSolicitudes.map((tipo: any) => ({
+            idTipoSolicitud: tipo.idTipoSolicitud,
+            nombre: tipo.nombre,
+            descripcion: tipo.descripcion || "Descripción no proporcionada"
           })),
-    
-          operadoras: this.operadoraSeleccionada,
-    
-          usuarioCreador: { // Quemado
-            tN_IdUsuario: 1,
-            tC_Nombre: "Juan",
-            tC_Apellido: "Pérez",
-            tC_Usuario: "jperez",
-            tC_CorreoElectronico: "jperez@example.com"
-          },
-    
-          delito: {
-            IdDelito: this.idDelitoSeleccionado,
-            Nombre: "Delito X",
-            Descripcion: "Descripción del delito",
-            IdCategoriaDelito: this.idCategoriaDelitoSeleccionado
-          },
-    
-          categoriaDelito: {
-            IdCategoriaDelito: this.idCategoriaDelitoSeleccionado,
-            Nombre: "Categoría X",
-            Descripcion: "Descripción de la categoría"
-          },
-    
-          estado: {
-            TN_IdEstado: 4,
-            TC_Nombre: "Creado",
-            TC_Descripcion: "Solicitud creada"
-          },
-    
-          fiscalia: {
-            IdFiscalia: this.idFiscaliaSeleccionada,
-            Nombre: this.fiscalias.find(f => f.tN_IdFiscalia === this.idFiscaliaSeleccionada)?.tC_Nombre || "Desconocido"
-          },
-    
-          oficina: {
-            tN_IdOficina: this.idOficinaSeleccionada,
-            tC_Nombre: this.oficinas.find(o => o.tN_IdOficina === this.idOficinaSeleccionada)?.tC_Nombre || "Desconocido"
-          },
-    
-          modalidad: {
-            IdModalidad: this.idModalidadSeleccionada,
-            Nombre: "Modalidad X",
-            Descripcion: "Descripción de la modalidad"
-          },
-    
-          subModalidad: {
-            IdSubModalidad: this.idSubModalidadSeleccionada,
-            Nombre: "Submodalidad X",
-            Descripcion: "Descripción de la submodalidad",
-            IdModalida: this.idModalidadSeleccionada
-          }
-        };
-    
-        console.log(solicitudProveedor.requerimientos);
-        console.log(solicitudProveedor.subModalidad)
-    
-        // Llamar al servicio para enviar la solicitud
-        this.solicitudProveedorService.insertarSolicitudProveedor(solicitudProveedor).subscribe({
-          next: response => {
-            console.log('Solicitud guardada con éxito', response);
-            alert('Solicitud guardada con éxito');
-            this.limpiarTodo();
-          },
-          error: err => {
-            console.error('Error al guardar la solicitud:', err);
-          }
-        });
-
-      }else {
-        let errores = [];
-      
-        if (!(this.validarNumUnico(this.numeroUnico) == true || this.numeroCaso)) {
-          errores.push("Número único o número de caso");
+          
+          datosRequeridos: solicitud.datosRequeridos.map((dato: any) => ({
+            idDatoRequerido: dato.tN_IdDatoRequerido || 0,
+            datoRequeridoContenido: dato.tC_DatoRequerido || "string",
+            motivacion: dato.tC_Motivacion || "string",
+            idTipoDato: dato.tN_IdTipoDato
+          }))
+        })),
+        
+        operadoras: this.operadoraSeleccionada.map(operadora => ({
+          idProveedor: operadora.idProveedor,
+          nombre: operadora.nombre
+        })),
+        
+        usuarioCreador: {
+          idUsuario: 1,
+          nombre: "Juan",
+          apellido: "Pérez",
+          usuario: "jperez",
+          correoElectronico: "jperez@example.com"
+        },
+        
+        delito: {
+          idDelito: this.idDelitoSeleccionado,
+          nombre: "Delito X",
+          descripcion: "Descripción del delito",
+          idCategoriaDelito: this.idCategoriaDelitoSeleccionado
+        },
+        
+        categoriaDelito: {
+          idCategoriaDelito: this.idCategoriaDelitoSeleccionado,
+          nombre: "Categoría X",
+          descripcion: "Descripción de la categoría"
+        },
+        
+        estado: {
+          idEstado: 4,
+          nombre: "Creado",
+          descripcion: "Solicitud creada",
+          tipo: "string"
+        },
+        
+        fiscalia: {
+          idFiscalia: this.idFiscaliaSeleccionada,
+          nombre: this.fiscalias.find(f => f.tN_IdFiscalia === this.idFiscaliaSeleccionada)?.tC_Nombre || "Desconocido"
+        },
+        
+        oficina: {
+          idOficina: this.idOficinaSeleccionada,
+          nombre: this.oficinas.find(o => o.tN_IdOficina === this.idOficinaSeleccionada)?.tC_Nombre || "Desconocido",
+          tipo: "string"
+        },
+        
+        modalidad: {
+          idModalidad: this.idModalidadSeleccionada,
+          nombre: "Modalidad X",
+          descripcion: "Descripción de la modalidad"
+        },
+        
+        subModalidad: {
+          idSubModalidad: this.idSubModalidadSeleccionada,
+          nombre: "Submodalidad X",
+          descripcion: "Descripción de la submodalidad",
+          idModalida: this.idModalidadSeleccionada
         }
-        if (!this.validarNombrePersona(this.imputado)) {
-          errores.push("Nombre del imputado");
+      };
+  
+      // Llamar al servicio para enviar la solicitud
+      this.solicitudProveedorService.insertarSolicitudProveedor(solicitudProveedor).subscribe({
+        next: response => {
+          console.log('Solicitud guardada con éxito', response);
+          alert('Solicitud guardada con éxito');
+          this.limpiarTodo();
+        },
+        error: err => {
+          console.error('Error al guardar la solicitud:', err);
         }
-        if (!this.validarNombrePersona(this.ofendido)) {
-          errores.push("Nombre del ofendido");
-        }
-        if (!this.validarResenaYRequerimiento(this.resennia)) {
-          errores.push("Reseña y requerimiento");
-        }
-        if (!this.idFiscaliaSeleccionada) {
-          errores.push("Fiscalía seleccionada");
-        }
-        if (this.operadoraSeleccionada.length < 1) {
-          errores.push("Operadora seleccionada");
-        }
-        if (!this.idOficinaSeleccionada) {
-          errores.push("Oficina seleccionada");
-        }
-        if (!this.idCategoriaDelitoSeleccionado) {
-          errores.push("Categoría de delito seleccionada");
-        }
-        if (!this.idDelitoSeleccionado) {
-          errores.push("Delito seleccionado");
-        }
-        if (this.listaSolicitudes.length < 1) {
-          errores.push("Lista de solicitudes con al menos un elemento");
-        }
-      
-        // Mostrar alert con los errores
-        if (errores.length > 0) {
-          alert("Los siguientes campos son requeridos o tienen errores:\n- " + errores.join("\n- "));
-        }
+      });
+  
+    } else {
+      let errores = [];
+  
+      if (!(this.validarNumUnico(this.numeroUnico) == true || this.numeroCaso)) {
+        errores.push("Número único o número de caso");
       }
-    
+      if (!this.validarNombrePersona(this.imputado)) {
+        errores.push("Nombre del imputado");
+      }
+      if (!this.validarNombrePersona(this.ofendido)) {
+        errores.push("Nombre del ofendido");
+      }
+      if (!this.validarResenaYRequerimiento(this.resennia)) {
+        errores.push("Reseña y requerimiento");
+      }
+      if (!this.idFiscaliaSeleccionada) {
+        errores.push("Fiscalía seleccionada");
+      }
+      if (this.operadoraSeleccionada.length < 1) {
+        errores.push("Operadora seleccionada");
+      }
+      if (!this.idOficinaSeleccionada) {
+        errores.push("Oficina seleccionada");
+      }
+      if (!this.idCategoriaDelitoSeleccionado) {
+        errores.push("Categoría de delito seleccionada");
+      }
+      if (!this.idDelitoSeleccionado) {
+        errores.push("Delito seleccionado");
+      }
+      if (this.listaSolicitudes.length < 1) {
+        errores.push("Lista de solicitudes con al menos un elemento");
+      }
+  
+      // Mostrar alert con los errores
+      if (errores.length > 0) {
+        alert("Los siguientes campos son requeridos o tienen errores:\n- " + errores.join("\n- "));
+      }
+    }
   }
 
   eliminarSolicitud(index: number) {
