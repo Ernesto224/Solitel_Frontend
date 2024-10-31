@@ -153,8 +153,13 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   condicionesAnalisis: any[] = [];
   tiposAnalisis: any[] = [];
   condicionAnalisisEscogida: string = '';
-
+  idsSolicitudProveedarArchivo: number[] = [];
+  solicitudCompletaAnalisis:any=null;
   private subscription = new Subscription();
+
+  // Control de modales
+  mostrarConfirmacion = false;
+  mostrarExito = false;
 
   constructor(private analisisService: AnalisisTelefonicoService) { }
 
@@ -171,11 +176,28 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
+  mostrarConfirmacionModal() {
+    this.mostrarConfirmacion = true;
+  }
+
+  confirmarGuardado() {
+    this.mostrarConfirmacion = false;
+    this.guardarSolicitudAnalisis();
+  }
+
+  cerrarModal() {
+    this.mostrarConfirmacion = false;
+    this.mostrarExito = false;
+  }
+
   cargarSolicitudesPorNumeroUnico(numeroUnico: string): void {
     this.subscription.add(
       this.analisisService.obtenerSolicitudesPorNumeroUnico(numeroUnico).subscribe(
         (solicitudes) => {
-          this.solicitudesProveedor = solicitudes;
+          this.solicitudesProveedor = solicitudes.map(solicitud => ({
+            ...solicitud,
+            displayText: `${solicitud.idSolicitudProveedor} - ${solicitud.numeroUnico} - ${solicitud.nombreProveedor}`
+          }));
           console.log("Solicitudes Proveedor cargadas");
         },
         (error) => console.error('Error al cargar solicitudes:', error)
@@ -187,7 +209,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.dropdownSettingsSolicitudes = {
       singleSelection: false,
       idField: 'idSolicitudProveedor',
-      textField: 'nombreProveedor',
+      textField: 'displayText', // Muestra el valor combinado
       selectAllText: 'Seleccionar todos',
       unSelectAllText: 'Deseleccionar todos',
       itemsShowLimit: 3,
@@ -205,7 +227,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.dropdownSettingsArchivos = {
       singleSelection: false,
       idField: 'idArchivo',
-      textField: 'nombreArchivo',
+      textField: 'nombreArchivo', // Mostrar el nombre combinado
       selectAllText: 'Seleccionar todos',
       unSelectAllText: 'Deseleccionar todos',
       itemsShowLimit: 3,
@@ -240,17 +262,37 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     );
   }
 
+  obtenerArchivosSolicitudProveedor(): void {
+    if (this.idsSolicitudProveedarArchivo.length > 0) {
+      this.analisisService.obtenerArchivosSolicitudProveedor(this.idsSolicitudProveedarArchivo).subscribe(
+        (archivos) => {
+          console.log("Archivos recibidos:", archivos);
+
+          this.archivos = archivos.map((archivo) => ({
+            ...archivo,
+            nombreArchivo: `${archivo.nombre}.${archivo.formatoArchivo}`, // Concatenar el nombre y formato
+          }));
+        },
+        (error) => console.error('Error al cargar archivos de la solicitud:', error)
+      );
+    } else {
+      this.idsSolicitudProveedarArchivo = [];
+      this.archivos = [];
+    }
+  }
+
+  obtenerIdSolicitudProveedorArhivos(): void {
+    this.idsSolicitudProveedarArchivo = this.solicitudesProveedorSeleccionadas.map((solicitudes) => solicitudes.idSolicitudProveedor);
+    console.log("Ids de solicitudes seleccionadas:", this.idsSolicitudProveedarArchivo);
+    this.obtenerArchivosSolicitudProveedor();
+  }
+
   cargarObjetivosAnalisis(): void {
     this.subscription.add(
       this.analisisService.obtenerObjetivosAnalisis(this.idObjetivoAnalisis).subscribe(
         (objetivos) => {
           console.log("Objetivos recibidos:", objetivos);
           this.objetivosAnalista = objetivos;
-          this.archivos = [
-            { idArchivo: 1, nombreArchivo: 'Archivo 1', formatoArchivo: '.pdf' },
-            { idArchivo: 2, nombreArchivo: 'Archivo 2', formatoArchivo: '.exe' },
-            { idArchivo: 3, nombreArchivo: 'Archivo 3', formatoArchivo: '.doc' },
-          ];
         },
         (error) => console.error('Error al cargar objetivos de análisis:', error)
       )
@@ -275,23 +317,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.limpiarCamposRequerimiento();
   }
 
-  obtenerArchivosSolicitudProveedor(): void {
-    this.analisisService.obtenerArchivosSolicitudProveedor(1).subscribe(
-      (archivos) => {
-        console.log("Archivos recibidos:", archivos);
-        this.archivos = archivos;
-      },
-      (error) => console.error('Error al cargar archivos de la solicitud:', error)
-    );
-  }
-
-  limpiarCamposRequerimiento(): void {
-    this.tipoObjetivo = '';
-    this.objetivo = '';
-    this.utilizadoPor = '';
-    this.condicion = '';
-  }
-
   cargarRequerimientoEnFormulario(index: number): void {
     if (index >= 0 && index < this.requerimientos.length) {
       const requerimiento = this.requerimientos[index];
@@ -312,40 +337,151 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
 
   enviarSolicitud(): void {
     if (!this.numeroUnico || !this.oficinaAnalisis || !this.fechaHecho || this.requerimientos.length === 0) {
-      alert('Por favor, complete todos los campos requeridos.');
-      return;
+        alert('Por favor, complete todos los campos requeridos.');
+        return;
     }
 
-    const solicitudCompleta = {
-      idSolicitudAnalisis: 0,
-      fechaDelHecho: new Date(this.fechaHecho).toISOString(),
-      otrosDetalles: this.otrosDetalles || "Detalles no proporcionados",
-      otrosObjetivosDeAnalisis: this.otrosObjetivos || "Objetivos adicionales no especificados",
-      aprobado: false,
-      fechaCrecion: new Date().toISOString(),
-      numeroSolicitud: this.numeroUnico,
-      idOficina: this.oficinaAnalisis,
+    const numeroSolicitud = typeof this.numeroUnico === 'string' ? parseInt(this.numeroUnico, 10) : this.numeroUnico;
 
-      requerimientos: this.requerimientos.map((req) => ({
-        idRequerimientoAnalisis: 0,
-        objetivo: req.objetivo || "Objetivo no especificado",
-        utilizadoPor: req.utilizadoPor || "Utilizado por no especificado",
-        idTipo: 0,
-        idAnalisis: req.idRequerimiento || 0
-      })),
+    const solicitudCompleta = {
+        idSolicitudAnalisis: 0,
+        fechaDelHecho: new Date(this.fechaHecho).toISOString(),
+        otrosDetalles: this.otrosDetalles || "Detalles no proporcionados",
+        otrosObjetivosDeAnalisis: this.otrosObjetivos || "Objetivos adicionales no especificados",
+        aprobado: false,
+        fechaCreacion: new Date().toISOString(),
+        numeroSolicitud: numeroSolicitud || 0,
+        idOficina: Number(this.oficinaAnalisis) || 0,
+
+        requerimentos: (this.requerimientos || []).map((requerimiento) => ({
+            idRequerimientoAnalisis: 0,
+            objetivo: requerimiento.objetivo || "Objetivo no especificado",
+            utilizadoPor: requerimiento.utilizadoPor || "Utilizado por no especificado",
+            idTipo: 0,
+            idAnalisis: requerimiento.idRequerimiento || 0
+        })),
+
+        objetivosAnalisis: (this.objetivosAnalisisSeleccionados || []).map((objetivo) => ({
+            idObjetivoAnalisis: objetivo.idObjetivoAnalisis || 0,
+            nombre: objetivo.nombre || "Nombre no especificado",
+            descripcion: objetivo.descripcion || "Descripción no especificada"
+        })),
+
+        solicitudesProveedor: (this.solicitudesProveedorSeleccionadas || []).map((solicitud) => ({
+            idSolicitudProveedor: solicitud.idSolicitudProveedor || 0,
+            numeroUnico: solicitud.numeroUnico || "string",
+            numeroCaso: solicitud.numeroCaso || "Caso no especificado",
+            imputado: solicitud.imputado || "Imputado no especificado",
+            ofendido: solicitud.ofendido || "Ofendido no especificado",
+            resenna: solicitud.resenna || "Reseña no especificada",
+            urgente: solicitud.urgente || false,
+            fechaCreacion: new Date().toISOString(),
+            requerimientos: (solicitud.requerimientos || []).map((requerimiento) => ({
+                idRequerimientoProveedor: requerimiento.idRequerimientoProveedor || 0,
+                fechaInicio: requerimiento.fechaInicio || new Date().toISOString(),
+                fechaFinal: requerimiento.fechaFinal || new Date().toISOString(),
+                requerimiento: requerimiento.requerimiento || "Requerimiento no especificado",
+                tipoSolicitudes: (requerimiento.tipoSolicitudes || []).map((tipo) => ({
+                    idTipoSolicitud: tipo.idTipoSolicitud || 0,
+                    nombre: tipo.nombre || "Nombre no especificado",
+                    descripcion: tipo.descripcion || "Descripción no especificada"
+                })),
+                datosRequeridos: (requerimiento.datosRequeridos || []).map((dato) => ({
+                    idDatoRequerido: dato.idDatoRequerido || 0,
+                    datoRequeridoContenido: dato.datoRequerido || "Dato requerido no especificado",
+                    motivacion: dato.motivacion || "Motivación no especificada",
+                    idTipoDato: dato.idTipoDato || 0
+                }))
+            })),
+
+            operadoras: (solicitud.operadoras || []).map((operadora) => ({
+                idProveedor: operadora.idProveedor || 0,
+                nombre: operadora.nombre || "Proveedor no especificado"
+            })),
+
+            usuarioCreador: {
+                idUsuario: solicitud.usuarioCreador?.idUsuario || 0,
+                nombre: solicitud.usuarioCreador?.nombre || "Nombre no especificado",
+                apellido: solicitud.usuarioCreador?.apellido || "Apellido no especificado",
+                usuario: solicitud.usuarioCreador?.usuario || "Usuario no especificado",
+                correoElectronico: solicitud.usuarioCreador?.correoElectronico || "Correo no especificado"
+            },
+
+            delito: solicitud.delito || {
+                idDelito: 0,
+                nombre: "Delito no especificado",
+                descripcion: "Descripción del delito",
+                idCategoriaDelito: 0
+            },
+            categoriaDelito: solicitud.categoriaDelito || {
+                idCategoriaDelito: 0,
+                nombre: "Categoría no especificada",
+                descripcion: "Descripción de la categoría"
+            },
+            estado: solicitud.estado || {
+                idEstado: 1,
+                nombre: "Estado no especificado",
+                descripcion: "Descripción del estado",
+                tipo: "Tipo no especificado"
+            },
+            fiscalia: solicitud.fiscalia || {
+                idFiscalia: 0,
+                nombre: "Fiscalía no especificada"
+            },
+            oficina: solicitud.oficina || {
+                idOficina: 0,
+                nombre: "Oficina no especificada",
+                tipo: "Tipo de oficina no especificado"
+            },
+            modalidad: solicitud.modalidad || {
+                idModalidad: 0,
+                nombre: "Modalidad no especificada",
+                descripcion: "Descripción de la modalidad"
+            },
+            subModalidad: solicitud.subModalidad || {
+                idSubModalidad: 0,
+                nombre: "Submodalidad no especificada",
+                descripcion: "Descripción de la submodalidad",
+                idModalidad: 0
+            }
+        })),
+
+        tipoAnalisis: (this.tiposAnalisis || []).map((tipo) => ({
+            idTipoAnalisis: tipo.idTipoAnalisis || 0,
+            nombre: tipo.nombre || "Tipo de análisis no especificado",
+            descripcion: tipo.descripcion || "Descripción no especificada"
+        })),
+        condiciones: [
+            {
+                idCondicion: this.condicionesAnalisis.find(condicion => condicion.nombre === this.condicionAnalisisEscogida)?.idCondicion || 0,
+                nombre: this.condicionAnalisisEscogida,
+                descripcion: "Descripción de la condición seleccionada"
+            }
+        ],
+        archivos: (this.archivosAnalizarSeleccionados || []).map((archivo) => ({
+            idArchivo: archivo.idArchivo || 0,
+            nombre: "Archivo no especificado",
+            contenido: "",
+            formatoAchivo: archivo.formatoArchivo || "Sin formato",
+            fechaModificacion: new Date().toISOString()
+        }))
     };
 
     console.log("Solicitud JSON enviada:", JSON.stringify(solicitudCompleta));
-
-    this.analisisService.agregarSolicitudAnalisis(solicitudCompleta).subscribe(
-      (response) => {
-        console.log('Solicitud enviada con éxito:', response);
-        this.limpiarFormulario();
-      },
-      (error) => console.error('Error al enviar la solicitud:', error.error)
-    );
+    this.solicitudCompletaAnalisis = solicitudCompleta;
+    this.mostrarConfirmacionModal();
   }
-
+  guardarSolicitudAnalisis(){
+    console.log(this.solicitudCompletaAnalisis);
+    this.analisisService.agregarSolicitudAnalisis(this.solicitudCompletaAnalisis).subscribe(
+      response => {
+          this.mostrarExito = true;
+          console.log('Solicitud enviada con éxito:', response);
+          this.limpiarFormulario();
+      },
+      error => console.error('Error al enviar la solicitud:', error.error)
+  );
+  }
   obtenerCondiciones(): void {
     this.analisisService.obtenerCondiciones().subscribe(
       (condiciones) => {
@@ -366,7 +502,16 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     );
   }
 
+  limpiarCamposRequerimiento(): void {
+    this.tipoObjetivo = '';
+    this.objetivo = '';
+    this.utilizadoPor = '';
+    this.condicion = '';
+    this.selectedIndex = null;
+  }
+  
   limpiarFormulario(): void {
+    // Restablecer campos principales del formulario
     this.numeroUnico = null;
     this.solicitudesProveedorSeleccionadas = [];
     this.archivosAnalizarSeleccionados = [];
@@ -376,20 +521,37 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.fechaHecho = '';
     this.otrosObjetivos = '';
     this.otrosDetalles = '';
+  
+    // Limpiar requerimientos y campos específicos de la solicitud
+    this.requerimientos = [];
+    this.solicitudCompletaAnalisis = null;
+  
+    // Limpiar configuraciones seleccionadas para los dropdowns y reiniciar opciones
+    this.operadoraSeleccionada = [];
+    this.condicionAnalisisEscogida = '';
+    this.idsSolicitudProveedarArchivo = [];
+    
+    // Resetear los campos específicos de los requerimientos
     this.limpiarCamposRequerimiento();
+  
+    // Cerrar cualquier modal que pudiera estar abierto
+    this.mostrarConfirmacion = false;
+    this.mostrarExito = false;
+  
+    console.log("Formulario completamente limpio");
   }
+  
+
   validarOtrosDetalles(): boolean {
     const regex = /^[a-zA-Z0-9\s.,;:!?()-]+$/;
     return regex.test(this.otrosDetalles) && this.otrosDetalles.length >= 20;
   }
 
-  // Validación para el campo "Objetivo" (debe contener solo números, exactamente 8 caracteres)
   validarObjetivo(): boolean {
-    const regex = /^\d{8}$/; // 8 dígitos numéricos
+    const regex = /^\d{8}$/;
     return regex.test(this.objetivo);
   }
 
-  // Validación para el campo "Utilizado por" (letras y espacios, mínimo 20 caracteres)
   validarUtilizadoPor(): boolean {
     const regex = /^[a-zA-Z\s]+$/;
     return regex.test(this.utilizadoPor) && this.utilizadoPor.length >= 20;
