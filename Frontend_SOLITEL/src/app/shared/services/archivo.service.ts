@@ -18,6 +18,12 @@ export class ArchivoService {
   }
 
   public insertarArchivo = (formData: FormData): Observable<any> => {
-      return this.http.post(`${this.baseUrl}${this.urlInsertarArchivo}`, formData);
+    return this.http.post(`${this.baseUrl}${this.urlInsertarArchivo}`, formData);
   }
+
+  obtenerArchivosDeSolicitud(idRequerimiento: number): Observable<any[]> {
+    const url = `${this.baseUrl}/ObtenerArchivosDeSolicitud?id=${idRequerimiento}`;
+    return this.http.get<any[]>(url, { responseType: 'json' });
+  }
+
 }

@@ -31,6 +31,51 @@ export class SolicitudProveedorService {
     return this.http.post(`${this.urlServices}${this.urlInsertar}`, solicitud, { headers });
   }
 
+  public actualizarEstado(
+    idSolicitudProveedor: number,
+    estado: string,
+    idUsuario: number,
+    observacion: string = ''
+  ): Observable<any> {
+    // Definir el endpoint según el estado
+    let endpoint: string;
+
+    switch (estado) {
+      case 'Sin Efecto':
+        endpoint = 'actualizarEstadoSinEfecto';
+        break;
+      case 'Legajo':
+        endpoint = 'actualizarEstadoLegajo';
+        break;
+      case 'Finalizar':
+        endpoint = 'actualizarEstadoFinalizado';
+        break;
+      case 'Aprobar':
+        endpoint = 'aprobarSolicitudProveedor';
+        break;
+      case 'Devolver':
+        endpoint = 'devolverATramitado';
+        break;
+      default:
+        throw new Error(`Estado no reconocido: ${estado}`);
+    }
+
+    // Definir el nombre del parámetro id según el estado
+    const idParamName = (estado === 'Sin Efecto' || estado === 'Aprobar') ? 'idSolicitudProveedor' : 'id';
+
+    // Construir la URL base con el parámetro id dinámico
+    let url = `${this.urlServices}${endpoint}?${idParamName}=${idSolicitudProveedor}&idUsuario=${idUsuario}`;
+
+    // Agregar 'observacion' solo si tiene valor
+    if (observacion) {
+      url += `&observacion=${observacion}`;
+    }
+
+    // Hacer la solicitud HTTP PUT
+    return this.http.put(url, {});
+  }
+
+
   public moverEstadoASinEfecto = (idSolicitudProveedor: number): Observable<any> => {
     const headers = new HttpHeaders({
       'accept': 'text/plain'
