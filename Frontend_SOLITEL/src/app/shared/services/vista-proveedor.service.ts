@@ -7,12 +7,19 @@ import { Observable } from 'rxjs';
 })
 export class VistaProveedorService {
 
-  private apiUrl = 'https://tu-backend.com/api/requerimientos'; // Reemplaza con tu URL real del backend
+  private apiUrl = 'https://localhost:7211/api/SolicitudProveedor'; // URL base de la API
 
   constructor(private http: HttpClient) { }
 
-  // Método para obtener los datos de los requerimientos
-  obtenerRequerimientos(): Observable<any> {
-    return this.http.get<any>(this.apiUrl);
+  // Método para obtener todas las solicitudes (envía idSolicitud=0)
+  obtenerTodasLasSolicitudesProveedor(): Observable<any> {
+    const url = `${this.apiUrl}/obtenerSolicitudesProveedorPorId?idSolicitud=0`;
+    return this.http.get<any>(url);
+  }
+
+  // Método para obtener una solicitud específica según el id
+  obtenerSolicitudProveedorPorId(idSolicitud: number): Observable<any> {
+    const url = `${this.apiUrl}/obtenerSolicitudesProveedorPorId?idSolicitud=${idSolicitud}`;
+    return this.http.get<any>(url);
   }
 }

@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 export interface Archivo {
   idArchivo: number;
   nombreArchivo: string;
-  TC_FormatoAchivo:string;
+  formatoArchivo: string; // Renombrado para claridad
 }
 
 @Injectable({
@@ -18,7 +18,7 @@ export class AnalisisTelefonicoService {
   private urlObtenerOficinas: string = 'Oficina/consultarOficinas';
   private urlObtenerSolicitudesPorNumeroUnico: string = 'SolicitudProveedor/consultarSolicitudesProveedorPorNumeroUnico';
   private urlObtenerObjetivoAnalisis: string = 'ObjetivoAnalisis/obtenerObjetivoAnalisis';
-  private urlCondicionesAnalisis: string = "Condicion"
+  private urlCondicionesAnalisis: string = "Condicion";
   private urlTiposAnalisis: string = "TipoAnalisis";
   private urlArchivoSoliProveedor: string = 'obtenerArchivosDeSolicitudesProveedor';
 
@@ -55,42 +55,40 @@ export class AnalisisTelefonicoService {
     });
     return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerSolicitudesPorNumeroUnico}?numeroUnico=${numeroUnico}`, { headers });
   }
+
   obtenerObjetivosAnalisis(idObjetivo: number): Observable<any[]> {
     const headers = new HttpHeaders({
-        'Content-Type': 'application/json',
-        accept: 'application/json',
+      'Content-Type': 'application/json',
+      accept: 'application/json',
     });
 
-    // Asegúrate de que el nombre del parámetro sea exactamente el mismo que el backend espera
-    const params = new HttpParams().set('idObtenerObjetivoAnalisis', idObjetivo.toString());
+    const params = new HttpParams().set('idObjetivoAnalisis', idObjetivo.toString());
 
     return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerObjetivoAnalisis}`, { headers, params });
-}
+  }
 
-obtenerTipoAnalisis():Observable<any[]> {
-  const headers = new HttpHeaders({
-    'Content-Type': 'application/json',
-    accept: 'application/json',
-  });
-  return this.http.get<any[]>(`${this.baseUrl}${this.urlTiposAnalisis}`, { headers });
- 
-}
+  obtenerTipoAnalisis(): Observable<any[]> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      accept: 'application/json',
+    });
+    return this.http.get<any[]>(`${this.baseUrl}${this.urlTiposAnalisis}`, { headers });
+  }
 
-obtenerCondiciones(): Observable<any[]>{
-  const headers = new HttpHeaders({
-    'Content-Type': 'application/json',
-    accept: 'application/json',
-  });
-  return this.http.get<any[]>(`${this.baseUrl}${this.urlCondicionesAnalisis}`, { headers });
-}
+  obtenerCondiciones(): Observable<any[]> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      accept: 'application/json',
+    });
+    return this.http.get<any[]>(`${this.baseUrl}${this.urlCondicionesAnalisis}`, { headers });
+  }
 
-obtenerArchivosSolicitudProveedor(idSolicitudProveedor: number): Observable<any[]> {
-  const headers = new HttpHeaders({
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  });
-  const url = `${this.baseUrl}${this.urlArchivoSoliProveedor}/${idSolicitudProveedor}`;
-  return this.http.get<any[]>(url, { headers });
-}
-
+  obtenerArchivosSolicitudProveedor(idSolicitudProveedor: number): Observable<any[]> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      accept: 'application/json',
+    });
+    const url = `${this.baseUrl}${this.urlArchivoSoliProveedor}/${idSolicitudProveedor}`;
+    return this.http.get<any[]>(url, { headers });
+  }
 }

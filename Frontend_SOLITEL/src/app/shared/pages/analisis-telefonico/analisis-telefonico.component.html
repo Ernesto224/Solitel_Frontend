@@ -62,8 +62,8 @@
                 class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
                 <option value="">Seleccione</option>
-                <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.tN_IdOficina">
-                  {{ oficina.tC_Nombre }}
+                <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.idOficina">
+                  {{ oficina.nombre }}
                 </option>
               </select>
             </div>
@@ -76,7 +76,7 @@
               >
                 <option value="Análisis Telefónico">Análisis Telefónico</option>
                 <option *ngFor="let tipoAnalisis of tiposAnalisis" [value]="tipoAnalisis.idTipoAnalisis">
-                  {{ tipoAnalisis.nombre}}
+                  {{ tipoAnalisis.nombre }}
                 </option>
               </select>
             </div>
@@ -163,7 +163,7 @@
                 class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
               <p *ngIf="objetivo.length < 8" class="text-red-500 text-xs mt-1">
-                El objetivo debe tener al menos 8 numeros.
+                El objetivo debe tener al menos 8 números.
               </p>
               <p *ngIf="!validarObjetivo() && objetivo.length >= 20" class="text-red-500 text-xs mt-1">
                 Solo se permiten letras y espacios.
@@ -195,7 +195,7 @@
               >
                 <option value="">Seleccione</option>
                 <option *ngFor="let condicionValor of condicionesAnalisis" [value]="condicionValor.nombre">
-                  {{condicionValor.nombre}}
+                  {{ condicionValor.nombre }}
                 </option>
               </select>
             </div>
@@ -226,7 +226,6 @@
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Objetivo</th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Utilizado por</th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Condición</th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Aportado por</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
@@ -239,10 +238,10 @@
                       Eliminar
                     </button>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.TC_TipoObjetivo }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.TC_Objetivo }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.TC_UtilizadoPor }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.TC_Condicion }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.tipoObjetivo }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.objetivo }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.utilizadoPor }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.condicion }}</td>
                 </tr>
               </tbody>
             </table>

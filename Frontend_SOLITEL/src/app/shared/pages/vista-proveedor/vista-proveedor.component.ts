@@ -1,6 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { VistaProveedorService } from '../../services/vista-proveedor.service';
+import { ArchivoService } from '../../services/archivo.service'; // Importa el servicio de archivo
+import { Observable } from 'rxjs';
+import { saveAs } from 'file-saver'; // Importación correcta de saveAs
 
 @Component({
   selector: 'app-vista-proveedor',
@@ -9,79 +13,77 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './vista-proveedor.component.html',
   styleUrls: ['./vista-proveedor.component.css']
 })
-export default class VistaProveedorComponent {
-  // Lista de solicitudes con sus respectivos requerimientos
-  solicitudes = [
-    {
-      id: '52-2024',
-      requerimientos: [
-        {
-          detalleRequerimiento: 'Datos de abonado',
-          observacion: '',
-          numeroRequerido: '88888888, 99999999',
-          tipoRequerimiento: 'Llamadas salientes celulares con radio bases, Llamadas salientes números fijos, Llamadas entrantes números fijos',
-          fechaInicio: new Date('2024-07-01T14:31:14'),
-          fechaFin: new Date('2024-07-31T14:31:14'),
-          cantidadAdjuntos: 0,
-          fechaModificacion: ''
-        }
-      ]
-    },
-    {
-      id: '53-2024',
-      requerimientos: [
-        {
-          detalleRequerimiento: 'Datos de IP',
-          observacion: '',
-          numeroRequerido: '192.115.81.81',
-          tipoRequerimiento: 'Datos de IP',
-          fechaInicio: new Date('2024-08-01T08:25:50'),
-          fechaFin: new Date('2024-08-22T14:31:14'),
-          cantidadAdjuntos: 0,
-          fechaModificacion: ''
-        }
-      ]
-    }
-  ];
-
-  // Variables de control y datos de la tabla
-  requerimientos: any[] = []; // Requerimientos que se mostrarán en la tabla
-  selectedSolicitudId: string | null = null; // ID de la solicitud seleccionada
+export default class VistaProveedorComponent implements OnInit {
+  solicitudes: any[] = [];
+  requerimientos: any[] = [];
+  selectedSolicitudId: string | null = null;
   mostrarModal = false;
   requerimientoSeleccionado: any = null;
-  archivosSeleccionados: any[] = []; // Archivos seleccionados
+  archivosSeleccionados: any[] = [];
   registrosPorPagina = 5;
   paginaActual = 1;
+  idSeleccionado:number = 0;
 
-  // Método para manejar el cambio de selección de ID de solicitud en el comboBox
+  constructor(
+    private vistaProveedorService: VistaProveedorService,
+    private archivoService: ArchivoService
+  ) {}
+
+  ngOnInit(): void {
+    this.obtenerTodasLasSolicitudes();
+  }
+
+  obtenerTodasLasSolicitudes(): void {
+    this.vistaProveedorService.obtenerTodasLasSolicitudesProveedor().subscribe(
+      (data) => {
+        console.log(data)
+        this.solicitudes = data;
+      },
+      (error) => {
+        console.error('Error al obtener las solicitudes:', error);
+      }
+    );
+  }
+
+  obtenerSolicitudPorId(idSolicitud: number): void {
+    this.vistaProveedorService.obtenerSolicitudProveedorPorId(idSolicitud).subscribe(
+      (data) => {
+        this.requerimientos = data.requerimientos;
+      },
+      (error) => {
+        console.error('Error al obtener la solicitud por ID:', error);
+      }
+    );
+  }
+
   onSolicitudChange(): void {
-    const solicitudSeleccionada = this.solicitudes.find(solicitud => solicitud.id === this.selectedSolicitudId);
-    if (solicitudSeleccionada) {
-      this.requerimientos = solicitudSeleccionada.requerimientos;
+    if (this.selectedSolicitudId === '0') {
+      this.obtenerTodasLasSolicitudes();
+    } else if (this.selectedSolicitudId) {
+      const idSolicitud = parseInt(this.selectedSolicitudId, 10);
+      this.obtenerSolicitudPorId(idSolicitud);
     } else {
-      this.requerimientos = []; // Limpia la tabla si no hay solicitud seleccionada
+      this.requerimientos = [];
     }
   }
 
-  // Método para abrir el modal y establecer el requerimiento seleccionado
   abrirModal(item: any): void {
     this.requerimientoSeleccionado = item;
     this.mostrarModal = true;
   }
 
-  // Método para cerrar el modal
   cerrarModal(): void {
     this.mostrarModal = false;
     this.requerimientoSeleccionado = null;
   }
 
-  // Método para manejar la selección de archivos
   onFileSelect(event: any): void {
     const files = event.target.files;
     for (let i = 0; i < files.length; i++) {
       this.archivosSeleccionados.push({
         id: this.archivosSeleccionados.length + 1,
-        nombre: files[i].name
+        nombre: files[i].name,
+        file: files[i] // Guarda el archivo en sí para poder subirlo
       });
     }
   }
@@ -90,22 +92,43 @@ export default class VistaProveedorComponent {
     document.getElementById('archivo')?.click();
   }
 
-  // Método para eliminar un archivo seleccionado
   eliminarArchivo(archivo: any): void {
     this.archivosSeleccionados = this.archivosSeleccionados.filter(a => a.id !== archivo.id);
   }
 
-  // Método simulado para descargar un archivo
   descargarArchivo(archivo: any): void {
-    console.log(`Descargando archivo: ${archivo.nombre}`);
+    const archivoId = archivo.id; // Suponiendo que el archivo tiene un ID asignado
+    this.archivoService.descargarArchivo(archivoId).subscribe(
+      (response) => {
+        // Usa FileSaver para descargar el archivo recibido
+        saveAs(new Blob([response]), archivo.nombre);
+      },
+      (error) => {
+        console.error(`Error al descargar el archivo ${archivo.nombre}:`, error);
+      }
+    );
   }
 
-  // Método para calcular el total de registros en la página actual
+  subirArchivo(): void {
+    const formData = new FormData();
+    this.archivosSeleccionados.forEach((archivo) => {
+      formData.append('files', archivo.file, archivo.nombre);
+    });
+
+    this.archivoService.insertarArchivo(formData).subscribe(
+      (response) => {
+        console.log('Archivos subidos con éxito:', response);
+      },
+      (error) => {
+        console.error('Error al subir archivos:', error);
+      }
+    );
+  }
+
   get totalRegistrosPagina(): number {
     return Math.min(this.paginaActual * this.registrosPorPagina, this.archivosSeleccionados.length);
   }
 
-  // Método de paginación: archivos a mostrar en la página actual
   get archivosPaginados(): any[] {
     const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
     const fin = inicio + this.registrosPorPagina;
@@ -113,7 +136,7 @@ export default class VistaProveedorComponent {
   }
 
   actualizarPaginacion(): void {
-    this.paginaActual = 1; // Reinicia a la primera página al cambiar los registros por página
+    this.paginaActual = 1;
   }
 
   anteriorPagina(): void {
