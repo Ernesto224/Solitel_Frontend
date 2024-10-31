@@ -120,7 +120,7 @@ interface SubModalidad {
   imports: [CommonModule, FormsModule, NgMultiSelectDropDownModule, NgxMaskDirective],
   providers:[provideNgxMask()]
 })
-export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
+export default class AnalisisTelefonicoComponent implements OnInit {
   solicitudAnalisisId: number = 1;
   requerimientos: Requerimiento[] = [];
   oficinasAnalisis: any[] = [];
@@ -157,7 +157,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
 
   constructor(
     private analisisService: AnalisisTelefonicoService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.cargarNumerosUnicos();
@@ -166,10 +166,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.inicializarDropdownSettings();
     this.obtenerCondiciones();
     this.obtenerTipoAnalisis();
-  }
-
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 
   cargarSolicitudesPorNumeroUnico(numeroUnico: string): void {
@@ -459,7 +455,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
         },
         error => console.error('Error al enviar la solicitud:', error.error)
     );
-}
+  }
 
 
   obtenerCondiciones(): void {

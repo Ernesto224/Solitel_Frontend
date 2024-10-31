@@ -7,10 +7,9 @@ import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { EstadoService } from '../../services/estado.service';  
 
 @Component({
-  selector: 'app-bandeja',
+  selector: 'app-bandeja-analista',
   standalone: true,
   imports: [
     SidebarComponent,
@@ -20,10 +19,10 @@ import { EstadoService } from '../../services/estado.service';
     CommonModule,
     FormsModule
   ],
-  templateUrl: './bandeja.component.html',
-  styleUrl: './bandeja.component.css'
+  templateUrl: './bandeja-analista.component.html',
+  styleUrl: './bandeja-analista.component.css'
 })
-export default class BandejaComponent implements OnInit {
+export default class BandejaAnalistaComponent {
 
   solicitudes: any[] = [];  // Aquí guardamos los datos de las solicitudes
   pageNumber: number = 1;   // Número de página inicial
@@ -40,18 +39,15 @@ export default class BandejaComponent implements OnInit {
   fechaInicioFiltro: string = '';
   fechaFinFiltro: string = '';
   cantidadSolicitudes: number = 0;
-  estados: any[] = []; 
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
-    private historicoService: HistoricoService, 
-    private estadoService: EstadoService
+    private historicoService: HistoricoService
   ) { }
 
   ngOnInit(): void {
     // Hacemos la solicitud después de que la vista esté completamente cargada
     this.obtenerSolicitudes(this.pageNumber, this.pageSize);
-    this.obtenerEstados();
   }
 
   // Abre el modal con la solicitud seleccionada
@@ -99,16 +95,6 @@ export default class BandejaComponent implements OnInit {
     }
   }
 
-  obtenerEstados() {
-    this.estadoService.obtenerEstados().subscribe({
-      next: (data: any[]) => {
-        this.estados = data;  
-      },
-      error: (err) => {
-        console.error('Error al obtener los estados:', err);
-      }
-    });
-  }
 
   obtenerSolicitudes(pageNumber: number, pageSize: number): void {
     this.solicitudProveedorService.obtener(pageNumber, pageSize).subscribe({
@@ -161,17 +147,8 @@ export default class BandejaComponent implements OnInit {
   }
 
   filtrarPorEstado() {
-    const idEstado = parseInt(this.estadoSeleccionado, 10);  // Convertir el estado seleccionado a número
-console.log(this.pageNumber)
-    this.solicitudProveedorService.obtenerSolicitudesPorEstado(idEstado,this.pageNumber,this.pageSize).subscribe({
-      next: (data: any) => {
-        this.solicitudes = data;  // Actualizamos las solicitudes filtradas por estado
-        this.cantidadSolicitudes = this.solicitudes.length;  // Actualizamos la cantidad en el badge
-      },
-      error: (err) => {
-        console.log('Error al filtrar solicitudes por estado', err);
-      }
-    });
+    const solicitudesFiltradas = this.solicitudes.filter(solicitud => solicitud.estado === this.estadoSeleccionado);
+    this.cantidadSolicitudes = solicitudesFiltradas.length;  // Actualiza la cantidad en el badge
   }
 
   limpiarFiltros() {
@@ -187,7 +164,7 @@ console.log(this.pageNumber)
 
     // Filtro por estado
     if (this.estadoSeleccionado) {
-      this.filtrarPorEstado();
+      solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => solicitud.estado === this.estadoSeleccionado);
     }
 
     // Filtro por número único
@@ -207,7 +184,4 @@ console.log(this.pageNumber)
 
     console.log('Solicitudes filtradas:', solicitudesFiltradas);
   }
-
-
-
 }
