@@ -9,7 +9,7 @@ import { saveAs } from 'file-saver';
 export class ArchivoService {
 
   private baseUrl = 'https://localhost:7211';
-  private urlInsertarArchivo = 'insertarArchivo_RequerimientoProveedor'
+  private urlInsertarArchivo = '/insertarArchivo_RequerimientoProveedor'
 
   constructor(private http: HttpClient) { }
 
@@ -17,10 +17,7 @@ export class ArchivoService {
     return this.http.get<any>(`${this.baseUrl}/obtenerArchivoPorId?id=${id}`);
   }
 
-
   public insertarArchivo = (formData: FormData): Observable<any> => {
-  
       return this.http.post(`${this.baseUrl}${this.urlInsertarArchivo}`, formData);
-    
   }
 }

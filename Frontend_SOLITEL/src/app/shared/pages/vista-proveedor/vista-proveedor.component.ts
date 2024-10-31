@@ -22,7 +22,11 @@ export default class VistaProveedorComponent implements OnInit {
   archivosSeleccionados: any[] = [];
   registrosPorPagina = 5;
   paginaActual = 1;
-  idSeleccionado:number = 0;
+  solicitudSeleccionada: any = null;
+  archivosPorRequerimiento: { [key: number]: any[] } = {}; // Almacenar archivos por requerimiento
+  archivosPaginados: any[] = []; // Variable para almacenar archivos paginados
+  totalArchivos: number = 0; // Total de archivos para la paginación
+
 
   constructor(
     private vistaProveedorService: VistaProveedorService,
@@ -56,20 +60,57 @@ export default class VistaProveedorComponent implements OnInit {
     );
   }
 
-  onSolicitudChange(): void {
-    if (this.selectedSolicitudId === '0') {
-      this.obtenerTodasLasSolicitudes();
-    } else if (this.selectedSolicitudId) {
-      const idSolicitud = parseInt(this.selectedSolicitudId, 10);
-      this.obtenerSolicitudPorId(idSolicitud);
-    } else {
-      this.requerimientos = [];
-    }
+  onSolicitudChange(event: any) {
+    const selectedId = +event.target.value; // Convertir el valor a número si es necesario
+    this.solicitudSeleccionada = this.solicitudes.find(
+      solicitud => solicitud.idSolicitudProveedor === selectedId
+    );
+    this.requerimientos = this.solicitudSeleccionada.requerimientos;
+    console.log('Solicitud seleccionada:', this.solicitudSeleccionada);
   }
+
+enviarTodosLosArchivos(): void {
+  for (const idRequerimiento in this.archivosPorRequerimiento) {
+      const archivos = this.archivosPorRequerimiento[idRequerimiento];
+
+      if (archivos && archivos.length > 0) {
+          archivos.forEach(archivo => {
+              const formData = new FormData();
+              formData.append('Nombre', archivo.nombre); // Nombre del archivo
+              formData.append('file', archivo.file); // El archivo en sí
+              formData.append('FormatoAchivo', archivo.file.type); // Formato del archivo
+              formData.append('FechaModificacion', new Date().toISOString()); // Fecha de modificación
+              formData.append('idRequerimiento', idRequerimiento); // ID del requerimiento
+
+              // Log de FormData para depuración
+              const formDataObj: { [key: string]: any } = {};
+              formData.forEach((value, key) => {
+                  formDataObj[key] = value;
+              });
+              console.log('Contenido de FormData:', formDataObj);
+
+              // Llama al servicio para insertar el archivo
+              this.archivoService.insertarArchivo(formData).subscribe({
+                  next: response => {
+                      console.log('Archivo guardado con éxito:', response);
+                      alert('Archivo guardado con éxito');
+                  },
+                  error: err => {
+                      console.error('Error al guardar el archivo:', err);
+                  }
+              });
+          });
+      } else {
+          console.log('No hay archivos para el requerimiento:', idRequerimiento);
+      }
+  }
+  this.archivosPorRequerimiento = {};
+}
 
   abrirModal(item: any): void {
     this.requerimientoSeleccionado = item;
     this.mostrarModal = true;
+    this.actualizarArchivosPaginados(); // Llama a este método al abrir el modal
   }
 
   cerrarModal(): void {
@@ -77,15 +118,24 @@ export default class VistaProveedorComponent implements OnInit {
     this.requerimientoSeleccionado = null;
   }
 
-  onFileSelect(event: any): void {
-    const files = event.target.files;
-    for (let i = 0; i < files.length; i++) {
-      this.archivosSeleccionados.push({
-        id: this.archivosSeleccionados.length + 1,
-        nombre: files[i].name,
-        file: files[i] // Guarda el archivo en sí para poder subirlo
-      });
+  onFileSelect(event: any, idRequerimiento: number): void {
+    const files: FileList = event.target.files;
+    if (files.length > 0) {
+      const archivosSeleccionados = this.archivosPorRequerimiento[idRequerimiento] || [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        // Verificar si el archivo ya está en la lista
+        const existe = archivosSeleccionados.some(archivo => archivo.nombre === file.name);
+        if (!existe) {
+          archivosSeleccionados.push({
+            nombre: file.name,
+            file: file
+          });
+        }
+      }
+      this.archivosPorRequerimiento[idRequerimiento] = archivosSeleccionados;
     }
+    this.actualizarPaginacion();
   }
 
   seleccionarArchivo(): void {
@@ -109,19 +159,9 @@ export default class VistaProveedorComponent implements OnInit {
     );
   }
 
-  subirArchivo(): void {
-    const formData = new FormData();
-    this.archivosSeleccionados.forEach((archivo) => {
-      formData.append('files', archivo.file, archivo.nombre);
-    });
-
-    this.archivoService.insertarArchivo(formData).subscribe(
-      (response) => {
-        console.log('Archivos subidos con éxito:', response);
-      },
-      (error) => {
-        console.error('Error al subir archivos:', error);
-      }
+  transformarArchivos() {
+    this.archivosSeleccionados = Object.keys(this.archivosPorRequerimiento).flatMap(key => 
+      this.archivosPorRequerimiento[+key] // Usamos +key para convertirlo a número
     );
   }
 
@@ -129,15 +169,19 @@ export default class VistaProveedorComponent implements OnInit {
     return Math.min(this.paginaActual * this.registrosPorPagina, this.archivosSeleccionados.length);
   }
 
-  get archivosPaginados(): any[] {
-    const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
-    const fin = inicio + this.registrosPorPagina;
-    return this.archivosSeleccionados.slice(inicio, fin);
+
+  actualizarArchivosPaginados(): void {
+    const startIndex = (this.paginaActual - 1) * this.registrosPorPagina;
+    const endIndex = startIndex + this.registrosPorPagina;
+    this.archivosPaginados = this.archivosPorRequerimiento[this.requerimientoSeleccionado.idRequerimientoProveedor]?.slice(startIndex, endIndex) || [];
+    this.totalArchivos = this.archivosPorRequerimiento[this.requerimientoSeleccionado.idRequerimientoProveedor]?.length || 0;
   }
 
   actualizarPaginacion(): void {
-    this.paginaActual = 1;
+    this.paginaActual = 1; // Reinicia a la primera página al cambiar el número de registros por página
+    this.actualizarArchivosPaginados(); // Actualiza la paginación
   }
+   
 
   anteriorPagina(): void {
     if (this.paginaActual > 1) this.paginaActual--;
@@ -148,6 +192,7 @@ export default class VistaProveedorComponent implements OnInit {
   }
 
   cerrarSolicitud(): void {
-    console.log('Solicitud cerrada/tramitada');
+    this.enviarTodosLosArchivos();
+    
   }
 }
