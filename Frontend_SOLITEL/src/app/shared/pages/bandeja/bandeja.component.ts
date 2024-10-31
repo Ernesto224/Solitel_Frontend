@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';
+import { HistoricoService } from '../../services/historico.service';
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { RouterOutlet } from '@angular/router';
@@ -33,7 +34,9 @@ export default class BandejaComponent implements OnInit {
   pageSize: number = 5;    // Tamaño de página
   modalVisible = false;
   modalEstadoVisible = false;
+  modalHistoricoVisible = false;
   solicitudSeleccionada: any = null;
+  historicoDeSolicitudSeleccionada: any = null;
   filtroCaracter: string = '';
 
   //Filtro
@@ -114,6 +117,40 @@ export default class BandejaComponent implements OnInit {
   cerrarModal() {
     this.modalVisible = false;
     this.solicitudSeleccionada = null;
+  }
+
+  /*
+  abrirModalHistorico(solicitud: any){
+    this.solicitudSeleccionada = solicitud;
+    this.obtenerHistoricoSolicitud(this.solicitudSeleccionada.idSolicitudProveedor)
+    console.log('Historico: ', this.historicoDeSolicitudSeleccionada);
+    this.modalHistoricoVisible = true;
+  }
+
+  cerrarModalHistorico(){
+    this.modalHistoricoVisible = false;
+  }
+  */
+
+  cambiarEstadoASinEfeceto(solicitud: any){
+    const confirmacion = window.confirm("¿Estás seguro de que deseas realizar esta acción?");
+    if (confirmacion) {
+      this.solicitudSeleccionada = solicitud;
+      this.solicitudProveedorService.moverEstadoASinEfecto(solicitud.idSolicitudProveedor)
+        .subscribe({
+          next: (respuesta) => {
+            if (respuesta) {
+              console.log("Estado cambiado con éxito.");
+              this.obtenerSolicitudes();
+            } else {
+              console.error("No se pudo cambiar el estado.");
+            }
+          },
+          error: (error) => {
+            console.error("Ocurrió un error en la solicitud:", error);
+          }
+        });
+    }
   }
 
   obtenerEstados() {
@@ -312,7 +349,21 @@ export default class BandejaComponent implements OnInit {
     });
   }
 
-
+  /*
+  obtenerHistoricoSolicitud(idSolicitudProveedor: number): void {
+    this.historicoService.obtener(idSolicitudProveedor).subscribe({
+      next: (data: any) => {
+        this.historicoDeSolicitudSeleccionada = data;
+      },
+      error: (err) => {
+        console.log('')
+        if(err.status === 0) {
+          console.log('');
+        }
+      }
+    })
+  }
+  */
 
   calcularDiasTranscurridos(fechaInicio: string): number {
     const fecha = new Date(fechaInicio);

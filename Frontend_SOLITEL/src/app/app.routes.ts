@@ -18,6 +18,17 @@ export const routes: Routes = [
           import(
             './shared/pages/analisis-telefonico/analisis-telefonico.component'
           ),
+      },{
+        path: 'vista-proveedor',
+        loadComponent: () =>
+          import(
+            './shared/pages/vista-proveedor/vista-proveedor.component'
+          ),
+      },
+      {
+        path: 'bandeja-analista',
+        loadComponent: () =>
+          import('./shared/pages/bandeja-analista/bandeja-analista.component'),
       },
       {
         path: 'bandeja',
