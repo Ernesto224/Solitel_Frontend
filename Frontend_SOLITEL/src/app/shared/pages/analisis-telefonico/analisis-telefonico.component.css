@@ -1,7 +1,271 @@
-.center-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 1rem; /* Espaciado entre los botones */
-    margin-bottom: 1.5rem; /* Espaciado inferior */
-  }
-  
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 20px;
+  padding-top: 200px; /* Espacio bajo el header */
+}
+
+/* Ajuste del main para respetar el header */
+main {
+  padding-top: 0;
+}
+
+.form-container {
+  background-color: #fff;
+  padding: 30px; /* Incremento de padding para mayor espaciado */
+  border-radius: 8px;
+  max-width: 1200px;
+  margin: 20px auto; /* Espaciado superior e inferior */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  font-size: 1.6rem;
+  margin-bottom: 15px; /* Incremento de margen */
+  color: #333;
+}
+
+h1 {
+  font-size: 2.2rem;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 25px; /* Más espacio entre los grupos de formulario */
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 10px; /* Mayor separación entre el label y el input */
+  color: #555;
+}
+
+input,
+select,
+textarea {
+  padding: 15px; /* Más padding en los campos */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+textarea {
+  resize: vertical;
+  height: 120px;
+}
+
+/* Estilos personalizados para dropdown */
+::ng-deep .custom-multiselect-dropdown .dropdown-btn {
+  padding: 15px; /* Más grande para un aspecto más prominente */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: auto;
+  min-width: 100%; /* Ajuste dinámico */
+  color: #333;
+  background-color: white;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+::ng-deep .custom-multiselect-dropdown .dropdown-list {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Evita que las opciones seleccionadas aparezcan en fondo azul */
+::ng-deep .custom-multiselect-dropdown .dropdown-list .selected-item {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px; /* Mayor separación entre los elementos de la fila */
+  margin-bottom: 25px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.search-btn {
+  margin-left: 10px;
+  padding: 8px 10px; /* Botón de búsqueda más pequeño */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.urgente-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 10px; /* Tamaño más pequeño */
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.urgente-btn.active {
+  background-color: #dc3545;
+}
+
+.buttons-row {
+  display: flex;
+  gap: 12px; /* Espacio entre botones */
+  margin-top: 25px;
+}
+
+.buttons-row .btn {
+  padding: 8px 18px; /* Tamaño reducido en los botones */
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.btn-secondary {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+.btn-tertiary {
+  background-color: #ffc107;
+  color: white;
+  border: none;
+}
+
+.input-group {
+  display: flex;
+  width: 100%;
+}
+
+.input-group input {
+  flex-grow: 1;
+  border: 1px solid #ddd;
+  padding: 15px; /* Aumentado */
+  border-radius: 4px 0 0 4px;
+}
+
+.required-field {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 30px 0; /* Incremento en el margen de la tabla */
+  font-size: 1.1em;
+  font-family: sans-serif;
+  min-width: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.styled-table thead tr {
+  background-color: #1c355c; /* Azul especificado */
+  color: #ffffff;
+  text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 18px; /* Más espacio en las celdas */
+  border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+  border-bottom: 2px solid #1c355c; /* Azul especificado */
+}
+
+.styled-table tbody tr.active-row {
+  font-weight: bold;
+  color: #1c355c; /* Azul especificado */
+}
+
+.btn {
+  padding: 8px 12px; /* Botón más pequeño */
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  width: 600px;
+  max-width: 90%;
+  padding: 30px; /* Aumento en el padding general */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  background-color: #1c355c; /* Azul oscuro */
+  padding: 20px; /* Aumento del padding en el header */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+.modal-footer {
+  padding: 20px; /* Aumento en el padding del footer */
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-footer .btn-primary {
+  background-color: #1c355c; /* Azul oscuro */
+  color: white;
+  border: none;
+}
+
+.modal-footer .btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+}

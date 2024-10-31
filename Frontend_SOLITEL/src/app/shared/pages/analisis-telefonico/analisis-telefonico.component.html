@@ -1,32 +1,35 @@
-<div class="min-h-screen flex flex-col">
+<div class="flex flex-col mb-0 pb-0">
   <!-- Layout principal con Sidebar y contenido -->
-  <div class="flex flex-grow mt-[72px]">
+  <div class="flex flex-col mb-0 pb-0">
     <!-- Contenido principal -->
-    <div class="flex-grow ml-64">
-      <div class="max-w-5xl mx-auto p-4">
+    <main class="flex-grow ml-64">
+      <div class="flex flex-col mb-0 pb-0">
         <!-- Título de la Solicitud -->
-        <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-          <h2 class="text-2xl font-semibold mb-4">Solicitud de análisis telefónico</h2>
+        <section class="form-container">
+          <h2>Solicitud de análisis telefónico</h2>
+          <hr>
 
           <!-- Selección de solicitudes de proveedor -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="form-group">
-              <label class="block text-sm font-medium text-gray-700">Número único:</label>
-              <select
-                [(ngModel)]="numeroUnico"
-                (change)="numeroUnico !== null ? cargarSolicitudesPorNumeroUnico(numeroUnico.toString()) : null"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              >
-                <option value="">Seleccione</option>
-                <option *ngFor="let numero of numerosUnicos" [value]="numero">{{ numero }}</option>
-              </select>
-            </div>
+          <section class="form-row">
+            <section class="form-group">
+              <label>Número único:</label>
+              <div class="input-group">
+                <select
+                  [(ngModel)]="numeroUnico"
+                  (change)="numeroUnico !== null ? cargarSolicitudesPorNumeroUnico(numeroUnico.toString()) : null"
+                  class="input select"                
+                >
+                  <option *ngFor="let numero of numerosUnicos" [value]="numero">{{ numero }}</option>
+                </select>
+              </div>
+            </section>
 
             <!-- Solicitudes de proveedor multiselect -->
-            <div class="form-group">
-              <label class="block text-sm font-medium text-gray-700">Solicitudes de proveedor:</label>
+            <section class="form-group">
+              <label>Solicitudes de proveedor:</label>
               <ng-multiselect-dropdown
-                class="custom-multiselect-dropdown"
+                class="input custom-multiselect-dropdown"
+                (click)="obtenerIdSolicitudProveedorArhivos()"
                 [placeholder]="'Seleccione solicitudes'"
                 [data]="solicitudesProveedor"
                 [(ngModel)]="solicitudesProveedorSeleccionadas"
@@ -34,13 +37,13 @@
                 name="idSolicitudSeleccionada"
                 required
               ></ng-multiselect-dropdown>
-            </div>
+            </section>
 
             <!-- Archivos a analizar multiselect -->
-            <div class="form-group">
-              <label class="block text-sm font-medium text-gray-700">Archivos a analizar:</label>
+            <section class="form-group">
+              <label>Archivos a analizar:</label>
               <ng-multiselect-dropdown
-                class="custom-multiselect-dropdown"
+                class="input custom-multiselect-dropdown"
                 [placeholder]="'Seleccione archivos'"
                 [data]="archivos"
                 [(ngModel)]="archivosAnalizarSeleccionados"
@@ -48,44 +51,36 @@
                 name="idArchivoSeleccionada"
                 required
               ></ng-multiselect-dropdown>
-            </div>
-          </div>
+            </section>
+          </section>
 
           <!-- Detalle de solicitud -->
-          <h3 class="text-lg font-semibold mb-2">Detalle de solicitud</h3>
+          <h3>Detalle de la solicitud</h3>
+          <hr>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Oficina de análisis criminal:</label>
-              <select
-                [(ngModel)]="oficinaAnalisis"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              >
-                <option value="">Seleccione</option>
-                <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.idOficina">
-                  {{ oficina.nombre }}
-                </option>
+          <section class="form-row">
+            <section class="form-group">
+              <label>Oficina de análisis criminal:</label>
+              <select [(ngModel)]="oficinaAnalisis" class="input select">
+                <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.idOficina">{{ oficina.nombre }}</option>
               </select>
-            </div>
+            </section>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Tipo de análisis:</label>
-              <select
-                [(ngModel)]="tipoAnalisis"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              >
+            <section class="form-group">
+              <label>Tipo de análisis:</label>
+              <select [(ngModel)]="tipoAnalisis" class="input select">
                 <option value="Análisis Telefónico">Análisis Telefónico</option>
                 <option *ngFor="let tipoAnalisis of tiposAnalisis" [value]="tipoAnalisis.idTipoAnalisis">
                   {{ tipoAnalisis.nombre }}
                 </option>
               </select>
-            </div>
+            </section>
 
             <!-- Objetivos del análisis multiselect -->
-            <div class="form-group">
-              <label class="block text-sm font-medium text-gray-700">Objetivos del análisis:</label>
+            <section class="form-group">
+              <label>Objetivos del análisis:</label>
               <ng-multiselect-dropdown
-                class="custom-multiselect-dropdown"
+                class="input custom-multiselect-dropdown"
                 [placeholder]="'Seleccione objetivos'"
                 [data]="objetivosAnalista"
                 [(ngModel)]="objetivosAnalisisSeleccionados"
@@ -93,172 +88,184 @@
                 name="idObjetivoSeleccionada"
                 required
               ></ng-multiselect-dropdown>
-            </div>
-          </div>
+            </section>
+          </section>
 
           <!-- Información adicional -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Fecha del hecho:</label>
+          <section class="form-row">
+            <section class="form-group">
+              <label>Fecha del hecho:</label>
               <input
                 [(ngModel)]="fechaHecho"
                 type="date"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                class="input"
               />
-            </div>
+            </section>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Otros (objetivos):</label>
+            <section class="form-group">
+              <label>Otros (objetivos):</label>
               <input
                 [(ngModel)]="otrosObjetivos"
                 type="text"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                class="input"
               />
-            </div>
-          </div>
+            </section>
+          </section>
 
-          <!-- Validación y campos con longitud mínima de 20 caracteres -->
-          <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700">Otros detalles:</label>
+          <!-- Otros detalles -->
+          <section class="form-group">
+            <label>Otros detalles:</label>
             <textarea
               [(ngModel)]="otrosDetalles"
               (blur)="validarOtrosDetalles()"
               rows="4"
-              class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              class="input textarea"
             ></textarea>
-            <p *ngIf="otrosDetalles.length < 20" class="text-red-500 text-xs mt-1">
-              Este campo debe tener al menos 20 caracteres.
-            </p>
-            <p *ngIf="!validarOtrosDetalles() && otrosDetalles.length >= 20" class="text-red-500 text-xs mt-1">
-              Solo se permiten letras, números y signos de puntuación básicos.
-            </p>
-          </div>
+          </section>
 
           <!-- Registros de requerimientos -->
-          <h3 class="text-lg font-semibold mb-2">Registros de requerimientos</h3>
+          <h3>Registros de requerimientos</h3>
+          <hr>
 
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Tipo Objetivo:</label>
-              <select
-                [(ngModel)]="tipoObjetivo"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              >
+          <section class="form-row">
+            <section class="form-group">
+              <label>Tipo Objetivo:</label>
+              <select [(ngModel)]="tipoObjetivo" class="input select">
                 <option value="">Seleccione</option>
                 <option value="Teléfono">Teléfono</option>
                 <option value="IMEI">IMEI</option>
                 <option value="Radio Base">Radio Base</option>
                 <option value="SIM">SIM</option>
               </select>
-            </div>
+            </section>
 
-            <!-- Validación de "Objetivo" -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Objetivo:</label>
+            <section class="form-group">
+              <label>Objetivo:</label>
               <input
                 [(ngModel)]="objetivo"
                 (blur)="validarObjetivo()"
-                mask="00000000" 
+                mask="00000000"
                 type="text"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                class="input"
               />
-              <p *ngIf="objetivo.length < 8" class="text-red-500 text-xs mt-1">
-                El objetivo debe tener al menos 8 números.
-              </p>
-              <p *ngIf="!validarObjetivo() && objetivo.length >= 20" class="text-red-500 text-xs mt-1">
-                Solo se permiten letras y espacios.
-              </p>
-            </div>
+            </section>
 
-            <!-- Validación de "Utilizado por" -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Utilizado por:</label>
+            <section class="form-group">
+              <label>Utilizado por:</label>
               <input
                 [(ngModel)]="utilizadoPor"
                 (blur)="validarUtilizadoPor()"
                 type="text"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                class="input"
               />
-              <p *ngIf="utilizadoPor.length < 20" class="text-red-500 text-xs mt-1">
-                Este campo debe tener al menos 20 caracteres.
-              </p>
-              <p *ngIf="!validarUtilizadoPor() && utilizadoPor.length >= 20" class="text-red-500 text-xs mt-1">
-                Solo se permiten letras y espacios.
-              </p>
-            </div>
+            </section>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Condición:</label>
-              <select
-                [(ngModel)]="condicionAnalisisEscogida"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              >
+            <section class="form-group">
+              <label>Condición:</label>
+              <select [(ngModel)]="condicionAnalisisEscogida" class="input select">
                 <option value="">Seleccione</option>
                 <option *ngFor="let condicionValor of condicionesAnalisis" [value]="condicionValor.nombre">
                   {{ condicionValor.nombre }}
                 </option>
               </select>
-            </div>
-          </div>
+            </section>
+          </section>
 
           <!-- Botones de acción -->
-          <div class="flex justify-start space-x-4 mb-6">
-            <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="limpiarFormulario()">
-              Limpiar
+          <section class="buttons-row space-x-4">
+            <button class="btn btn-primary" (click)="limpiarCamposRequerimiento()">
+              <i class="material-icons pr-2">remove</i> Limpiar
             </button>
 
-            <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="agregarRequerimiento()">
-              Agregar
+            <button class="btn btn-secondary" (click)="agregarRequerimiento()">
+              <i class="material-icons pr-2">add</i> Agregar
             </button>
 
-            <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="selectedIndex !== null ? agregarRequerimiento() : null">
-              Editar
+            <button class="btn btn-secondary" (click)="selectedIndex !== null ? agregarRequerimiento() : null">
+              <i class="material-icons pr-2">edit</i> Editar
             </button>
-          </div>
+          </section>
 
           <!-- Tabla de registros -->
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-blue-900 text-white">
+          <section class="mt-8">
+            <h2>Lista de Requerimientos Agregados</h2>
+            <hr>
+            <table class="styled-table">
+              <thead>
                 <tr>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"></th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Tipo Objetivo</th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Objetivo</th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Utilizado por</th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Condición</th>
+                  <th>Acciones</th>
+                  <th>Tipo Objetivo</th>
+                  <th>Objetivo</th>
+                  <th>Utilizado por</th>
+                  <th>Condición</th>
+                  <th>Aportado por</th>
                 </tr>
               </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
+              <tbody>
                 <tr *ngFor="let requerimiento of requerimientos; let i = index">
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <button class="bg-blue-500 text-white px-2 py-1 rounded-md mr-2" title="Editar" (click)="cargarRequerimientoEnFormulario(i)">
-                      Editar
-                    </button>
-                    <button class="bg-red-500 text-white px-2 py-1 rounded-md" title="Eliminar" (click)="eliminarRequerimiento(i)">
-                      Eliminar
-                    </button>
+                  <td>
+                    <section class="buttons-row space-x-4">
+                      <button class="btn btn-primary" title="Editar" (click)="cargarRequerimientoEnFormulario(i)">
+                        <i class="material-icons">edit</i>
+                      </button>
+                      <button class="btn btn-secondary" title="Eliminar" (click)="eliminarRequerimiento(i)">
+                        <i class="material-icons">delete</i>
+                      </button>
+                    </section>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.tipoObjetivo }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.objetivo }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.utilizadoPor }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.condicion }}</td>
+                  <td>{{ requerimiento.tipoObjetivo }}</td>
+                  <td>{{ requerimiento.objetivo }}</td>
+                  <td>{{ requerimiento.utilizadoPor }}</td>
+                  <td>{{ requerimiento.condicion }}</td>
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
+          </section>
+        </section>
       </div>
-    </div>
+    </main>
   </div>
 
   <!-- Botones generales de la tabla -->
-  <div class="center-buttons">
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="limpiarFormulario()">
-      Limpiar
+  <section class="center-buttons p-6 flex justify-center space-x-4">
+    <button class="btn btn-primary" (click)="limpiarFormulario()">
+      <i class="material-icons pr-2">remove</i> Limpiar
     </button>
 
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="enviarSolicitud()">
-      Guardar
+    <button class="btn btn-secondary" (click)="enviarSolicitud()">
+      <i class="material-icons pr-2">save</i> Guardar
     </button>
-  </div>
+  </section>
 </div>
+
+<!-- Modal de Confirmación -->
+<section *ngIf="mostrarConfirmacion" class="modal-container">
+  <div class="modal-content">
+    <header class="modal-header">
+      <h3>Confirmación</h3>
+      <button (click)="cerrarModal()">✕</button>
+    </header>
+    <p>¿Está seguro que desea registrar la solicitud?</p>
+    <section class="buttons-row">
+      <button class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" (click)="confirmarGuardado()">Aceptar</button>
+    </section>
+  </div>
+</section>
+
+<!-- Modal de Éxito -->
+<section *ngIf="mostrarExito" class="modal-container">
+  <div class="modal-content">
+    <header class="modal-header">
+      <h3>Información</h3>
+      <button (click)="cerrarModal()">✕</button>
+    </header>
+    <p>La operación ha sido realizada con éxito.</p>
+    <section class="buttons-row">
+      <button class="btn btn-secondary" (click)="cerrarModal()">Aceptar</button>
+    </section>
+  </div>
+</section>
+
+<!-- Cargar Material Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
