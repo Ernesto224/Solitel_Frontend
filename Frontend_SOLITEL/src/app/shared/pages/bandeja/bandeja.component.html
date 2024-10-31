@@ -21,14 +21,13 @@
         <div class="form-group">
           <label for="estado">Estado:</label>
           <div class="badge-container">
-            <select id="estado" [(ngModel)]="estadoSeleccionado" class="w-full p-2 border rounded">
+            <select [(ngModel)]="estadoSeleccionado">
               <option value="" disabled selected>Solicitud Proveedor</option>
-              <!-- Opciones dinámicas -->
-              <option *ngFor="let estado of estados" [value]="estado.tN_IdEstado">
-                {{ estado.tC_Nombre }} ({{ estado.tC_Tipo }})
+              <option *ngFor="let estado of cantidadPorEstado" [value]="estado.nombre">
+                {{ estado.nombre }} ({{ estado.cantidad }})
               </option>
-            </select>
-            <span class="badge ml-2 bg-blue-500 text-white px-2 py-1 rounded">{{estados.length}}</span>
+            </select>                                  
+           
           </div>
         </div>
 
@@ -74,84 +73,57 @@
     <table class="min-w-full table-auto border-collapse">
       <thead>
         <tr class="bg-[#1C355C] text-white">
-          <th class="border px-4 py-2 text-center">Aprobar</th>
-          <th class="border px-4 py-2 text-center">Sin efecto</th>
-          <th class="border px-4 py-2 text-center">Histórico</th>
-          <th class="border px-4 py-2 text-center">Ver</th>
-          <th class="border px-4 py-2 text-center">Número de Caso</th>
-          <th class="border px-4 py-2 text-center">Número único</th>
-          <th class="border px-4 py-2 text-center">Fecha creación</th> <!-- Cambiado a 'Fecha creación' -->
-          <th class="border px-4 py-2 text-center">Días transcurridos</th>
-          <th class="border px-4 py-2 text-center">Estado</th>
-          <th class="border px-4 py-2 text-center">Urgente</th>
-          <th class="border px-4 py-2 text-center">Creado por</th>
+          <th *ngIf="columnasVisibles['aprobar']" class="border px-4 py-2 text-center">Aprobar</th>
+          <th *ngIf="columnasVisibles['sinEfecto']" class="border px-4 py-2 text-center">Sin efecto</th>
+          <th *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">Histórico</th>
+          <th *ngIf="columnasVisibles['ver']" class="border px-4 py-2 text-center">Ver</th>
+          <th *ngIf="columnasVisibles['numeroCaso']" class="border px-4 py-2 text-center">Número de Caso</th>
+          <th *ngIf="columnasVisibles['numeroUnico']" class="border px-4 py-2 text-center">Número único</th>
+          <th *ngIf="columnasVisibles['fechaCreacion']" class="border px-4 py-2 text-center">Fecha creación</th>
+          <th *ngIf="columnasVisibles['diasTranscurridos']" class="border px-4 py-2 text-center">Días transcurridos</th>
+          <th *ngIf="columnasVisibles['estado']" class="border px-4 py-2 text-center">Estado</th>
+          <th *ngIf="columnasVisibles['urgente']" class="border px-4 py-2 text-center">Urgente</th>
+          <th *ngIf="columnasVisibles['creadoPor']" class="border px-4 py-2 text-center">Creado por</th>
         </tr>
       </thead>
-
+    
       <tbody class="bg-[#F3F4F6] text-black">
-        <tr *ngFor="let solicitud of solicitudes" class="hover:bg-gray-200">
-          <td class="border px-4 py-2 text-center">
+        <tr *ngFor="let solicitud of solicitudesFiltradas" class="hover:bg-gray-200">
+          <td *ngIf="columnasVisibles['aprobar']" class="border px-4 py-2 text-center">
             <input type="checkbox" class="toggle-checkbox" />
           </td>
-
-          <td class="border px-4 py-2 text-center">
-            <div class="flex justify-center">
-              <button (click)="abrirModal(solicitud)"
-                class="bg-blue-500 text-white px-4 py-2 rounded focus:outline-none focus:ring flex items-center space-x-2">
-                <i class="material-icons">scan_delete</i>
-              </button>
-            </div>
+          
+          <td *ngIf="columnasVisibles['sinEfecto']" class="border px-4 py-2 text-center">
+            <button (click)="abrirModal(solicitud)" class="bg-red-500 text-white px-4 py-2 rounded focus:outline-none focus:ring">
+              <i class="material-icons">cancel</i>
+            </button>
           </td>
-
-          <td class="border px-4 py-2 text-center">
-            <div class="flex justify-center">
-              <button (click)="abrirModal(solicitud)"
-                class="bg-blue-500 text-white px-4 py-2 rounded focus:outline-none focus:ring flex items-center space-x-2">
-                <i class="material-icons">scan_delete</i>
-              </button>
-            </div>
+    
+          <td *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">
+            <button (click)="abrirModal(solicitud)" class="bg-gray-500 text-white px-4 py-2 rounded focus:outline-none focus:ring">
+              <i class="material-icons">history</i>
+            </button>
           </td>
-
-          <td class="border px-4 py-2 text-center">
-            <div class="flex justify-center">
-              <button (click)="abrirModal(solicitud)"
-                class="bg-blue-500 text-white px-4 py-2 rounded focus:outline-none focus:ring flex items-center space-x-2">
-                <i class="material-icons">info</i>
-              </button>
-            </div>
+    
+          <td *ngIf="columnasVisibles['ver']" class="border px-4 py-2 text-center">
+            <button (click)="abrirModal(solicitud)" class="bg-blue-500 text-white px-4 py-2 rounded focus:outline-none focus:ring">
+              <i class="material-icons">info</i>
+            </button>
           </td>
-
-          <!-- Muestra el número de caso -->
-          <td class="border px-4 py-2 text-center">{{ solicitud.numeroCaso }}</td>
-
-          <!-- Muestra el número único -->
-          <td class="border px-4 py-2 text-center">{{ solicitud.numeroUnico }}</td>
-
-          <!-- Muestra la fecha de creación (fechaCrecion) -->
-          <td class="border px-4 py-2 text-center">
-            {{ solicitud.fechaCrecion | date: 'dd/MM/yyyy' }} <!-- Cambiado a fechaCrecion -->
-          </td>
-
-          <!-- Calcula los días transcurridos -->
-          <td class="border px-4 py-2 text-center">
-            {{ calcularDiasTranscurridos(solicitud.fechaCrecion) }} <!-- Cambiado a fechaCrecion -->
-          </td>
-
-          <!-- Muestra el estado de la solicitud -->
-          <td class="border px-4 py-2 text-center">{{ solicitud.estado?.tC_Nombre }}</td>
-
-          <!-- Muestra si es urgente o no -->
-          <td class="border px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
-
-          <!-- Muestra el nombre del creador -->
-          <td class="border px-4 py-2 text-center">
-            {{ solicitud.usuarioCreador?.tC_Nombre }} {{ solicitud.usuarioCreador?.tC_Apellido || '' }}
-            <!-- Muestra el apellido si está presente -->
-          </td>
+    
+          <!-- Otras columnas condicionales -->
+          <td *ngIf="columnasVisibles['numeroCaso']" class="border px-4 py-2 text-center">{{ solicitud.numeroCaso }}</td>
+          <td *ngIf="columnasVisibles['numeroUnico']" class="border px-4 py-2 text-center">{{ solicitud.numeroUnico }}</td>
+          <td *ngIf="columnasVisibles['fechaCreacion']" class="border px-4 py-2 text-center">{{ solicitud.fechaCreacion | date: 'dd/MM/yyyy' }}</td>
+          <td *ngIf="columnasVisibles['diasTranscurridos']" class="border px-4 py-2 text-center">{{ calcularDiasTranscurridos(solicitud.fechaCreacion) }}</td>
+          <td *ngIf="columnasVisibles['estado']" class="border px-4 py-2 text-center">{{ solicitud.estado?.nombre }}</td>
+          <td *ngIf="columnasVisibles['urgente']" class="border px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
+          <td *ngIf="columnasVisibles['creadoPor']" class="border px-4 py-2 text-center">{{ solicitud.usuarioCreador?.nombre }} {{ solicitud.usuarioCreador?.apellido || '' }}</td>
         </tr>
       </tbody>
     </table>
-
+    
+    
 
   </div>
 

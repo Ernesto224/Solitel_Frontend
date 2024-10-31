@@ -14,8 +14,8 @@ export class SolicitudProveedorService {
 
   constructor(private http: HttpClient) { }
 
-  public obtener = (pageNumber: number, pageSize: number): Observable<any[]> => {
-    return this.http.get<any[]>(`${this.urlServices}${this.urlObtener}/${pageNumber}/${pageSize}`);
+  public obtener(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.urlServices}${this.urlObtener}`);
   }
   public obtenerSolicitudesPorEstado(idEstado: number, pageNumber: number, pageSize: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.urlServices}${this.urlObtenerPorEstado}?pageNumber=${pageNumber}&pageSize=${pageSize}&idEstado=${idEstado}`);
