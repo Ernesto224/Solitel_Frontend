@@ -10,31 +10,44 @@
 
           <!-- Selección de solicitudes de proveedor -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div>
+            <div class="form-group">
               <label class="block text-sm font-medium text-gray-700">Número único:</label>
-              <select [(ngModel)]="numeroUnico" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select
+                [(ngModel)]="numeroUnico"
+                (change)="numeroUnico !== null ? cargarSolicitudesPorNumeroUnico(numeroUnico.toString()) : null"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
                 <option value="">Seleccione</option>
                 <option *ngFor="let numero of numerosUnicos" [value]="numero">{{ numero }}</option>
               </select>
             </div>
 
+            <!-- Solicitudes de proveedor multiselect -->
             <div class="form-group">
-              <label for="operadora">Operadora:</label>
-              <ng-multiselect-dropdown class="custom-multiselect-dropdown" [placeholder]="'Seleccione'"
-                [data]="archivos" [(ngModel)]="archivosAnalizarSeleccionados" [settings]="dropdownSettingsArchivos"
-                name="idOperadoraSeleccionada" required>
-              </ng-multiselect-dropdown>
+              <label class="block text-sm font-medium text-gray-700">Solicitudes de proveedor:</label>
+              <ng-multiselect-dropdown
+                class="custom-multiselect-dropdown"
+                [placeholder]="'Seleccione solicitudes'"
+                [data]="solicitudesProveedor"
+                [(ngModel)]="solicitudesProveedorSeleccionadas"
+                [settings]="dropdownSettingsSolicitudes"
+                name="idSolicitudSeleccionada"
+                required
+              ></ng-multiselect-dropdown>
             </div>
 
-
-            <div>
+            <!-- Archivos a analizar multiselect -->
+            <div class="form-group">
               <label class="block text-sm font-medium text-gray-700">Archivos a analizar:</label>
-              <ng-multiselect-dropdown class="custom-multiselect-dropdown"
-              [(ngModel)]="archivosAnalizarSeleccionados"
-              [data]="archivos"
-              [settings]="dropdownSettingsArchivos"
-              placeholder="Seleccione archivos"
-            ></ng-multiselect-dropdown>
+              <ng-multiselect-dropdown
+                class="custom-multiselect-dropdown"
+                [placeholder]="'Seleccione archivos'"
+                [data]="archivos"
+                [(ngModel)]="archivosAnalizarSeleccionados"
+                [settings]="dropdownSettingsArchivos"
+                name="idArchivoSeleccionada"
+                required
+              ></ng-multiselect-dropdown>
             </div>
           </div>
 
@@ -44,48 +57,81 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium text-gray-700">Oficina de análisis criminal:</label>
-              <select [(ngModel)]="oficinaAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select
+                [(ngModel)]="oficinaAnalisis"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
                 <option value="">Seleccione</option>
-                <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.tN_IdOficina">
-                  {{ oficina.tC_Nombre }}
+                <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.idOficina">
+                  {{ oficina.nombre }}
                 </option>
               </select>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Tipo de análisis:</label>
-              <select [(ngModel)]="tipoAnalisis" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select
+                [(ngModel)]="tipoAnalisis"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
                 <option value="Análisis Telefónico">Análisis Telefónico</option>
+                <option *ngFor="let tipoAnalisis of tiposAnalisis" [value]="tipoAnalisis.idTipoAnalisis">
+                  {{ tipoAnalisis.nombre }}
+                </option>
               </select>
             </div>
 
-            <div>
+            <!-- Objetivos del análisis multiselect -->
+            <div class="form-group">
               <label class="block text-sm font-medium text-gray-700">Objetivos del análisis:</label>
               <ng-multiselect-dropdown
-              [(ngModel)]="objetivosAnalisisSeleccionados"
-              [data]="objetivosAnalista"
-              [settings]="dropdownSettingsObjetivos"
-              placeholder="Seleccione objetivos"
-              class="mt-1 block w-full"
-            ></ng-multiselect-dropdown>
+                class="custom-multiselect-dropdown"
+                [placeholder]="'Seleccione objetivos'"
+                [data]="objetivosAnalista"
+                [(ngModel)]="objetivosAnalisisSeleccionados"
+                [settings]="dropdownSettingsObjetivos"
+                name="idObjetivoSeleccionada"
+                required
+              ></ng-multiselect-dropdown>
             </div>
           </div>
 
+          <!-- Información adicional -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium text-gray-700">Fecha del hecho:</label>
-              <input [(ngModel)]="fechaHecho" type="date" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <input
+                [(ngModel)]="fechaHecho"
+                type="date"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Otros (objetivos):</label>
-              <input [(ngModel)]="otrosObjetivos" type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <input
+                [(ngModel)]="otrosObjetivos"
+                type="text"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
             </div>
           </div>
 
+          <!-- Validación y campos con longitud mínima de 20 caracteres -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700">Otros detalles:</label>
-            <textarea [(ngModel)]="otrosDetalles" rows="4" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+            <textarea
+              [(ngModel)]="otrosDetalles"
+              (blur)="validarOtrosDetalles()"
+              rows="4"
+              class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            ></textarea>
+            <p *ngIf="otrosDetalles.length < 20" class="text-red-500 text-xs mt-1">
+              Este campo debe tener al menos 20 caracteres.
+            </p>
+            <p *ngIf="!validarOtrosDetalles() && otrosDetalles.length >= 20" class="text-red-500 text-xs mt-1">
+              Solo se permiten letras, números y signos de puntuación básicos.
+            </p>
           </div>
 
           <!-- Registros de requerimientos -->
@@ -94,7 +140,10 @@
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium text-gray-700">Tipo Objetivo:</label>
-              <select [(ngModel)]="tipoObjetivo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select
+                [(ngModel)]="tipoObjetivo"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
                 <option value="">Seleccione</option>
                 <option value="Teléfono">Teléfono</option>
                 <option value="IMEI">IMEI</option>
@@ -103,23 +152,51 @@
               </select>
             </div>
 
+            <!-- Validación de "Objetivo" -->
             <div>
               <label class="block text-sm font-medium text-gray-700">Objetivo:</label>
-              <input [(ngModel)]="objetivo" type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <input
+                [(ngModel)]="objetivo"
+                (blur)="validarObjetivo()"
+                mask="00000000" 
+                type="text"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+              <p *ngIf="objetivo.length < 8" class="text-red-500 text-xs mt-1">
+                El objetivo debe tener al menos 8 números.
+              </p>
+              <p *ngIf="!validarObjetivo() && objetivo.length >= 20" class="text-red-500 text-xs mt-1">
+                Solo se permiten letras y espacios.
+              </p>
             </div>
 
+            <!-- Validación de "Utilizado por" -->
             <div>
               <label class="block text-sm font-medium text-gray-700">Utilizado por:</label>
-              <input [(ngModel)]="utilizadoPor" type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <input
+                [(ngModel)]="utilizadoPor"
+                (blur)="validarUtilizadoPor()"
+                type="text"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+              <p *ngIf="utilizadoPor.length < 20" class="text-red-500 text-xs mt-1">
+                Este campo debe tener al menos 20 caracteres.
+              </p>
+              <p *ngIf="!validarUtilizadoPor() && utilizadoPor.length >= 20" class="text-red-500 text-xs mt-1">
+                Solo se permiten letras y espacios.
+              </p>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700">Condición:</label>
-              <select [(ngModel)]="condicion" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+              <select
+                [(ngModel)]="condicionAnalisisEscogida"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
                 <option value="">Seleccione</option>
-                <option value="Abonado">Abonado</option>
-                <option value="Usuario">Usuario</option>
-                <option value="Aportado por">Aportado por</option>
+                <option *ngFor="let condicionValor of condicionesAnalisis" [value]="condicionValor.nombre">
+                  {{ condicionValor.nombre }}
+                </option>
               </select>
             </div>
           </div>
@@ -161,10 +238,10 @@
                       Eliminar
                     </button>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.TC_TipoObjetivo }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.TC_Objetivo }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.TC_UtilizadoPor }}</td>
-                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.TC_Condicion }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.tipoObjetivo }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.objetivo }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.utilizadoPor }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap">{{ requerimiento.condicion }}</td>
                 </tr>
               </tbody>
             </table>
@@ -176,8 +253,8 @@
 
   <!-- Botones generales de la tabla -->
   <div class="center-buttons">
-    <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="agregarRequerimiento()">
-      Agregar
+    <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="limpiarFormulario()">
+      Limpiar
     </button>
 
     <button class="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center" (click)="enviarSolicitud()">
