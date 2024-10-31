@@ -190,6 +190,9 @@
           <!-- Contenido del formulario -->
           <div class="modal-body">
 
+            <!-- Contenedor desplazable -->
+            <div class="scrollable-content">
+
             <!-- Información General -->
             <div class="grid-section">
 
@@ -300,7 +303,7 @@
 
                   <tr *ngFor="let requerimiento of solicitudSeleccionada.requerimientos">
 
-                    <td>{{ requerimiento.tC_Requerimiento }}</td>
+                    <td>{{ requerimiento.requerimiento }}</td>
 
                     <td>
                       <ul>
@@ -310,19 +313,20 @@
 
                     <td>
                       <ul>
-                        <li *ngFor="let dato of requerimiento.datosRequeridos">{{ dato.tC_DatoRequerido }},</li>
+                        <li *ngFor="let dato of requerimiento.datosRequeridos">{{ dato.datoRequeridoContenido }},</li>
                       </ul>
                     </td>
 
-                    <td>{{ requerimiento.tF_FechaInicio | date:'shortDate' }}</td>
+                    <td>{{ requerimiento.fechaInicio | date:'shortDate' }}</td>
 
-                    <td>{{ requerimiento.tF_FechaFinal | date:'shortDate' }}</td>
+                    <td>{{ requerimiento.fechaFinal | date:'shortDate' }}</td>
                   </tr>
 
                 </tbody>
 
               </table>
             </div>
+          </div>
           </div>
 
           <!-- Botón de cerrar -->
