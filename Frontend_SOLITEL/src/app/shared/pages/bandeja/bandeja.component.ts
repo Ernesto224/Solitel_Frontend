@@ -83,7 +83,7 @@ export default class BandejaComponent implements OnInit {
     legajo: false
   };
 
-  constructor(private solicitudProveedorService: SolicitudProveedorService, private estadoService: EstadoService, private archivoService: ArchivoService) { }
+  constructor(private solicitudProveedorService: SolicitudProveedorService, private estadoService: EstadoService, private archivoService: ArchivoService, private historicoService: HistoricoService) { }
 
   ngOnInit(): void {
     forkJoin({
@@ -121,7 +121,7 @@ export default class BandejaComponent implements OnInit {
     this.solicitudSeleccionada = null;
   }
 
-  /*
+  
   abrirModalHistorico(solicitud: any){
     this.solicitudSeleccionada = solicitud;
     this.obtenerHistoricoSolicitud(this.solicitudSeleccionada.idSolicitudProveedor)
@@ -132,7 +132,7 @@ export default class BandejaComponent implements OnInit {
   cerrarModalHistorico(){
     this.modalHistoricoVisible = false;
   }
-  */
+  
 
   cambiarEstadoASinEfeceto(solicitud: any) {
     const confirmacion = window.confirm("¿Estás seguro de que deseas realizar esta acción?");
@@ -347,7 +347,7 @@ export default class BandejaComponent implements OnInit {
     });
   }
 
-  /*
+  
   obtenerHistoricoSolicitud(idSolicitudProveedor: number): void {
     this.historicoService.obtener(idSolicitudProveedor).subscribe({
       next: (data: any) => {
@@ -361,7 +361,7 @@ export default class BandejaComponent implements OnInit {
       }
     })
   }
-  */
+  
 
 
 
