@@ -628,412 +628,273 @@
 
 <div>
 
-  <!-- Modal de solicitud -->
-  <div *ngIf="modalVisible" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
-    aria-modal="true">
+ <!-- Modal de solicitud -->
+ <div *ngIf="modalVisible" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+ aria-modal="true">
 
-    <div class="flex items-center justify-center min-h-screen text-center sm:block sm:p-0">
+ <div class="flex items-center justify-center min-h-screen text-center sm:block sm:p-0">
 
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+   <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
 
-      <!-- Contenedor que centra el modal -->
-      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+   <!-- Contenedor que centra el modal -->
+   <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-      <!-- Contenido del modal centrado y desplazable -->
+   <!-- Contenido del modal centrado y desplazable -->
 
-      <div
-        class="inline-block align-middle bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-4xl sm:w-full">
+   <div
+     class="inline-block align-middle bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-4xl sm:w-full">
 
-        <!-- Encabezado del modal -->
-        <div class="modal-header">
-          <h3 class="text-lg font-medium">Solicitud #{{ solicitudSeleccionada.idSolicitudProveedor }}</h3>
-          <h3 class="text-lg font-medium">Solicitud archivos telefónicos a proveedor</h3>
-        </div>
+     <!-- Encabezado del modal -->
+     <div class="modal-header">
+       <h3 class="text-lg font-medium">Solicitud #{{ solicitudSeleccionada.idSolicitudProveedor }}</h3>
+       <h3 class="text-lg font-medium">Solicitud archivos telefónicos a proveedor</h3>
+     </div>
 
-        <!-- Contenido del formulario -->
-        <div class="modal-body">
+     <!-- Contenido del formulario -->
+     <div class="modal-body">
 
-          <!-- Información General -->
-          <div class="grid-section">
+       <!-- Contenedor desplazable -->
+       <div class="scrollable-content">
 
-            <div>
-              <label class="label" for="numeroUnico">Número único:</label>
-              <input type="text" id="numeroUnico" class="input" [value]="solicitudSeleccionada.numeroUnico" readonly>
-            </div>
+       <!-- Información General -->
+       <div class="grid-section">
 
-            <div>
-              <label class="label" for="numeroCaso">Número caso:</label>
-              <input type="text" id="numeroCaso" class="input" [value]="solicitudSeleccionada.numeroCaso" readonly>
-            </div>
+         <div>
+           <label class="label" for="numeroUnico">Número único:</label>
+           <input type="text" id="numeroUnico" class="input" [value]="solicitudSeleccionada.numeroUnico" readonly>
+         </div>
 
-            <div>
-              <label class="label" for="fiscalia">Fiscalía:</label>
-              <input type="text" id="fiscalia" class="input" [value]="solicitudSeleccionada.fiscalia.nombre" readonly>
-            </div>
+         <div>
+           <label class="label" for="numeroCaso">Número caso:</label>
+           <input type="text" id="numeroCaso" class="input" [value]="solicitudSeleccionada.numeroCaso" readonly>
+         </div>
 
-          </div>
+         <div>
+           <label class="label" for="fiscalia">Fiscalía:</label>
+           <input type="text" id="fiscalia" class="input" [value]="solicitudSeleccionada.fiscalia.nombre" readonly>
+         </div>
 
-          <!-- Contenido del formulario -->
-          <div class="modal-body">
+       </div>
 
-            <!-- Contenedor desplazable -->
-            <div class="scrollable-content">
+       <!-- Información sobre Delito y Modalidad -->
+       <div class="grid-section">
 
-            <!-- Información General -->
-            <div class="grid-section">
+         <div>
+           <label class="label" for="categoriaDelito">Categoría delito:</label>
+           <input type="text" id="categoriaDelito" class="input"
+             [value]="solicitudSeleccionada.categoriaDelito.nombre" readonly>
+         </div>
 
-              <div>
-                <label class="label" for="numeroUnico">Número único:</label>
-                <input type="text" id="numeroUnico" class="input" [value]="solicitudSeleccionada.numeroUnico" readonly>
-              </div>
+         <div>
+           <label class="label" for="modalidad">Modalidad:</label>
+           <input type="text" id="modalidad" class="input" [value]="solicitudSeleccionada.modalidad.nombre"
+             readonly>
+         </div>
 
-              <div>
-                <label class="label" for="numeroCaso">Número caso:</label>
-                <input type="text" id="numeroCaso" class="input" [value]="solicitudSeleccionada.numeroCaso" readonly>
-              </div>
+         <div>
+           <label class="label" for="imputado">Imputado:</label>
+           <input type="text" id="imputado" class="input" [value]="solicitudSeleccionada.imputado" readonly>
+         </div>
 
-              <div>
-                <label class="label" for="fiscalia">Fiscalía:</label>
-                <input type="text" id="fiscalia" class="input" [value]="solicitudSeleccionada.fiscalia.nombre" readonly>
-              </div>
+       </div>
 
-            <div>
-              <label class="label" for="categoriaDelito">Categoría delito:</label>
-              <input type="text" id="categoriaDelito" class="input"
-                [value]="solicitudSeleccionada.categoriaDelito.nombre" readonly>
-            </div>
+       <!-- Información sobre Delito y Sub Modalidad -->
+       <div class="grid-section">
 
-            <div>
-              <label class="label" for="modalidad">Modalidad:</label>
-              <input type="text" id="modalidad" class="input" [value]="solicitudSeleccionada.modalidad.nombre" readonly>
-            </div>
+         <div>
+           <label class="label" for="delito">Delito:</label>
+           <input type="text" id="delito" class="input" [value]="solicitudSeleccionada.delito.nombre" readonly>
+         </div>
 
-            <div>
-              <label class="label" for="imputado">Imputado:</label>
-              <input type="text" id="imputado" class="input" [value]="solicitudSeleccionada.imputado" readonly>
-            </div>
+         <div>
+           <label class="label" for="subModalidad">Sub modalidad:</label>
+           <input type="text" id="subModalidad" class="input" [value]="solicitudSeleccionada.subModalidad.nombre"
+             readonly>
+         </div>
 
-            <!-- Botón de urgente -->
-            <div class="grid-section">
+         <div>
+           <label class="label" for="ofendido">Ofendido:</label>
+           <input type="text" id="ofendido" class="input" [value]="solicitudSeleccionada.ofendido" readonly>
+         </div>
 
-              <div>
-                <label class="label" for="urgente">Urgente:</label>
-                <button type="button" id="urgente" class="text-white py-2 px-4 rounded-md w-full"
-                  [ngClass]="{'bg-red-600': solicitudSeleccionada.urgente, 'bg-gray-400': !solicitudSeleccionada.urgente}">
-                  Urgente
+       </div>
+
+       <!-- Botón de urgente -->
+       <div class="grid-section">
+
+         <div>
+           <label class="label" for="urgente">Urgente:</label>
+           <button type="button" id="urgente" class="text-white py-2 px-4 rounded-md w-full"
+             [ngClass]="{'bg-red-600': solicitudSeleccionada.urgente, 'bg-gray-400': !solicitudSeleccionada.urgente}">
+             Urgente
+           </button>
+         </div>
+
+         <div>
+           <label class="label" for="oficina">Oficina:</label>
+           <input type="text" id="oficina" class="input" readonly>
+         </div>
+
+         <div>
+           <label class="label" for="operadora">Operadora:</label>
+           <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras[0].nombre"
+             readonly>
+         </div>
+
+       </div>
+
+       <!-- Sección de "Registros de requerimientos" -->
+       <div class="mt-6">
+
+         <h4 class="text-lg font-medium">Registros de requerimientos</h4>
+
+         <div class="border-t mt-2"></div>
+
+         <table class="table">
+
+           <thead>
+             <tr>
+               <th>Requerimiento</th>
+               <th>Tipo Solicitud</th>
+               <th>Datos Requeridos</th>
+               <th>Fecha Inicio</th>
+               <th>Fecha Final</th>
+             </tr>
+           </thead>
+
+           <tbody>
+
+             <tr *ngFor="let requerimiento of solicitudSeleccionada.requerimientos">
+
+               <td>{{ requerimiento.requerimiento }}</td>
+
+               <td>
+                 <ul>
+                   <li *ngFor="let tipo of requerimiento.tipoSolicitudes">{{ tipo.nombre }},</li>
+                 </ul>
+               </td>
+
+               <td>
+                 <ul>
+                   <li *ngFor="let dato of requerimiento.datosRequeridos">{{ dato.datoRequeridoContenido }},</li>
+                 </ul>
+               </td>
+
+               <td>{{ requerimiento.fechaInicio | date:'shortDate' }}</td>
+
+               <td>{{ requerimiento.fechaFinal | date:'shortDate' }}</td>
+             </tr>
+
+           </tbody>
+
+         </table>
+       </div>
+     </div>
+     </div>
+
+     <!-- Botón de cerrar -->
+     <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+       <button type="button" class="bg-[#D32F2F] text-white py-2 px-4 rounded-md items-center space-x-2"
+         (click)="cerrarModal()">
+         <i class="material-icons">cancel</i>
+         <span>Cerrar</span>
+       </button>
+     </div>
+
+   </div>
+
+ </div>
+
+</div>
+
+  <!-- Modal de confirmación -->
+  <div *ngIf="modalEstadoVisible" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+      <h2 class="text-xl font-semibold mb-4">Confirmar Cambio de Estado</h2>
+      <p>¿Estás seguro de que deseas cambiar el estado de esta solicitud a "{{ nuevoEstado }}"?</p>
+
+      <!-- Campo de observación opcional -->
+      <div class="mt-4">
+        <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
+        <textarea id="observacion" rows="3" [(ngModel)]="observacion"
+          class="w-full p-2 border rounded-md focus:outline-none focus:ring"></textarea>
+      </div>
+
+      <!-- Botones de confirmación y cancelación -->
+      <div class="mt-6 flex justify-end space-x-3">
+        <button (click)="confirmarCambioEstado()" style="background-color: #1C355C;"
+          class="px-4 py-2 text-white rounded-md focus:outline-none">Confirmar</button>
+        <button (click)="cerrarModalCambioEstado()"
+          class="px-4 py-2 bg-gray-400 text-white rounded-md focus:outline-none">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal para mostrar los requerimientos de la solicitud -->
+  <div *ngIf="modalRequerimientosVisible"
+    class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-[80%] max-w-4xl">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Requerimientos de Solicitud #{{ solicitudSeleccionada.numeroUnico }}</h2>
+        <button (click)="cerrarModalRequerimientos()" aria-label="Close" class="text-gray-500 hover:text-gray-700">
+          &times;
+        </button>
+      </div>
+
+      <!-- Tabla de requerimientos -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full border border-gray-200">
+          <thead class="bg-[#1C355C] text-white">
+            <tr>
+              <th class="px-4 py-2 text-center">Archivos</th>
+              <th class="px-4 py-2 text-left">Requerimiento</th>
+              <th class="px-4 py-2 text-left">Núm. requerido</th>
+              <th class="px-4 py-2 text-left">Rango de fechas</th>
+              <th class="px-4 py-2 text-left">Observación</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let requerimiento of solicitudSeleccionada?.requerimientos" class="border-b border-gray-200">
+              <td class="px-4 py-2 text-center">
+                <!-- Botón principal para cargar archivos -->
+                <button class="text-white px-4 py-2 rounded focus:outline-none focus:ring"
+                  style="background-color: #1C355C;" (click)="cargarArchivos(requerimiento.idRequerimientoProveedor)">
+                  <i class="material-icons">folder</i>
                 </button>
-              </div>
 
-              <div>
-                <label class="label" for="oficina">Oficina:</label>
-                <input type="text" id="oficina" class="input" readonly>
-              </div>
+                <!-- Contenedor para botones de archivos -->
+                <div *ngIf="archivos && archivos.length > 0" class="mt-4">
+                  <button *ngFor="let archivo of archivos"
+                    class="text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring"
+                    style="background-color: #1C355C;" (click)="descargarArchivo(archivo)">
+                    {{ archivo.nombre }}
+                  </button>
+                </div>
+              </td>
+              <td class="px-4 py-2">{{ requerimiento.requerimiento }}</td>
+              <td class="px-4 py-2">
+                <!-- Iteración sobre datosRequeridos para mostrar datoRequeridoContenido -->
+                <ul>
+                  <li *ngFor="let dato of requerimiento.datosRequeridos">
+                    {{ dato.datoRequeridoContenido }}
+                  </li>
+                </ul>
+              </td>
+              <td class="px-4 py-2">{{ requerimiento.fechaInicio }} al {{ requerimiento.fechaFinal }}</td>
+              <td class="px-4 py-2">{{ requerimiento.observacion }}</td>
+            </tr>
 
-              <div>
-                <label class="label" for="operadora">Operadora:</label>
-                <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras[0].nombre"
-                  readonly>
-              </div>
-
-            </div>
-
-            <!-- Sección de "Registros de requerimientos" -->
-            <div class="mt-6">
-
-              <h4 class="text-lg font-medium">Registros de requerimientos</h4>
-
-              <div class="border-t mt-2"></div>
-
-              <table class="table">
-
-                <thead>
-                  <tr>
-                    <th>Requerimiento</th>
-                    <th>Tipo Solicitud</th>
-                    <th>Datos Requeridos</th>
-                    <th>Fecha Inicio</th>
-                    <th>Fecha Final</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                  <tr *ngFor="let requerimiento of solicitudSeleccionada.requerimientos">
-
-                    <td>{{ requerimiento.requerimiento }}</td>
-
-                    <td>
-                      <ul>
-                        <li *ngFor="let tipo of requerimiento.tipoSolicitudes">{{ tipo.nombre }},</li>
-                      </ul>
-                    </td>
-
-                    <td>
-                      <ul>
-                        <li *ngFor="let dato of requerimiento.datosRequeridos">{{ dato.datoRequeridoContenido }},</li>
-                      </ul>
-                    </td>
-
-                    <td>{{ requerimiento.fechaInicio | date:'shortDate' }}</td>
-
-                    <td>{{ requerimiento.fechaFinal | date:'shortDate' }}</td>
-                  </tr>
-
-                </tbody>
-
-              </table>
-            </div>
-          </div>
-          </div>
-
-          <!-- Información sobre Delito y Sub Modalidad -->
-          <div class="grid-section">
-
-            <div>
-              <label class="label" for="delito">Delito:</label>
-              <input type="text" id="delito" class="input" [value]="solicitudSeleccionada.delito.nombre" readonly>
-            </div>
-
-            <div>
-              <label class="label" for="subModalidad">Sub modalidad:</label>
-              <input type="text" id="subModalidad" class="input" [value]="solicitudSeleccionada.subModalidad.nombre"
-                readonly>
-            </div>
-
-            <div>
-              <label class="label" for="ofendido">Ofendido:</label>
-              <input type="text" id="ofendido" class="input" [value]="solicitudSeleccionada.ofendido" readonly>
-            </div>
-
-          </div>
-
-          <!-- Botón de urgente -->
-          <div class="grid-section">
-
-            <div>
-              <label class="label" for="urgente">Urgente:</label>
-              <button type="button" id="urgente" class="text-white py-2 px-4 rounded-md w-full"
-                [ngClass]="{'bg-red-600': solicitudSeleccionada.urgente, 'bg-gray-400': !solicitudSeleccionada.urgente}">
-                Urgente
-              </button>
-            </div>
-
-            <div>
-              <label class="label" for="oficina">Oficina:</label>
-              <input type="text" id="oficina" class="input" readonly>
-            </div>
-
-            <div>
-              <label class="label" for="operadora">Operadora:</label>
-              <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras[0].nombre"
-                readonly>
-            </div>
-
-          </div>
-
-          <!-- Sección de "Registros de requerimientos" -->
-          <div class="mt-6">
-
-            <h4 class="text-lg font-medium">Registros de requerimientos</h4>
-
-            <div class="border-t mt-2"></div>
-
-            <table class="table">
-
-              <thead>
-                <tr>
-                  <th>Requerimiento</th>
-                  <th>Tipo Solicitud</th>
-                  <th>Datos Requeridos</th>
-                  <th>Fecha Inicio</th>
-                  <th>Fecha Final</th>
-                </tr>
-              </thead>
-
-              <tbody>
-
-                <tr *ngFor="let requerimiento of solicitudSeleccionada.requerimientos">
-
-                  <td>{{ requerimiento.tC_Requerimiento }}</td>
-
-                  <td>
-                    <ul>
-                      <li *ngFor="let tipo of requerimiento.tipoSolicitudes">{{ tipo.nombre }},</li>
-                    </ul>
-                  </td>
-
-                  <td>
-                    <ul>
-                      <li *ngFor="let dato of requerimiento.datosRequeridos">{{ dato.tC_DatoRequerido }},</li>
-                    </ul>
-                  </td>
-
-                  <td>{{ requerimiento.tF_FechaInicio | date:'shortDate' }}</td>
-
-                  <td>{{ requerimiento.tF_FechaFinal | date:'shortDate' }}</td>
-                </tr>
-
-              </tbody>
-
-            </table>
-          </div>
-        </div>
-
-        <!-- Botón de cerrar -->
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-          <button type="button" class="bg-[#D32F2F] text-white py-2 px-4 rounded-md items-center space-x-2"
-            (click)="cerrarModal()">
-            <i class="material-icons">cancel</i>
-            <span>Cerrar</span>
-          </button>
-        </div>
-
+          </tbody>
+        </table>
       </div>
 
-    </div>
-
-
-
-    <!-- Modal de historico -->
-    <div *ngIf="modalHistoricoVisible" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title"
-      role="dialog" aria-modal="true">
-      <div class="flex items-center justify-center min-h-screen text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div
-          class="inline-block align-middle bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-4xl sm:w-full">
-          <div class="modal-header">
-            <h3 class="text-lg font-medium">Solicitud #{{ solicitudSeleccionada.idSolicitudProveedor }}</h3>
-            <h3 class="text-lg font-medium">Histórico</h3>
-          </div>
-          <div class="modal-body">
-            <!-- Contenido del modal de histórico aquí -->
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Solicitud</th>
-                  <th>Numero Único</th>
-                  <th>Estado</th>
-                  <th>Fecha Estado</th>
-                  <th>Usuario</th>
-                  <th>Observación</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of historicoDeSolicitudSeleccionada; let i = index">
-                  <td>{{ solicitudSeleccionada.idSolicitudProveedor }}</td>
-                  <td>{{ solicitudSeleccionada.numeroUnico }}</td>
-                  <td>{{ item.tN_IdEstado }}</td>
-                  <td>{{ item.tF_FechaEstado }}</td>
-                  <td>{{ item.tN_IdUsuario}}</td>
-                  <td>{{ item.tC_Observacion }}</td>
-                </tr>
-              </tbody>
-            </table>
-
-
-
-          </div>
-          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button type="button" class="bg-[#D32F2F] text-white py-2 px-4 rounded-md items-center space-x-2">
-              <i class="material-icons">cancel</i>
-              <span>Cerrar</span>
-            </button>
-          </div>
-        </div>
+      <!-- Botón de cerrar -->
+      <div class="mt-6 flex justify-end">
+        <button (click)="cerrarModalRequerimientos()" class="px-4 py-2 text-white rounded-md"
+          style="background-color: #1C355C;">
+          Cerrar
+        </button>
       </div>
     </div>
-
-
-
-
-
-
-
-
   </div>
-
-</div>
-
-
-<!-- Modal de confirmación -->
-<div *ngIf="modalEstadoVisible" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg shadow-lg p-6 w-96">
-    <h2 class="text-xl font-semibold mb-4">Confirmar Cambio de Estado</h2>
-    <p>¿Estás seguro de que deseas cambiar el estado de esta solicitud a "{{ nuevoEstado }}"?</p>
-
-    <!-- Campo de observación opcional -->
-    <div class="mt-4">
-      <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
-      <textarea id="observacion" rows="3" [(ngModel)]="observacion"
-        class="w-full p-2 border rounded-md focus:outline-none focus:ring"></textarea>
-    </div>
-
-    <!-- Botones de confirmación y cancelación -->
-    <div class="mt-6 flex justify-end space-x-3">
-      <button (click)="confirmarCambioEstado()" style="background-color: #1C355C;"
-        class="px-4 py-2 text-white rounded-md focus:outline-none">Confirmar</button>
-      <button (click)="cerrarModalCambioEstado()"
-        class="px-4 py-2 bg-gray-400 text-white rounded-md focus:outline-none">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- Modal para mostrar los requerimientos de la solicitud -->
-<div *ngIf="modalRequerimientosVisible"
-  class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg shadow-lg p-6 w-[80%] max-w-4xl">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-semibold">Requerimientos de Solicitud #{{ solicitudSeleccionada.numeroUnico }}</h2>
-      <button (click)="cerrarModalRequerimientos()" aria-label="Close" class="text-gray-500 hover:text-gray-700">
-        &times;
-      </button>
-    </div>
-
-    <!-- Tabla de requerimientos -->
-    <div class="overflow-x-auto">
-      <table class="min-w-full border border-gray-200">
-        <thead class="bg-[#1C355C] text-white">
-          <tr>
-            <th class="px-4 py-2 text-center">Archivos</th>
-            <th class="px-4 py-2 text-left">Requerimiento</th>
-            <th class="px-4 py-2 text-left">Núm. requerido</th>
-            <th class="px-4 py-2 text-left">Rango de fechas</th>
-            <th class="px-4 py-2 text-left">Observación</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let requerimiento of solicitudSeleccionada?.requerimientos" class="border-b border-gray-200">
-            <td class="px-4 py-2 text-center">
-              <button class="text-white px-4 py-2 rounded focus:outline-none focus:ring"
-                style="background-color: #1C355C;">
-                <i class="material-icons">folder</i>
-              </button>
-            </td>
-            <td class="px-4 py-2">{{ requerimiento.requerimiento }}</td>
-            <td class="px-4 py-2">
-              <!-- Iteración sobre datosRequeridos para mostrar datoRequeridoContenido -->
-              <ul>
-                <li *ngFor="let dato of requerimiento.datosRequeridos">
-                  {{ dato.datoRequeridoContenido }}
-                </li>
-              </ul>
-            </td>
-            <td class="px-4 py-2">{{ requerimiento.fechaInicio }} al {{ requerimiento.fechaFinal }}</td>
-            <td class="px-4 py-2">{{ requerimiento.observacion }}</td>
-          </tr>
-
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Botón de cerrar -->
-    <div class="mt-6 flex justify-end">
-      <button (click)="cerrarModalRequerimientos()" class="px-4 py-2 text-white rounded-md"
-        style="background-color: #1C355C;">
-        Cerrar
-      </button>
-    </div>
-  </div>
-</div>

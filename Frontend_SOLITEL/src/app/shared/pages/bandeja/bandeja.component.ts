@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EstadoService } from '../../services/estado.service';
 import { forkJoin } from 'rxjs';
+import { ArchivoService } from '../../services/archivo.service';
 
 
 @Component({
@@ -58,6 +59,7 @@ export default class BandejaComponent implements OnInit {
   nuevoEstado: string = '';
   modalRequerimientosVisible: boolean = false;
   filtroRequerimiento: string = '';
+  archivos: any[] = [];
 
   columnasVisibles: { [key: string]: boolean } = {
     aprobar: false,
@@ -81,7 +83,7 @@ export default class BandejaComponent implements OnInit {
     legajo: false
   };
 
-  constructor(private solicitudProveedorService: SolicitudProveedorService, private estadoService: EstadoService) { }
+  constructor(private solicitudProveedorService: SolicitudProveedorService, private estadoService: EstadoService, private archivoService: ArchivoService) { }
 
   ngOnInit(): void {
     forkJoin({
@@ -132,7 +134,7 @@ export default class BandejaComponent implements OnInit {
   }
   */
 
-  cambiarEstadoASinEfeceto(solicitud: any){
+  cambiarEstadoASinEfeceto(solicitud: any) {
     const confirmacion = window.confirm("¿Estás seguro de que deseas realizar esta acción?");
     if (confirmacion) {
       this.solicitudSeleccionada = solicitud;
@@ -333,10 +335,6 @@ export default class BandejaComponent implements OnInit {
     console.log('Cantidad por estado - Análisis:', this.cantidadPorEstadoAnalisis);
   }
 
-
-
-
-
   obtenerSolicitudes(): void {
     this.solicitudProveedorService.obtener().subscribe({
       next: (data: any) => {
@@ -364,6 +362,8 @@ export default class BandejaComponent implements OnInit {
     })
   }
   */
+
+
 
   calcularDiasTranscurridos(fechaInicio: string): number {
     const fecha = new Date(fechaInicio);
@@ -447,14 +447,44 @@ export default class BandejaComponent implements OnInit {
     this.solicitudSeleccionada = solicitud; // Asigna la solicitud seleccionada
     this.modalRequerimientosVisible = true; // Muestra el modal de requerimientos
   }
-  
+
   cerrarModalRequerimientos() {
     this.modalRequerimientosVisible = false; // Cierra el modal de requerimientos
     this.solicitudSeleccionada = null; // Limpia la solicitud seleccionada
   }
+
+
+  cargarArchivos(idRequerimiento: number): void {
+    this.archivoService.obtenerArchivosDeSolicitud(idRequerimiento).subscribe((archivos: any[]) => {
+      this.archivos = archivos;
+    });
+  }
+
+  descargarArchivo(archivo: any): void {
+    console.log('Descargando archivo:', archivo.nombre);
+    
+    // Decodificar el contenido en Base64 y convertirlo a un array de bytes
+    const byteCharacters = atob(archivo.contenido);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
   
-
-
+    // Crear un Blob a partir del array de bytes
+    const blob = new Blob([byteArray], { type: archivo.formatoArchivo });
+    
+    // Crear URL y descargar el archivo
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = archivo.nombre; // Nombre del archivo
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url); // Liberar la URL
+  }
+  
 
   //Actualizacion de estados
 
