@@ -346,31 +346,6 @@
 
         </section>
 
-        <!-- Botones -->
-        <div class="buttons-row">
-          <button type="button" class="btn btn-primary" (click)="limpiarFormulario()">Limpiar</button>
-          <button type="button" class="btn btn-secondary" (click)="guardarSolicitud()">Guardar</button>
-        </div>
-
-
-
-
-
-
-        <form (ngSubmit)="insertarArchivo()">
-          <input type="file" (change)="onFileSelected($event)" />
-          <button type="submit">Subir archivo</button>
-        </form>
-
-
-        <div>
-          <h1>Descargar Archivo</h1>
-          <input type="number" placeholder="Ingrese el ID del archivo" />
-          <button (click)="descargarArchivo(4)">Descargar Archivo</button>
-        </div>
-
-
-
       </div>
 
     </div>

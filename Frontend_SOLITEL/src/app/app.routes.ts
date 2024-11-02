@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import DistribucionComponent from './shared/pages/distribucion/distribucion.component';
-//import { autenticadoGuard } from './shared/guards/autenticado.guard';
+import { autenticadoGuard } from './shared/guards/autenticado.guard';
 
 export const routes: Routes = [
   {
@@ -11,7 +11,7 @@ export const routes: Routes = [
   {
     path: '',
     component: DistribucionComponent,
-    //canActivateChild: [autenticadoGuard],
+    canActivateChild: [autenticadoGuard],
     children: [
       //se colocan todas las rutas asociadas a las paginas o vistas
       {
