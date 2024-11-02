@@ -1,9 +1,17 @@
 import { Routes } from '@angular/router';
+import DistribucionComponent from './shared/pages/distribucion/distribucion.component';
+import { autenticadoGuard } from './shared/guards/autenticado.guard';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    loadComponent: () =>
+      import('./shared/pages/login/login.component'),
+  },
+  {
     path: '',
-    /*loadComponent: () => import(''),*/
+    component: DistribucionComponent,
+    canActivateChild: [autenticadoGuard],
     children: [
       //se colocan todas las rutas asociadas a las paginas o vistas
       {
@@ -12,6 +20,17 @@ export const routes: Routes = [
           import(
             './shared/pages/analisis-telefonico/analisis-telefonico.component'
           ),
+      },{
+        path: 'vista-proveedor',
+        loadComponent: () =>
+          import(
+            './shared/pages/vista-proveedor/vista-proveedor.component'
+          ),
+      },
+      {
+        path: 'bandeja-analista',
+        loadComponent: () =>
+          import('./shared/pages/bandeja-analista/bandeja-analista.component'),
       },
       {
         path: 'bandeja',
@@ -45,6 +64,6 @@ export const routes: Routes = [
   {
     //redireccion en caso de ruta no existente
     path: '**',
-    redirectTo: 'bandeja',
+    redirectTo: 'login',
   },
 ];

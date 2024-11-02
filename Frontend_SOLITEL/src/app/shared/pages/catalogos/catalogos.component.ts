@@ -14,6 +14,8 @@ import { TipoSolicitudService } from '../../services/tipo-solicitud.service';
 import { OficinaService } from '../../services/oficina.service';
 import { ProveedorService } from '../../services/proveedor.service';
 import { FiscaliaService } from '../../services/fiscalia.service';
+import { TipoAnalisisService } from '../../services/tipo-analisis.service';
+import { ObjetivoAnalisisService } from '../../services/objetivo-analisis.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -37,7 +39,7 @@ export default class CatalogosComponent implements OnInit {
   formulario!: FormGroup;
   contenido: any[] = [];
   encabezados: any[] = [];
-  catalogoSeleccionado!: string;
+  contenidoPaginado: any[] = [];
   catalogos: { value: string, nombre: string }[] = [
     { value: 'CategoriaDelito', nombre: 'Categoría Delito' },
     { value: 'Condicion', nombre: 'Condición' },
@@ -47,9 +49,14 @@ export default class CatalogosComponent implements OnInit {
     { value: 'SubModalidad', nombre: 'Submodalidad' },
     { value: 'TipoDato', nombre: 'Tipo de Dato' },
     { value: 'TipoSolicitud', nombre: 'Tipo de Solicitud' },
+    { value: 'TipoAnalisis', nombre: 'Tipo de Analisis' },
     { value: 'Oficina', nombre: 'Oficina' },
-    { value: 'Proveedor', nombre: 'Proveedor' }
+    { value: 'Proveedor', nombre: 'Proveedor' },
+    { value: 'ObjetivoAnalisis', nombre: 'Objetivo Analisis' }
   ];
+  pageNumber: number = 1;
+  pageSize: number = 5;
+  catalogoSeleccionado!: string;
 
   constructor(
     private delitoService: DelitoService,
@@ -61,7 +68,9 @@ export default class CatalogosComponent implements OnInit {
     private tipoSolicitudService: TipoSolicitudService,
     private oficinaService: OficinaService,
     private proveedorService: ProveedorService,
-    private fiscaliaService: FiscaliaService
+    private fiscaliaService: FiscaliaService,
+    private tipoAnalisisService: TipoAnalisisService,
+    private objetivoAnalisis: ObjetivoAnalisisService
   ) {
 
     this.servicios = {
@@ -74,89 +83,129 @@ export default class CatalogosComponent implements OnInit {
       'TipoSolicitud': this.tipoSolicitudService,
       'Oficina': this.oficinaService,
       'Proveedor': this.proveedorService,
-      'Fiscalia': this.fiscaliaService
+      'Fiscalia': this.fiscaliaService,
+      'TipoAnalisis': this.tipoAnalisisService,
+      'ObjetivoAnalisis': this.objetivoAnalisis
     };
 
   }
 
   ngOnInit(): void {
-    // Inicializamos el FormGroup con los controles
+
     this.formulario = new FormGroup({
       catalog: new FormControl('', Validators.required),
       name: new FormControl('', Validators.required),
       description: new FormControl('', Validators.required),
-      dependency: new FormControl({ value: '', disabled: true }, Validators.required)  // Deshabilitado inicialmente
+      dependency: new FormControl({ value: '', disabled: true }, Validators.required)
     });
 
-    // Escuchar cambios en el campo "catalog"
-    this.formulario.get('catalog')?.valueChanges.subscribe(selectedCatalog => {
-      if (selectedCatalog) {
-        this.catalogoSeleccionado = selectedCatalog; // Guardamos el catálogo seleccionado
-        this.activarDependencias(selectedCatalog);
-        this.actualizarTabla(selectedCatalog);
-        this.bloquearCamposSegunCatalogo(selectedCatalog);
+    this.formulario.get('catalog')?.valueChanges.subscribe(catalogo => {
+      if (catalogo) {
+        this.pageNumber = 1;
+        this.obtenerDatos(catalogo);
+        this.cargarDependencias(catalogo);
+        this.bloquearCampos(catalogo);
+        this.catalogoSeleccionado = catalogo;
       }
     });
+
   }
 
   onSubmit(): void {
     if (this.formulario.valid) {
       const formData = this.formulario.value;
-      this.insertarCatalogoSeleccionado(formData);
+      this.guardar(formData);
     }
   }
 
   onReset(): void {
     this.formulario.reset();
-    this.encabezados = []; // Encabezado vacío para casos no implementados
-    this.contenido = []; // Tabla vacía
+    this.encabezados = [];
+    this.contenido = [];
+    this.contenidoPaginado = [];
+    this.pageNumber = 1;
+    this.pageSize = 5;
+  }
+
+  obtenerDatos(catalogo: string): void {
+
+    const servicio = this.servicios[catalogo];
+
+    servicio.obtener().subscribe(
+      (response: any) => {
+        this.contenido = response;
+        this.encabezados = this.keys;
+        this.pageNumber = 1;
+        this.actualizarContenidoPaginado();
+      },
+      (error: any) => {
+        this.encabezados = [];
+        this.contenido = [];
+        alert(error.error);
+      }
+    );
+
+  }
+
+  cambiarTamanoPagina(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.pageSize = +target.value;
+    this.pageNumber = 1; // Reinicia a la primera página
+    this.actualizarContenidoPaginado();
+  }
+
+  cambiarPagina(direccion: number) {
+    const maxPage = Math.ceil(this.contenido.length / this.pageSize);
+    const nuevaPagina = this.pageNumber + direccion;
+
+    if (nuevaPagina >= 1 && nuevaPagina <= maxPage) {
+      this.pageNumber = nuevaPagina;
+      this.actualizarContenidoPaginado();
+    }
+  }
+
+  actualizarContenidoPaginado() {
+    const inicio = (this.pageNumber - 1) * this.pageSize;
+    const fin = inicio + this.pageSize;
+    this.contenidoPaginado = this.contenido.slice(inicio, fin);
   }
 
   get keys(): string[] {
     return this.contenido.length > 0 ? Object.keys(this.contenido[0]) : [];
   }
 
-  optenerId(row: any): any {
+  obtenerId(row: any): any {
     //devuelve la primera propiedad
     return row[Object.keys(row)[0]];
   }
 
-  actualizarTabla(selectedCatalog: string): void {
+  guardar(formulario: any) {
 
-    const servicio = this.servicios[selectedCatalog];
+    const { catalog, name, description, dependency } = formulario;
 
-    servicio.obtener().subscribe((response: any) => {
-      this.contenido = response;
-      this.encabezados = this.keys;
-    });
-
-  }
-
-  insertarCatalogoSeleccionado(formData: any) {
-
-    const { catalog, name, description, dependency } = formData;
-
-    const catalogDataMap: { [key: string]: any } = {
+    const formatosCatalogos: { [key: string]: any } = {
       'CategoriaDelito': { idCategoriaDelito: 0, nombre: name, descripcion: description },
-      'Condicion': { tN_IdCondicion: 0, tC_Nombre: name, tC_Descripcion: description },
-      'Delito': { tN_IdDelito: 0, tC_Nombre: name, tC_Descripcion: description, tN_IdCategoriaDelito: dependency },
-      'Modalidad': { tN_IdModalidad: 0, tC_Nombre: name, tC_Descripcion: description },
-      'SubModalidad': { tN_IdSubModalidad: 0, tC_Nombre: name, tC_Descripcion: description, tN_IdModalida: dependency },
-      'TipoDato': { tN_IdTipoDato: 0, tC_Nombre: name, tC_Descripcion: description },
-      'TipoSolicitud': { tN_IdTipoSolicitud: 0, tC_Nombre: name, tC_Descripcion: description },
-      'Oficina': { tN_IdOficina: 0, tC_Nombre: name },
-      'Proveedor': { tN_IdProveedor: 0, tC_Nombre: name },
-      'Fiscalia': { tN_IdFiscalia: 0, tC_Nombre: name }
+      'Condicion': { idCondicion: 0, nombre: name, descripcion: description },
+      'Delito': { idDelito: 0, nombre: name, descripcion: description, idCategoriaDelito: dependency },
+      'Modalidad': { idModalidad: 0, nombre: name, descripcion: description },
+      'SubModalidad': { idSubModalidad: 0, nombre: name, descripcion: description, idModalida: dependency },
+      'TipoDato': { idTipoDato: 0, nombre: name, descripcion: description },
+      'TipoSolicitud': { idTipoSolicitud: 0, nombre: name, descripcion: description },
+      'Oficina': { idOficina: 0, nombre: name, tipo: description },
+      'Proveedor': { idProveedor: 0, nombre: name },
+      'Fiscalia': { idFiscalia: 0, nombre: name },
+      'TipoAnalisis': { idTipoAnalisis: 0, nombre: name, descripcion: description },
+      'ObjetivoAnalisis': { tN_IdObjetivoAnalisis: 0, tC_Nombre: name, tC_Descripcion: description }
     };
 
     const servicio = this.servicios[catalog];
-    const data = catalogDataMap[catalog];
+    const data = formatosCatalogos[catalog];
 
     if (servicio && data) {
       servicio.insertar(data).subscribe(
         (response: any) => {
           console.log(`Inserción de ${catalog} exitosa:`, response);
-          this.actualizarTabla(this.catalogoSeleccionado);
+          this.obtenerDatos(this.catalogoSeleccionado);
         },
         (error: any) => {
           console.error(`Error al insertar ${catalog}:`, error);
@@ -168,67 +217,82 @@ export default class CatalogosComponent implements OnInit {
 
   }
 
-  eliminarCatalogoSeleccionado(selectedCatalog: string, key: number) {
+  eliminar(catalogo: string, key: number) {
 
-    const servicio = this.servicios[selectedCatalog];
+    const servicio = this.servicios[catalogo];
 
     if (servicio && servicio.eliminar) {
-      servicio.eliminar(key).subscribe((response: any) => {
-        console.log(`Elemento eliminado de ${selectedCatalog}:`, response);
-        this.actualizarTabla(selectedCatalog);
-      });
+      servicio.eliminar(key).subscribe(
+        (response: any) => {
+          console.log(`Elemento eliminado de ${catalogo}:`, response);
+          this.obtenerDatos(catalogo);
+        },
+        (error: any) => {
+          console.error(`Error al eliminar de ${catalogo}:`, error);
+        }
+      );
     } else {
       console.log('Catálogo no implementado para eliminación.');
     }
 
   }
 
-  activarDependencias(selectedCatalog: string): void {
-
-    // Resetear el arreglo de dependencias
-    this.dependencias = [];
+  cargarDependencias(catalogo: string): void {
     const dependencyControl = this.formulario.get('dependency');
 
     // Diccionario que mapea el catálogo al servicio correspondiente
-    const serviceMap: { [key: string]: any } = {
+    const serviciosNecesarios: { [key: string]: any } = {
       'Delito': this.categoriaService,
       'SubModalidad': this.modalidadService
     };
 
-    // Obtener el servicio correspondiente al catálogo seleccionado
-    const service = serviceMap[selectedCatalog];
+    // Verificar si el catálogo requiere dependencias
+    const service = serviciosNecesarios[catalogo];
 
-    if (service && service.obtener) {
-      // Si el catálogo tiene un servicio definido, obtener las dependencias
-      service.obtener().subscribe((response: any) => {
-        this.dependencias = response.map((item: any) => {
-          // Usar un mapeo genérico según el tipo de dato
-          return {
-            id: item.idCategoriaDelito || item.tN_IdModalidad, // Adaptar para que funcione con ambos tipos
-            nombre: item.nombre || item.tC_Nombre
-          };
-        });
-        dependencyControl?.enable();  // Habilitar el control
-      });
+    if (service) {
+      // Si el catálogo tiene un servicio definido, cargar las dependencias
+      service.obtener().subscribe(
+        (response: any) => {
+          // Mapear los datos de manera genérica
+          this.dependencias = response.map((item: any) => ({
+            id: item.idCategoriaDelito || item.idModalidad || item.id,  // Adaptar los IDs según el objeto
+            nombre: item.nombre || item.descripcion  // Adaptar el nombre o descripción según el objeto
+          }));
+
+          // Habilitar el control de dependencias y limpiar su valor
+          dependencyControl?.enable();
+          dependencyControl?.setValue('');  // Limpiar el valor
+        },
+        (error: any) => {
+          // Manejar el error de forma adecuada
+          console.error('Error al cargar dependencias', error);
+          dependencyControl?.setValue('');  // Limpiar el valor en caso de error
+          dependencyControl?.disable();  // Deshabilitar en caso de error
+        }
+      );
     } else {
-      // Si el catálogo no tiene dependencias, deshabilitar el campo
+      // Si no es Delito ni SubModalidad, deshabilitar el campo de dependencias
       dependencyControl?.setValue('');  // Limpiar el valor del campo
-      dependencyControl?.disable();  // Deshabilitar el control
+      dependencyControl?.disable();  // Deshabilitar el control de dependencias
+      this.dependencias = [];  // Limpiar las dependencias
     }
-
   }
 
-  bloquearCamposSegunCatalogo(catalog: string): void {
+  bloquearCampos(catalogo: string): void {
     const descriptionControl = this.formulario.get('description');
     const dependencyControl = this.formulario.get('dependency');
 
     // Bloquear los campos si el catálogo seleccionado es Fiscalía, Oficina o Proveedor
-    if (catalog === 'Fiscalia' || catalog === 'Oficina' || catalog === 'Proveedor') {
+    if (catalogo === 'Fiscalia' || catalogo === 'Proveedor') {
       descriptionControl?.disable();  // Deshabilitar el campo de descripción
       dependencyControl?.disable();   // Deshabilitar el campo de dependencia
     } else {
       descriptionControl?.enable();   // Habilitar el campo de descripción
-      dependencyControl?.enable();    // Habilitar el campo de dependencia (si corresponde)
+      if (catalogo === 'Delito' || catalogo === 'SubModalidad') {
+        dependencyControl?.enable();  // Solo habilitar dependencias para Delito o SubModalidad
+      } else {
+        dependencyControl?.disable(); // Asegurarse de deshabilitar para otros catálogos
+      }
     }
   }
 

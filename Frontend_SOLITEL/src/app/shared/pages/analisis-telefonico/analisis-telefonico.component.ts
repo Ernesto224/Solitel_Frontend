@@ -1,179 +1,559 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { AnalisisTelefonicoService, SolicitudProveedor, OficinaAnalisis, RequerimentoAnalisis, SolicitudAnalisis } from '../../services/analisis-telefonico.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { AnalisisTelefonicoService, Archivo } from '../../services/analisis-telefonico.service';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+
+interface Requerimiento {
+  idRequerimiento: number;
+  tipoObjetivo: string;
+  objetivo: string;
+  utilizadoPor: string;
+  condicion: string;
+}
+
+interface SolicitudProveedor {
+  idSolicitudProveedor: number;
+  numeroUnico: string;
+  numeroCaso: string;
+  imputado: string;
+  ofendido: string;
+  resenna: string;
+  urgente: boolean;
+  requerimientos: RequerimientoProveedor[];
+  operadoras: Operadora[];
+  usuarioCreador: Usuario;
+  delito: Delito;
+  categoriaDelito: CategoriaDelito;
+  estado: Estado;
+  fiscalia: Fiscalia;
+  oficina: Oficina;
+  modalidad: Modalidad;
+  subModalidad: SubModalidad;
+}
+
+interface RequerimientoProveedor {
+  idRequerimientoProveedor: number;
+  fechaInicio: string;
+  fechaFinal: string;
+  requerimiento: string;
+  tipoSolicitudes: TipoSolicitud[];
+  datosRequeridos: DatoRequerido[];
+}
+
+interface TipoSolicitud {
+  idTipoSolicitud: number;
+  nombre: string;
+  descripcion: string;
+}
+
+interface DatoRequerido {
+  idDatoRequerido: number;
+  datoRequerido: string;
+  motivacion: string;
+  idTipoDato: number;
+}
+
+interface Operadora {
+  idProveedor: number;
+  nombre: string;
+}
+
+interface Usuario {
+  idUsuario: number;
+  nombre: string;
+  apellido: string;
+  usuario: string;
+  correoElectronico: string;
+}
+
+interface Delito {
+  idDelito: number;
+  nombre: string;
+  descripcion: string;
+  idCategoriaDelito: number;
+}
+
+interface CategoriaDelito {
+  idCategoriaDelito: number;
+  nombre: string;
+  descripcion: string;
+}
+
+interface Estado {
+  idEstado: number;
+  nombre: string;
+  descripcion: string;
+  tipo: string;
+}
+
+interface Fiscalia {
+  idFiscalia: number;
+  nombre: string;
+}
+
+interface Oficina {
+  idOficina: number;
+  nombre: string;
+  tipo: string;
+}
+
+interface Modalidad {
+  idModalidad: number;
+  nombre: string;
+  descripcion: string;
+}
+
+interface SubModalidad {
+  idSubModalidad: number;
+  nombre: string;
+  descripcion: string;
+  idModalidad: number;
+}
 
 @Component({
   selector: 'app-analisis-telefonico',
-  standalone: true, // Importamos los módulos necesarios
-  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './analisis-telefonico.component.html',
   styleUrls: ['./analisis-telefonico.component.css'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgMultiSelectDropDownModule, NgxMaskDirective],
+  providers: [provideNgxMask()]
 })
 export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
-  form!: FormGroup;
   solicitudAnalisisId: number = 1;
-  requerimientos: RequerimentoAnalisis[] = [];
-  solicitudesProveedor: SolicitudProveedor[] = [];
-  oficinasAnalisis: OficinaAnalisis[] = [];
+  requerimientos: Requerimiento[] = [];
+  oficinasAnalisis: any[] = [];
   numerosUnicos: number[] = [];
+  objetivosAnalista: any[] = [];
+  operadoras: Operadora[] = [];
+  dropdownSettingsSolicitudes: any = {};
+  dropdownSettingsArchivos: any = {};
+  dropdownSettingsObjetivos: any = {};
+  dropdownSettings: any = {};
+  operadoraSeleccionada: any[] = [];
+  numeroUnico: number | null = null;
+  solicitudesProveedorSeleccionadas: SolicitudProveedor[] = [];
+  archivosAnalizarSeleccionados: Archivo[] = [];
+  objetivosAnalisisSeleccionados: any[] = [];
+  oficinaAnalisis: number | null = null;
+  tipoAnalisis: string = 'Análisis Telefónico';
+  fechaHecho: string = '';
+  otrosObjetivos: string = '';
+  otrosDetalles: string = '';
+  tipoObjetivo: string = '';
+  objetivo: string = '';
+  utilizadoPor: string = '';
+  condicion: string = '';
   selectedIndex: number | null = null;
-  editMode: boolean = false;
+  solicitudesProveedor: any[] = [];
+  archivos: Archivo[] = [];
+  idObjetivoAnalisis: number = -1;
+  condicionesAnalisis: any[] = [];
+  tiposAnalisis: any[] = [];
+  condicionAnalisisEscogida: string = '';
+  idsSolicitudProveedarArchivo: number[] = [];
+  solicitudCompletaAnalisis:any=null;
   private subscription = new Subscription();
 
-  constructor(private fb: FormBuilder, private analisisService: AnalisisTelefonicoService) {}
+  // Control de modales
+  mostrarConfirmacion = false;
+  mostrarExito = false;
+
+  constructor(private analisisService: AnalisisTelefonicoService) { }
 
   ngOnInit(): void {
     this.cargarNumerosUnicos();
     this.cargarOficinasAnalisis();
-
-    // Inicializamos el form con los controles y validaciones
-    this.form = this.fb.group({
-      numeroUnico: ['', Validators.required],
-      solicitudesProveedor: [''],
-      oficinaAnalisis: ['', Validators.required],
-      tipoAnalisis: ['', Validators.required],
-      objetivosAnalisis: ['', Validators.required],
-      fechaHecho: ['', Validators.required],
-      otrosObjetivos: [''],
-      otrosDetalles: [''],
-
-      // Campos de registros de requerimientos
-      tipoObjetivo: ['', Validators.required],
-      objetivo: ['', Validators.required],
-      utilizadoPor: ['', Validators.required],
-      condicion: ['', Validators.required]
-    });
-
-    // Escuchar cambios en el número único para cargar las solicitudes relacionadas
-    this.form.get('numeroUnico')?.valueChanges.subscribe((numeroUnico) => {
-      if (numeroUnico) {
-        this.cargarSolicitudesPorNumeroUnico(numeroUnico);
-      }
-    });
-  }
-
-  // Cargar los números únicos desde el servicio
-  cargarNumerosUnicos(): void {
-    this.analisisService.obtenerNumerosUnicos().subscribe(
-      (numeros) => {
-        this.numerosUnicos = numeros;
-      },
-      (error) => {
-        console.error('Error al cargar números únicos:', error);
-      }
-    );
-  }
-
-  // Cargar oficinas de análisis desde el servicio
-  cargarOficinasAnalisis(): void {
-    this.analisisService.obtenerOficinasAnalisis().subscribe(
-      (oficinas) => {
-        this.oficinasAnalisis = oficinas;
-      },
-      (error) => {
-        console.error('Error al cargar oficinas de análisis:', error);
-      }
-    );
-  }
-
-  // Cargar solicitudes vinculadas al número único seleccionado
-  cargarSolicitudesPorNumeroUnico(numeroUnico: number): void {
-    this.analisisService.obtenerSolicitudesPorNumeroUnico(numeroUnico).subscribe(
-      (solicitudes) => {
-        this.solicitudesProveedor = solicitudes;
-      },
-      (error) => {
-        console.error('Error al cargar solicitudes:', error);
-      }
-    );
-  }
-
-  // Método para agregar un nuevo requerimiento o actualizar uno existente
-  agregarRequerimiento(): void {
-    const nuevoRequerimiento: RequerimentoAnalisis = {
-      TN_IdRequerimento: this.requerimientos.length + 1,  // Generamos un ID automáticamente
-      TC_TipoObjetivo: this.form.get('tipoObjetivo')?.value,
-      TC_Objetivo: this.form.get('objetivo')?.value,
-      TC_UtilizadoPor: this.form.get('utilizadoPor')?.value,
-      TC_Condicion: this.form.get('condicion')?.value
-    };
-    
-    if (this.editMode && this.selectedIndex !== null) {
-      // Actualizar el requerimiento existente
-      this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
-      this.editMode = false;
-      this.selectedIndex = null;
-    } else {
-      // Agregar un nuevo requerimiento
-      this.requerimientos.push(nuevoRequerimiento);
-    }
-
-    // Limpiar el formulario después de agregar o editar
-    this.form.patchValue({
-      tipoObjetivo: '',
-      objetivo: '',
-      utilizadoPor: '',
-      condicion: ''
-    });
-  }
-
-  // Cargar el requerimiento seleccionado en el formulario para edición
-  cargarRequerimientoEnFormulario(index: number): void {
-    if (index !== null && index >= 0 && index < this.requerimientos.length) {
-      const requerimiento = this.requerimientos[index];
-      this.selectedIndex = index;
-      this.editMode = true;
-      this.form.patchValue({
-        tipoObjetivo: requerimiento.TC_TipoObjetivo,
-        objetivo: requerimiento.TC_Objetivo,
-        utilizadoPor: requerimiento.TC_UtilizadoPor,
-        condicion: requerimiento.TC_Condicion
-      });
-    }
-  }
-
-  // Eliminar un requerimiento
-  eliminarRequerimiento(index: number): void {
-    if (index !== null && index >= 0 && index < this.requerimientos.length) {
-      this.requerimientos.splice(index, 1);
-      this.limpiarFormulario();
-    }
-  }
-
-  // Enviar la solicitud completa
-  enviarSolicitud(): void {
-    const solicitudCompleta: SolicitudAnalisis = {
-      TN_IdSolicitudAnalisis: this.solicitudAnalisisId,
-      TF_FechaDelHecho: this.form.get('fechaHecho')?.value,
-      TC_OtrosDetalles: this.form.get('otrosDetalles')?.value,
-      TC_OtrosObjetivosDeAnalisis: this.form.get('otrosObjetivos')?.value,
-      TB_Aprobado: false,  // Por defecto no aprobado
-      TN_NumeroSolicitud: this.form.get('numeroUnico')?.value,
-      TN_IdOficina: this.form.get('oficinaAnalisis')?.value,
-      requerimentos: this.requerimientos
-    };
-
-    console.log('Solicitud enviada con éxito:', solicitudCompleta);
-    this.analisisService.agregarSolicitudAnalisis(solicitudCompleta).subscribe(
-      (response) => {
-        console.log('Respuesta del servidor:', response);
-      },
-      (error) => {
-        console.error('Error al enviar la solicitud:', error);
-      }
-    );
-  }
-
-  // Limpiar el formulario y salir del modo edición
-  limpiarFormulario(): void {
-    this.form.reset(); // Restablecer los campos del formulario
-    this.editMode = false; // Salir del modo de edición
-    this.selectedIndex = null; // Reiniciar el índice seleccionado
+    this.cargarObjetivosAnalisis();
+    this.inicializarDropdownSettings();
+    this.obtenerCondiciones();
+    this.obtenerTipoAnalisis();
   }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+  }
+
+  mostrarConfirmacionModal() {
+    this.mostrarConfirmacion = true;
+  }
+
+  confirmarGuardado() {
+    this.mostrarConfirmacion = false;
+    this.guardarSolicitudAnalisis();
+  }
+
+  cerrarModal() {
+    this.mostrarConfirmacion = false;
+    this.mostrarExito = false;
+  }
+
+  cargarSolicitudesPorNumeroUnico(numeroUnico: string): void {
+    this.subscription.add(
+      this.analisisService.obtenerSolicitudesPorNumeroUnico(numeroUnico).subscribe(
+        (solicitudes) => {
+          this.solicitudesProveedor = solicitudes.map(solicitud => ({
+            ...solicitud,
+            displayText: `${solicitud.idSolicitudProveedor} - ${solicitud.numeroUnico} - ${solicitud.nombreProveedor}`
+          }));
+          console.log("Solicitudes Proveedor cargadas");
+        },
+        (error) => console.error('Error al cargar solicitudes:', error)
+      )
+    );
+  }
+
+  inicializarDropdownSettings(): void {
+    this.dropdownSettingsSolicitudes = {
+      singleSelection: false,
+      idField: 'idSolicitudProveedor',
+      textField: 'displayText', // Muestra el valor combinado
+      selectAllText: 'Seleccionar todos',
+      unSelectAllText: 'Deseleccionar todos',
+      itemsShowLimit: 3,
+      allowSearchFilter: true,
+    };
+    this.dropdownSettings = {
+      singleSelection: false,
+      idField: 'idProveedor',
+      textField: 'nombre',
+      selectAllText: 'Seleccionar Todo',
+      unSelectAllText: 'Deseleccionar Todo',
+      itemsShowLimit: 3,
+      allowSearchFilter: true,
+    };
+    this.dropdownSettingsArchivos = {
+      singleSelection: false,
+      idField: 'idArchivo',
+      textField: 'nombreArchivo', // Mostrar el nombre combinado
+      selectAllText: 'Seleccionar todos',
+      unSelectAllText: 'Deseleccionar todos',
+      itemsShowLimit: 3,
+      allowSearchFilter: true,
+    };
+    this.dropdownSettingsObjetivos = {
+      singleSelection: false,
+      idField: 'idObjetivoAnalisis',
+      textField: 'nombre',
+      selectAllText: 'Seleccionar todos',
+      unSelectAllText: 'Deseleccionar todos',
+      itemsShowLimit: 3,
+      allowSearchFilter: true,
+    };
+  }
+
+  cargarNumerosUnicos(): void {
+    this.subscription.add(
+      this.analisisService.obtenerNumerosUnicos().subscribe(
+        (numeros) => (this.numerosUnicos = numeros),
+        (error) => console.error('Error al cargar números únicos:', error)
+      )
+    );
+  }
+
+  cargarOficinasAnalisis(): void {
+    this.subscription.add(
+      this.analisisService.obtenerOficinasAnalisis().subscribe(
+        (oficinas) => (this.oficinasAnalisis = oficinas),
+        (error) => console.error('Error al cargar oficinas de análisis:', error)
+      )
+    );
+  }
+
+  obtenerArchivosSolicitudProveedor(): void {
+    if (this.idsSolicitudProveedarArchivo.length > 0) {
+      this.analisisService.obtenerArchivosSolicitudProveedor(this.idsSolicitudProveedarArchivo).subscribe(
+        (archivos) => {
+          console.log("Archivos recibidos:", archivos);
+
+          this.archivos = archivos.map((archivo) => ({
+            ...archivo,
+            nombreArchivo: `${archivo.nombre}.${archivo.formatoArchivo}`, // Concatenar el nombre y formato
+          }));
+        },
+        (error) => console.error('Error al cargar archivos de la solicitud:', error)
+      );
+    } else {
+      this.idsSolicitudProveedarArchivo = [];
+      this.archivos = [];
+    }
+  }
+
+  obtenerIdSolicitudProveedorArhivos(): void {
+    this.idsSolicitudProveedarArchivo = this.solicitudesProveedorSeleccionadas.map((solicitudes) => solicitudes.idSolicitudProveedor);
+    console.log("Ids de solicitudes seleccionadas:", this.idsSolicitudProveedarArchivo);
+    this.obtenerArchivosSolicitudProveedor();
+  }
+
+  cargarObjetivosAnalisis(): void {
+    this.subscription.add(
+      this.analisisService.obtenerObjetivosAnalisis(this.idObjetivoAnalisis).subscribe(
+        (objetivos) => {
+          console.log("Objetivos recibidos:", objetivos);
+          this.objetivosAnalista = objetivos;
+        },
+        (error) => console.error('Error al cargar objetivos de análisis:', error)
+      )
+    );
+  }
+
+  agregarRequerimiento(): void {
+    const nuevoRequerimiento: Requerimiento = {
+      idRequerimiento: this.requerimientos.length + 1,
+      tipoObjetivo: this.tipoObjetivo,
+      objetivo: this.objetivo,
+      utilizadoPor: this.utilizadoPor,
+      condicion: this.condicionAnalisisEscogida,
+    };
+
+    if (this.selectedIndex !== null && this.selectedIndex >= 0) {
+      this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
+      this.selectedIndex = null;
+    } else {
+      this.requerimientos.push(nuevoRequerimiento);
+    }
+    this.limpiarCamposRequerimiento();
+  }
+
+  cargarRequerimientoEnFormulario(index: number): void {
+    if (index >= 0 && index < this.requerimientos.length) {
+      const requerimiento = this.requerimientos[index];
+      this.selectedIndex = index;
+      this.tipoObjetivo = requerimiento.tipoObjetivo;
+      this.objetivo = requerimiento.objetivo;
+      this.utilizadoPor = requerimiento.utilizadoPor;
+      this.condicion = requerimiento.condicion;
+    }
+  }
+
+  eliminarRequerimiento(index: number): void {
+    if (index >= 0 && index < this.requerimientos.length) {
+      this.requerimientos.splice(index, 1);
+      this.limpiarCamposRequerimiento();
+    }
+  }
+
+  enviarSolicitud(): void {
+    if (!this.numeroUnico || !this.oficinaAnalisis || !this.fechaHecho || this.requerimientos.length === 0) {
+        alert('Por favor, complete todos los campos requeridos.');
+        return;
+    }
+
+    const numeroSolicitud = typeof this.numeroUnico === 'string' ? parseInt(this.numeroUnico, 10) : this.numeroUnico;
+
+    const solicitudCompleta = {
+        idSolicitudAnalisis: 0,
+        fechaDelHecho: new Date(this.fechaHecho).toISOString(),
+        otrosDetalles: this.otrosDetalles || "Detalles no proporcionados",
+        otrosObjetivosDeAnalisis: this.otrosObjetivos || "Objetivos adicionales no especificados",
+        aprobado: false,
+        fechaCreacion: new Date().toISOString(),
+        numeroSolicitud: numeroSolicitud || 0,
+        idOficina: Number(this.oficinaAnalisis) || 0,
+
+        requerimentos: (this.requerimientos || []).map((requerimiento) => ({
+            idRequerimientoAnalisis: 0,
+            objetivo: requerimiento.objetivo || "Objetivo no especificado",
+            utilizadoPor: requerimiento.utilizadoPor || "Utilizado por no especificado",
+            idTipo: 0,
+            idAnalisis: requerimiento.idRequerimiento || 0
+        })),
+
+        objetivosAnalisis: (this.objetivosAnalisisSeleccionados || []).map((objetivo) => ({
+            idObjetivoAnalisis: objetivo.idObjetivoAnalisis || 0,
+            nombre: objetivo.nombre || "Nombre no especificado",
+            descripcion: objetivo.descripcion || "Descripción no especificada"
+        })),
+
+        solicitudesProveedor: (this.solicitudesProveedorSeleccionadas || []).map((solicitud) => ({
+            idSolicitudProveedor: solicitud.idSolicitudProveedor || 0,
+            numeroUnico: solicitud.numeroUnico || "string",
+            numeroCaso: solicitud.numeroCaso || "Caso no especificado",
+            imputado: solicitud.imputado || "Imputado no especificado",
+            ofendido: solicitud.ofendido || "Ofendido no especificado",
+            resenna: solicitud.resenna || "Reseña no especificada",
+            urgente: solicitud.urgente || false,
+            fechaCreacion: new Date().toISOString(),
+            requerimientos: (solicitud.requerimientos || []).map((requerimiento) => ({
+                idRequerimientoProveedor: requerimiento.idRequerimientoProveedor || 0,
+                fechaInicio: requerimiento.fechaInicio || new Date().toISOString(),
+                fechaFinal: requerimiento.fechaFinal || new Date().toISOString(),
+                requerimiento: requerimiento.requerimiento || "Requerimiento no especificado",
+                tipoSolicitudes: (requerimiento.tipoSolicitudes || []).map((tipo) => ({
+                    idTipoSolicitud: tipo.idTipoSolicitud || 0,
+                    nombre: tipo.nombre || "Nombre no especificado",
+                    descripcion: tipo.descripcion || "Descripción no especificada"
+                })),
+                datosRequeridos: (requerimiento.datosRequeridos || []).map((dato) => ({
+                    idDatoRequerido: dato.idDatoRequerido || 0,
+                    datoRequeridoContenido: dato.datoRequerido || "Dato requerido no especificado",
+                    motivacion: dato.motivacion || "Motivación no especificada",
+                    idTipoDato: dato.idTipoDato || 0
+                }))
+            })),
+
+            operadoras: (solicitud.operadoras || []).map((operadora) => ({
+                idProveedor: operadora.idProveedor || 0,
+                nombre: operadora.nombre || "Proveedor no especificado"
+            })),
+
+            usuarioCreador: {
+                idUsuario: solicitud.usuarioCreador?.idUsuario || 0,
+                nombre: solicitud.usuarioCreador?.nombre || "Nombre no especificado",
+                apellido: solicitud.usuarioCreador?.apellido || "Apellido no especificado",
+                usuario: solicitud.usuarioCreador?.usuario || "Usuario no especificado",
+                correoElectronico: solicitud.usuarioCreador?.correoElectronico || "Correo no especificado"
+            },
+
+            delito: solicitud.delito || {
+                idDelito: 0,
+                nombre: "Delito no especificado",
+                descripcion: "Descripción del delito",
+                idCategoriaDelito: 0
+            },
+            categoriaDelito: solicitud.categoriaDelito || {
+                idCategoriaDelito: 0,
+                nombre: "Categoría no especificada",
+                descripcion: "Descripción de la categoría"
+            },
+            estado: solicitud.estado || {
+                idEstado: 1,
+                nombre: "Estado no especificado",
+                descripcion: "Descripción del estado",
+                tipo: "Tipo no especificado"
+            },
+            fiscalia: solicitud.fiscalia || {
+                idFiscalia: 0,
+                nombre: "Fiscalía no especificada"
+            },
+            oficina: solicitud.oficina || {
+                idOficina: 0,
+                nombre: "Oficina no especificada",
+                tipo: "Tipo de oficina no especificado"
+            },
+            modalidad: solicitud.modalidad || {
+                idModalidad: 0,
+                nombre: "Modalidad no especificada",
+                descripcion: "Descripción de la modalidad"
+            },
+            subModalidad: solicitud.subModalidad || {
+                idSubModalidad: 0,
+                nombre: "Submodalidad no especificada",
+                descripcion: "Descripción de la submodalidad",
+                idModalidad: 0
+            }
+        })),
+
+        tipoAnalisis: (this.tiposAnalisis || []).map((tipo) => ({
+            idTipoAnalisis: tipo.idTipoAnalisis || 0,
+            nombre: tipo.nombre || "Tipo de análisis no especificado",
+            descripcion: tipo.descripcion || "Descripción no especificada"
+        })),
+        condiciones: [
+            {
+                idCondicion: this.condicionesAnalisis.find(condicion => condicion.nombre === this.condicionAnalisisEscogida)?.idCondicion || 0,
+                nombre: this.condicionAnalisisEscogida,
+                descripcion: "Descripción de la condición seleccionada"
+            }
+        ],
+        archivos: (this.archivosAnalizarSeleccionados || []).map((archivo) => ({
+            idArchivo: archivo.idArchivo || 0,
+            nombre: "Archivo no especificado",
+            contenido: "",
+            formatoAchivo: archivo.formatoArchivo || "Sin formato",
+            fechaModificacion: new Date().toISOString()
+        }))
+    };
+
+    console.log("Solicitud JSON enviada:", JSON.stringify(solicitudCompleta));
+    this.solicitudCompletaAnalisis = solicitudCompleta;
+    this.mostrarConfirmacionModal();
+  }
+  guardarSolicitudAnalisis(){
+    console.log(this.solicitudCompletaAnalisis);
+    this.analisisService.agregarSolicitudAnalisis(this.solicitudCompletaAnalisis).subscribe(
+      response => {
+          this.mostrarExito = true;
+          console.log('Solicitud enviada con éxito:', response);
+          this.limpiarFormulario();
+      },
+      error => console.error('Error al enviar la solicitud:', error.error)
+  );
+  }
+  obtenerCondiciones(): void {
+    this.analisisService.obtenerCondiciones().subscribe(
+      (condiciones) => {
+        console.log("Condiciones recibidas:", condiciones);
+        this.condicionesAnalisis = condiciones;
+      },
+      (error) => console.error('Error al cargar condiciones de análisis:', error)
+    );
+  }
+
+  obtenerTipoAnalisis(): void {
+    this.analisisService.obtenerTipoAnalisis().subscribe(
+      (tipos) => {
+        console.log("Tipos recibidos:", tipos);
+        this.tiposAnalisis = tipos;
+      },
+      (error) => console.error('Error al cargar tipos de análisis:', error)
+    );
+  }
+
+  limpiarCamposRequerimiento(): void {
+    this.tipoObjetivo = '';
+    this.objetivo = '';
+    this.utilizadoPor = '';
+    this.condicion = '';
+    this.selectedIndex = null;
+  }
+  
+  limpiarFormulario(): void {
+    // Restablecer campos principales del formulario
+    this.numeroUnico = null;
+    this.solicitudesProveedorSeleccionadas = [];
+    this.archivosAnalizarSeleccionados = [];
+    this.objetivosAnalisisSeleccionados = [];
+    this.oficinaAnalisis = null;
+    this.tipoAnalisis = 'Análisis Telefónico';
+    this.fechaHecho = '';
+    this.otrosObjetivos = '';
+    this.otrosDetalles = '';
+  
+    // Limpiar requerimientos y campos específicos de la solicitud
+    this.requerimientos = [];
+    this.solicitudCompletaAnalisis = null;
+  
+    // Limpiar configuraciones seleccionadas para los dropdowns y reiniciar opciones
+    this.operadoraSeleccionada = [];
+    this.condicionAnalisisEscogida = '';
+    this.idsSolicitudProveedarArchivo = [];
+    
+    // Resetear los campos específicos de los requerimientos
+    this.limpiarCamposRequerimiento();
+  
+    // Cerrar cualquier modal que pudiera estar abierto
+    this.mostrarConfirmacion = false;
+    this.mostrarExito = false;
+  
+    console.log("Formulario completamente limpio");
+  }
+  
+
+  validarOtrosDetalles(): boolean {
+    const regex = /^[a-zA-Z0-9\s.,;:!?()-]+$/;
+    return regex.test(this.otrosDetalles) && this.otrosDetalles.length >= 20;
+  }
+
+  validarObjetivo(): boolean {
+    const regex = /^\d{8}$/;
+    return regex.test(this.objetivo);
+  }
+
+  validarUtilizadoPor(): boolean {
+    const regex = /^[a-zA-Z\s]+$/;
+    return regex.test(this.utilizadoPor) && this.utilizadoPor.length >= 20;
   }
 }

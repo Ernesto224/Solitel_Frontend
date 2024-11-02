@@ -8,14 +8,11 @@ import { Observable } from 'rxjs';
 export class TipoSolicitudService {
 
   private urlServices: string = "https://localhost:7211/api/TipoSolicitud/";
-  private urlObtener: string = "obtenerTipoSolicitud";
-  private urlinsertar: string = "insertarTipoSolicitud";
-  private urleliminar: string = "eliminarTipoSolicitud";
 
   constructor(private http: HttpClient) { }
 
   public obtener = (): Observable<any[]> => {
-    return this.http.get<any[]>(`${this.urlServices}${this.urlObtener}`);
+    return this.http.get<any[]>(`${this.urlServices}`);
   }
 
   public insertar = (objeto: any): Observable<any> => {
@@ -23,11 +20,11 @@ export class TipoSolicitudService {
       'Content-Type': 'application/json',
       'accept': 'text/plain'
     });
-    return this.http.post(`${this.urlServices}${this.urlinsertar}`, objeto, { headers });
+    return this.http.post(`${this.urlServices}`, objeto, { headers });
   }
 
   public eliminar = (id: number): Observable<any> => {
-    return this.http.delete(`${this.urlServices}${this.urleliminar}/${id}`, {
+    return this.http.delete(`${this.urlServices}/${id}`, {
       headers: { 'accept': 'text/plain' }
     });
   }
