@@ -1,25 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';
 import { HistoricoService } from '../../services/historico.service';
-import { SidebarComponent } from '../../components/sidebar/sidebar.component';
-import { FooterComponent } from '../../components/footer/footer.component';
 import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EstadoService } from '../../services/estado.service';
 import { forkJoin } from 'rxjs';
 import { ArchivoService } from '../../services/archivo.service';
 
-
 @Component({
   selector: 'app-bandeja',
   standalone: true,
   imports: [
-    SidebarComponent,
-    FooterComponent,
     RouterOutlet,
-    NavbarComponent,
     CommonModule,
     FormsModule
   ],
@@ -121,18 +114,18 @@ export default class BandejaComponent implements OnInit {
     this.solicitudSeleccionada = null;
   }
 
-  
-  abrirModalHistorico(solicitud: any){
+
+  abrirModalHistorico(solicitud: any) {
     this.solicitudSeleccionada = solicitud;
     this.obtenerHistoricoSolicitud(this.solicitudSeleccionada.idSolicitudProveedor)
     console.log('Historico: ', this.historicoDeSolicitudSeleccionada);
     this.modalHistoricoVisible = true;
   }
 
-  cerrarModalHistorico(){
+  cerrarModalHistorico() {
     this.modalHistoricoVisible = false;
   }
-  
+
 
   cambiarEstadoASinEfeceto(solicitud: any) {
     const confirmacion = window.confirm("¿Estás seguro de que deseas realizar esta acción?");
@@ -347,7 +340,7 @@ export default class BandejaComponent implements OnInit {
     });
   }
 
-  
+
   obtenerHistoricoSolicitud(idSolicitudProveedor: number): void {
     this.historicoService.obtener(idSolicitudProveedor).subscribe({
       next: (data: any) => {
@@ -355,13 +348,13 @@ export default class BandejaComponent implements OnInit {
       },
       error: (err) => {
         console.log('')
-        if(err.status === 0) {
+        if (err.status === 0) {
           console.log('');
         }
       }
     })
   }
-  
+
 
 
 
@@ -462,7 +455,7 @@ export default class BandejaComponent implements OnInit {
 
   descargarArchivo(archivo: any): void {
     console.log('Descargando archivo:', archivo.nombre);
-    
+
     // Decodificar el contenido en Base64 y convertirlo a un array de bytes
     const byteCharacters = atob(archivo.contenido);
     const byteNumbers = new Array(byteCharacters.length);
@@ -470,10 +463,10 @@ export default class BandejaComponent implements OnInit {
       byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
     const byteArray = new Uint8Array(byteNumbers);
-  
+
     // Crear un Blob a partir del array de bytes
     const blob = new Blob([byteArray], { type: archivo.formatoArchivo });
-    
+
     // Crear URL y descargar el archivo
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -484,7 +477,7 @@ export default class BandejaComponent implements OnInit {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url); // Liberar la URL
   }
-  
+
 
   //Actualizacion de estados
 
