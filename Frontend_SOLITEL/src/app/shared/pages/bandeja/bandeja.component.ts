@@ -29,9 +29,10 @@ export default class BandejaComponent implements OnInit {
   encabezados: any[] = [];
   solicitudes: any[] = [];
   solicitudesFiltradas: any[] = [];
+  solicitudesPaginadas: any[] = [];
   columnasVisibles: { [key: string]: boolean } = {};
-  pageNumber: number = 1;
-  pageSize: number = 5;
+  numeroDePagina: number = 1;
+  cantidadDeRegistros: number = 5;
 
   cantidadPorEstadoProveedor: { nombre: string, cantidad: number }[] = [];
   cantidadPorEstadoAnalisis: { nombre: string, cantidad: number }[] = [];
@@ -79,12 +80,13 @@ export default class BandejaComponent implements OnInit {
   fechaInicioFiltro: string = '';
   fechaFinFiltro: string = '';
   filtroCaracter: string = '';
+  isSwitchDisabled: boolean = false; // Variable para controlar si el switch está habilitado
 
   solicitudSeleccionada: any = null;
   solicitudIdParaActualizar: number | null = null;
 
   modalVisible = false;
-
+  isModalVisible: boolean = false;
   modalEstadoVisible = false;
   observacion: string = '';
   nuevoEstado: string = '';
@@ -103,8 +105,15 @@ export default class BandejaComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.obtenerEstados();
-    this.obtenerSolicitudes();
+
+    this.isModalVisible = true; // Mostrar el modal al iniciar la operación
+
+    // Simulación de una operación asíncrona
+    setTimeout(() => {
+      this.obtenerEstados();
+      this.obtenerSolicitudes();
+    }, 3000); // Simular 3 segundos de procesamiento
+    
   }
 
   //optener datos
@@ -127,6 +136,7 @@ export default class BandejaComponent implements OnInit {
         this.solicitudes = value;
         this.contarSolicitudesPorEstado();
         this.filtrarSolicitudes();
+        this.isModalVisible = false; // Ocultar el modal después de la operación
       },
       error: (err) => {
         console.error('Error al obtener datos:', err);
@@ -136,6 +146,7 @@ export default class BandejaComponent implements OnInit {
 
   //modales
   reiniciarDatosDeTabla(): void {
+    this.numeroDePagina = 1;
     this.estadoSeleccionado = this.estadoTemporal;
     this.encabezados = this.estadoColumnas[this.estadoSeleccionado].headers;
     this.columnasVisibles = this.estadoColumnas[this.estadoSeleccionado].columnasVisibles;
@@ -185,6 +196,10 @@ export default class BandejaComponent implements OnInit {
     this.nuevoEstado = '';
   }
 
+  closeModal() {
+    this.isModalVisible = false; // Método para cerrar el modal
+  }
+  
   //otros
   contarSolicitudesPorEstado() {
     // Reiniciar contadores
@@ -229,17 +244,20 @@ export default class BandejaComponent implements OnInit {
   }
 
   cambiarPagina(incremento: number): void {
-    this.pageNumber += incremento;
-    if (this.pageNumber < 1) {
-      this.pageNumber = 1;
+    const maxPage = Math.ceil(this.solicitudesFiltradas.length / this.cantidadDeRegistros);
+    const newPage = this.numeroDePagina + incremento;
+
+    if (newPage >= 1 && newPage <= maxPage) {
+      this.numeroDePagina = newPage;
+      this.actualizarPaginacion(); // Actualizar los datos mostrados en la página actual
     }
-    this.obtenerSolicitudes();
   }
 
   cambiarTamanoPagina(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
-    this.pageSize = +value;
-    this.obtenerSolicitudes();
+    this.cantidadDeRegistros = +value;
+    this.numeroDePagina = 1; // Reinicia la página a la primera cuando cambias el tamaño de página
+    this.actualizarPaginacion();
   }
 
   limpiarFiltros() {
@@ -247,41 +265,61 @@ export default class BandejaComponent implements OnInit {
     this.numeroUnicoFiltro = '';
     this.fechaInicioFiltro = '';
     this.fechaFinFiltro = '';
-    this.reiniciarDatosDeTabla();
+    this.filtrarSolicitudes();
+  }
+
+  actualizarPaginacion() {
+    const inicio = (this.numeroDePagina - 1) * this.cantidadDeRegistros;
+    const fin = inicio + this.cantidadDeRegistros;
+    this.solicitudesPaginadas = this.solicitudesFiltradas.slice(inicio, fin);
   }
 
   filtrarSolicitudes() {
+    console.log(this.solicitudes)
     this.reiniciarDatosDeTabla();
-    this.solicitudesFiltradas = [...this.solicitudes];
+    this.solicitudesFiltradas = this.solicitudes;
 
+    this.aplicarFiltroEstado();
+    this.aplicarFiltroNumeroUnico();
+    this.aplicarFiltroFecha();
+    this.aplicarFiltroCaracter();
+
+    this.actualizarPaginacion();
+    this.contarSolicitudesPorEstado();
+  }
+
+  aplicarFiltroEstado() {
     if (this.estadoSeleccionado) {
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(
-        solicitud => solicitud.estado?.nombre === this.estadoSeleccionado
+      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
+        solicitud.estado?.nombre === this.estadoSeleccionado
       );
     }
+  }
 
+  aplicarFiltroNumeroUnico() {
     if (this.numeroUnicoFiltro) {
       this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
         solicitud.numeroUnico?.includes(this.numeroUnicoFiltro)
       );
     }
+  }
 
+  aplicarFiltroFecha() {
     if (this.fechaInicioFiltro) {
       const fechaInicio = new Date(this.fechaInicioFiltro);
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud => {
-        const fechaCreacion = new Date(solicitud.fechaCrecion);
-        return fechaCreacion >= fechaInicio;
-      });
+      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
+        new Date(solicitud.fechaCrecion) >= fechaInicio
+      );
     }
-
     if (this.fechaFinFiltro) {
       const fechaFin = new Date(this.fechaFinFiltro);
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud => {
-        const fechaCreacion = new Date(solicitud.fechaCrecion);
-        return fechaCreacion <= fechaFin;
-      });
+      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
+        new Date(solicitud.fechaCrecion) <= fechaFin
+      );
     }
+  }
 
+  aplicarFiltroCaracter() {
     if (this.filtroCaracter) {
       const filtro = this.filtroCaracter.toLowerCase();
       this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
@@ -289,13 +327,11 @@ export default class BandejaComponent implements OnInit {
         solicitud.imputado?.toLowerCase().includes(filtro) ||
         solicitud.ofendido?.toLowerCase().includes(filtro) ||
         solicitud.usuarioCreador?.nombre.toLowerCase().includes(filtro) ||
-        solicitud.usuarioCreador?.correoElectronico?.toLowerCase().includes(filtro) ||
-        solicitud.delito?.nombre.toLowerCase().includes(filtro)
+        solicitud.usuarioCreador?.apellido?.toLowerCase().includes(filtro) ||
+        solicitud.delito?.nombre.toLowerCase().includes(filtro) ||
+        solicitud.operadoras[0]?.nombre.toLowerCase().includes(filtro)
       );
     }
-
-    this.obtenerSolicitudes();
-    this.contarSolicitudesPorEstado();
   }
 
   cargarArchivos(idRequerimiento: number): void {
@@ -327,6 +363,13 @@ export default class BandejaComponent implements OnInit {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url); // Liberar la URL
+  }
+
+  onSwitchChange(idSolicitudProveedor: number, aprobado: boolean) {
+    if (aprobado) {
+      this.aprobarSolicitud(idSolicitudProveedor, 'Aprobar');
+      this.isSwitchDisabled = true; // Bloquear el switch después de aprobar
+    }
   }
 
   aprobarSolicitud(idSolicitudProveedor: number, estado: string) {
