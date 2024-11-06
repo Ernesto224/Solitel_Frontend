@@ -79,7 +79,19 @@ export default class BandejaComponent implements OnInit {
       headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
       actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
       columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    },
+    EnAnálisis:{
+      headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
+      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    },
+    Analizado:{
+      headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
+      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
     }
+
+
   };
 
   estadoSeleccionado: string = 'Creado';
@@ -160,7 +172,7 @@ export default class BandejaComponent implements OnInit {
 
   }
 
-  //optener datos
+  //obtener datos
   obtenerEstados(): void {
     this.estadoService.obtenerEstados().subscribe({
       next: (estados) => {

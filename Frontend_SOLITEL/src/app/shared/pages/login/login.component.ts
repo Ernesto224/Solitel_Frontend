@@ -35,9 +35,25 @@ export default class LoginComponent {
     });
   }
 
+  verificarInicioSesion(): void {
+    // Validación de los campos del formulario
+    const usernameControl = this.formulario.get('username');
+    const passwordControl = this.formulario.get('password');
+  
+    if (usernameControl && passwordControl) {
+      const username = usernameControl.value;
+      const password = passwordControl.value;
+      console.log("NOMBRE USUARIO: "+username);
+      console.log("PASSWORD: "+password);
+      this.authService.login(username, password);
+    } else {
+      console.error('Username or password field is missing.');
+    }
+  }
+  
+
   // Método de envío del formulario
   onSubmit() {
-    this.authService.login();
     this.router.navigate(['/']);
   }
 
