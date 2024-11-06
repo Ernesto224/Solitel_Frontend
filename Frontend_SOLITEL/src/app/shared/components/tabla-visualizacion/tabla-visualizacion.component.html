@@ -1,0 +1,63 @@
+<div class="flex justify-between items-center mt-4 space-x-8">
+    <!-- Selector de tamaño de filas alineado a la izquierda -->
+    <div class="flex items-center">
+        <label for="pageSize" class="mr-2">Mostrar:</label>
+        <select id="pageSize" (change)="changePageSize($event)" class="border border-gray-300 rounded">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+        </select>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="min-w-full table-auto border-collapse">
+        <thead>
+            <tr class="bg-[#1C355C] text-white">
+                <th *ngFor="let actionheader of actionsheaders" class="border px-4 py-2 text-center">{{ actionheader }}
+                </th>
+                <th *ngFor="let header of headers" class="border px-4 py-2 text-center">{{ header }}</th>
+            </tr>
+        </thead>
+        <tbody class="bg-[#F3F4F6] text-black">
+            <tr *ngFor="let row of paginatedData" class="hover:bg-gray-200">
+                <td *ngFor="let action of actions" class="border px-4 py-2 text-center">
+                    <div class="flex justify-center space-x-2">
+                        <!-- Botones dinámicos -->
+                        <button (click)="action.action(row)"
+                            class="bg-red-500 text-white px-4 py-2 rounded focus:outline-none focus:ring">
+                            <i class="material-icons">{{ action.icon }}</i> {{ action.label }}
+                        </button>
+                    </div>
+                </td>
+                <td *ngFor="let key of keys" class="border px-4 py-2 text-center">{{ row[key] }}</td>
+            </tr>
+            <!--ng-content select="[datos-distintos]"></ng-content-->
+        </tbody>
+    </table>
+</div>
+
+<div class="flex justify-between items-center mt-4 space-x-8">
+    <div class="flex items-center">
+        <label for="pageSize" class="mr-2">Mostrando registros del {{((pageNumber - 1) * pageSize) + 1}}
+            al {{((pageNumber - 1) * pageSize) + pageSize}}
+            de un total de {{data.length}} registros
+            (Filtrado de un total de {{dataLength}})
+        </label>
+    </div>
+    <div class="flex items-center space-x-2">
+        <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="changePageNumber(-1)">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <span>{{ pageNumber }}</span>
+        <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="changePageNumber(1)">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+    </div>
+</div>

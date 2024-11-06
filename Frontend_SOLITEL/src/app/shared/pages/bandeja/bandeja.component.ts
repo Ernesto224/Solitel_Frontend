@@ -1,105 +1,131 @@
 import { Component, OnInit } from '@angular/core';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';
 import { HistoricoService } from '../../services/historico.service';
-import { SidebarComponent } from '../../components/sidebar/sidebar.component';
-import { FooterComponent } from '../../components/footer/footer.component';
 import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EstadoService } from '../../services/estado.service';
-import { forkJoin } from 'rxjs';
 import { ArchivoService } from '../../services/archivo.service';
-
+import { TablaVisualizacionComponent } from '../../components/tabla-visualizacion/tabla-visualizacion.component';
 
 @Component({
   selector: 'app-bandeja',
   standalone: true,
   imports: [
-    SidebarComponent,
-    FooterComponent,
     RouterOutlet,
-    NavbarComponent,
     CommonModule,
-    FormsModule
+    FormsModule,
+    TablaVisualizacionComponent
   ],
   templateUrl: './bandeja.component.html',
   styleUrl: './bandeja.component.css'
 })
 export default class BandejaComponent implements OnInit {
 
-  contenidoPaginado: any[] = []; // Datos de contenido para la página actual
-  solicitudes: any[] = [];  // Aquí guardamos los datos de las solicitudes
-  solicitudesFiltradas: any[] = []; //Se van a guardar las solicitudes con los filtros aplicados
-  pageNumber: number = 1;   // Número de página inicial
-  pageSize: number = 5;    // Tamaño de página
-  modalVisible = false;
-  modalEstadoVisible = false;
-  modalHistoricoVisible = false;
-  solicitudSeleccionada: any = null;
-  historicoDeSolicitudSeleccionada: any = null;
-  filtroCaracter: string = '';
+  estados: any[] = [];
+  estadosProveedor: any[] = [];
+  estadosAnalisis: any[] = [];
 
-  //Filtro
+  encabezados: any[] = [];
+  solicitudes: any[] = [];
+  solicitudesFiltradas: any[] = [];
+  columnasVisibles: { [key: string]: boolean } = {};
+  pageNumber: number = 1;
+  pageSize: number = 5;
+
+  cantidadPorEstadoProveedor: { nombre: string, cantidad: number }[] = [];
+  cantidadPorEstadoAnalisis: { nombre: string, cantidad: number }[] = [];
+  estadoColumnas: { [key: string]: { headers: string[], actions: string[], columnasVisibles: {} } } = {
+    Creado: {
+      headers: ['Aprobar', 'Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+      actions: ['aprobar', 'sinEfecto', 'historico', 'ver'],
+      columnasVisibles: { aprobar: true, sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    },
+    Finalizado: {
+      headers: ['Devolver', 'Histórico', 'Sin efecto', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+      actions: ['devolver', 'historico', 'sinEfecto', 'requerimientos'],
+      columnasVisibles: { devolver: true, historico: true, sinEfecto: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    },
+    'Sin Efecto': {
+      headers: ['Devolver', 'Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+      actions: ['devolver', 'historico', 'requerimientos', 'ver'],
+      columnasVisibles: { devolver: true, historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, creadoPor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true }
+    },
+    Pendiente: {
+      headers: ['Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Aprobación', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+      actions: ['sinEfecto', 'historico', 'ver'],
+      columnasVisibles: { sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, aprobacion: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    },
+    Tramitado: {
+      headers: ['Finalizar', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+      actions: ['finalizar', 'historico', 'legajo', 'requerimientos'],
+      columnasVisibles: { finalizar: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    },
+    Solicitado: {
+      headers: ['Aprobar', 'Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+      actions: ['aprobar', 'sinEfecto', 'historico', 'ver'],
+      columnasVisibles: { aprobar: true, sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    },
+    Legajo: {
+      headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
+      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    },
+    EnAnálisis:{
+      headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
+      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    },
+    Analizado:{
+      headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
+      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    }
+
+
+  };
+
   estadoSeleccionado: string = 'Creado';
   estadoTemporal: string = 'Creado';
   numeroUnicoFiltro: string = '';
   fechaInicioFiltro: string = '';
   fechaFinFiltro: string = '';
-  cantidadSolicitudes: number = 0;
-  estados: any[] = [];
-  cantidadPorEstado: { nombre: string, cantidad: number }[] = [];
-  estadosProveedor: any[] = []; // Lista de estados para "Proveedor"
-  estadosAnalisis: any[] = [];  // Lista de estados para "Analisis"
-  cantidadPorEstadoProveedor: { nombre: string, cantidad: number }[] = []; // Contador por estado para "Proveedor"
-  cantidadPorEstadoAnalisis: { nombre: string, cantidad: number }[] = []; // Contador por estado para "Analisis"
+  filtroCaracter: string = '';
 
-  observacion: string = '';
+  solicitudSeleccionada: any = null;
   solicitudIdParaActualizar: number | null = null;
+
+  modalVisible = false;
+
+  modalEstadoVisible = false;
+  observacion: string = '';
   nuevoEstado: string = '';
+
+  modalHistoricoVisible = false;
+  historicoDeSolicitudSeleccionada: any = null;
+
   modalRequerimientosVisible: boolean = false;
-  filtroRequerimiento: string = '';
   archivos: any[] = [];
 
-  columnasVisibles: { [key: string]: boolean } = {
-    aprobar: false,
-    sinEfecto: false,
-    historico: false,
-    ver: false,
-    solicitud: false,
-    consecutivo: false,
-    numeroUnico: false,
-    proveedor: false,
-    enviadoPor: false,
-    fechaCreacion: false,
-    diasTranscurridos: false,
-    estado: false,
-    urgente: false,
-    creadoPor: false,
-    finalizar: false,
-    requerimientos: false,
-    devolver: false,
-    aprobacion: false,
-    legajo: false
-  };
-
-  constructor(private solicitudProveedorService: SolicitudProveedorService, private estadoService: EstadoService, private archivoService: ArchivoService, private historicoService: HistoricoService) { }
+  constructor(
+    private solicitudProveedorService: SolicitudProveedorService,
+    private estadoService: EstadoService,
+    private archivoService: ArchivoService,
+    private historicoService: HistoricoService
+  ) { }
 
   ngOnInit(): void {
-    forkJoin({
-      solicitudes: this.solicitudProveedorService.obtener(),
-      estados: this.estadoService.obtenerEstados()
-    }).subscribe({
-      next: ({ solicitudes, estados }) => {
-        this.solicitudes = solicitudes;
-        this.estados = estados;
+    this.obtenerEstados();
+    this.obtenerSolicitudes();
+  }
 
-        // Filtrar los estados en base al tipo "Proveedor" y "Analisis"
+  //obtener datos
+  obtenerEstados(): void {
+    this.estadoService.obtenerEstados().subscribe({
+      next: (estados) => {
+        this.estados = estados;
         this.estadosProveedor = estados.filter(estado => estado.tipo === 'Proveedor');
         this.estadosAnalisis = estados.filter(estado => estado.tipo === 'Analisis');
-
-        this.contarSolicitudesPorEstado(); // Llama al conteo una vez que ambas listas están listas
-        this.filtrarSolicitudes();
       },
       error: (err) => {
         console.error('Error al obtener datos:', err);
@@ -107,212 +133,71 @@ export default class BandejaComponent implements OnInit {
     });
   }
 
-
-  // Abre el modal con la solicitud seleccionada
-  abrirModal(solicitud: any) {
-    this.solicitudSeleccionada = solicitud;
-    this.modalVisible = true;
-    console.log('Solicitud seleccionada:', this.solicitudSeleccionada);
+  obtenerSolicitudes(): void {
+    this.solicitudProveedorService.obtener().subscribe({
+      next: (value) => {
+        this.solicitudes = value;
+        this.contarSolicitudesPorEstado();
+        this.filtrarSolicitudes();
+      },
+      error: (err) => {
+        console.error('Error al obtener datos:', err);
+      },
+    });
   }
 
-  // Cierra el modal
-  cerrarModal() {
+  //modales
+  reiniciarDatosDeTabla(): void {
+    this.estadoSeleccionado = this.estadoTemporal;
+    this.encabezados = this.estadoColumnas[this.estadoSeleccionado].headers;
+    this.columnasVisibles = this.estadoColumnas[this.estadoSeleccionado].columnasVisibles;
+  }
+
+  abrirModalDeDetalles(solicitud: any) {
+    this.solicitudSeleccionada = solicitud;
+    this.modalVisible = true;
+  }
+
+  cerrarModalDeDetalles() {
     this.modalVisible = false;
     this.solicitudSeleccionada = null;
   }
 
-  
-  abrirModalHistorico(solicitud: any){
+  abrirModalHistorico(solicitud: any) {
     this.solicitudSeleccionada = solicitud;
-    this.obtenerHistoricoSolicitud(this.solicitudSeleccionada.idSolicitudProveedor)
-    console.log('Historico: ', this.historicoDeSolicitudSeleccionada);
+    this.obtenerHistoricoSolicitud(this.solicitudSeleccionada.idSolicitudProveedor);
     this.modalHistoricoVisible = true;
   }
 
-  cerrarModalHistorico(){
+  cerrarModalHistorico() {
     this.modalHistoricoVisible = false;
-  }
-  
-
-  cambiarEstadoASinEfeceto(solicitud: any) {
-    const confirmacion = window.confirm("¿Estás seguro de que deseas realizar esta acción?");
-    if (confirmacion) {
-      this.solicitudSeleccionada = solicitud;
-      this.solicitudProveedorService.moverEstadoASinEfecto(solicitud.idSolicitudProveedor)
-        .subscribe({
-          next: (respuesta) => {
-            if (respuesta) {
-              console.log("Estado cambiado con éxito.");
-              this.obtenerSolicitudes();
-            } else {
-              console.error("No se pudo cambiar el estado.");
-            }
-          },
-          error: (error) => {
-            console.error("Ocurrió un error en la solicitud:", error);
-          }
-        });
-    }
+    this.solicitudSeleccionada = null;
   }
 
-  obtenerEstados() {
-    this.estadoService.obtenerEstados().subscribe({
-      next: (data: any[]) => {
-        this.estados = data;
-
-      },
-      error: (err) => {
-        console.error('Error al obtener los estados:', err);
-      }
-    });
+  abrirModalRequerimientos(solicitud: any) {
+    this.solicitudSeleccionada = solicitud;
+    this.modalRequerimientosVisible = true;
   }
 
-  actualizarColumnasVisibles(estado: string) {
-    // Reiniciar todas las columnas a false
-    this.columnasVisibles = {
-      aprobar: false,
-      sinEfecto: false,
-      historico: false,
-      ver: false,
-      solicitud: false,
-      consecutivo: false,
-      numeroUnico: false,
-      proveedor: false,
-      enviadoPor: false,
-      fechaCreacion: false,
-      diasTranscurridos: false,
-      estado: false,
-      urgente: false,
-      creadoPor: false,
-      finalizar: false,
-      requerimientos: false,
-      devolver: false,
-      aprobacion: false,
-      legajo: false
-    };
-
-    // Definir las columnas visibles para cada estado en el orden indicado
-    if (estado === 'Creado') {
-      this.columnasVisibles = {
-        aprobar: true,
-        sinEfecto: true,
-        historico: true,
-        ver: true,
-        solicitud: true,
-        //consecutivo: true,
-        numeroUnico: true,
-        fechaCreacion: true,
-        diasTranscurridos: true,
-        estado: true,
-        urgente: true,
-        creadoPor: true
-      };
-    } else if (estado === 'Tramitado') {
-      this.columnasVisibles = {
-        finalizar: true,
-        historico: true,
-        sinEfecto: true,
-        requerimientos: true,
-        ver: true,
-        solicitud: true,
-        // consecutivo: true,
-        numeroUnico: true,
-        proveedor: true,
-        // enviadoPor: true,
-        fechaCreacion: true,
-        diasTranscurridos: true,
-        estado: true,
-        urgente: true,
-        creadoPor: true
-      };
-    } else if (estado === 'Sin Efecto') {
-      this.columnasVisibles = {
-        devolver: true,
-        historico: true,
-        requerimientos: true,
-        ver: true,
-        solicitud: true,
-        numeroUnico: true,
-        creadoPor: true,
-        fechaCreacion: true,
-        diasTranscurridos: true,
-        estado: true,
-        urgente: true
-      };
-    } else if (estado === 'Pendiente') {
-      this.columnasVisibles = {
-        sinEfecto: true,
-        historico: true,
-        ver: true,
-        solicitud: true,
-        // consecutivo: true,
-        numeroUnico: true,
-        aprobacion: true,
-        fechaCreacion: true,
-        diasTranscurridos: true,
-        estado: true,
-        urgente: true,
-        creadoPor: true
-      };
-    } else if (estado === 'Finalizado') {
-      this.columnasVisibles = {
-        finalizar: true,
-        historico: true,
-        legajo: true,
-        requerimientos: true,
-        ver: true,
-        solicitud: true,
-        // consecutivo: true,
-        numeroUnico: true,
-        proveedor: true,
-        // enviadoPor: true,
-        fechaCreacion: true,
-        diasTranscurridos: true,
-        estado: true,
-        urgente: true,
-        creadoPor: true
-      };
-    } else if (estado === 'Legajo') {
-      this.columnasVisibles = {
-        devolver: true,
-        historico: true,
-        legajo: true,
-        requerimientos: true,
-        ver: true,
-        solicitud: true,
-        // consecutivo: true,
-        numeroUnico: true,
-        proveedor: true,
-        // enviadoPor: true,
-        fechaCreacion: true,
-        diasTranscurridos: true,
-        estado: true,
-        urgente: true,
-        creadoPor: true
-      };
-    } else if (estado === 'Solicitado') {
-      this.columnasVisibles = {
-        aprobar: true,
-        sinEfecto: true,
-        historico: true,
-        ver: true,
-        solicitud: true,
-        //consecutivo: true,
-        numeroUnico: true,
-        fechaCreacion: true,
-        diasTranscurridos: true,
-        estado: true,
-        urgente: true,
-        creadoPor: true
-      };
-    }
-
-    console.log('Estado seleccionado:', estado);
-    console.log('Columnas visibles:', this.columnasVisibles);
+  cerrarModalRequerimientos() {
+    this.modalRequerimientosVisible = false;
+    this.solicitudSeleccionada = null;
   }
 
+  abrirModalCambioEstado(idSolicitudProveedor: number, estado: string) {
+    this.solicitudIdParaActualizar = idSolicitudProveedor;
+    this.nuevoEstado = estado;
+    this.modalEstadoVisible = true;
+  }
 
+  cerrarModalCambioEstado() {
+    this.modalEstadoVisible = false;
+    this.observacion = '';
+    this.solicitudIdParaActualizar = null;
+    this.nuevoEstado = '';
+  }
 
+  //otros
   contarSolicitudesPorEstado() {
     // Reiniciar contadores
     this.cantidadPorEstadoProveedor = [];
@@ -331,23 +216,8 @@ export default class BandejaComponent implements OnInit {
       return { nombre: nombreEstado, cantidad };
     });
 
-    console.log('Cantidad por estado - Proveedor:', this.cantidadPorEstadoProveedor);
-    console.log('Cantidad por estado - Análisis:', this.cantidadPorEstadoAnalisis);
   }
 
-  obtenerSolicitudes(): void {
-    this.solicitudProveedorService.obtener().subscribe({
-      next: (data: any) => {
-        this.solicitudes = data;  // Guardamos las solicitudes
-        console.log('Solicitudes obtenidas:', this.solicitudes); // Verificamos las solicitudes obtenidas
-      },
-      error: (err) => {
-        console.error('Error al obtener las solicitudes:', err);
-      }
-    });
-  }
-
-  
   obtenerHistoricoSolicitud(idSolicitudProveedor: number): void {
     this.historicoService.obtener(idSolicitudProveedor).subscribe({
       next: (data: any) => {
@@ -355,15 +225,12 @@ export default class BandejaComponent implements OnInit {
       },
       error: (err) => {
         console.log('')
-        if(err.status === 0) {
+        if (err.status === 0) {
           console.log('');
         }
       }
     })
   }
-  
-
-
 
   calcularDiasTranscurridos(fechaInicio: string): number {
     const fecha = new Date(fechaInicio);
@@ -388,16 +255,16 @@ export default class BandejaComponent implements OnInit {
   }
 
   limpiarFiltros() {
-    this.estadoSeleccionado = 'Pendiente';
+    this.estadoSeleccionado = this.estadoTemporal;
     this.numeroUnicoFiltro = '';
     this.fechaInicioFiltro = '';
     this.fechaFinFiltro = '';
+    this.reiniciarDatosDeTabla();
   }
 
   filtrarSolicitudes() {
-    this.estadoSeleccionado = this.estadoTemporal;
+    this.reiniciarDatosDeTabla();
     this.solicitudesFiltradas = [...this.solicitudes];
-    this.actualizarColumnasVisibles(this.estadoSeleccionado);
 
     if (this.estadoSeleccionado) {
       this.solicitudesFiltradas = this.solicitudesFiltradas.filter(
@@ -438,21 +305,10 @@ export default class BandejaComponent implements OnInit {
         solicitud.delito?.nombre.toLowerCase().includes(filtro)
       );
     }
+
     this.obtenerSolicitudes();
     this.contarSolicitudesPorEstado();
-
   }
-
-  abrirModalRequerimientos(solicitud: any) {
-    this.solicitudSeleccionada = solicitud; // Asigna la solicitud seleccionada
-    this.modalRequerimientosVisible = true; // Muestra el modal de requerimientos
-  }
-
-  cerrarModalRequerimientos() {
-    this.modalRequerimientosVisible = false; // Cierra el modal de requerimientos
-    this.solicitudSeleccionada = null; // Limpia la solicitud seleccionada
-  }
-
 
   cargarArchivos(idRequerimiento: number): void {
     this.archivoService.obtenerArchivosDeSolicitud(idRequerimiento).subscribe((archivos: any[]) => {
@@ -462,7 +318,7 @@ export default class BandejaComponent implements OnInit {
 
   descargarArchivo(archivo: any): void {
     console.log('Descargando archivo:', archivo.nombre);
-    
+
     // Decodificar el contenido en Base64 y convertirlo a un array de bytes
     const byteCharacters = atob(archivo.contenido);
     const byteNumbers = new Array(byteCharacters.length);
@@ -470,10 +326,10 @@ export default class BandejaComponent implements OnInit {
       byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
     const byteArray = new Uint8Array(byteNumbers);
-  
+
     // Crear un Blob a partir del array de bytes
     const blob = new Blob([byteArray], { type: archivo.formatoArchivo });
-    
+
     // Crear URL y descargar el archivo
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -483,22 +339,6 @@ export default class BandejaComponent implements OnInit {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url); // Liberar la URL
-  }
-  
-
-  //Actualizacion de estados
-
-  abrirModalCambioEstado(idSolicitudProveedor: number, estado: string) {
-    this.solicitudIdParaActualizar = idSolicitudProveedor;
-    this.nuevoEstado = estado;
-    this.modalEstadoVisible = true;
-  }
-
-  cerrarModalCambioEstado() {
-    this.modalEstadoVisible = false;
-    this.observacion = '';
-    this.solicitudIdParaActualizar = null;
-    this.nuevoEstado = '';
   }
 
   aprobarSolicitud(idSolicitudProveedor: number, estado: string) {
@@ -533,7 +373,5 @@ export default class BandejaComponent implements OnInit {
     }
     this.contarSolicitudesPorEstado();
   }
-
-
 
 }

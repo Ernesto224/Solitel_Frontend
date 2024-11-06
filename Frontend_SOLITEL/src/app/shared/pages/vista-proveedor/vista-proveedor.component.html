@@ -6,6 +6,9 @@
   (change)="onSolicitudChange($event)"
   class="border border-gray-300 rounded-lg p-2 text-gray-600"
 >
+  <option *ngIf="!solicitudes.length" disabled selected>
+    No hay solicitudes pendientes
+  </option>
   <option *ngFor="let solicitud of solicitudes" [value]="solicitud.idSolicitudProveedor">
     {{ solicitud.idSolicitudProveedor }}
   </option>
