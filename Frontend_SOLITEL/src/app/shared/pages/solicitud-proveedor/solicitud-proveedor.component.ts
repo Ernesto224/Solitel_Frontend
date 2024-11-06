@@ -16,7 +16,7 @@ import { SolicitudProveedorService } from '../../services/solicitud-proveedor.se
 import { ProveedorService } from '../../services/proveedor.service'; // Para cargar operadoras
 import { OficinaService } from '../../services/oficina.service'; // Para cargar oficinas
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { ArchivoService} from '../../services/archivo.service';
+import { ArchivoService } from '../../services/archivo.service';
 import { HttpResponse } from '@angular/common/http';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -44,7 +44,7 @@ export default class SolicitudProveedorComponent {
   isModalOpen = false;
   isUrgent = false;
   errorMessage: string = '';
-
+  errorMessageGen: string = '';
   // Listas dinámicas para desplegables (combobox)
   categoriasDelito: any[] = [];
   fiscalias: any[] = [];
@@ -135,6 +135,7 @@ export default class SolicitudProveedorComponent {
     }
   }
 
+
   insertarArchivo() {
     if (this.selectedFile) {
       const formData = new FormData();
@@ -144,7 +145,7 @@ export default class SolicitudProveedorComponent {
       formData.append('TF_FechaModificacion', '2024-10-10');
 
       console.log(formData);
-  
+
       this.archivoService.insertarArchivo(formData).subscribe({
         next: response => {
           console.log('Archivo guardado con exito', response);
@@ -157,7 +158,7 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-  
+
   descargarArchivo(id: number): void {
     this.archivoService.descargarArchivo(id).subscribe(response => {
       // Decodifica el contenido Base64 a un Blob
@@ -168,7 +169,7 @@ export default class SolicitudProveedorComponent {
       }
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: response.tipoArchivo });
-  
+
       // Crea la URL para el archivo Blob
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -176,7 +177,7 @@ export default class SolicitudProveedorComponent {
       a.download = response.nombreArchivo; // Usa el nombre del archivo desde la respuesta
       document.body.appendChild(a);
       a.click();
-  
+
       // Limpia el DOM y revoca la URL
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
@@ -216,7 +217,7 @@ export default class SolicitudProveedorComponent {
     };
 
 
-    
+
     this.dropdownSettings2 = {
       singleSelection: false,
       idField: 'idTipoSolicitud',       // Cambia 'id' por el campo de ID que uses en `tiposSolicitud`
@@ -229,7 +230,7 @@ export default class SolicitudProveedorComponent {
 
   }
 
-  private validarNumUnico = (nombre:string) => {
+  private validarNumUnico = (nombre: string) => {
     //se verifica que solo incluya caracteres y su rango
     return /^[0-9]{2}-[0-9]{6}-[0-9]{4}-[a-z]{2}$/.test(nombre);
   };
@@ -243,8 +244,8 @@ export default class SolicitudProveedorComponent {
     // Permite cualquier texto que no contenga signos de exclamación
     return /^[^!]+$/.test(texto);
   };
-  
-  
+
+
   // Método que se llama al cambiar la categoría de delito
   onCategoriaDelitoChange(): void {
     if (this.idCategoriaDelitoSeleccionado) {
@@ -378,19 +379,19 @@ export default class SolicitudProveedorComponent {
         resennia: this.resennia || "string",
         urgente: this.isUrgent || false,
         fechaCreacion: new Date().toISOString(),
-        
+
         requerimientos: this.listaSolicitudes.map(solicitud => ({
           idRequerimientoProveedor: 0,
           fechaInicio: solicitud.tF_FechaInicio || new Date().toISOString(),
           fechaFinal: solicitud.tF_FechaFinal || new Date().toISOString(),
           requerimiento: solicitud.tC_Requerimiento || "string",
-          
+
           tipoSolicitudes: solicitud.tipoSolicitudes.map((tipo: any) => ({
             idTipoSolicitud: tipo.idTipoSolicitud,
             nombre: tipo.nombre,
             descripcion: tipo.descripcion || "Descripción no proporcionada"
           })),
-          
+
           datosRequeridos: solicitud.datosRequeridos.map((dato: any) => ({
             idDatoRequerido: dato.tN_IdDatoRequerido || 0,
             datoRequeridoContenido: dato.tC_DatoRequerido || "string",
@@ -398,12 +399,12 @@ export default class SolicitudProveedorComponent {
             idTipoDato: dato.tN_IdTipoDato
           }))
         })),
-        
+
         operadoras: this.operadoraSeleccionada.map(operadora => ({
           idProveedor: operadora.idProveedor,
           nombre: operadora.nombre
         })),
-        
+
         usuarioCreador: {
           idUsuario: 1,
           nombre: "Juan",
@@ -411,44 +412,44 @@ export default class SolicitudProveedorComponent {
           usuario: "jperez",
           correoElectronico: "jperez@example.com"
         },
-        
+
         delito: {
           idDelito: this.idDelitoSeleccionado,
           nombre: "Delito X",
           descripcion: "Descripción del delito",
           idCategoriaDelito: this.idCategoriaDelitoSeleccionado
         },
-        
+
         categoriaDelito: {
           idCategoriaDelito: this.idCategoriaDelitoSeleccionado,
           nombre: "Categoría X",
           descripcion: "Descripción de la categoría"
         },
-        
+
         estado: {
           idEstado: 4,
           nombre: "Creado",
           descripcion: "Solicitud creada",
           tipo: "string"
         },
-        
+
         fiscalia: {
           idFiscalia: this.idFiscaliaSeleccionada,
           nombre: this.fiscalias.find(f => f.tN_IdFiscalia === this.idFiscaliaSeleccionada)?.tC_Nombre || "Desconocido"
         },
-        
+
         oficina: {
           idOficina: this.idOficinaSeleccionada,
           nombre: this.oficinas.find(o => o.tN_IdOficina === this.idOficinaSeleccionada)?.tC_Nombre || "Desconocido",
           tipo: "string"
         },
-        
+
         modalidad: {
           idModalidad: this.idModalidadSeleccionada,
           nombre: "Modalidad X",
           descripcion: "Descripción de la modalidad"
         },
-        
+
         subModalidad: {
           idSubModalidad: this.idSubModalidadSeleccionada,
           nombre: "Submodalidad X",
@@ -456,7 +457,7 @@ export default class SolicitudProveedorComponent {
           idModalida: this.idModalidadSeleccionada
         }
       };
-  
+
       // Llamar al servicio para enviar la solicitud
       this.solicitudProveedorService.insertarSolicitudProveedor(solicitudProveedor).subscribe({
         next: response => {
@@ -468,10 +469,10 @@ export default class SolicitudProveedorComponent {
           console.error('Error al guardar la solicitud:', err);
         }
       });
-  
+
     } else {
       let errores = [];
-  
+
       if (!(this.validarNumUnico(this.numeroUnico) == true || this.numeroCaso)) {
         errores.push("Número único o número de caso");
       }
@@ -502,7 +503,7 @@ export default class SolicitudProveedorComponent {
       if (this.listaSolicitudes.length < 1) {
         errores.push("Lista de solicitudes con al menos un elemento");
       }
-  
+
       // Mostrar alert con los errores
       if (errores.length > 0) {
         alert("Los siguientes campos son requeridos o tienen errores:\n- " + errores.join("\n- "));
@@ -523,7 +524,7 @@ export default class SolicitudProveedorComponent {
     this.ofendido = '';
     this.resennia = '';
     this.isUrgent = false;
-  
+
     // Limpiar las selecciones de listas desplegables
     this.idOperadoraSeleccionada = 0;
     this.idOficinaSeleccionada = 0;
@@ -533,13 +534,13 @@ export default class SolicitudProveedorComponent {
     this.idEstadoSeleccionado = 0;
     this.idModalidadSeleccionada = 0;
     this.idSubModalidadSeleccionada = 0;
-  
+
     // Limpiar las listas
     this.tipoSolicitudSeleccionada = [];
     this.operadoraSeleccionada = [];
     this.listaSolicitudes = [];
     this.listaDatosRequeridos = [];
-  
+
     // Limpiar las variables adicionales
     this.requerimiento = '';
     this.fechaInicio = '';
@@ -547,25 +548,25 @@ export default class SolicitudProveedorComponent {
     this.datoRequerido = '';
     this.repitaDatoRequerido = '';
     this.motivation = '';
-  
+
     // Limpiar el campo de tipo de dato y resetear su placeholder y maxlength
     this.tipoDatoSeleccionado = null;
-    this.placeholderDatoRequerido = 'Ingrese el dato requerido'; 
+    this.placeholderDatoRequerido = 'Ingrese el dato requerido';
     this.maxlengthDatoRequerido = 100; // Restablecer el límite de caracteres a un valor por defecto
-  
+
     // Limpiar mensajes de error o cualquier otra notificación
     this.errorMessage = '';
-  
+
     // Restablecer cualquier índice de edición
     this.editingIndex = null;
-  
+
     // Desbloquear cualquier campo bloqueado previamente
     this.tipoDatoSeleccionadoBloqueado = false; // Bloquea la selección del tipo de dato
     this.tipoDatoSeleccionadoBloqueado = false;
-  
+
     // Si el modal está abierto, ciérralo
     this.isModalOpen = false;
-  
+
     console.log('Formulario completamente limpio');
   }
   limpiarFormulario() {
@@ -585,12 +586,7 @@ export default class SolicitudProveedorComponent {
 
   agregarSolicitud() {
 
-    console.log("Requerimiento: ", this.requerimiento);
-    console.log("Fecha Inicio: ", this.fechaInicio);
-    console.log("Fecha Final: ", this.fechaFinal);
-    console.log("Datos Requeridos: ", this.listaDatosRequeridos);
-
-    if (this.tipoSolicitudSeleccionada && this.requerimiento && this.fechaInicio && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
+    if (this.tipoSolicitudSeleccionada.length>0 && this.requerimiento && this.fechaInicio && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
       // Crear el objeto de solicitud con la estructura solicitada
       const nuevaSolicitud = {
         tN_IdRequerimientoProveedor: 0, // Asumimos que es nuevo
@@ -610,8 +606,9 @@ export default class SolicitudProveedorComponent {
       this.requerimiento = '';
       this.listaDatosRequeridos = [];
       this.resetForm();
+      this.errorMessageGen = '';
     } else {
-      this.errorMessage = 'Debe completar todos los campos.';
+      this.errorMessageGen = 'Debe completar todos los campos.';
     }
   }
 
@@ -710,33 +707,33 @@ export default class SolicitudProveedorComponent {
   agregarDatoRequerido() {
     console.log("tipoDatoSeleccionado antes de agregar:", this.tipoDatoSeleccionado); // Verificación
 
-      if (this.datoRequerido && this.repitaDatoRequerido && this.motivation && this.tipoDatoSeleccionado) {
+    if (this.datoRequerido && this.repitaDatoRequerido && this.motivation && this.tipoDatoSeleccionado) {
 
-        if (this.datoRequerido === this.repitaDatoRequerido) {
-          // El ID y el nombre del tipo de dato se toman directamente del objeto seleccionado
-          const nuevoDato = {
-            tN_IdDatoRequerido: this.tipoDatoSeleccionado.tN_IdTipoDato, // Asigna el ID correcto
-            tC_DatoRequerido: this.datoRequerido,
-            tC_Motivacion: this.motivation,
-            tN_IdTipoDato: this.tipoDatoSeleccionado.idTipoDato, // El ID del tipo de dato seleccionado
-            tC_NombreTipoDato: this.tipoDatoSeleccionado.tC_Nombre // El nombre del tipo de dato seleccionado
-          };
+      if (this.datoRequerido === this.repitaDatoRequerido) {
+        // El ID y el nombre del tipo de dato se toman directamente del objeto seleccionado
+        const nuevoDato = {
+          tN_IdDatoRequerido: this.tipoDatoSeleccionado.tN_IdTipoDato, // Asigna el ID correcto
+          tC_DatoRequerido: this.datoRequerido,
+          tC_Motivacion: this.motivation,
+          tN_IdTipoDato: this.tipoDatoSeleccionado.idTipoDato, // El ID del tipo de dato seleccionado
+          tC_NombreTipoDato: this.tipoDatoSeleccionado.tC_Nombre // El nombre del tipo de dato seleccionado
+        };
 
-          this.listaDatosRequeridos.push(nuevoDato); // Agregar el dato a la lista
-          this.tipoDatoSeleccionadoBloqueado = true;
-          this.resetForm();  // Limpiar los campos del formulario
-          this.errorMessage = '';  // Limpiar el mensaje de error
+        this.listaDatosRequeridos.push(nuevoDato); // Agregar el dato a la lista
+        this.tipoDatoSeleccionadoBloqueado = true;
+        this.resetForm();  // Limpiar los campos del formulario
+        this.errorMessage = '';  // Limpiar el mensaje de error
 
-          console.log("Nuevo dato agregado:", nuevoDato);
-          console.log("Lista de datos requeridos:", this.listaDatosRequeridos);
-        } else {
-          this.errorMessage = 'Los campos "Dato Requerido" y "Repita el Dato Requerido" deben coincidir.';
-        }
+        console.log("Nuevo dato agregado:", nuevoDato);
+        console.log("Lista de datos requeridos:", this.listaDatosRequeridos);
       } else {
-        this.errorMessage = 'Todos los campos son obligatorios. Por favor, verifique.';
-
+        this.errorMessage = 'Los campos "Dato Requerido" y "Repita el Dato Requerido" deben coincidir.';
       }
-    
+    } else {
+      this.errorMessage = 'Todos los campos son obligatorios. Por favor, verifique.';
+
+    }
+
 
 
 
@@ -746,7 +743,7 @@ export default class SolicitudProveedorComponent {
     return this.listaDatosRequeridos.map(item => `${item.tC_DatoRequerido}`).join(', ');
   }
 
- onDatoRequeridoChange(event: any) {
+  onDatoRequeridoChange(event: any) {
     const idSeleccionado = event.target.value;  // Obtenemos el ID del dato requerido seleccionado
     console.log("ID seleccionado para eliminar:", idSeleccionado);
     this.selectedDatoRequerido = event.target.value;  // Asignamos el objeto seleccionado
@@ -759,25 +756,25 @@ export default class SolicitudProveedorComponent {
     console.log("Dato seleccionado:", this.selectedDatoRequerido);
   }
 
-eliminarDatoRequerido() {
-  if (this.selectedDatoRequerido) {
-    this.listaDatosRequeridos = this.listaDatosRequeridos.filter(
-      item => item !== this.selectedDatoRequerido
-    );
+  eliminarDatoRequerido() {
+    if (this.selectedDatoRequerido) {
+      this.listaDatosRequeridos = this.listaDatosRequeridos.filter(
+        item => item !== this.selectedDatoRequerido
+      );
 
-    console.log("Dato eliminado:", this.selectedDatoRequerido);
-    console.log("Lista actualizada de datos requeridos:", this.listaDatosRequeridos);
+      console.log("Dato eliminado:", this.selectedDatoRequerido);
+      console.log("Lista actualizada de datos requeridos:", this.listaDatosRequeridos);
 
-    // Limpiar la selección
-    this.selectedDatoRequerido = null;
-    if(this.listaDatosRequeridos.length === 0){
-      this.tipoDatoSeleccionadoBloqueado = false;
+      // Limpiar la selección
+      this.selectedDatoRequerido = null;
+      if (this.listaDatosRequeridos.length === 0) {
+        this.tipoDatoSeleccionadoBloqueado = false;
+      }
+
+    } else {
+      console.error("No hay ningún dato seleccionado para eliminar.");
     }
-
-  } else {
-    console.error("No hay ningún dato seleccionado para eliminar.");
   }
-}
 
 
   // Deshabilitar el cambio de tipo de dato después de seleccionarlo

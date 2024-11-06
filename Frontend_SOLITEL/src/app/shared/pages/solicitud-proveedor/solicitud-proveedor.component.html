@@ -213,7 +213,8 @@
             <div class="form-group">
 
               <label for="requerimiento">Requerimiento:</label>
-              <textarea id="requerimiento" [(ngModel)]="requerimiento" name="requerimiento" class="required-field" required></textarea>
+              <textarea id="requerimiento" [(ngModel)]="requerimiento" name="requerimiento" class="required-field"
+                required></textarea>
 
             </div>
 
@@ -245,6 +246,10 @@
               </button>
             -->
 
+            </div>
+            <!-- Mensaje de error -->
+            <div *ngIf="errorMessageGen" class="error-message" style="color: red;">
+              {{ errorMessageGen }}
             </div>
 
             <!-- Tabla para mostrar las solicitudes agregadas -->
@@ -386,15 +391,18 @@
         <div class="form-group">
           <label for="dato-requerido">Dato requerido:</label>
           <input type="text" id="dato-requerido" [(ngModel)]="datoRequerido" name="datoRequerido"
-            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required>
+            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required (copy)="false"
+            (cut)="false" (paste)="false">
         </div>
 
         <!-- Repita el dato requerido -->
         <div class="form-group">
           <label for="repita-dato">Repita el dato requerido:</label>
           <input type="text" id="repita-dato" [(ngModel)]="repitaDatoRequerido" name="repitaDatoRequerido"
-            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required>
+            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required (copy)="false"
+            (cut)="false" (paste)="false">
         </div>
+
 
 
 
@@ -426,16 +434,15 @@
         <!-- Lista de datos requeridos -->
         <div class="form-group">
           <label for="lista-datos">Lista de datos requeridos:</label>
-          <select id="lista-datos" [(ngModel)]="selectedDatoRequerido" name="listaDatosRequeridos" 
-                  [ngClass]="{}">
+          <select id="lista-datos" [(ngModel)]="selectedDatoRequerido" name="listaDatosRequeridos" [ngClass]="{}">
             <option value="">Seleccione un dato requerido</option>
             <option *ngFor="let item of listaDatosRequeridos" [ngValue]="item">
               {{ item.tC_DatoRequerido }}
             </option>
           </select>
         </div>
-        
-        
+
+
 
       </form>
 
