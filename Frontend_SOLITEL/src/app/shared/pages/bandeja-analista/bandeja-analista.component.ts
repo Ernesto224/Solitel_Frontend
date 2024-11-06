@@ -97,7 +97,7 @@ export default class BandejaAnalistaComponent {
 
 
   obtenerSolicitudes(pageNumber: number, pageSize: number): void {
-    this.solicitudProveedorService.obtener(pageNumber, pageSize).subscribe({
+    this.solicitudProveedorService.obtener().subscribe({
       next: (data: any) => {
         this.solicitudes = data;  // Guardamos los datos de la solicitud
       },

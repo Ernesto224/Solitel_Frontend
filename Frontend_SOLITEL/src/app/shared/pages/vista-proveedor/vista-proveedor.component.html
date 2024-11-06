@@ -1,15 +1,15 @@
 <div class="p-4">
   <label for="solicitudId" class="text-gray-700">Selecciona ID de Solicitud:</label>
   <select
-    id="solicitudId"
-    [(ngModel)]="selectedSolicitudId"
-    (change)="onSolicitudChange()"
-    class="border border-gray-300 rounded-lg p-2 text-gray-600"
-  >
-    <option *ngFor="let solicitud of solicitudes" [value]="solicitud.idSolicitudProveedor">
-      {{ solicitud.idSolicitudProveedor }}
-    </option>
-  </select>
+  id="solicitudId"
+  [(ngModel)]="selectedSolicitudId"
+  (change)="onSolicitudChange($event)"
+  class="border border-gray-300 rounded-lg p-2 text-gray-600"
+>
+  <option *ngFor="let solicitud of solicitudes" [value]="solicitud.idSolicitudProveedor">
+    {{ solicitud.idSolicitudProveedor }}
+  </option>
+</select>
 
   <h2 class="text-xl font-semibold mb-4">Lista de Requerimientos:</h2>
 
@@ -45,9 +45,19 @@
             Detalle
           </button>
         </td>
-        <td class="px-4 py-2 text-gray-600">{{ item.numeroRequerido }}</td>
-        <td class="px-4 py-2 text-gray-600">{{ item.tipoRequerimiento }}</td>
-        <td class="px-4 py-2 text-gray-600">{{ item.cantidadAdjuntos }}</td>
+        <td class="px-4 py-2 text-gray-600">
+          <ng-container *ngFor="let datoRequerido of item.datosRequeridos; let last = last">
+            {{ datoRequerido.datoRequeridoContenido || 'No disponible' }}<span *ngIf="!last">, </span>
+          </ng-container>
+        </td>
+        <td class="px-4 py-2 text-gray-600">
+          <ng-container *ngFor="let tipoSolicitud of item.tipoSolicitudes; let last = last">
+            {{ tipoSolicitud.nombre || 'No disponible' }}<span *ngIf="!last">, </span>
+          </ng-container>
+        </td>
+        <td class="px-4 py-2 text-gray-600">
+          {{ archivosPorRequerimiento[item.idRequerimientoProveedor]?.length || '0' }}
+        </td>
       </tr>
       <tr *ngIf="!requerimientos.length">
         <td colspan="4" class="px-4 py-4 text-center text-gray-500">No hay registros disponibles</td>
@@ -61,8 +71,11 @@
   >
     Cerrar (Tramitar)
   </button>
+
 </div>
 
+
+<!-- Modal Informacion Requerimiento-->
 <div *ngIf="mostrarModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl mx-4 p-6">
     <div class="border-b pb-4 mb-4">
@@ -77,14 +90,15 @@
       <input
         id="requerimiento"
         type="text"
-        [value]="requerimientoSeleccionado?.detalleRequerimiento"
+        [value]="requerimientoSeleccionado?.requerimiento"
         class="w-full mt-2 p-2 border border-gray-300 rounded-lg text-gray-600"
         readonly
       />
     </div>
 
+
     <div class="flex items-center mb-4">
-      <input type="file" id="archivo" (change)="onFileSelect($event)" multiple class="hidden" />
+      <input type="file" id="archivo" (change)="onFileSelect($event, requerimientoSeleccionado.idRequerimientoProveedor)" multiple class="hidden" />
       <button
         (click)="seleccionarArchivo()"
         class="px-4 py-2 bg-gray-300 text-gray-700 border border-gray-400 rounded-md hover:bg-gray-400 transition-colors"
@@ -92,6 +106,8 @@
         Seleccionar
       </button>
     </div>
+
+
 
     <table class="w-full border border-gray-300 rounded-lg">
       <thead class="bg-gray-100">
@@ -126,5 +142,14 @@
         </tr>
       </tbody>
     </table>
+
+    
+    <button
+    (click)="cerrarModal()"
+    class="text-blue-500 hover:text-blue-700 transition-colors">Cerrar
+    </button>
   </div>
+
+
+
 </div>
