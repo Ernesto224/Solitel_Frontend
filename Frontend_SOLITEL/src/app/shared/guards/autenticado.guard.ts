@@ -8,7 +8,7 @@ export const autenticadoGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   // Verificar si el usuario está autenticado y tiene el permiso "todos"
-  if (authService.isAuthenticated() && authService.tienePermiso('todos')) {
+  if (authService.isAuthenticated()) {
     return true;
   } else {
     // Si no está autenticado o no tiene permiso, redirige al login

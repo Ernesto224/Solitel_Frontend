@@ -61,7 +61,7 @@
           <section class="form-row">
             <section class="form-group">
               <label>Oficina de análisis criminal:</label>
-              <select [(ngModel)]="oficinaAnalisis" class="input select">
+              <select [(ngModel)]="oficinaAnalisis" class="input select" (click)="VerIdOficina()">
                 <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.idOficina">{{ oficina.nombre }}</option>
               </select>
             </section>
@@ -69,7 +69,7 @@
             <section class="form-group">
               <label>Tipo de análisis:</label>
               <select [(ngModel)]="tipoAnalisis" class="input select">
-                <option value="Análisis Telefónico">Análisis Telefónico</option>
+                <option value="Seleccione">Seleccione</option>
                 <option *ngFor="let tipoAnalisis of tiposAnalisis" [value]="tipoAnalisis.idTipoAnalisis">
                   {{ tipoAnalisis.nombre }}
                 </option>
@@ -130,12 +130,11 @@
           <section class="form-row">
             <section class="form-group">
               <label>Tipo Objetivo:</label>
-              <select [(ngModel)]="tipoObjetivo" class="input select">
+              <select [(ngModel)]="idTipoDatoSeleccionado" class="input select" (click)=" verificarIdTipoDatos()">
                 <option value="">Seleccione</option>
-                <option value="Teléfono">Teléfono</option>
-                <option value="IMEI">IMEI</option>
-                <option value="Radio Base">Radio Base</option>
-                <option value="SIM">SIM</option>
+                <option *ngFor="let tipoDato of TipoDatos" [value]="tipoDato.idTipoDato">
+                  {{ tipoDato.nombre }}
+                </option>
               </select>
             </section>
 
