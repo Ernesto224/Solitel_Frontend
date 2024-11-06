@@ -1,0 +1,23 @@
+<div *ngIf="modalEstadoVisible" class="modal-container fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+
+        <!-- Encabezado -->
+        <ng-content select="[modal-header]"></ng-content>
+       
+        <!-- Campo de observación opcional -->
+        <ng-content select="[modal-content]"></ng-content>
+
+        <!-- Botones de confirmación y cancelación -->
+        <div class="mt-6 flex justify-end space-x-3">
+            <button (click)="cerrarModal()" class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2" 
+                style="background-color: #D32F2F;">
+                <i class="material-icons">cancel</i><span>Cancelar</span>
+            </button>
+            <button (click)="confirmarCambio()" class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2"
+                style="background-color: #1976d2;">
+                <i class="material-icons">check_circle</i><span>Confirmar</span>
+            </button>
+        </div>
+
+    </div>
+</div>

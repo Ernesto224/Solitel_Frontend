@@ -63,7 +63,7 @@ select {
 
 .table-responsive {
   max-height: 400px; /* Altura máxima */
-  overflow-y: auto;  /* Scroll vertical */
-  overflow-x: auto;  /* Scroll horizontal */
+  overflow-y: auto; /* Scroll vertical */
+  overflow-x: auto; /* Scroll horizontal */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling en iOS */
 }

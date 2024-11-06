@@ -1,22 +1,32 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-tabla-visualizacion',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    FormsModule
+  ],
   templateUrl: './tabla-visualizacion.component.html',
   styleUrl: './tabla-visualizacion.component.css'
 })
-export class TablaVisualizacionComponent {
-  @Input() headers: string[] = [];
+export class TablaVisualizacionComponent implements OnChanges {
+  @Input() headers: { key: string, label: string }[] = [];
   @Input() data: any[] = [];
   @Input() actionsheaders: string[] = [];
-  @Input() actions: { label: string; icon: string; action: (row: any) => void }[] = []; // Configuración de botones
-  @Input() dataLength: number = 0;
+  @Input() actions: {
+    label: string; icon: string; class: string;
+    style: string; action: (row: any) => void
+  }[] = []; // Configuración de botones
 
   pageNumber: number = 1;
   pageSize: number = 5;
+
+  ngOnChanges(): void {
+    this.pageNumber = 1;
+  }
 
   changePageSize(event: Event) {
     const target = event.target as HTMLSelectElement;
@@ -38,7 +48,7 @@ export class TablaVisualizacionComponent {
     return this.data.slice(startIndex, startIndex + this.pageSize);
   }
 
-  get keys(): string[] {
-    return this.data.length > 0 ? Object.keys(this.data[0]) : [];
+  getValueByKey(item: any, key: string): any {
+    return key.split('.').reduce((acc, part) => acc && acc[part], item) ?? 'N/A';
   }
 }
