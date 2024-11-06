@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 export class AuthenticacionService {
   private usuarioKey = 'usuario';
 
-  // Usuario quemado para pruebas
+  // Usuarios quemados para pruebas
   private usuarioPrueba = {
     IdUsuario: 1,
     nombre: 'Eliecer',
@@ -21,18 +21,19 @@ export class AuthenticacionService {
         tipo: 'Investigacion',
         rol: {
           nombre: 'Administrador',
-          permisos: [{ nombre: 'todos' }],
+          permisos: [{ nombre: 'Crear solicitudes de analisis' }],
         },
       },
     ],
   };
+
   private usuarioPrueba2 = {
     IdUsuario: 2,
     nombre: 'Eliecer',
     Apellido: 'Melgara',
     correoElectronico: 'eliecermelgara1680@gmail.com',
     usuario: 'eliecer.melgara',
-    contrasennia: 'Melgara1212!',
+    contrasennia: 'Melgara1212!!',
     oficina: [
       {
         idOficina: 1,
@@ -64,34 +65,41 @@ export class AuthenticacionService {
       },
     ],
   };
+
+  usuarios = [this.usuarioPrueba, this.usuarioPrueba2];
+
   constructor() {}
 
-  // Comprobar si `sessionStorage` está disponible (para evitar errores en SSR)
   private isSessionStorageAvailable(): boolean {
     return (
       typeof window !== 'undefined' && typeof sessionStorage !== 'undefined'
     );
   }
 
-  // Iniciar sesión guardando el usuario de prueba en sessionStorage
-  login() {
+  login(username: string, password: string): void {
     if (this.isSessionStorageAvailable()) {
-      sessionStorage.setItem(
-        this.usuarioKey,
-        JSON.stringify(this.usuarioPrueba)
+      const usuario = this.usuarios.find(
+        (user) => user.usuario === username && user.contrasennia === password
       );
+
+      if (usuario) {
+        sessionStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
+        console.log('Login successful');
+      } else {
+        console.error('Invalid username or password');
+      }
+    } else {
+      console.error('Session storage is not available');
     }
   }
 
-  // Cerrar sesión
-  logout() {
+  logout(): void {
     if (this.isSessionStorageAvailable()) {
       sessionStorage.removeItem(this.usuarioKey);
     }
   }
 
-  // Obtener usuario de la sesión
-  getUsuario() {
+  getUsuario(): any {
     if (this.isSessionStorageAvailable()) {
       const usuario = sessionStorage.getItem(this.usuarioKey);
       return usuario ? JSON.parse(usuario) : null;
@@ -99,16 +107,21 @@ export class AuthenticacionService {
     return null;
   }
 
-  // Verificar si el usuario tiene permiso
   tienePermiso(permiso: string): boolean {
     const usuario = this.getUsuario();
-    return (
-      usuario &&
-      usuario.rol.permisos.some((p: { nombre: string }) => p.nombre === permiso)
-    );
+    if (!usuario) {
+      return false;
+    }
+  
+    for (const oficina of usuario.oficina) {
+      if (oficina.rol.permisos.some((p: { nombre: string }) => p.nombre === permiso || p.nombre === 'todos')) {
+        return true;
+      }
+    }
+    return false;
   }
+  
 
-  // Verificar si el usuario está autenticado
   isAuthenticated(): boolean {
     return this.getUsuario() !== null;
   }
