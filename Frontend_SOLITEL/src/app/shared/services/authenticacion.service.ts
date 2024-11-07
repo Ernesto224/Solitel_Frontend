@@ -76,21 +76,23 @@ export class AuthenticacionService {
     );
   }
 
-  login(username: string, password: string): void {
+  login(username: string, password: string): any {
     if (this.isSessionStorageAvailable()) {
       const usuario = this.usuarios.find(
         (user) => user.usuario === username && user.contrasennia === password
       );
 
       if (usuario) {
-        sessionStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
         console.log('Login successful');
+        sessionStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
+        return usuario;
       } else {
         console.error('Invalid username or password');
       }
     } else {
       console.error('Session storage is not available');
     }
+    return null;
   }
 
   logout(): void {
@@ -104,6 +106,7 @@ export class AuthenticacionService {
       const usuario = sessionStorage.getItem(this.usuarioKey);
       return usuario ? JSON.parse(usuario) : null;
     }
+    console.log("NULL EN EL SESSION");
     return null;
   }
 
@@ -120,7 +123,10 @@ export class AuthenticacionService {
     }
     return false;
   }
-  
+
+  agregarUsuario(usuario:any){
+    sessionStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
+  }
 
   isAuthenticated(): boolean {
     return this.getUsuario() !== null;

@@ -373,6 +373,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     } else {
       this.requerimientos.push(nuevoRequerimiento);
     }
+    console.log("CANTIDAD DE REQUERIMIENTOS ADD: "+this.requerimientos.length);
     this.limpiarCamposRequerimiento();
   }
 
@@ -383,8 +384,8 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       requerimiento.tipoDato.nombre || 'Tipo no especificado';
       this.objetivo = requerimiento.objetivo;
       this.utilizadoPor = requerimiento.utilizadoPor;
-      this.condicionAnalisisEscogida = 0;
-      requerimiento.condicion?.idCondicion ?? 0;
+      this.condicionAnalisisEscogida = requerimiento.condicion.idCondicion;
+      this.idTipoDatoSeleccionado = requerimiento.tipoDato.idTipoDato;
     }
   }
   eliminarRequerimiento(index: number): void {
@@ -392,6 +393,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       this.requerimientos.splice(index, 1);
       this.limpiarCamposRequerimiento();
     }
+    console.log("CANTIDAD DE REQUERIMIENTOS: "+this.requerimientos.length);
   }
 
   VerIdOficina(): void {
