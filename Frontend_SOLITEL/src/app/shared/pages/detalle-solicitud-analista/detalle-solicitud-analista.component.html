@@ -54,7 +54,7 @@
     </div>
   
     
-  <!-- campos debajo -->
+  <!-- Campos debajo -->
   <div class="row">
     <div class="col-6">
       <div class="form-group">
@@ -90,89 +90,67 @@
       <button (click)="mostrarTabla(1)">Detalle</button>
       <button (click)="mostrarTabla(2)">Objetivos</button>
       <button (click)="mostrarTabla(3)">Archivos</button>
-      <button (click)="abrirModal()">Informe</button>
+      <button (click)="abrirModalArchivosRespuesta()">Informe</button>
     </div>
 </div>
   
   <!-- Tabla Requerimientos   -->
   <div *ngIf="tablaVisible === 1">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Tipo Objetivo</th>
-          <th>Condicion Objetivo</th>
-          <th>Utilizado por</th>
-          <th>Objetivo</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let requerimento of solicitudAnalisisSeleccionada.requerimentos">
-          <td>{{ requerimento.tipoDato.nombre }}</td>
-          <td>{{ requerimento.condicion.nombre }}</td>
-          <td>{{ requerimento.utilizadoPor }}</td>
-          <td>{{ requerimento.objetivo }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <app-tabla-visualizacion
+      [headers]="encabezadosRequerimientos"
+      [data]="requerimientos">
+    </app-tabla-visualizacion>
   </div>
 
   
   <!-- Tabla Objetivos   -->
   <div *ngIf="tablaVisible === 2">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Objetivos de Analisis</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let objetivoAnalisis of solicitudAnalisisSeleccionada.objetivosAnalisis">
-          <td>{{ objetivoAnalisis.nombre }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <app-tabla-visualizacion [headers]="encabezadosObjetivos" [data]="objetivos"></app-tabla-visualizacion>
   </div>
 
 
   <!-- Tabla Archivos -->
   <div *ngIf="tablaVisible === 3">
-    <table class="table" >
-      <thead>
-        <tr>
-          <th>Descargar</th>
-          <th>Nombre Documento</th>
-          <th>Codigo Hash</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let archivo of archivos">
-          <td><button class="text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring"
-            style="background-color: #1C355C;" (click)="descargarArchivo(archivo)">
-          </button></td>
-          <td> {{ archivo.nombre }}</td>
-          <td>No Aplica</td>
-        </tr>
-      </tbody>
-    </table>
+    <app-tabla-visualizacion 
+      [headers]="encabezadosArchivos" 
+      [data]="archivos" 
+      [actions]="accionesArchivos" 
+      [actionsheaders]="encabezadosAccionesArchivos">
+    </app-tabla-visualizacion>
   </div>
 
-<button (click)="tramitarSolicitudAnalisis()">Cerrar (Tramitar)</button>
+  
+<button (click)="abriModalConfirmarTramitado()">Cerrar (Tramitar)</button>
 
-
-  <!-- Modal -->
-<div class="modal" [ngClass]="{'mostrar': modalVisible}">
-  <div class="modal-contenido">
-    <span class="cerrar" (click)="cerrarModal()">&times;</span>
-    <h2>Subir Archivos</h2>
-
-    <input type="file" (change)="seleccionarArchivos($event)" multiple />
-
-    <ul>
-      <li *ngFor="let archivoRespuesta of archivosRespuesta">{{ archivoRespuesta.nombre }}</li>
-    </ul>
+ <!-- Modal Confirmacion -->
+<app-modal-confirmacion [modalEstadoVisible]="modalTramitadoVisible" (confirmar)="tramitarSolicitudAnalisis()"
+  (cancelar)="cerrarModalConfirmarTramiado()">
+  <div modal-header>
+    <h2 class="text-xl font-semibold mb-4">Confirmacion Tramitación</h2>
+    <p>¿Estás seguro de que deseas tramitar la solicitud de análisis {{ idSolicitudAnalisisSeleccionada }}?</p>
   </div>
-  <button (click)="cerrarModal()">Guardar</button>
-  <button (click)="quitarArchivos()">Cancelar</button>
-</div>
+  <div class="mt-4" modal-content>
+    <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
+    <textarea id="observacion" rows="3" [(ngModel)]="observacion"
+      class="w-full p-2 border rounded-md focus:outline-none focus:ring"></textarea>
+  </div>
+</app-modal-confirmacion>
+
+
+  <!-- Modal Archivos Respuesta -->
+<app-modal-informacion [isModalOpen]="modalArchivosVisible">
+    <div class="modal-contenido">
+      <span class="cerrar" (click)="cerrarModalArchivosRespuesta()">&times;</span>
+      <h2>Subir Archivos</h2>
+
+      <input type="file" (change)="seleccionarArchivos($event)" multiple />
+
+      <ul>
+        <li *ngFor="let archivoRespuesta of archivosRespuesta">{{ archivoRespuesta.nombre }}</li>
+      </ul>
+    </div>
+    <button (click)="cerrarModalArchivosRespuesta()">Guardar</button>
+    <button (click)="quitarArchivos()">Cancelar</button>
+</app-modal-informacion>
 
 

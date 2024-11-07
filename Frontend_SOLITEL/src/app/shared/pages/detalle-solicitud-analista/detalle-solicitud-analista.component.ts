@@ -7,13 +7,15 @@ import { OficinaService } from '../../services/oficina.service';
 import { ArchivoService } from '../../services/archivo.service';
 import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
 import { Router } from '@angular/router';
-
+import { TablaVisualizacionComponent } from '../../components/tabla-visualizacion/tabla-visualizacion.component';
+import { ModalInformacionComponent } from '../../components/modal-informacion/modal-informacion.component';
+import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
 
 
 @Component({
   selector: 'app-detalle-solicitud-analista',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TablaVisualizacionComponent, ModalInformacionComponent, ModalConfirmacionComponent],
   templateUrl: './detalle-solicitud-analista.component.html',
   styleUrl: './detalle-solicitud-analista.component.css'
 })
@@ -21,7 +23,7 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
 
   idSolicitudAnalisisSeleccionada: number = 0;
 
-  solicitudAnalisisSeleccionada: any;
+  solicitudAnalisisSeleccionada: any = [];
 
   solicitudesProveedorAsociadas: string = '';
 
@@ -29,11 +31,55 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
 
   tablaVisible: number = 0;
 
-  modalVisible: boolean = false;
-
   archivos: any[] = [];
 
   archivosRespuesta: any[] = [];
+  
+  modalArchivosVisible = false;
+
+
+  //Variables para la tabla de Requerimientos
+  encabezadosRequerimientos: any[] = [
+    { key: 'tipoDato', label: 'Tipo Objetivo' },
+    { key: 'condicion', label: 'Condición Objetivo' },
+    { key: 'utilizadoPor', label: 'Utilizado por' },
+    { key: 'objetivo', label: 'Objetivo' }
+  ];
+
+  requerimientos: any[] = [];
+
+
+  //Variables para la tabla de Objetivos
+  encabezadosObjetivos: any[] = [
+    { key: 'nombre', label: 'Objetivos de Análisis' }
+  ];
+
+  objetivos: any[] = [];
+
+
+  //Variables para la tabla de Archivos 
+  encabezadosArchivos: any[] = [
+    { key: 'nombre', label: 'Nombre Documento' },
+    { key: 'codigoHash', label: 'Código Hash' }
+  ];
+
+  accionesArchivos: any[] = [
+    {
+      style: "background-color: #1C355C;",
+      class: "text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring w-[55px]",
+      action: (archivo: any) => this.descargarArchivo(archivo), 
+      icon: 'download' 
+    }
+  ];
+
+  encabezadosAccionesArchivos: any[] = [
+    'Descargar'
+  ];
+
+  //Variables para el modal de confirmacion
+  modalTramitadoVisible = false;
+
+  observacion: string = '';
 
   constructor(private route: ActivatedRoute, 
               private location: Location,
@@ -43,23 +89,42 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
               private router: Router) {}
 
   ngOnInit(): void {
+
     this.idSolicitudAnalisisSeleccionada = Number(this.route.snapshot.paramMap.get('id'));
     this.solicitudAnalisisSeleccionada = history.state?.objeto;
-    this.solicitudesProveedorAsociadas = this.solicitudAnalisisSeleccionada.solicitudesProveedor.map((num: { idSolicitudProveedor: any; }) => num.idSolicitudProveedor).join(', ');
-    this.consultarOficina(this.solicitudAnalisisSeleccionada.idOficina);
-    this.cargarArchivos(this.idSolicitudAnalisisSeleccionada);
+
+    if(this.solicitudAnalisisSeleccionada && this.idSolicitudAnalisisSeleccionada){
+      this.solicitudesProveedorAsociadas = this.solicitudAnalisisSeleccionada.solicitudesProveedor.map((num: { idSolicitudProveedor: any; }) => num.idSolicitudProveedor).join(', ');
+
+    
+      this.objetivos = this.solicitudAnalisisSeleccionada.objetivosAnalisis.map((obj: any) => ({
+        nombre: obj.nombre
+      }));
+  
+      this.requerimientos = this.solicitudAnalisisSeleccionada.requerimentos.map((req: { tipoDato: { nombre: any; }; condicion: { nombre: any; }; utilizadoPor: any; objetivo: any; }) => ({
+        tipoDato: req.tipoDato.nombre,
+        condicion: req.condicion.nombre,
+        utilizadoPor: req.utilizadoPor,
+        objetivo: req.objetivo
+      }));
+      
+      this.consultarOficina(this.solicitudAnalisisSeleccionada.idOficina);
+      this.cargarArchivos(this.idSolicitudAnalisisSeleccionada);
+    }
+
+
   }
 
   mostrarTabla(tablaId: number) {
     this.tablaVisible = tablaId;
   }
 
-  abrirModal() {
-    this.modalVisible = true;
+  abrirModalArchivosRespuesta() {
+    this.modalArchivosVisible = true;
   }
 
-  cerrarModal() {
-    this.modalVisible = false;
+  cerrarModalArchivosRespuesta() {
+    this.modalArchivosVisible = false;
   }
 
   seleccionarArchivos(event: any) {
@@ -74,7 +139,7 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
     });
   }
 
-  subirArchivos() {
+  subirArchivosRespuesta() {
     if (this.archivosRespuesta.length > 0) {
       this.archivosRespuesta.forEach((archivo: any) => {
         const formData = new FormData();
@@ -124,7 +189,7 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
 
   quitarArchivos(){
     this.archivosRespuesta = [];
-    this.cerrarModal();
+    this.cerrarModalArchivosRespuesta();
   }
 
   consultarOficina(idOficina: number){
@@ -134,16 +199,24 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
   }
 
   actualizarEstadoAnalizado(): void {
-    const observacion = prompt('Ingrese su observación:');
     this.analisisTelefonicoService.ActualizarEstadoAnalizadoSolicitudAnalisis(
       this.idSolicitudAnalisisSeleccionada,
       1, // Usuario Quemado en DB
-      observacion || null
+      this.observacion || null
     ).subscribe(response => {
       console.log('Estado actualizado:', response);
     }, error => {
       console.error('Error al actualizar el estado:', error);
     });
+  }
+
+  abriModalConfirmarTramitado(){
+    this.modalTramitadoVisible = true;
+  }
+
+  cerrarModalConfirmarTramiado(){
+    this.observacion = '';
+    this.modalTramitadoVisible = false;
   }
 
   volverABandeja() {
@@ -152,9 +225,8 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
 
   tramitarSolicitudAnalisis(){
     this.actualizarEstadoAnalizado();
-    this.subirArchivos();
+    this.subirArchivosRespuesta();
     this.volverABandeja();
-
   }
 
 }

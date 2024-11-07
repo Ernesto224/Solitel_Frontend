@@ -19,7 +19,7 @@ export class OficinaService {
   }
 
   public obtenerUna = (idOficina: number): Observable<any> => {
-    return this.http.get(`${this.urlServices}${this.urlObtener}/${idOficina}`);
+    return this.http.get(`${this.urlServices}consultarOficina/${idOficina}`);
   }
 
   public insertar = (objeto: any): Observable<any> => {
