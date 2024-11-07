@@ -40,6 +40,8 @@ export default class BandejaComponent implements OnInit {
   solicitudesFiltradas: any[] = [];
   solicitudesPaginadas: any[] = [];
   solicitudesAnalisis: any[] = [];
+  solicitudesAnalisisOriginales: any[] = []; // Nueva variable para mantener las solicitudes originales
+  mostrarTablaProveedor: boolean = true; // Controla cuál tabla mostrar
   columnasVisibles: { [key: string]: boolean } = {};
   numeroDePagina: number = 1;
   cantidadDeRegistros: number = 5;
@@ -211,18 +213,35 @@ export default class BandejaComponent implements OnInit {
   }
 
   obtenerSolicitudesAnalisis(): void {
+    console.log("Método obtenerSolicitudesAnalisis llamado");
+
     this.analisisTelefonicoService.obtenerSolicitudesAnalisis().subscribe({
       next: (value) => {
         this.solicitudesAnalisis = value;
+        this.solicitudesAnalisisOriginales = value;
         this.filtrarSolicitudes(); // Si deseas aplicar algún filtro
+        console.log("Solicitudes guardadas:", this.solicitudesAnalisis);
       },
       error: (err) => {
         console.error('Error al obtener solicitudes de análisis:', err);
       }
     });
   }
-  
 
+
+  obtenerOpcionesPorEstado(estado: string): string[] {
+    switch (estado) {
+      case "En Análisis":
+        return ["Ver histórico", "Ver Solicitud"];
+      case "Analizado":
+        return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Agregar informe", "Finalizar solicitud de análisis", "Enviar a legajo solicitud de análisis"];
+      case "Aprobar Análisis":
+        return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior"];
+      default:
+        return [];
+    }
+  }
+  
   //modales
   reiniciarDatosDeTabla(): void {
     this.numeroDePagina = 1;
@@ -377,6 +396,17 @@ export default class BandejaComponent implements OnInit {
     this.solicitudesPaginadas = this.solicitudesFiltradas.slice(inicio, fin);
   }
 
+
+  filtrarSolicitudesAnalisis(): void {
+    // Usa solicitudesAnalisisOriginales como base y asigna el resultado filtrado a solicitudesAnalisis
+    this.solicitudesAnalisis = this.solicitudesAnalisisOriginales.filter(solicitudAnalisis =>
+      solicitudAnalisis.estado?.nombre === this.estadoTemporal &&
+      ["En Análisis", "Analizado", "Aprobar Análisis"].includes(solicitudAnalisis.estado?.nombre)
+    );
+    console.log("Solicitudes filtradas:", this.solicitudesAnalisis);
+  }
+
+
   filtrarSolicitudes() {
     console.log(this.solicitudes)
     this.reiniciarDatosDeTabla();
@@ -389,6 +419,13 @@ export default class BandejaComponent implements OnInit {
 
     this.actualizarPaginacion();
     this.contarSolicitudesPorEstado();
+
+     // Verifica si el estado seleccionado pertenece a Proveedor o Análisis
+     this.mostrarTablaProveedor = this.cantidadPorEstadoProveedor.some(estado => estado.nombre === this.estadoTemporal);
+
+     if (!this.mostrarTablaProveedor) {
+       this.filtrarSolicitudesAnalisis();
+     }
   }
 
   aplicarFiltroEstado() {

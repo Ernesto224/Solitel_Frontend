@@ -15,7 +15,7 @@ export interface Archivo {
 })
 export class AnalisisTelefonicoService {
   private baseUrl: string = 'https://localhost:7211/api/';
-  private urlObtenerSolicitudesAnalisis:  string = '/SolicitudAnalisis/consultar';
+  private urlObtenerSolicitudesAnalisis:  string = 'SolicitudAnalisis/consultar';
   private urlInsertar: string = 'SolicitudAnalisis';
   private urlObtenerSolicitudesProveedor: string =
     'SolicitudProveedor/listarNumerosUnicosTramitados';

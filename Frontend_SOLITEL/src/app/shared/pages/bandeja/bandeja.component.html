@@ -28,21 +28,17 @@
       <div class="form-group">
         <label for="estado">Estado:</label>
         <div class="badge-container">
-          <select [(ngModel)]="estadoTemporal"> <!-- Cambiado a estadoTemporal -->
-            <!-- Agrupación de estados de proveedor -->
+          <select [(ngModel)]="estadoTemporal"> <!-- Cambiado a onEstadoChange() -->
             <optgroup label="Solicitud Proveedor">
               <option *ngFor="let estado of cantidadPorEstadoProveedor" [value]="estado.nombre">
                 {{ estado.nombre }} ({{ estado.cantidad }})
               </option>
-
-              <!-- Agrupación de estados de análisis -->
+            </optgroup>
             <optgroup label="Solicitud Análisis">
               <option *ngFor="let estado of cantidadPorEstadoAnalisis" [value]="estado.nombre">
                 {{ estado.nombre }} ({{ estado.cantidad }})
               </option>
             </optgroup>
-
-
           </select>
         </div>
       </div>
@@ -105,8 +101,8 @@
 
     </div>
 
-    <!-- Tabla con columnas ajustadas y paginación -->
-    <table class="min-w-full table-auto border-collapse">
+    <!-- Tabla con columnas ajustadas y paginación Proveedor -->
+    <table *ngIf="mostrarTablaProveedor" class="min-w-full table-auto border-collapse">
       <thead>
         <tr class="bg-[#1C355C] text-white">
           <th *ngFor="let header of encabezados" class="border px-4 py-2 text-center">
@@ -230,9 +226,10 @@
       </tbody>
     </table>
 
-    <!-- Tabla 2-->
 
-    <table class="min-w-full table-auto border-collapse">
+
+    <!-- Tabla 2 -->
+    <table *ngIf="!mostrarTablaProveedor" class="min-w-full table-auto border-collapse">
       <thead>
         <tr class="bg-[#1C355C] text-white">
           <th class="border px-4 py-2 text-center">Histórico</th>
@@ -248,53 +245,121 @@
         </tr>
       </thead>
       <tbody class="text-black">
-        <ng-container *ngFor="let solicitud of solicitudesPaginadas">
+        <ng-container *ngFor="let solicitud of solicitudesAnalisis">
+          <!-- Opciones de línea gris (una sola fila para cada solicitudAnalisis) -->
           <tr class="bg-gray-100">
-            <td colspan="10" class="px-4 py-2 text-center">
-              <!-- Opciones de línea gris -->
-              <button class="inline-flex items-center space-x-1">
-                <span class="material-icons text-sm">download</span>
-                <span>Descargar informe UAC</span>
-              </button>
-              <button class="inline-flex items-center space-x-1">
-                <span class="material-icons text-sm">upload</span>
-                <span>Agregar informe</span>
-              </button>
-              <button class="inline-flex items-center space-x-1">
-                <span class="material-icons text-sm">download</span>
-                <span>Finalizar solicitud de análisis</span>
-              </button>
-              <button class="inline-flex items-center space-x-1">
-                <span class="material-icons text-sm">download</span>
-                <span>Enviar a legajo solicitud de análisis</span>
-              </button>
-            </td>
-          </tr>
+            <td colspan="10" class="px-4 py-2 text-left">
+              <span>ID Solicitud de Análisis: {{ solicitud.idSolicitudAnalisis }}</span>
 
-          <tr class="bg-[#F3F4F6] border-b border-gray-300 hover:bg-gray-200">
-            <td class="px-4 py-2 text-center">
-              <button (click)="abrirModalHistorico(solicitud)">Ver histórico</button>
-            </td>
-            <td class="px-4 py-2 text-center">
-              <button (click)="abrirModalRequerimientos(solicitud)">Ver requerimientos</button>
-            </td>
-            <td class="px-4 py-2 text-center">
-              <button (click)="abrirModalDeDetalles(solicitud)">Ver detalles</button>
-            </td>
-            <td class="px-4 py-2 text-center">{{ solicitud.solicitudesProveedor.idSolicitudProveedor }}</td>
-            <td class="px-4 py-2 text-center">{{ solicitud.numeroUnico }}</td>
-            <td class="px-4 py-2 text-center">{{ solicitud.solicitudesProveedor[0]?.proveedor.nombre }}</td>
-            <td class="px-4 py-2 text-center">{{ solicitud.solicitudesProveedor[0]?.usuarioCreador.nombre }}</td>
-            <td class="px-4 py-2 text-center">{{ solicitud.solicitudesProveedor[0]?.fechaCrecion | date: 'dd/MM/yyyy' }}
-            </td>
-            <td class="px-4 py-2 text-center">{{ solicitud.fechaCrecion | date: 'dd/MM/yyyy' }}</td>
-            <td class="px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
-          </tr>
-          <!-- Fila gris con opciones adicionales -->
+              <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver histórico')">
+                <button class="inline-flex items-center space-x-1">
+                  <span class="material-icons text-sm">sports_score</span>
+                  <span>Ver histórico</span>
+                </button>
+                <span> | </span>
+              </ng-container>
 
+              <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver Solicitud')">
+                <button class="inline-flex items-center space-x-1">
+                  <span class="material-icons text-sm">info</span>
+                  <span>Ver Solicitud</span>
+                </button>
+                <span> | </span>
+              </ng-container>
+
+              <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Descargar informe UAC')">
+                <button class="inline-flex items-center space-x-1">
+                  <span class="material-icons text-sm">download</span>
+                  <span>Descargar informe UAC</span>
+                </button>
+                <span> | </span>
+              </ng-container>
+
+              <ng-container
+                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Descargar informe de Investigador')">
+                <button class="inline-flex items-center space-x-1">
+                  <span class="material-icons text-sm">download</span>
+                  <span>Descargar informe de Investigador</span>
+                </button>
+                <span> | </span>
+              </ng-container>
+
+              <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Agregar informe')">
+                <button class="inline-flex items-center space-x-1">
+                  <span class="material-icons text-sm">upload</span>
+                  <span>Agregar informe</span>
+                </button>
+                <span> | </span>
+              </ng-container>
+
+              <ng-container
+                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Finalizar solicitud de análisis')">
+                <button class="inline-flex items-center space-x-1">
+                  <span class="material-icons text-sm">download</span>
+                  <span>Finalizar solicitud de análisis</span>
+                </button>
+                <span> | </span>
+              </ng-container>
+
+              <ng-container
+                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Enviar a legajo solicitud de análisis')">
+                <button class="inline-flex items-center space-x-1">
+                  <span class="material-icons text-sm">download</span>
+                  <span>Enviar a legajo solicitud de análisis</span>
+                </button>
+                <span> | </span>
+              </ng-container>
+
+              <ng-container
+                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Devolver al estado anterior')">
+                <button class="inline-flex items-center space-x-1">
+                  <span class="material-icons text-sm">download</span>
+                  <span>Devolver al estado anterior</span>
+                </button>
+              </ng-container>
+            </td>
+
+          </tr>
+          <!-- Iterar sobre cada solicitudProveedor dentro de una solicitud de análisis -->
+          <ng-container *ngFor="let solicitudProveedor of solicitud.solicitudesProveedor">
+            <tr class="bg-[#F3F4F6] border-b border-gray-300 hover:bg-gray-200">
+              <td *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">
+                <button (click)="abrirModalHistorico(solicitud)" class="text-white px-4 py-2 
+                  rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
+                  <i class="material-icons">sports_score</i>
+                </button>
+              </td>
+
+              <td *ngIf="columnasVisibles['requerimientos']" class="border px-4 py-2 text-center">
+                <button (click)="abrirModalRequerimientos(solicitud)" class="text-white px-4 py-2 
+                  rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
+                  <i class="material-icons">description</i>
+                </button>
+              </td>
+
+              <td class="px-4 py-2 text-center">
+                <button (click)="abrirModalDeDetalles(solicitud)" class="text-white px-4 py-2 
+              rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
+                  <i class="material-icons">info</i>
+                </button>
+              </td>
+
+              <td class="px-4 py-2 text-center">{{ solicitudProveedor.idSolicitudProveedor }}</td>
+              <td class="px-4 py-2 text-center">{{ solicitudProveedor.numeroUnico }}</td>
+              <td class="px-4 py-2 text-center">{{ solicitudProveedor.proveedor.nombre }}</td>
+              <td class="px-4 py-2 text-center">{{ solicitudProveedor.usuarioCreador.nombre }}</td>
+              <td class="px-4 py-2 text-center">{{ solicitudProveedor.fechaCrecion | date: 'dd/MM/yyyy' }}</td>
+              <td class="px-4 py-2 text-center">{{ solicitud.fechaCrecion | date: 'dd/MM/yyyy' }}</td>
+              <td class="px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
+
+            </tr>
+          </ng-container>
         </ng-container>
       </tbody>
     </table>
+
+
+
 
 
 
