@@ -16,6 +16,7 @@ export interface Archivo {
 })
 export class AnalisisTelefonicoService {
   private baseUrl: string = 'https://localhost:7211/api/';
+  private urlObtenerSolicitudesAnalisis:  string = '/SolicitudAnalisis/consultar';
   private urlInsertar: string = 'SolicitudAnalisis';
   private urlObtenerSolicitudesProveedor: string = 'SolicitudProveedor/listarNumerosUnicosTramitados';
   private urlObtenerOficinas: string = 'Oficina/consultarOficinas';
@@ -43,6 +44,14 @@ private readonly urlArchivoSoliProveedor: string = 'obtenerArchivosDeSolicitudes
     return this.http.get<number[]>(`${this.baseUrl}${this.urlObtenerSolicitudesProveedor}`, { headers });
   }
 
+  obtenerSolicitudesAnalisis(): Observable<any[]> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      accept: 'application/json',
+    });
+    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerSolicitudesAnalisis}`, { headers });
+  }
+  
   obtenerOficinasAnalisis(): Observable<any[]> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -101,5 +110,8 @@ private readonly urlArchivoSoliProveedor: string = 'obtenerArchivosDeSolicitudes
     const url = `${this.baseUrlArchivos}/${this.urlArchivoSoliProveedor}`;
     return this.http.get<any[]>(url, { headers, params });
   }
+
+
+
 
 }

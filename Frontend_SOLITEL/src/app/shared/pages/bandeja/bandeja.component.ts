@@ -10,6 +10,7 @@ import { ArchivoService } from '../../services/archivo.service';
 import { TablaVisualizacionComponent } from '../../components/tabla-visualizacion/tabla-visualizacion.component';
 import { ModalInformacionComponent } from '../../components/modal-informacion/modal-informacion.component';
 import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
+import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
 
 @Component({
   selector: 'app-bandeja',
@@ -38,6 +39,7 @@ export default class BandejaComponent implements OnInit {
   solicitudes: any[] = [];
   solicitudesFiltradas: any[] = [];
   solicitudesPaginadas: any[] = [];
+  solicitudesAnalisis: any[] = [];
   columnasVisibles: { [key: string]: boolean } = {};
   numeroDePagina: number = 1;
   cantidadDeRegistros: number = 5;
@@ -160,6 +162,7 @@ export default class BandejaComponent implements OnInit {
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
+    private analisisTelefonicoService: AnalisisTelefonicoService,
     private estadoService: EstadoService,
     private archivoService: ArchivoService,
     private historicoService: HistoricoService,
@@ -174,6 +177,7 @@ export default class BandejaComponent implements OnInit {
     setTimeout(() => {
       this.obtenerEstados();
       this.obtenerSolicitudes();
+      this.obtenerSolicitudesAnalisis();
     }, 3000); // Simular 3 segundos de procesamiento
 
   }
@@ -205,6 +209,19 @@ export default class BandejaComponent implements OnInit {
       },
     });
   }
+
+  obtenerSolicitudesAnalisis(): void {
+    this.analisisTelefonicoService.obtenerSolicitudesAnalisis().subscribe({
+      next: (value) => {
+        this.solicitudesAnalisis = value;
+        this.filtrarSolicitudes(); // Si deseas aplicar algún filtro
+      },
+      error: (err) => {
+        console.error('Error al obtener solicitudes de análisis:', err);
+      }
+    });
+  }
+  
 
   //modales
   reiniciarDatosDeTabla(): void {
@@ -293,7 +310,7 @@ export default class BandejaComponent implements OnInit {
 
     this.cantidadPorEstadoAnalisis = this.estadosAnalisis.map(estado => {
       const nombreEstado = estado.nombre;
-      const cantidad = this.solicitudes.filter(solicitud => solicitud.estado?.nombre === nombreEstado && solicitud.estado?.idEstado >= 8 && solicitud.estado?.idEstado <= 13).length;
+      const cantidad = this.solicitudesAnalisis.filter(solicitudAnalisis => solicitudAnalisis.estado?.nombre === nombreEstado && solicitudAnalisis.estado?.idEstado >= 8 && solicitudAnalisis.estado?.idEstado <= 13).length;
       return { nombre: nombreEstado, cantidad };
     });
 

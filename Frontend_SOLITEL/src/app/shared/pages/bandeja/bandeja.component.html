@@ -29,15 +29,20 @@
         <label for="estado">Estado:</label>
         <div class="badge-container">
           <select [(ngModel)]="estadoTemporal"> <!-- Cambiado a estadoTemporal -->
-            <option value="" disabled>Solicitud Proveedor</option>
-            <option *ngFor="let estado of cantidadPorEstadoProveedor" [value]="estado.nombre">
-              {{ estado.nombre }} ({{ estado.cantidad }})
-            </option>
+            <!-- Agrupación de estados de proveedor -->
+            <optgroup label="Solicitud Proveedor">
+              <option *ngFor="let estado of cantidadPorEstadoProveedor" [value]="estado.nombre">
+                {{ estado.nombre }} ({{ estado.cantidad }})
+              </option>
 
-            <option value="" disabled>Solicitud Análisis</option>
-            <option *ngFor="let estado of cantidadPorEstadoAnalisis" [value]="estado.nombre">
-              {{ estado.nombre }} ({{ estado.cantidad }})
-            </option>
+              <!-- Agrupación de estados de análisis -->
+            <optgroup label="Solicitud Análisis">
+              <option *ngFor="let estado of cantidadPorEstadoAnalisis" [value]="estado.nombre">
+                {{ estado.nombre }} ({{ estado.cantidad }})
+              </option>
+            </optgroup>
+
+
           </select>
         </div>
       </div>
@@ -74,97 +79,11 @@
     </div>
   </div>
 
-  <!-- Paginación y tamaño de filas alineados a los bordes -->
-  <div class="flex justify-between items-center mt-4 space-x-8">
 
-    <!-- Selector de tamaño de filas alineado a la izquierda -->
-    <div class="flex items-center">
-
-      <label for="pageSize" class="mr-2">
-        Mostrar:
-      </label>
-
-      <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="border border-gray-300 rounded">
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="15">15</option>
-      </select>
-
-    </div>
-
-  </div>
 
   <!-- Contenedor con scroll horizontal y vertical si es necesario -->
   <div class="overflow-x-auto overflow-y-auto max-h-screen">
 
-
-    <!--Filtro de -->
-    <div class="filter-container">
-      <h2>Filtro de solicitudes telefónicas</h2>
-
-      <div class="filter-form">
-        <!-- Filtrar por carácter - ocupa toda la fila -->
-        <div class="form-group filter-full-width">
-          <label for="filtro-caracter">Filtrar por carácter:</label>
-          <input type="text" id="filtro-caracter" class="w-full p-2 border rounded" placeholder="Ingrese carácter"
-            [(ngModel)]="filtroCaracter">
-        </div>
-
-        <!-- Estado -->
-        <div class="form-group">
-          <label for="estado">Estado:</label>
-          <div class="badge-container">
-            <select [(ngModel)]="estadoTemporal">
-              <!-- Agrupación de estados de análisis -->
-              <optgroup label="Solicitud Análisis">
-                <option *ngFor="let estado of cantidadPorEstadoAnalisis" [value]="estado.nombre">
-                  {{ estado.nombre }} ({{ estado.cantidad }})
-                </option>
-              </optgroup>
-              <!-- Agrupación de estados de proveedor -->
-              <optgroup label="Solicitud Proveedor">
-                <option *ngFor="let estado of cantidadPorEstadoProveedor" [value]="estado.nombre">
-                  {{ estado.nombre }} ({{ estado.cantidad }})
-                </option>
-              </optgroup>
-
-              
-            </select>
-          </div>
-        </div>
-
-
-        <!-- Número único -->
-        <div class="form-group">
-          <label for="numero-unico">Número único:</label>
-          <input type="text" id="numero-unico" class="w-full p-2 border rounded" placeholder="Número único"
-            [(ngModel)]="numeroUnicoFiltro">
-        </div>
-
-        <!-- Fecha inicio -->
-        <div class="form-group">
-          <label for="fecha-inicio">Fecha inicio:</label>
-          <input type="date" id="fecha-inicio" class="w-full p-2 border rounded" [(ngModel)]="fechaInicioFiltro">
-        </div>
-
-        <!-- Fecha fin -->
-        <div class="form-group">
-          <label for="fecha-fin">Fecha fin:</label>
-          <input type="date" id="fecha-fin" class="w-full p-2 border rounded" [(ngModel)]="fechaFinFiltro">
-        </div>
-
-        <!-- Botones centrados respecto al cuadro -->
-        <div class="button-group">
-          <button type="button" class="btn limpiar" (click)="limpiarFiltros()">
-            <i class="material-icons">cached</i> Limpiar
-          </button>
-
-          <button type="button" class="btn filtrar" (click)="filtrarSolicitudes()">
-            <i class="material-icons">filter_alt</i> Filtrar
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- Paginación y tamaño de filas alineados a los bordes -->
     <div class="flex justify-between items-center mt-4 space-x-8">
@@ -198,6 +117,7 @@
       <tbody class="bg-[#F3F4F6] text-black">
         <tr *ngFor="let solicitud of solicitudesPaginadas" [ngClass]="{ 'bg-red-100': solicitud.urgente }"
           class="hover:bg-gray-200">
+
 
           <td *ngIf="columnasVisibles['finalizar']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Finalizar')" class="text-white px-4 py-2 
@@ -304,8 +224,80 @@
 
 
         </tr>
+
+
+
       </tbody>
     </table>
+
+    <!-- Tabla 2-->
+
+    <table class="min-w-full table-auto border-collapse">
+      <thead>
+        <tr class="bg-[#1C355C] text-white">
+          <th class="border px-4 py-2 text-center">Histórico</th>
+          <th class="border px-4 py-2 text-center">Requerimientos</th>
+          <th class="border px-4 py-2 text-center">Ver</th>
+          <th class="border px-4 py-2 text-center">Solicitud</th>
+          <th class="border px-4 py-2 text-center">Número único</th>
+          <th class="border px-4 py-2 text-center">Proveedor</th>
+          <th class="border px-4 py-2 text-center">Enviado por</th>
+          <th class="border px-4 py-2 text-center">Fecha sol. telef.</th>
+          <th class="border px-4 py-2 text-center">Fecha sol. análisis</th>
+          <th class="border px-4 py-2 text-center">Urgente</th>
+        </tr>
+      </thead>
+      <tbody class="text-black">
+        <ng-container *ngFor="let solicitud of solicitudesPaginadas">
+          <tr class="bg-gray-100">
+            <td colspan="10" class="px-4 py-2 text-center">
+              <!-- Opciones de línea gris -->
+              <button class="inline-flex items-center space-x-1">
+                <span class="material-icons text-sm">download</span>
+                <span>Descargar informe UAC</span>
+              </button>
+              <button class="inline-flex items-center space-x-1">
+                <span class="material-icons text-sm">upload</span>
+                <span>Agregar informe</span>
+              </button>
+              <button class="inline-flex items-center space-x-1">
+                <span class="material-icons text-sm">download</span>
+                <span>Finalizar solicitud de análisis</span>
+              </button>
+              <button class="inline-flex items-center space-x-1">
+                <span class="material-icons text-sm">download</span>
+                <span>Enviar a legajo solicitud de análisis</span>
+              </button>
+            </td>
+          </tr>
+
+          <tr class="bg-[#F3F4F6] border-b border-gray-300 hover:bg-gray-200">
+            <td class="px-4 py-2 text-center">
+              <button (click)="abrirModalHistorico(solicitud)">Ver histórico</button>
+            </td>
+            <td class="px-4 py-2 text-center">
+              <button (click)="abrirModalRequerimientos(solicitud)">Ver requerimientos</button>
+            </td>
+            <td class="px-4 py-2 text-center">
+              <button (click)="abrirModalDeDetalles(solicitud)">Ver detalles</button>
+            </td>
+            <td class="px-4 py-2 text-center">{{ solicitud.solicitudesProveedor.idSolicitudProveedor }}</td>
+            <td class="px-4 py-2 text-center">{{ solicitud.numeroUnico }}</td>
+            <td class="px-4 py-2 text-center">{{ solicitud.solicitudesProveedor[0]?.proveedor.nombre }}</td>
+            <td class="px-4 py-2 text-center">{{ solicitud.solicitudesProveedor[0]?.usuarioCreador.nombre }}</td>
+            <td class="px-4 py-2 text-center">{{ solicitud.solicitudesProveedor[0]?.fechaCrecion | date: 'dd/MM/yyyy' }}
+            </td>
+            <td class="px-4 py-2 text-center">{{ solicitud.fechaCrecion | date: 'dd/MM/yyyy' }}</td>
+            <td class="px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
+          </tr>
+          <!-- Fila gris con opciones adicionales -->
+
+        </ng-container>
+      </tbody>
+    </table>
+
+
+
 
   </div>
 
