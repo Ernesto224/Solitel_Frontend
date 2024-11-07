@@ -20,19 +20,25 @@
         <div class="form-group">
           <label for="estado">Estado:</label>
           <div class="badge-container">
-            <select [(ngModel)]="estadoTemporal"> <!-- Cambiado a estadoTemporal -->
-              <option value="" disabled>Solicitud Proveedor</option>
-              <option *ngFor="let estado of cantidadPorEstadoProveedor" [value]="estado.nombre">
-                {{ estado.nombre }} ({{ estado.cantidad }})
-              </option>
+            <select [(ngModel)]="estadoTemporal">
+              <!-- Agrupación de estados de análisis -->
+              <optgroup label="Solicitud Análisis">
+                <option *ngFor="let estado of cantidadPorEstadoAnalisis" [value]="estado.nombre">
+                  {{ estado.nombre }} ({{ estado.cantidad }})
+                </option>
+              </optgroup>
+              <!-- Agrupación de estados de proveedor -->
+              <optgroup label="Solicitud Proveedor">
+                <option *ngFor="let estado of cantidadPorEstadoProveedor" [value]="estado.nombre">
+                  {{ estado.nombre }} ({{ estado.cantidad }})
+                </option>
+              </optgroup>
 
-              <option value="" disabled>Solicitud Análisis</option>
-              <option *ngFor="let estado of cantidadPorEstadoAnalisis" [value]="estado.nombre">
-                {{ estado.nombre }} ({{ estado.cantidad }})
-              </option>
+              
             </select>
           </div>
         </div>
+
 
         <!-- Número único -->
         <div class="form-group">
@@ -97,7 +103,7 @@
       </thead>
       <tbody class="bg-[#F3F4F6] text-black">
         <tr *ngFor="let solicitud of solicitudesFiltradas" class="hover:bg-gray-200">
-           <!--  finalizar -->
+          <!--  finalizar -->
           <td *ngIf="columnasVisibles['finalizar']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Finalizar')" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
@@ -250,7 +256,7 @@
     </div>
 
     <app-tabla-visualizacion></app-tabla-visualizacion>
-    
+
   </div>
 
 </div>
@@ -308,7 +314,7 @@
 </div>
 
 
-<!-- Modal de solicitud -->
+<!-- Modal de ver solicitud -->
 <div *ngIf="modalVisible" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
   aria-modal="true">
 

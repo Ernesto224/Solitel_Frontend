@@ -71,16 +71,22 @@ export default class BandejaComponent implements OnInit {
       actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
       columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
     },
-    EnAnálisis:{
-      headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
-      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    'En Análisis': {
+      headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+      actions: ['historico', 'ver', 'requerimientos'],
+      columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
     },
-    Analizado:{
-      headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
-      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    Analizado: {
+      headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+      actions: ['historico', 'ver', 'requerimientos'],
+      columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
+    },
+    'Aprobar Análisis': {
+      headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+      actions: ['historico', 'ver', 'requerimientos'],
+      columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
     }
+
 
 
   };
@@ -197,7 +203,7 @@ export default class BandejaComponent implements OnInit {
     this.nuevoEstado = '';
   }
 
-  //otros
+  
   contarSolicitudesPorEstado() {
     // Reiniciar contadores
     this.cantidadPorEstadoProveedor = [];
@@ -265,8 +271,10 @@ export default class BandejaComponent implements OnInit {
   filtrarSolicitudes() {
     this.reiniciarDatosDeTabla();
     this.solicitudesFiltradas = [...this.solicitudes];
-
+    console.log(this.estadoSeleccionado)
     if (this.estadoSeleccionado) {
+
+
       this.solicitudesFiltradas = this.solicitudesFiltradas.filter(
         solicitud => solicitud.estado?.nombre === this.estadoSeleccionado
       );
