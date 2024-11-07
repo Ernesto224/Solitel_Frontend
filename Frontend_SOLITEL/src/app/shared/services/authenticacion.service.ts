@@ -21,7 +21,7 @@ export class AuthenticacionService {
         tipo: 'Investigacion',
         rol: {
           nombre: 'Administrador',
-          permisos: [{ nombre: 'Crear solicitudes de analisis' }],
+          permisos: [{ nombre: 'todos' }],
         },
       },
     ],

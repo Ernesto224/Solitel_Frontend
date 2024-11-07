@@ -1,34 +1,37 @@
 <div class="form-container">
+
     <div class="row">
-      <!-- Columna Izquierda (5 campos) -->
+      
+      <!-- Columna izquierda -->
       <div class="col-md-6">
         <div class="form-group">
           <label for="campo1">Numero Unico:</label>
-          <input type="text" id="campo1" name="campo1" ngModel class="form-control" />
+          <input type="text" id="campo1" name="campo1" [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].numeroUnico" class="form-control" />
         </div>
         <div class="form-group">
           <label for="campo2">Aprobado por:</label>
-          <input type="text" id="campo2" name="campo2" ngModel class="form-control" />
+          <input type="text" id="campo2" name="campo2" class="form-control" />
         </div>
         <div class="form-group">
           <label for="campo3">Imputado:</label>
-          <input type="text" id="campo3" name="campo3" ngModel class="form-control" />
+          <input type="text" id="campo3" name="campo3" [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].imputado" class="form-control" />
         </div>
         <div class="form-group">
           <label for="campo4">Delito:</label>
-          <input type="text" id="campo4" name="campo4" ngModel class="form-control" />
+          <input type="text" id="campo4" name="campo4" [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].delito.nombre" class="form-control" />
         </div>
         <div class="form-group">
           <label for="campo5">Estado Solicitud:</label>
-          <input type="text" id="campo5" name="campo5" ngModel class="form-control" />
+          <input type="text" id="campo5" name="campo5" [(ngModel)]="solicitudAnalisisSeleccionada.estado.nombre" class="form-control" />
         </div>
       </div>
   
-      <!-- Columna Derecha (5 campos) -->
+      
+      <!-- Columna derecha -->
       <div class="col-md-6">
         <div class="form-group">
           <label for="campo6">Solicitudes Telefonicas:</label>
-          <input type="text" id="campo6" name="campo6" ngModel class="form-control" />
+          <input type="text" id="campo6" name="campo6" [(ngModel)]="solicitudesProveedorAsociadas" class="form-control" />
         </div>
         <div class="form-group">
           <label for="campo7">Solicitante:</label>
@@ -36,43 +39,44 @@
         </div>
         <div class="form-group">
           <label for="campo8">Ofendido:</label>
-          <input type="text" id="campo8" name="campo8" ngModel class="form-control" />
+          <input type="text" id="campo8" name="campo8" [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].ofendido" class="form-control" />
         </div>
         <div class="form-group">
           <label for="campo9">Oficina solicitante:</label>
-          <input type="text" id="campo9" name="campo9" ngModel class="form-control" />
+          <input type="text" id="campo9" name="campo9" [(ngModel)]="oficinaSolicitante" class="form-control" />
         </div>
         <div class="form-group">
           <label for="campo10">Tipo Analisis:</label>
-          <input type="text" id="campo10" name="campo10" ngModel class="form-control" />
+          <input type="text" id="campo10" name="campo10" [(ngModel)]="solicitudAnalisisSeleccionada.tiposAnalisis[0].nombre" class="form-control" />
         </div>
       </div>
+
     </div>
   
-    <!-- Los 4 campos adicionales -->
+    
+  <!-- campos debajo -->
   <div class="row">
     <div class="col-6">
       <div class="form-group">
         <label for="campo11">Asignar a:</label>
-        <p id="campo11">Valor 11</p>
       </div>
     </div>
     <div class="col-6">
       <div class="form-group">
         <label for="campo12">Fecha del Hecho:</label>
-        <p id="campo12">Valor 12</p>
+        <input type="text" id="campo12" name="campo12" [(ngModel)]="solicitudAnalisisSeleccionada.fechaDelHecho" class="form-control" />
       </div>
     </div>
     <div class="col-6">
       <div class="form-group">
         <label for="campo13">Reseña:</label>
-        <p id="campo13">Valor 13</p>
+        <input type="text" id="campo13" name="campo13" [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].resennia" class="form-control" />
       </div>
     </div>
     <div class="col-6">
       <div class="form-group">
-        <label for="campo14">Detalle Soli. analisis:</label>
-        <p id="campo14">Valor 14</p>
+        <label for="campo14">Detalle solicitud analisis:</label>
+        <input type="text" id="campo14" name="campo14" [(ngModel)]="solicitudAnalisisSeleccionada.otrosDetalles" class="form-control" />
       </div>
     </div>
   </div>
@@ -82,74 +86,57 @@
 
 <!-- Botones para mostrar las tablas -->
 <div class="buttons-container">
-    <h3>Subtítulo</h3>
     <div class="button-group">
       <button (click)="mostrarTabla(1)">Detalle</button>
-      <button (click)="mostrarTabla(2)">Objetivo</button>
+      <button (click)="mostrarTabla(2)">Objetivos</button>
       <button (click)="mostrarTabla(3)">Archivos</button>
       <button (click)="abrirModal()">Informe</button>
     </div>
 </div>
   
-  <!-- Tabla 1 (con 4 columnas) -->
+  <!-- Tabla Requerimientos   -->
   <div *ngIf="tablaVisible === 1">
     <table class="table">
       <thead>
         <tr>
-          <th>Columna 1</th>
-          <th>Columna 2</th>
-          <th>Columna 3</th>
-          <th>Columna 4</th>
+          <th>Tipo Objetivo</th>
+          <th>Condicion Objetivo</th>
+          <th>Utilizado por</th>
+          <th>Objetivo</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>Dato 1</td>
-          <td>Dato 2</td>
-          <td>Dato 3</td>
-          <td>Dato 4</td>
-        </tr>
-        <tr>
-          <td>Dato 5</td>
-          <td>Dato 6</td>
-          <td>Dato 7</td>
-          <td>Dato 8</td>
-        </tr>
-        <tr>
-          <td>Dato 9</td>
-          <td>Dato 10</td>
-          <td>Dato 11</td>
-          <td>Dato 12</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-  <!-- Tabla 2 (con solo una columna) -->
-  <div *ngIf="tablaVisible === 2">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Columna Única</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Dato A</td>
-        </tr>
-        <tr>
-          <td>Dato B</td>
-        </tr>
-        <tr>
-          <td>Dato C</td>
+        <tr *ngFor="let requerimento of solicitudAnalisisSeleccionada.requerimentos">
+          <td>{{ requerimento.tipoDato.nombre }}</td>
+          <td>{{ requerimento.condicion.nombre }}</td>
+          <td>{{ requerimento.utilizadoPor }}</td>
+          <td>{{ requerimento.objetivo }}</td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Tabla 3 (con 3 columnas) -->
-  <div *ngIf="tablaVisible === 3">
+  
+  <!-- Tabla Objetivos   -->
+  <div *ngIf="tablaVisible === 2">
     <table class="table">
+      <thead>
+        <tr>
+          <th>Objetivos de Analisis</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let objetivoAnalisis of solicitudAnalisisSeleccionada.objetivosAnalisis">
+          <td>{{ objetivoAnalisis.nombre }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- Tabla Archivos -->
+  <div *ngIf="tablaVisible === 3">
+    <table class="table" >
       <thead>
         <tr>
           <th>Descargar</th>
@@ -158,18 +145,19 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>Dato A</td>
-        </tr>
-        <tr>
-          <td>Dato B</td>
-        </tr>
-        <tr>
-          <td>Dato C</td>
+        <tr *ngFor="let archivo of archivos">
+          <td><button class="text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring"
+            style="background-color: #1C355C;" (click)="descargarArchivo(archivo)">
+          </button></td>
+          <td> {{ archivo.nombre }}</td>
+          <td>No Aplica</td>
         </tr>
       </tbody>
     </table>
   </div>
+
+<button (click)="tramitarSolicitudAnalisis()">Cerrar (Tramitar)</button>
+
 
   <!-- Modal -->
 <div class="modal" [ngClass]="{'mostrar': modalVisible}">
@@ -180,9 +168,11 @@
     <input type="file" (change)="seleccionarArchivos($event)" multiple />
 
     <ul>
-      <li *ngFor="let archivo of archivos">{{ archivo.name }}</li>
+      <li *ngFor="let archivoRespuesta of archivosRespuesta">{{ archivoRespuesta.nombre }}</li>
     </ul>
-
-    <button (click)="subirArchivos()">Subir</button>
   </div>
+  <button (click)="cerrarModal()">Guardar</button>
+  <button (click)="quitarArchivos()">Cancelar</button>
 </div>
+
+
