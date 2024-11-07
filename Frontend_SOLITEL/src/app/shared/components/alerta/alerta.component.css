@@ -1,0 +1,41 @@
+/* Estilos para el contenedor */
+.alerta-container {
+  width: 100%; /* Se adapta al contenedor */
+  height: 82%;
+  margin: auto; /* Centra la alerta horizontalmente */
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: Arial, sans-serif;
+  transition: opacity 0.3s ease;
+}
+
+/* Estilo específico para cada tipo de alerta */
+.alerta-container.satisfaccion {
+  background-color: #d7f6e4;
+  color: #416150;
+}
+
+.alerta-container.error {
+  background-color: #ffaeb0;
+  color: #700000;
+}
+
+.alerta-container.advertencia {
+  background-color: #ffca28;
+  color: #000000;
+}
+
+/* Control de visibilidad */
+.visible {
+  opacity: 1;
+}
+
+/* Transiciones */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

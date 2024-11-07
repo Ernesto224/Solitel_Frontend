@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';
+import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
 import { HistoricoService } from '../../services/historico.service';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -80,18 +81,21 @@ export default class BandejaComponent implements OnInit {
       actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
       columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
     },
-    EnAnálisis:{
+    EnAnálisis: {
       headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
       actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
       columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
     },
-    Analizado:{
+    Analizado: {
       headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
       actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
       columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    },
+    "En Analisis": {
+      headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha de creación solicitud de provedor', 'Fecha de creación solicitud de analisis', 'Urgente', 'Creado por'],
+      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
+      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
     }
-
-
   };
 
   estadoSeleccionado: string = 'Creado';
@@ -154,6 +158,7 @@ export default class BandejaComponent implements OnInit {
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
+    private analisisTelefonico: AnalisisTelefonicoService,
     private estadoService: EstadoService,
     private archivoService: ArchivoService,
     private historicoService: HistoricoService,
@@ -168,6 +173,7 @@ export default class BandejaComponent implements OnInit {
     setTimeout(() => {
       this.obtenerEstados();
       this.obtenerSolicitudes();
+      this.obtenerSolicitudesAnalisis();
     }, 3000); // Simular 3 segundos de procesamiento
 
   }
@@ -193,6 +199,18 @@ export default class BandejaComponent implements OnInit {
         this.contarSolicitudesPorEstado();
         this.filtrarSolicitudes();
         this.isModalVisible = false; // Ocultar el modal después de la operación
+      },
+      error: (err) => {
+        console.error('Error al obtener datos:', err);
+      },
+    });
+  }
+
+  obtenerSolicitudesAnalisis(): void {
+    this.analisisTelefonico.obtener().subscribe({
+      next: (value) => {
+        console.log("Entre")
+        console.log(value);
       },
       error: (err) => {
         console.error('Error al obtener datos:', err);

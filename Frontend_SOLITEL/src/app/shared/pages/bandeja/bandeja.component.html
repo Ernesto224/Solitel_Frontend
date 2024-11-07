@@ -107,14 +107,8 @@
         </tr>
       </thead>
       <tbody class="bg-[#F3F4F6] text-black">
-<<<<<<< HEAD
-        <tr *ngFor="let solicitud of solicitudesFiltradas" class="hover:bg-gray-200">
-           <!--  finalizar -->
-=======
         <tr *ngFor="let solicitud of solicitudesPaginadas" [ngClass]="{ 'bg-red-100': solicitud.urgente }"
           class="hover:bg-gray-200">
-
->>>>>>> origin/Ernesto-branch
           <td *ngIf="columnasVisibles['finalizar']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Finalizar')" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
