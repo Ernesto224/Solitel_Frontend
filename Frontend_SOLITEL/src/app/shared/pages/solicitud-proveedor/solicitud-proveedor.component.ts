@@ -1,10 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
-import { FooterComponent } from '../../components/footer/footer.component';
 import { DelitoService } from '../../services/delito.service';  // Importar el servicio de delitos
 import { FiscaliaService } from '../../services/fiscalia.service';  // Importar el servicio de fiscalías
 import { CategoriaDelitoService } from '../../services/categoria-delito.service';  // Importar el servicio de fiscalías
@@ -15,29 +12,30 @@ import { TipoDatoService } from '../../services/tipo-dato.service';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';  // Agregar el servicio
 import { ProveedorService } from '../../services/proveedor.service'; // Para cargar operadoras
 import { OficinaService } from '../../services/oficina.service'; // Para cargar oficinas
-import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { ArchivoService } from '../../services/archivo.service';
-import { HttpResponse } from '@angular/common/http';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { AlertaComponent } from '../../components/alerta/alerta.component';
 
 @Component({
   selector: 'app-solicitud-proveedor',
   standalone: true,
-  imports: [CommonModule,
-    SidebarComponent,
+  imports: [
+    CommonModule,
     RouterOutlet,
-    NavbarComponent,
-    FooterComponent,
     FormsModule,
-    NgMultiSelectDropDownModule],
+    NgMultiSelectDropDownModule,
+    AlertaComponent
+  ],
   templateUrl: './solicitud-proveedor.component.html',
   styleUrls: ['./solicitud-proveedor.component.css']
 })
 export default class SolicitudProveedorComponent {
 
-  selectedFile: File | null = null;
+  alertatipo: string = "error";
+  alertaMensaje: string = "";
+  alertaVisible: boolean = false;
 
+  selectedFile: File | null = null;
   fileId: number = 0;
 
   // Estados y modales
@@ -506,7 +504,9 @@ export default class SolicitudProveedorComponent {
 
       // Mostrar alert con los errores
       if (errores.length > 0) {
-        alert("Los siguientes campos son requeridos o tienen errores:\n- " + errores.join("\n- "));
+        this.alertaMensaje = "Los siguientes campos son requeridos o tienen errores:\n- " + errores.join("\n- ");
+        this.alertatipo = 'error';
+        this.mostrarAlerta();
       }
     }
   }
@@ -586,7 +586,7 @@ export default class SolicitudProveedorComponent {
 
   agregarSolicitud() {
 
-    if (this.tipoSolicitudSeleccionada.length>0 && this.requerimiento && this.fechaInicio && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
+    if (this.tipoSolicitudSeleccionada.length > 0 && this.requerimiento && this.fechaInicio && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
       // Crear el objeto de solicitud con la estructura solicitada
       const nuevaSolicitud = {
         tN_IdRequerimientoProveedor: 0, // Asumimos que es nuevo
@@ -608,8 +608,20 @@ export default class SolicitudProveedorComponent {
       this.resetForm();
       this.errorMessageGen = '';
     } else {
-      this.errorMessageGen = 'Debe completar todos los campos.';
+      this.alertaMensaje = 'Debe completar todos los campos para agregar un requerimiento.';
+      this.alertatipo = 'error';
+      this.mostrarAlerta();
     }
+  }
+
+  // Método para mostrar la alerta
+  mostrarAlerta(): void {
+    this.alertaVisible = true;
+
+    // Opcional: Cerrar la alerta después de unos segundos
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000); // 3 segundos
   }
 
   // Método para obtener delitos

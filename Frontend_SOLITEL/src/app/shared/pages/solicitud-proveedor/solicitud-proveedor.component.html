@@ -3,10 +3,12 @@
 
   <main class="flex-grow ml-64 p-4">
 
+    <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
+
     <div class="mt-12">
 
       <div class="space-y-8">
-
+        
         <!-- Formulario de solicitudes -->
         <section class="form-container">
 
@@ -237,14 +239,13 @@
                 <span>Agregar</span>
               </button>
 
-              <!-- <button type="button" class="btn btn-tertiary text-[#FFFFFF] px-4 
+              <button type="button" class="btn btn-tertiary text-[#FFFFFF] px-4 
                 py-2 rounded 
                 focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
                 (click)="actualizarSolicitud()">
                 <i class="material-icons">edit_square</i>
                 <span>Editar</span>
               </button>
-            -->
 
             </div>
             <!-- Mensaje de error -->
@@ -348,6 +349,7 @@
             </button>
 
           </div>
+
 
         </section>
 

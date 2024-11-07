@@ -29,7 +29,11 @@ export class AnalisisTelefonicoService {
   private readonly urlArchivoSoliProveedor: string =
     'obtenerArchivosDeSolicitudesProveedor';
   private readonly urlObtenerTipoDato: string = 'TipoDato';
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
+
+  obtener(): Observable<any[]> {
+    return this.http.get<any[]>(`https://localhost:7211/api/SolicitudAnalisis/consultar`);
+  }
 
   agregarSolicitudAnalisis(solicitudAnalisis: any): Observable<any> {
     const headers = new HttpHeaders({
