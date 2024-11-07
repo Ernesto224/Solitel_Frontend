@@ -1,186 +1,185 @@
 /* Estilo para la caja de filtro */
 .filter-container {
-    background-color: #f9e4b7;
-    padding: 20px;
-    border-radius: 10px;
-    width: 100%;
-    max-width: 800px; /* Ampliar el ancho máximo */
-    margin: 0 auto 30px; /* Ajustar el margen para separar la tabla */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #f9e4b7;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 800px; /* Ampliar el ancho máximo */
+  margin: 0 auto 30px; /* Ajustar el margen para separar la tabla */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Estilo para el encabezado del filtro */
 .filter-container h2 {
-    text-align: center;
-    color: #8b6e39;
-    font-size: 24px;
+  text-align: center;
+  color: #8b6e39;
+  font-size: 24px;
 }
 
 /* Diseño del formulario: 2 columnas */
 .filter-form {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Dos columnas */
-    grid-gap: 15px;
-    margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Dos columnas */
+  grid-gap: 15px;
+  margin-top: 20px;
 }
 
 /* El filtro por carácter ocupará ambas columnas */
 .filter-full-width {
-    grid-column: span 2; /* Hacer que el campo ocupe ambas columnas */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  grid-column: span 2; /* Hacer que el campo ocupe ambas columnas */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Estilo de los campos del formulario */
 .form-group {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 label {
-    font-weight: bold;
-    color: #5b4535;
-    margin-bottom: 5px;
+  font-weight: bold;
+  color: #5b4535;
+  margin-bottom: 5px;
 }
 
 input[type="text"],
 input[type="date"],
 select {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-    text-align: center;
-    width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  text-align: center;
+  width: 100%;
 }
 
 select {
-    appearance: none;
-    background-color: #fff;
+  appearance: none;
+  background-color: #fff;
 }
 
 /* Badge dinámico */
 .badge-container {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .badge {
-    background-color: red;
-    color: white;
-    border-radius: 50%;
-    padding: 5px 10px;
-    margin-left: 10px;
-    font-weight: bold;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 5px 10px;
+  margin-left: 10px;
+  font-weight: bold;
 }
 
 /* Ajuste de los botones */
 .button-group {
-    grid-column: span 2; /* Hacer que los botones ocupen las dos columnas */
-    display: flex;
-    justify-content: center; /* Centramos los botones */
-    gap: 10px; /* Espaciado entre botones */
-    margin-top: 20px; /* Espacio adicional encima de los botones */
+  grid-column: span 2; /* Hacer que los botones ocupen las dos columnas */
+  display: flex;
+  justify-content: center; /* Centramos los botones */
+  gap: 10px; /* Espaciado entre botones */
+  margin-top: 20px; /* Espacio adicional encima de los botones */
 }
 
 /* Estilo para los botones */
 .btn {
-    background-color: #1e73be;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+  background-color: #1e73be;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
 }
 
 .btn.limpiar {
-    background-color: #0066cc;
+  background-color: #0066cc;
 }
 
 .btn.filtrar {
-    background-color: #00509d;
+  background-color: #00509d;
 }
 
 .btn:hover {
-    opacity: 0.8;
+  opacity: 0.8;
 }
 
 /* Alineación correcta de iconos y texto en los botones */
 .button-group .btn {
-    display: flex;
-    align-items: center;  /* Alinear el icono y el texto verticalmente */
-    justify-content: center; /* Alinear el contenido horizontalmente */
-    gap: 8px; /* Espacio entre el icono y el texto */
+  display: flex;
+  align-items: center; /* Alinear el icono y el texto verticalmente */
+  justify-content: center; /* Alinear el contenido horizontalmente */
+  gap: 8px; /* Espacio entre el icono y el texto */
 }
 
 .button-group .btn i {
-    font-size: 18px;  /* Ajustar el tamaño del icono si es necesario */
-    line-height: 0; /* Asegurarse de que el icono esté alineado correctamente */
+  font-size: 18px; /* Ajustar el tamaño del icono si es necesario */
+  line-height: 0; /* Asegurarse de que el icono esté alineado correctamente */
 }
 
 /* Espaciado entre el filtro y la tabla */
 .table {
-    margin-top: 20px; /* Separar la tabla del filtro */
+  margin-top: 20px; /* Separar la tabla del filtro */
 }
 
 #pageSize {
-    margin-bottom: 1em;
-    margin-top: 1em;
-    width: 5em;
-    height: 2em;
-    padding: 0;
-    background-color: #fff;
-  }
+  margin-bottom: 1em;
+  margin-top: 1em;
+  width: 5em;
+  height: 2em;
+  padding: 0;
+  background-color: #fff;
+}
 
-
-  /* Estilos para el switch */
+/* Estilos para el switch */
 .switch {
-    position: relative;
-    display: inline-block;
-    width: 34px;
-    height: 20px;
-  }
-  
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 20px;
-  }
-  
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 14px;
-    width: 14px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.4s;
-    border-radius: 50%;
-  }
-  
-  input:checked + .slider {
-    background-color: #1C355C;
-  }
-  
-  input:checked + .slider:before {
-    transform: translateX(14px);
-  }
-  
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #1c355c;
+}
+
+input:checked + .slider:before {
+  transform: translateX(14px);
+}
+
 /* Estilos generales del modal */
 .fixed {
   display: flex;
@@ -272,164 +271,167 @@ button:hover {
   background-color: #c62828; /* Color de fondo más oscuro al pasar el mouse */
 }
 
-
-
-
-
 /* Contenido desplazable */
 .scrollable-content {
-    max-height: 60vh; /* Ajusta la altura máxima según lo necesites */
-    overflow-y: auto; /* Activa el desplazamiento vertical */
-    padding-right: 15px; /* Espacio adicional para el scrollbar */
-  }
-  
-  /* Otros estilos de modal como antes */
-  .fixed {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .inline-block {
-    padding: 20px;
-  }
-  
-  .modal-header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  
-  .input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 15px;
-  }
-  
-  .grid-section {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-  
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-  }
-  
-  .table th,
-  .table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  .table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-  }
-  
-  .bg-gray-50 {
-    background-color: #f9fafb;
-    padding: 10px;
-  }
-  
-  .text-white {
-    color: white;
-  }
-  
-  .bg-red-600 {
-    background-color: #f44336; /* Color rojo */
-  }
-  
-  .bg-gray-400 {
-    background-color: #b0bec5; /* Color gris */
-  }
-  
-  button {
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  button:hover {
-    background-color: #c62828; /* Color de fondo más oscuro al pasar el mouse */
-  }
+  max-height: 60vh; /* Ajusta la altura máxima según lo necesites */
+  overflow-y: auto; /* Activa el desplazamiento vertical */
+  padding-right: 15px; /* Espacio adicional para el scrollbar */
+}
 
-  .modal-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-  
-  .modal-item {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .urgente-checkbox {
-    align-self: center;
-  }
-  
-  .requerimientos-table {
-    grid-column: span 3; /* Hace que la tabla ocupe el ancho completo */
-  }
-  
-  .operadoras, .usuario-creador {
-    grid-column: span 3;
-  }
-  
-  .scrollable-section {
-    max-height: 300px;
-    overflow-y: auto;
-  }
+/* Otros estilos de modal como antes */
+.fixed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+.inline-block {
+  padding: 20px;
+}
 
-  .modal {
-    display: none;
+.modal-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.grid-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb;
+  padding: 10px;
+}
+
+.text-white {
+  color: white;
+}
+
+.bg-red-600 {
+  background-color: #f44336; /* Color rojo */
+}
+
+.bg-gray-400 {
+  background-color: #b0bec5; /* Color gris */
+}
+
+button {
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #c62828; /* Color de fondo más oscuro al pasar el mouse */
+}
+
+.modal-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.modal-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.urgente-checkbox {
+  align-self: center;
+}
+
+.requerimientos-table {
+  grid-column: span 3; /* Hace que la tabla ocupe el ancho completo */
+}
+
+.operadoras,
+.usuario-creador {
+  grid-column: span 3;
+}
+
+.scrollable-section {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.modal {
+  display: none;
+}
+
+.modal.is-active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  display: flex; /* Usar flexbox para centrar contenido */
+  flex-direction: column; /* Alinear contenido en columna */
+  align-items: center; /* Centrar horizontalmente */
+  justify-content: center; /* Centrar verticalmente */
+  background: white;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+.loader {
+  border: 8px solid #f3f3f3; /* Light grey */
+  border-top: 8px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  .modal.is-active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+  100% {
+    transform: rotate(360deg);
   }
-  
-  .modal-content {
-    display: flex; /* Usar flexbox para centrar contenido */
-    flex-direction: column; /* Alinear contenido en columna */
-    align-items: center; /* Centrar horizontalmente */
-    justify-content: center; /* Centrar verticalmente */
-    background: white;
-    border-radius: 5px;
-    padding: 20px;
-  }
-  
-  .loader {
-    border: 8px solid #f3f3f3; /* Light grey */
-    border-top: 8px solid #3498db; /* Blue */
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 2s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  
+}
+
+.bg-red-100 {
+  background-color: #F8B4B4; /* Rojo más intenso */
+}

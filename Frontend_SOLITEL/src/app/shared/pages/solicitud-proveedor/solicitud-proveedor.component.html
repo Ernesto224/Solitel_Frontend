@@ -3,10 +3,12 @@
 
   <main class="flex-grow ml-64 p-4">
 
+    <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
+
     <div class="mt-12">
 
       <div class="space-y-8">
-
+        
         <!-- Formulario de solicitudes -->
         <section class="form-container">
 
@@ -213,7 +215,8 @@
             <div class="form-group">
 
               <label for="requerimiento">Requerimiento:</label>
-              <textarea id="requerimiento" [(ngModel)]="requerimiento" name="requerimiento" class="required-field" required></textarea>
+              <textarea id="requerimiento" [(ngModel)]="requerimiento" name="requerimiento" class="required-field"
+                required></textarea>
 
             </div>
 
@@ -232,19 +235,22 @@
               py-2 rounded
               focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
                 (click)="agregarSolicitud()">
-                <i class="material-icons">save</i>
-                <span>Guardar</span>
+                <i class="material-icons">add</i>
+                <span>Agregar</span>
               </button>
 
-              <!-- <button type="button" class="btn btn-tertiary text-[#FFFFFF] px-4 
+              <button type="button" class="btn btn-tertiary text-[#FFFFFF] px-4 
                 py-2 rounded 
                 focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
                 (click)="actualizarSolicitud()">
                 <i class="material-icons">edit_square</i>
                 <span>Editar</span>
               </button>
-            -->
 
+            </div>
+            <!-- Mensaje de error -->
+            <div *ngIf="errorMessageGen" class="error-message" style="color: red;">
+              {{ errorMessageGen }}
             </div>
 
             <!-- Tabla para mostrar las solicitudes agregadas -->
@@ -344,6 +350,7 @@
 
           </div>
 
+
         </section>
 
       </div>
@@ -386,15 +393,18 @@
         <div class="form-group">
           <label for="dato-requerido">Dato requerido:</label>
           <input type="text" id="dato-requerido" [(ngModel)]="datoRequerido" name="datoRequerido"
-            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required>
+            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required (copy)="false"
+            (cut)="false" (paste)="false">
         </div>
 
         <!-- Repita el dato requerido -->
         <div class="form-group">
           <label for="repita-dato">Repita el dato requerido:</label>
           <input type="text" id="repita-dato" [(ngModel)]="repitaDatoRequerido" name="repitaDatoRequerido"
-            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required>
+            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required (copy)="false"
+            (cut)="false" (paste)="false">
         </div>
+
 
 
 
@@ -426,16 +436,15 @@
         <!-- Lista de datos requeridos -->
         <div class="form-group">
           <label for="lista-datos">Lista de datos requeridos:</label>
-          <select id="lista-datos" [(ngModel)]="selectedDatoRequerido" name="listaDatosRequeridos" 
-                  [ngClass]="{}">
+          <select id="lista-datos" [(ngModel)]="selectedDatoRequerido" name="listaDatosRequeridos" [ngClass]="{}">
             <option value="">Seleccione un dato requerido</option>
             <option *ngFor="let item of listaDatosRequeridos" [ngValue]="item">
               {{ item.tC_DatoRequerido }}
             </option>
           </select>
         </div>
-        
-        
+
+
 
       </form>
 

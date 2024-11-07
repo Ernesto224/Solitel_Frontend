@@ -1,55 +1,43 @@
-<!-- component -->
 <aside [class.translate-x-0]="isSidebarVisible" [class.-translate-x-full]="!isSidebarVisible"
     class="fixed top-16 left-0 w-64 h-screen bg-custom-blue border-r transition-transform duration-300 ease-in-out z-40 transform">
 
-    <!--div class="flex items-center justify-center mt-6">
-        <span class="text-lg font-semibold text-[#92aa34]">Sistema SOLITEL</span>
-    </div-->
-
     <div class="flex flex-col justify-between flex-1 mt-6">
-
         <nav class="space-y-6">
             <div class="flex justify-center">
-                <img src="https://sitiooij.poder-judicial.go.cr/images/placa-lg.png" alt="Placa OIJ"
-                    class="w-24 h-auto">
+                <img src="https://sitiooij.poder-judicial.go.cr/images/placa-lg.png" alt="Placa OIJ" class="w-24 h-auto">
             </div>
 
-            <div class="space-y-3 ">
-                <a routerLink="bandeja"
+            <div class="space-y-3">
+                <a *ngIf="authService.tienePermiso('Crear Solicitud Proveedor')" routerLink="bandeja"
                     class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
                     <span class="mx-2 text-sm font-medium">Bandeja</span>
                 </a>
 
-                <a routerLink="bandeja-analista"
+                <a *ngIf="authService.tienePermiso('Ver solicitudes propias')" routerLink="bandeja-analista"
                     class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
                     <span class="mx-2 text-sm font-medium">Bandeja Analista</span>
                 </a>
 
-                <a routerLink="/solicitud-proveedor"
+                <a *ngIf="authService.tienePermiso('Crear Solicitud Proveedor')" routerLink="/solicitud-proveedor"
                     class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
                     <span class="mx-2 text-sm font-medium">Solicitud Proveedor</span>
                 </a>
 
-                <a routerLink="/analisis-telefonico"
-                    class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]"
-                    href="#">
+                <a *ngIf="authService.tienePermiso('Crear solicitudes de analisis')" routerLink="/analisis-telefonico"
+                    class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
                     <span class="mx-2 text-sm font-medium">Análisis Télefonico</span>
                 </a>
 
-                <a routerLink="/catalogos"
+                <a *ngIf="authService.tienePermiso('todos')" routerLink="/catalogos"
                     class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
                     <span class="mx-2 text-sm font-medium">Catalogos</span>
                 </a>
 
-                <a routerLink="/vista-proveedor"
+                <a *ngIf="authService.tienePermiso('Ver solicitudes propias')" routerLink="/vista-proveedor"
                     class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
-                    <span class="mx-2 text-sm font-medium">vista proveedor</span>
+                    <span class="mx-2 text-sm font-medium">Vista Proveedor</span>
                 </a>
-
             </div>
-
         </nav>
-
     </div>
-
 </aside>
