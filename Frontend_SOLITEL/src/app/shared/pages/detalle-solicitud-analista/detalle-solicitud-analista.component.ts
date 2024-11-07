@@ -6,6 +6,8 @@ import { FormsModule } from '@angular/forms';
 import { OficinaService } from '../../services/oficina.service';
 import { ArchivoService } from '../../services/archivo.service';
 import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
+import { Router } from '@angular/router';
+
 
 
 @Component({
@@ -37,7 +39,8 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
               private location: Location,
               private oficinaService: OficinaService,
               private archivoService: ArchivoService,
-              private analisisTelefonicoService: AnalisisTelefonicoService) {}
+              private analisisTelefonicoService: AnalisisTelefonicoService,
+              private router: Router) {}
 
   ngOnInit(): void {
     this.idSolicitudAnalisisSeleccionada = Number(this.route.snapshot.paramMap.get('id'));
@@ -60,14 +63,13 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
   }
 
   seleccionarArchivos(event: any) {
-    const seleccionados = event.target.files as FileList; // Aseguramos que seleccionados es de tipo FileList
-    
+    const seleccionados = event.target.files as FileList; 
     this.archivosRespuesta = Array.from(seleccionados).map((file: File) => {
       return {
-        nombre: file.name,  // Nombre del archivo
-        file: file,         // El archivo como tal
-        tipo: file.type,    // Tipo de archivo
-        tamaño: file.size   // Tamaño del archivo
+        nombre: file.name,  
+        file: file,         
+        tipo: file.type,   
+        tamaño: file.size   
       };
     });
   }
@@ -80,19 +82,16 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
         formData.append('file', archivo.file); 
         formData.append('FormatoAchivo', archivo.tipo); 
         formData.append('FechaModificacion', new Date().toISOString()); 
-        formData.append('idSolicitudAnalisis', "33"); 
+        formData.append('idSolicitudAnalisis', String(this.idSolicitudAnalisisSeleccionada)); 
         
         this.archivoService.insertarArchivoRespuestaSolicitudAnalisis(formData).subscribe({
           next: response => {
-            console.log('Archivo guardado con éxito:', archivo.nombre);
           },
           error: err => {
             console.error('Error al guardar el archivo:', archivo.nombre, err);
           }
         });
       });
-    } else {
-      alert('Por favor, selecciona archivos antes de subir');
     }
   }
 
@@ -103,9 +102,7 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
   }
 
   descargarArchivo(archivo: any): void {
-    console.log('Descargando archivo:', archivo.nombre);
 
-    // Decodificar el contenido en Base64 y convertirlo a un array de bytes
     const byteCharacters = atob(archivo.contenido);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
@@ -113,18 +110,16 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
     }
     const byteArray = new Uint8Array(byteNumbers);
 
-    // Crear un Blob a partir del array de bytes
     const blob = new Blob([byteArray], { type: archivo.formatoArchivo });
 
-    // Crear URL y descargar el archivo
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = archivo.nombre; // Nombre del archivo
+    a.download = archivo.nombre; 
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    window.URL.revokeObjectURL(url); // Liberar la URL
+    window.URL.revokeObjectURL(url);
   }
 
   quitarArchivos(){
@@ -142,8 +137,8 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
     const observacion = prompt('Ingrese su observación:');
     this.analisisTelefonicoService.ActualizarEstadoAnalizadoSolicitudAnalisis(
       this.idSolicitudAnalisisSeleccionada,
-      1, // Asumiendo que idUsuario es 1
-      observacion || null // Enviar null si no hay observación
+      1, // Usuario Quemado en DB
+      observacion || null
     ).subscribe(response => {
       console.log('Estado actualizado:', response);
     }, error => {
@@ -151,9 +146,15 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
     });
   }
 
+  volverABandeja() {
+    this.router.navigate(['bandeja-analista']);
+  }
+
   tramitarSolicitudAnalisis(){
-    this.subirArchivos();
     this.actualizarEstadoAnalizado();
+    this.subirArchivos();
+    this.volverABandeja();
+
   }
 
 }
