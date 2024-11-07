@@ -33,6 +33,11 @@ export const routes: Routes = [
           import('./shared/pages/bandeja-analista/bandeja-analista.component'),
       },
       {
+        path: 'detalle-solicitud-analista/:id',
+        loadComponent: () =>
+          import('./shared/pages/detalle-solicitud-analista/detalle-solicitud-analista.component'),
+      },
+      {
         path: 'bandeja',
         loadComponent: () => import('./shared/pages/bandeja/bandeja.component'),
       },

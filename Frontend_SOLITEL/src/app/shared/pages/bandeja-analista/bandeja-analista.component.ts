@@ -7,6 +7,8 @@ import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-bandeja-analista',
@@ -42,7 +44,8 @@ export default class BandejaAnalistaComponent {
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
-    private historicoService: HistoricoService
+    private historicoService: HistoricoService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -55,6 +58,11 @@ export default class BandejaAnalistaComponent {
     this.solicitudSeleccionada = solicitud;
     this.modalVisible = true;
     console.log('Solicitud seleccionada:', this.solicitudSeleccionada);
+  }
+
+  // Abre la pagina para ver detalle (responder)
+  verDetalle(idAnalisis: number) {
+    this.router.navigate(['detalle-solicitud-analista', idAnalisis]);
   }
 
   // Cierra el modal
