@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';
 import { HistoricoService } from '../../services/historico.service';
 import { RouterOutlet } from '@angular/router';
@@ -7,6 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { EstadoService } from '../../services/estado.service';
 import { ArchivoService } from '../../services/archivo.service';
 import { TablaVisualizacionComponent } from '../../components/tabla-visualizacion/tabla-visualizacion.component';
+import { ModalInformacionComponent } from '../../components/modal-informacion/modal-informacion.component';
+import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
 
 @Component({
   selector: 'app-bandeja',
@@ -15,7 +18,12 @@ import { TablaVisualizacionComponent } from '../../components/tabla-visualizacio
     RouterOutlet,
     CommonModule,
     FormsModule,
-    TablaVisualizacionComponent
+    TablaVisualizacionComponent,
+    ModalInformacionComponent,
+    ModalConfirmacionComponent
+  ],
+  providers: [
+    DatePipe
   ],
   templateUrl: './bandeja.component.html',
   styleUrl: './bandeja.component.css'
@@ -29,9 +37,10 @@ export default class BandejaComponent implements OnInit {
   encabezados: any[] = [];
   solicitudes: any[] = [];
   solicitudesFiltradas: any[] = [];
+  solicitudesPaginadas: any[] = [];
   columnasVisibles: { [key: string]: boolean } = {};
-  pageNumber: number = 1;
-  pageSize: number = 5;
+  numeroDePagina: number = 1;
+  cantidadDeRegistros: number = 5;
 
   cantidadPorEstadoProveedor: { nombre: string, cantidad: number }[] = [];
   cantidadPorEstadoAnalisis: { nombre: string, cantidad: number }[] = [];
@@ -91,32 +100,76 @@ export default class BandejaComponent implements OnInit {
   fechaInicioFiltro: string = '';
   fechaFinFiltro: string = '';
   filtroCaracter: string = '';
+  isSwitchDisabled: boolean = false; // Variable para controlar si el switch está habilitado
 
   solicitudSeleccionada: any = null;
   solicitudIdParaActualizar: number | null = null;
 
   modalVisible = false;
+  encabezadosRequerimientos: any[] = [
+    { key: 'requerimiento', label: 'Requerimiento' },
+    { key: 'tipoSolicitudes', label: 'Tipo Solicitud' },
+    { key: 'datosRequeridos', label: 'Datos Requeridos' },
+    { key: 'fechaInicio', label: 'Fecha Inicio' },
+    { key: 'fechaFinal', label: 'Fecha Final' }
+  ];
+  requerimientosDeSolicitudSeleccionada: any[] = [];
 
+  isModalVisible: boolean = false;
   modalEstadoVisible = false;
   observacion: string = '';
   nuevoEstado: string = '';
 
   modalHistoricoVisible = false;
-  historicoDeSolicitudSeleccionada: any = null;
+  encabezadosHistorico: any[] = [
+    { key: 'idSolicitudProveedor', label: 'Solicitud' },
+    { key: 'numeroUnico', label: 'Número Único' },
+    { key: 'estado', label: 'Estado' },
+    { key: 'fechaEstado', label: 'Fecha Estado' },
+    { key: 'usuario', label: 'Usuario' },
+    { key: 'observacion', label: 'Observación' }
+  ];
+  historicoDeSolicitudSeleccionada: any[] = [];
 
   modalRequerimientosVisible: boolean = false;
+  encabezadosRequerimientosTramitados: any[] = [
+    { key: 'requerimiento', label: 'Requerimiento' },
+    { key: 'numRequerido', label: 'Núm. requerido' },
+    { key: 'rangoFechas', label: 'Rango de fechas' },
+    { key: 'observacion', label: 'Observación' }
+  ];
+  requerimientosRespondidos: any[] = [];
+  encabezadosAccionesRequerimientosTramitados: any[] = [
+    'Archivos'
+  ];
+  accionesrequerimientosRespondidos: any[] = [
+    {
+      style: "background-color: #1C355C;",
+      class: "text-white px-4 py-2 rounded focus:outline-none focus:ring w-[55px]",
+      action: (requerimiento: any) => this.cargarArchivos(requerimiento.idRequerimientoProveedor), // Acción para cargar archivos
+      icon: 'folder' // Icono para el botón
+    },
+  ];
   archivos: any[] = [];
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
     private estadoService: EstadoService,
     private archivoService: ArchivoService,
-    private historicoService: HistoricoService
+    private historicoService: HistoricoService,
+    private datePipe: DatePipe
   ) { }
 
   ngOnInit(): void {
-    this.obtenerEstados();
-    this.obtenerSolicitudes();
+
+    this.isModalVisible = true; // Mostrar el modal al iniciar la operación
+
+    // Simulación de una operación asíncrona
+    setTimeout(() => {
+      this.obtenerEstados();
+      this.obtenerSolicitudes();
+    }, 3000); // Simular 3 segundos de procesamiento
+
   }
 
   //obtener datos
@@ -139,6 +192,7 @@ export default class BandejaComponent implements OnInit {
         this.solicitudes = value;
         this.contarSolicitudesPorEstado();
         this.filtrarSolicitudes();
+        this.isModalVisible = false; // Ocultar el modal después de la operación
       },
       error: (err) => {
         console.error('Error al obtener datos:', err);
@@ -148,6 +202,7 @@ export default class BandejaComponent implements OnInit {
 
   //modales
   reiniciarDatosDeTabla(): void {
+    this.numeroDePagina = 1;
     this.estadoSeleccionado = this.estadoTemporal;
     this.encabezados = this.estadoColumnas[this.estadoSeleccionado].headers;
     this.columnasVisibles = this.estadoColumnas[this.estadoSeleccionado].columnasVisibles;
@@ -155,6 +210,13 @@ export default class BandejaComponent implements OnInit {
 
   abrirModalDeDetalles(solicitud: any) {
     this.solicitudSeleccionada = solicitud;
+    this.requerimientosDeSolicitudSeleccionada = this.solicitudSeleccionada.requerimientos.map((requerimiento: any) => ({
+      requerimiento: requerimiento.requerimiento || 'N/A', // Si el requerimiento no está presente, asignamos 'N/A'
+      tipoSolicitudes: requerimiento.tipoSolicitudes.map((tipo: any) => tipo.nombre).join(', ') || 'N/A', // Mapear los tipos de solicitud y unirlos con coma
+      datosRequeridos: requerimiento.datosRequeridos.map((dato: any) => dato.datoRequeridoContenido).join(', ') || 'N/A', // Mapear los datos requeridos y unirlos
+      fechaInicio: this.datePipe.transform(requerimiento.fechaInicio, 'MM/dd/yyyy') || 'N/A', // Formatear la fecha de inicio
+      fechaFinal: this.datePipe.transform(requerimiento.fechaFinal, 'MM/dd/yyyy') || 'N/A' // Formatear la fecha final
+    }));
     this.modalVisible = true;
   }
 
@@ -176,12 +238,21 @@ export default class BandejaComponent implements OnInit {
 
   abrirModalRequerimientos(solicitud: any) {
     this.solicitudSeleccionada = solicitud;
+    this.requerimientosRespondidos = this.solicitudSeleccionada.requerimientos.map((requerimiento: any) => ({
+      idRequerimientoProveedor: requerimiento.idRequerimientoProveedor,
+      requerimiento: requerimiento.requerimiento || 'N/A',
+      numRequerido: requerimiento.datosRequeridos.map((dato: any) => dato.datoRequeridoContenido).join(', ') || 'N/A',
+      rangoFechas: `${requerimiento.fechaInicio} al ${requerimiento.fechaFinal}` || 'N/A',
+      observacion: requerimiento.observacion || 'N/A'
+    }));
     this.modalRequerimientosVisible = true;
   }
 
   cerrarModalRequerimientos() {
-    this.modalRequerimientosVisible = false;
     this.solicitudSeleccionada = null;
+    this.requerimientosRespondidos = [];
+    this.archivos = [];
+    this.modalRequerimientosVisible = false;
   }
 
   abrirModalCambioEstado(idSolicitudProveedor: number, estado: string) {
@@ -195,6 +266,10 @@ export default class BandejaComponent implements OnInit {
     this.observacion = '';
     this.solicitudIdParaActualizar = null;
     this.nuevoEstado = '';
+  }
+
+  closeModal() {
+    this.isModalVisible = false; // Método para cerrar el modal
   }
 
   //otros
@@ -222,6 +297,14 @@ export default class BandejaComponent implements OnInit {
     this.historicoService.obtener(idSolicitudProveedor).subscribe({
       next: (data: any) => {
         this.historicoDeSolicitudSeleccionada = data;
+        this.historicoDeSolicitudSeleccionada = this.historicoDeSolicitudSeleccionada.map((item: any) => ({
+          idSolicitudProveedor: this.solicitudSeleccionada.idSolicitudProveedor,
+          numeroUnico: this.solicitudSeleccionada.numeroUnico,
+          estado: item.estadoDTO.nombre || 'N/A',
+          fechaEstado: this.datePipe.transform(item.fechaEstado, 'MM/dd/yyyy HH:mm:ss') || 'N/A',
+          usuario: item.usuarioDTO.nombre || 'N/A',
+          observacion: item.observacion || 'N/A'
+        }));
       },
       error: (err) => {
         console.log('')
@@ -241,17 +324,20 @@ export default class BandejaComponent implements OnInit {
   }
 
   cambiarPagina(incremento: number): void {
-    this.pageNumber += incremento;
-    if (this.pageNumber < 1) {
-      this.pageNumber = 1;
+    const maxPage = Math.ceil(this.solicitudesFiltradas.length / this.cantidadDeRegistros);
+    const newPage = this.numeroDePagina + incremento;
+
+    if (newPage >= 1 && newPage <= maxPage) {
+      this.numeroDePagina = newPage;
+      this.actualizarPaginacion(); // Actualizar los datos mostrados en la página actual
     }
-    this.obtenerSolicitudes();
   }
 
   cambiarTamanoPagina(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
-    this.pageSize = +value;
-    this.obtenerSolicitudes();
+    this.cantidadDeRegistros = +value;
+    this.numeroDePagina = 1; // Reinicia la página a la primera cuando cambias el tamaño de página
+    this.actualizarPaginacion();
   }
 
   limpiarFiltros() {
@@ -259,41 +345,61 @@ export default class BandejaComponent implements OnInit {
     this.numeroUnicoFiltro = '';
     this.fechaInicioFiltro = '';
     this.fechaFinFiltro = '';
-    this.reiniciarDatosDeTabla();
+    this.filtrarSolicitudes();
+  }
+
+  actualizarPaginacion() {
+    const inicio = (this.numeroDePagina - 1) * this.cantidadDeRegistros;
+    const fin = inicio + this.cantidadDeRegistros;
+    this.solicitudesPaginadas = this.solicitudesFiltradas.slice(inicio, fin);
   }
 
   filtrarSolicitudes() {
+    console.log(this.solicitudes)
     this.reiniciarDatosDeTabla();
-    this.solicitudesFiltradas = [...this.solicitudes];
+    this.solicitudesFiltradas = this.solicitudes;
 
+    this.aplicarFiltroEstado();
+    this.aplicarFiltroNumeroUnico();
+    this.aplicarFiltroFecha();
+    this.aplicarFiltroCaracter();
+
+    this.actualizarPaginacion();
+    this.contarSolicitudesPorEstado();
+  }
+
+  aplicarFiltroEstado() {
     if (this.estadoSeleccionado) {
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(
-        solicitud => solicitud.estado?.nombre === this.estadoSeleccionado
+      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
+        solicitud.estado?.nombre === this.estadoSeleccionado
       );
     }
+  }
 
+  aplicarFiltroNumeroUnico() {
     if (this.numeroUnicoFiltro) {
       this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
         solicitud.numeroUnico?.includes(this.numeroUnicoFiltro)
       );
     }
+  }
 
+  aplicarFiltroFecha() {
     if (this.fechaInicioFiltro) {
       const fechaInicio = new Date(this.fechaInicioFiltro);
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud => {
-        const fechaCreacion = new Date(solicitud.fechaCrecion);
-        return fechaCreacion >= fechaInicio;
-      });
+      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
+        new Date(solicitud.fechaCrecion) >= fechaInicio
+      );
     }
-
     if (this.fechaFinFiltro) {
       const fechaFin = new Date(this.fechaFinFiltro);
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud => {
-        const fechaCreacion = new Date(solicitud.fechaCrecion);
-        return fechaCreacion <= fechaFin;
-      });
+      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
+        new Date(solicitud.fechaCrecion) <= fechaFin
+      );
     }
+  }
 
+  aplicarFiltroCaracter() {
     if (this.filtroCaracter) {
       const filtro = this.filtroCaracter.toLowerCase();
       this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
@@ -301,13 +407,11 @@ export default class BandejaComponent implements OnInit {
         solicitud.imputado?.toLowerCase().includes(filtro) ||
         solicitud.ofendido?.toLowerCase().includes(filtro) ||
         solicitud.usuarioCreador?.nombre.toLowerCase().includes(filtro) ||
-        solicitud.usuarioCreador?.correoElectronico?.toLowerCase().includes(filtro) ||
-        solicitud.delito?.nombre.toLowerCase().includes(filtro)
+        solicitud.usuarioCreador?.apellido?.toLowerCase().includes(filtro) ||
+        solicitud.delito?.nombre.toLowerCase().includes(filtro) ||
+        solicitud.operadoras[0]?.nombre.toLowerCase().includes(filtro)
       );
     }
-
-    this.obtenerSolicitudes();
-    this.contarSolicitudesPorEstado();
   }
 
   cargarArchivos(idRequerimiento: number): void {
@@ -339,6 +443,13 @@ export default class BandejaComponent implements OnInit {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url); // Liberar la URL
+  }
+
+  onSwitchChange(idSolicitudProveedor: number, aprobado: boolean) {
+    if (aprobado) {
+      this.aprobarSolicitud(idSolicitudProveedor, 'Aprobar');
+      this.isSwitchDisabled = true; // Bloquear el switch después de aprobar
+    }
   }
 
   aprobarSolicitud(idSolicitudProveedor: number, estado: string) {
