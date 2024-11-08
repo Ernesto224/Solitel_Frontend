@@ -6,6 +6,8 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import {
   AnalisisTelefonicoService,
   Archivo,
+  Condicion,
+  TipoDato,
 } from '../../services/analisis-telefonico.service';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
@@ -13,12 +15,10 @@ interface Requerimiento {
   idRequerimientoAnalisis: number;
   objetivo: string;
   utilizadoPor: string;
-  idTipo: number;
+  tipoDato: TipoDato;
   idAnalisis: number;
-  tipoObjetivo: string;
-  condicion: string;
+  condicion: Condicion;
 }
-
 
 interface SolicitudProveedor {
   idSolicitudProveedor: number;
@@ -38,11 +38,6 @@ interface SolicitudProveedor {
   oficina: Oficina;
   modalidad: Modalidad;
   subModalidad: SubModalidad;
-}
-interface TipoDato {
-  idTipoDato: number;
-  nombre: string;
-  descripcion: string;
 }
 
 interface RequerimientoProveedor {
@@ -158,7 +153,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   fechaHecho: string = '';
   otrosObjetivos: string = '';
   otrosDetalles: string = '';
-  tipoObjetivo: string = '';
   objetivo: string = '';
   utilizadoPor: string = '';
   condicion: string = '';
@@ -166,13 +160,13 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   solicitudesProveedor: any[] = [];
   archivos: Archivo[] = [];
   idObjetivoAnalisis: number = -1;
-  condicionesAnalisis: any[] = [];
+  condicionesAnalisis: Condicion[] = [];
   tiposAnalisis: any[] = [];
-  condicionAnalisisEscogida: string = '';
+  condicionAnalisisEscogida: number = 0;
   idsSolicitudProveedarArchivo: number[] = [];
   solicitudCompletaAnalisis: any = null;
   TipoDatos: TipoDato[] = [];
-  idTipoDatoSeleccionado: number = 0; 
+  idTipoDatoSeleccionado: number = 0;
   private subscription = new Subscription();
 
   // Control de modales
@@ -341,15 +335,37 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   }
 
   agregarRequerimiento(): void {
+    const condicionSeleccionada =
+      this.condicionesAnalisis[
+        (this.condicionAnalisisEscogida - this.condicionesAnalisis.length) * -1
+      ];
     const nuevoRequerimiento: Requerimiento = {
       idRequerimientoAnalisis: this.requerimientos.length + 1,
       objetivo: this.objetivo,
       utilizadoPor: this.utilizadoPor,
-      idTipo: this.idTipoDatoSeleccionado,
-      idAnalisis:this.requerimientos.length,
-      tipoObjetivo:  this.TipoDatos[(this.idTipoDatoSeleccionado-(this.TipoDatos.length))*-1].nombre,
-      condicion: this.condicionAnalisisEscogida
+      tipoDato: {
+        idTipoDato: this.idTipoDatoSeleccionado,
+        nombre:
+          this.TipoDatos[
+            (this.idTipoDatoSeleccionado - this.TipoDatos.length) * -1
+          ]?.nombre || 'Tipo no especificado',
+        descripcion:
+          this.TipoDatos[
+            (this.idTipoDatoSeleccionado - this.TipoDatos.length) * -1
+          ]?.descripcion,
+      },
+      idAnalisis: this.requerimientos.length,
+      condicion: condicionSeleccionada || {
+        idCondicion: 0,
+        nombre: 'Nombre no especificado',
+        descripcion: 'Descripción no especificada',
+      },
     };
+    console.log(
+      nuevoRequerimiento.condicion.nombre +
+        ' ' +
+        nuevoRequerimiento.condicion.idCondicion
+    );
 
     if (this.selectedIndex !== null && this.selectedIndex >= 0) {
       this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
@@ -357,28 +373,31 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     } else {
       this.requerimientos.push(nuevoRequerimiento);
     }
+    console.log("CANTIDAD DE REQUERIMIENTOS ADD: "+this.requerimientos.length);
     this.limpiarCamposRequerimiento();
-  }
-  VerIdOficina():void{
-    console.log(this.oficinaAnalisis);
   }
 
   cargarRequerimientoEnFormulario(index: number): void {
     if (index >= 0 && index < this.requerimientos.length) {
       const requerimiento = this.requerimientos[index];
       this.selectedIndex = index;
-      this.tipoObjetivo =  this.TipoDatos[(this.idTipoDatoSeleccionado-(this.TipoDatos.length))*-1].nombre;
+      requerimiento.tipoDato.nombre || 'Tipo no especificado';
       this.objetivo = requerimiento.objetivo;
       this.utilizadoPor = requerimiento.utilizadoPor;
-      this.condicion = requerimiento.condicion;
+      this.condicionAnalisisEscogida = requerimiento.condicion.idCondicion;
+      this.idTipoDatoSeleccionado = requerimiento.tipoDato.idTipoDato;
     }
   }
-
   eliminarRequerimiento(index: number): void {
     if (index >= 0 && index < this.requerimientos.length) {
       this.requerimientos.splice(index, 1);
       this.limpiarCamposRequerimiento();
     }
+    console.log("CANTIDAD DE REQUERIMIENTOS: "+this.requerimientos.length);
+  }
+
+  VerIdOficina(): void {
+    console.log(this.oficinaAnalisis);
   }
 
   enviarSolicitud(): void {
@@ -391,13 +410,12 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       alert('Por favor, complete todos los campos requeridos.');
       return;
     }
-    console.log("NUMERO DE REQUERIMIENTOS: "+this.requerimientos.length);
+    console.log('NUMERO DE REQUERIMIENTOS: ' + this.requerimientos.length);
     console.log(this.oficinaAnalisis);
     const numeroSolicitud =
       typeof this.numeroUnico === 'string'
         ? parseInt(this.numeroUnico, 10)
         : this.numeroUnico;
-
     const solicitudCompleta = {
       idSolicitudAnalisis: 0,
       fechaDelHecho: new Date(this.fechaHecho).toISOString(),
@@ -405,6 +423,12 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       otrosObjetivosDeAnalisis:
         this.otrosObjetivos || 'Objetivos adicionales no especificados',
       aprobado: false,
+      estado: {
+        idEstado: 4,
+        nombre: 'Estado no especificado',
+        descripcion: 'Descripción del estado',
+        tipo: 'Tipo no especificado',
+      },
       fechaCreacion: new Date().toISOString(),
       numeroSolicitud: numeroSolicitud || 0,
       idOficina: Number(this.oficinaAnalisis) || 0,
@@ -414,8 +438,18 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
         objetivo: requerimiento.objetivo || 'Objetivo no especificado',
         utilizadoPor:
           requerimiento.utilizadoPor || 'Utilizado por no especificado',
-        idTipo: requerimiento.idTipo || 0,
+        tipoDatoDTO: {
+          idTipoDato: requerimiento.tipoDato.idTipoDato || 0,
+          nombre: requerimiento.tipoDato.nombre || 'Tipo no especificado',
+          descripcion:
+            requerimiento.tipoDato.descripcion || 'Nombre no especificado',
+        },
         idAnalisis: requerimiento.idAnalisis || 0,
+        condicion: requerimiento.condicion || {
+          idCondicion: 0,
+          nombre: 'Sin Nombre',
+          descripcion: 'Sin descripción',
+        },
       })),
 
       objetivosAnalisis: (this.objetivosAnalisisSeleccionados || []).map(
@@ -433,7 +467,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
           numeroCaso: solicitud.numeroCaso || 'Caso no especificado',
           imputado: solicitud.imputado || 'Imputado no especificado',
           ofendido: solicitud.ofendido || 'Ofendido no especificado',
-          resenna: solicitud.resenna || 'Reseña no especificada',
+          resennia: solicitud.resenna || 'Reseña no especificada',
           urgente: solicitud.urgente || false,
           fechaCreacion: new Date().toISOString(),
           requerimientos: (solicitud.requerimientos || []).map(
@@ -532,7 +566,8 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
         {
           idCondicion:
             this.condicionesAnalisis.find(
-              (condicion) => condicion.nombre === this.condicionAnalisisEscogida
+              (condicion) =>
+                condicion.idCondicion === this.condicionAnalisisEscogida
             )?.idCondicion || 0,
           nombre: this.condicionAnalisisEscogida,
           descripcion: 'Descripción de la condición seleccionada',
@@ -540,8 +575,8 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       ],
       archivos: (this.archivosAnalizarSeleccionados || []).map((archivo) => ({
         idArchivo: archivo.idArchivo || 0,
-        nombre: 'Archivo no especificado',
-        contenido: '',
+        nombre: archivo.nombre || 'Archivo no especificado',
+        contenido: archivo.contenido || '',
         formatoAchivo: archivo.formatoArchivo || 'Sin formato',
         fechaModificacion: new Date().toISOString(),
       })),
@@ -551,6 +586,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.solicitudCompletaAnalisis = solicitudCompleta;
     this.mostrarConfirmacionModal();
   }
+
   guardarSolicitudAnalisis() {
     console.log(this.solicitudCompletaAnalisis);
     this.analisisService
@@ -590,11 +626,12 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   }
 
   limpiarCamposRequerimiento(): void {
-    this.tipoObjetivo = '';
     this.objetivo = '';
     this.utilizadoPor = '';
     this.condicion = '';
     this.selectedIndex = null;
+    this.idTipoDatoSeleccionado = 0;
+    this.condicionAnalisisEscogida = 0;
   }
 
   limpiarFormulario(): void {
@@ -615,7 +652,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
 
     // Limpiar configuraciones seleccionadas para los dropdowns y reiniciar opciones
     this.operadoraSeleccionada = [];
-    this.condicionAnalisisEscogida = '';
+    this.condicionAnalisisEscogida = 0;
     this.idsSolicitudProveedarArchivo = [];
 
     // Resetear los campos específicos de los requerimientos

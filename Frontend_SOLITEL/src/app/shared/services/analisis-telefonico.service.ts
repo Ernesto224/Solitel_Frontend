@@ -10,6 +10,17 @@ export interface Archivo {
   fechaModificacion: string; // Agregado para la fecha de modificación
 }
 
+export interface Condicion {
+  idCondicion: number;
+  nombre: string;
+  descripcion: string;
+}
+export interface TipoDato {
+  idTipoDato: number;
+  nombre: string;
+  descripcion: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -29,10 +40,12 @@ export class AnalisisTelefonicoService {
   private readonly urlArchivoSoliProveedor: string =
     'obtenerArchivosDeSolicitudesProveedor';
   private readonly urlObtenerTipoDato: string = 'TipoDato';
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   obtener(): Observable<any[]> {
-    return this.http.get<any[]>(`https://localhost:7211/api/SolicitudAnalisis/consultar`);
+    return this.http.get<any[]>(
+      `https://localhost:7211/api/SolicitudAnalisis/consultar`
+    );
   }
 
   agregarSolicitudAnalisis(solicitudAnalisis: any): Observable<any> {
@@ -111,7 +124,7 @@ export class AnalisisTelefonicoService {
       'Content-Type': 'application/json',
       accept: 'application/json',
     });
-    return this.http.get<any[]>(
+    return this.http.get<Condicion[]>(
       `${this.baseUrl}${this.urlCondicionesAnalisis}`,
       { headers }
     );
@@ -140,8 +153,11 @@ export class AnalisisTelefonicoService {
       'Content-Type': 'application/json',
       accept: 'application/json',
     });
-    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerTipoDato}`, {
-      headers,
-    });
+    return this.http.get<TipoDato[]>(
+      `${this.baseUrl}${this.urlObtenerTipoDato}`,
+      {
+        headers,
+      }
+    );
   }
 }
