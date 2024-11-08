@@ -7,6 +7,9 @@ import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
+
 
 @Component({
   selector: 'app-bandeja-analista',
@@ -42,7 +45,9 @@ export default class BandejaAnalistaComponent {
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
-    private historicoService: HistoricoService
+    private historicoService: HistoricoService,
+    private router: Router,
+    private analisisTelefonicoService: AnalisisTelefonicoService
   ) { }
 
   ngOnInit(): void {
@@ -55,6 +60,12 @@ export default class BandejaAnalistaComponent {
     this.solicitudSeleccionada = solicitud;
     this.modalVisible = true;
     console.log('Solicitud seleccionada:', this.solicitudSeleccionada);
+  }
+
+  verDetalle(solicitud: any) {
+    this.router.navigate(['detalle-solicitud-analista', solicitud.idSolicitudAnalisis], {
+      state: { objeto: solicitud }
+    });
   }
 
   // Cierra el modal
@@ -97,7 +108,7 @@ export default class BandejaAnalistaComponent {
 
 
   obtenerSolicitudes(pageNumber: number, pageSize: number): void {
-    this.solicitudProveedorService.obtener().subscribe({
+    this.analisisTelefonicoService.obtener().subscribe({
       next: (data: any) => {
         this.solicitudes = data;  // Guardamos los datos de la solicitud
       },

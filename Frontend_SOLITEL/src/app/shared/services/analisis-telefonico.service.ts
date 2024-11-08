@@ -40,7 +40,8 @@ export class AnalisisTelefonicoService {
   private readonly urlArchivoSoliProveedor: string =
     'obtenerArchivosDeSolicitudesProveedor';
   private readonly urlObtenerTipoDato: string = 'TipoDato';
-  constructor(private http: HttpClient) {}
+  private readonly urlActualizarEstadoAnalizado: string = 'ActualizarEstadoAnalizadoSolicitudAnalisis'
+  constructor(private http: HttpClient) { }
 
   obtener(): Observable<any[]> {
     return this.http.get<any[]>(
@@ -160,4 +161,16 @@ export class AnalisisTelefonicoService {
       }
     );
   }
+
+  ActualizarEstadoAnalizadoSolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any>{
+    const headers = new HttpHeaders({
+      'accept': 'text/plain',
+      'Content-Type': 'application/json'
+    });
+
+    const url = `${this.baseUrl}SolicitudAnalisis/ActualizarEstadoAnalizadoSolicitudAnalisis?idSolicitudAnalisis=${idSolicitudAnalisis}&idUsuario=${idUsuario}&observacion=${observacion}`;
+  
+    return this.http.put<any>(url, {}, { headers });
+  }
+  
 }

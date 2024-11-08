@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +14,14 @@ export class SolicitudProveedorService {
   private urlMoverEstadoSinEfecto: string = "moverEstadoASinEfecto";
   private urlObtenerPorEstado: string = "obtenerSolicitudesProveedorPorEstado";
   private urlMoverEstadoATramitado: string = "actualizarEstadoTramitado";
+  private urlConsultarInfoNumeroUnico: string = "consultarInformacionNumeroUnico";
 
   constructor(private http: HttpClient) { }
 
   public obtener(): Observable<any[]> {
     return this.http.get<any[]>(`${this.urlServices}${this.urlObtener}`);
   }
+
   public obtenerSolicitudesPorEstado(idEstado: number, pageNumber: number, pageSize: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.urlServices}${this.urlObtenerPorEstado}?pageNumber=${pageNumber}&pageSize=${pageSize}&idEstado=${idEstado}`);
   }
@@ -75,7 +78,6 @@ export class SolicitudProveedorService {
     return this.http.put(url, {});
   }
 
-
   public moverEstadoASinEfecto = (idSolicitudProveedor: number): Observable<any> => {
     const headers = new HttpHeaders({
       'accept': 'text/plain'
@@ -83,7 +85,7 @@ export class SolicitudProveedorService {
     return this.http.put<any[]>(`${this.urlServices}${this.urlMoverEstadoSinEfecto}/${idSolicitudProveedor}`, {}, { headers });
   };
 
-  moverEstadoATramitado(idSolicitudProveedor: number, idUsuario: number, observacion: string | null): Observable<any> {
+  public moverEstadoATramitado(idSolicitudProveedor: number, idUsuario: number, observacion: string | null): Observable<any> {
     const headers = new HttpHeaders({
       'accept': 'text/plain',
       'Content-Type': 'application/json'
@@ -94,6 +96,10 @@ export class SolicitudProveedorService {
   
     // Realiza la solicitud PUT a la URL construida
     return this.http.put<any>(url, {}, { headers });
+  }
+
+  public consultarInfoNumeroUnico(numeroUnico: string):Observable<any> {
+    return this.http.get<any>(`${this.urlServices}${this.urlConsultarInfoNumeroUnico}?numeroUnico=${numeroUnico}`);
   }
 
 }

@@ -18,6 +18,10 @@ export class OficinaService {
     return this.http.get(`${this.urlServices}${this.urlObtener}`);
   }
 
+  public obtenerUna = (idOficina: number): Observable<any> => {
+    return this.http.get(`${this.urlServices}consultarOficina/${idOficina}`);
+  }
+
   public insertar = (objeto: any): Observable<any> => {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
