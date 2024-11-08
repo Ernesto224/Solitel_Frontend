@@ -36,4 +36,9 @@ export class ArchivoService {
     return this.http.post(`${this.baseUrl}${this.urlInsertarArchivoRespuestaSolicitudAnalisis}`, formData);
   }
 
+  obtenerArchivosRespuestaDeSolicitudAnalisis(idSolicitudAnalisis: number): Observable<any[]> {
+    const url = `${this.baseUrl}/ObtenerArchivosRespuestaSolicitudAnalisis?idSolicitudAnalisis=${idSolicitudAnalisis}`;
+    return this.http.get<any[]>(url, { responseType: 'json' });
+  }
+
 }

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';
-import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
 import { HistoricoService } from '../../services/historico.service';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -544,6 +543,52 @@ export default class BandejaComponent implements OnInit {
       );
     }
     this.contarSolicitudesPorEstado();
+  }
+
+  archivosUAC: any[] = [];
+
+  modalArchivosUACVisible: boolean = false;
+  tablaArchivosUACVisible: boolean = false;
+
+  encabezadosArchivosUAC: any[] = [
+    { key: 'nombre', label: 'Nombre Documento' }
+  ];
+
+  accionesArchivosUAC: any[] = [
+    {
+      style: "background-color: #1C355C;",
+      class: "text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring w-[55px]",
+      action: (archivo: any) => this.descargarArchivo(archivo), 
+      icon: 'download' 
+    }
+  ];
+
+  encabezadosAccionesArchivosUAC: any[] = [
+    'Descargar'
+  ];
+
+  abrirModalArchivosUAC(idSolicitudAnalisis: number){
+    this.cargarArchivosUAC(idSolicitudAnalisis);
+    this.modalArchivosUACVisible = true;
+  }
+
+  cerrarModalArchivosUAC(){
+    this.modalArchivosUACVisible = false;
+    this.tablaArchivosUACVisible = false;
+    this.archivosUAC = [];
+  }
+
+  cargarArchivosUAC(idSolicitudAnalisis: number){
+    this.archivoService.obtenerArchivosRespuestaDeSolicitudAnalisis(idSolicitudAnalisis).subscribe({
+      next: (archivos: any[]) => {
+        this.archivosUAC = archivos;
+        this.tablaArchivosUACVisible = true;
+      },
+      error: (err) => {
+        console.error('Error al cargar archivos:', err);
+        this.tablaArchivosUACVisible = false; // Opcional: ocultar la tabla si falla la carga
+      }
+    });
   }
 
 }

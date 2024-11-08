@@ -268,7 +268,7 @@
               </ng-container>
 
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Descargar informe UAC')">
-                <button class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalArchivosUAC(solicitud.idSolicitudAnalisis)" class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">download</span>
                   <span>Descargar informe UAC</span>
                 </button>
@@ -593,3 +593,21 @@
       class="w-full p-2 border rounded-md focus:outline-none focus:ring"></textarea>
   </div>
 </app-modal-confirmacion>
+
+  <!-- Tabla Archivos -->
+  <app-modal-informacion [isModalOpen]="modalArchivosUACVisible">
+    <div *ngIf="archivosUAC.length > 0; else noArchivosTemplate">
+      <app-tabla-visualizacion 
+        [headers]="encabezadosArchivosUAC" 
+        [data]="archivosUAC" 
+        [actions]="accionesArchivosUAC" 
+        [actionsheaders]="encabezadosAccionesArchivosUAC">
+      </app-tabla-visualizacion>
+    </div>
+  
+    <ng-template #noArchivosTemplate>
+      <p>No hay archivos disponibles.</p>
+    </ng-template>
+  
+    <button (click)="cerrarModalArchivosUAC()" class="modal-close is-large">Cerrar</button>
+  </app-modal-informacion>
