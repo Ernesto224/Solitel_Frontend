@@ -285,7 +285,7 @@
               </ng-container>
 
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Agregar informe')">
-                <button class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalArchivosInformeFinal()" class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">upload</span>
                   <span>Agregar informe</span>
                 </button>
@@ -611,3 +611,20 @@
   
     <button (click)="cerrarModalArchivosUAC()" class="modal-close is-large">Cerrar</button>
   </app-modal-informacion>
+
+
+  <!-- Modal Archivos Respuesta -->
+<app-modal-informacion [isModalOpen]="modalArchivosInformeFinalVisible">
+  <div class="modal-contenido">
+    <span class="cerrar" (click)="cerrarModalArchivosInformeFinal()">&times;</span>
+    <h2>Subir Archivos</h2>
+
+    <input type="file" (change)="seleccionarArchivosInformeFinal($event)" multiple />
+
+    <ul>
+      <li *ngFor="let archivoInforme of archivosInformeFinal">{{ archivoInforme.nombre }}</li>
+    </ul>
+  </div>
+  <button (click)="cerrarModalArchivosInformeFinal()">Guardar</button>
+  <button (click)="quitarArchivosInformeFinal()">Limpiar</button>
+</app-modal-informacion>

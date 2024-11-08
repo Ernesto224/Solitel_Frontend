@@ -545,6 +545,8 @@ export default class BandejaComponent implements OnInit {
     this.contarSolicitudesPorEstado();
   }
 
+
+  // Variables y metodos necesarios para ver y descargar archivos UAC
   archivosUAC: any[] = [];
 
   modalArchivosUACVisible: boolean = false;
@@ -589,6 +591,56 @@ export default class BandejaComponent implements OnInit {
         this.tablaArchivosUACVisible = false; // Opcional: ocultar la tabla si falla la carga
       }
     });
+  }
+
+  // Variables necesarias para agregar informe 
+  modalArchivosInformeFinalVisible: boolean = false;
+
+  archivosInformeFinal: any[] = [];
+
+  abrirModalArchivosInformeFinal(){
+    this.modalArchivosInformeFinalVisible = true;
+  }
+
+  cerrarModalArchivosInformeFinal(){
+    this.modalArchivosInformeFinalVisible = false;
+  }
+
+  quitarArchivosInformeFinal(){
+    this.archivosInformeFinal = [];
+  }
+
+  seleccionarArchivosInformeFinal(event: any) {
+    const seleccionados = event.target.files as FileList; 
+    this.archivosInformeFinal = Array.from(seleccionados).map((file: File) => {
+      return {
+        nombre: file.name,  
+        file: file,         
+        tipo: file.type,   
+        tamaño: file.size   
+      };
+    });
+  }
+
+  subirArchivosInformeFinal(idSolicitudAnalisis: number){
+    if (this.archivosInformeFinal.length > 0) {
+      this.archivosInformeFinal.forEach((archivo: any) => {
+        const formData = new FormData();
+        formData.append('Nombre', archivo.nombre); 
+        formData.append('file', archivo.file); 
+        formData.append('FormatoAchivo', archivo.tipo); 
+        formData.append('FechaModificacion', new Date().toISOString()); 
+        formData.append('idSolicitudAnalisis', String(idSolicitudAnalisis)); 
+        
+        this.archivoService.insertarArchivoRespuestaSolicitudAnalisis(formData).subscribe({
+          next: response => {
+          },
+          error: err => {
+            console.error('Error al guardar el archivo:', archivo.nombre, err);
+          }
+        });
+      });
+    }
   }
 
 }
