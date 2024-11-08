@@ -42,7 +42,6 @@ export default class SolicitudProveedorComponent {
   isModalOpen = false;
   isUrgent = false;
   errorMessage: string = '';
-  errorMessageGen: string = '';
   // Listas dinámicas para desplegables (combobox)
   categoriasDelito: any[] = [];
   fiscalias: any[] = [];
@@ -307,36 +306,39 @@ export default class SolicitudProveedorComponent {
     this.fechaInicio = solicitud.tF_FechaInicio;                 // Cargar fecha de inicio
     this.fechaFinal = solicitud.tF_FechaFinal;                   // Cargar fecha final
     this.listaDatosRequeridos = solicitud.datosRequeridos;       // Cargar datos requeridos
-
     this.tipoDatoSeleccionadoBloqueado = true;
-
-
-    this.listaSolicitudes.splice(index, 1);
-
-
-    console.log('Solicitud cargada para edición:', solicitud);
   }
 
   actualizarSolicitud() {
     if (this.editingIndex !== null) {
-      // Actualizar la solicitud con los valores del formulario
-      const solicitudActualizada = {
-        tN_IdRequerimientoProveedor: 0, // Se puede mantener si es nuevo
-        tF_FechaInicio: this.fechaInicio,
-        tF_FechaFinal: this.fechaFinal,
-        tC_Requerimiento: this.requerimiento,
-        tipoSolicitudes: this.tipoSolicitudSeleccionada,
-        datosRequeridos: this.listaDatosRequeridos
-      };
+      if (this.tipoSolicitudSeleccionada.length > 0
+        && this.requerimiento && this.fechaInicio
+        && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
 
-      // Reemplazar la solicitud en la lista
-      this.listaSolicitudes[this.editingIndex] = solicitudActualizada;
+        //se extrae el fromulario
+        const solicitud = this.listaSolicitudes[this.editingIndex];
 
-      // Limpiar el índice de edición y los campos del formulario
-      this.editingIndex = null;
-      this.limpiarFormulario();
+        // Actualizar la solicitud con los valores del formulario
+        solicitud.tipoSolicitudes = this.tipoSolicitudSeleccionada;  // Cargar tipos de solicitud
+        solicitud.tC_Requerimiento = this.requerimiento;             // Cargar el requerimiento
+        solicitud.tF_FechaInicio = this.fechaInicio;                 // Cargar fecha de inicio
+        solicitud.tF_FechaFinal = this.fechaFinal;                   // Cargar fecha final
+        solicitud.datosRequeridos = this.listaDatosRequeridos;
 
-      console.log('Solicitud actualizada:', solicitudActualizada);
+        // Limpiar el índice de edición y los campos del formulario
+        this.editingIndex = null;
+        this.tipoDatoSeleccionadoBloqueado = false;
+        this.limpiarFormulario();
+        this.alertaMensaje = 'Requerimiento editado exitosamente.';
+        this.alertatipo = 'satisfaccion';
+        this.mostrarAlerta();
+
+      } else {
+
+        this.alertaMensaje = 'Debe completar todos los campos para agregar un requerimiento.';
+        this.alertatipo = 'error';
+        this.mostrarAlerta();
+      }
     }
   }
 
@@ -444,12 +446,15 @@ export default class SolicitudProveedorComponent {
       // Llamar al servicio para enviar la solicitud
       this.solicitudProveedorService.insertarSolicitudProveedor(solicitudProveedor).subscribe({
         next: response => {
-          console.log('Solicitud guardada con éxito', response);
-          alert('Solicitud guardada con éxito');
+          this.alertaMensaje = 'Solicitud guardada con éxito.';
+          this.alertatipo = 'satisfaccion';
+          this.mostrarAlerta();
           this.limpiarTodo();
         },
         error: err => {
-          console.error('Error al guardar la solicitud:', err);
+          this.alertaMensaje = `Error al guardar la solicitud: ${err}`;
+          this.alertatipo = 'error';
+          this.mostrarAlerta();
         }
       });
 
@@ -556,6 +561,9 @@ export default class SolicitudProveedorComponent {
   }
 
   limpiarFormulario() {
+
+    this.tipoDatoSeleccionadoBloqueado = false;
+
     // Limpiar el campo de tipo de solicitud
     this.tipoSolicitudSeleccionada = [];
 
@@ -566,11 +574,15 @@ export default class SolicitudProveedorComponent {
     // Limpiar el campo de requerimiento
     this.requerimiento = '';
     this.listaDatosRequeridos = [];
+
+    this.resetForm();
   }
 
   agregarSolicitud() {
+    if (this.tipoSolicitudSeleccionada.length > 0
+      && this.requerimiento && this.fechaInicio
+      && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
 
-    if (this.tipoSolicitudSeleccionada.length > 0 && this.requerimiento && this.fechaInicio && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
       // Crear el objeto de solicitud con la estructura solicitada
       const nuevaSolicitud = {
         tN_IdRequerimientoProveedor: 0, // Asumimos que es nuevo
@@ -583,15 +595,14 @@ export default class SolicitudProveedorComponent {
 
       // Agregar la nueva solicitud a la lista de solicitudes
       this.listaSolicitudes.push(nuevaSolicitud);
-      console.log('Lista de solicitudes:', this.listaSolicitudes);
-
       this.tipoDatoSeleccionadoBloqueado = false;
-      this.tipoSolicitudSeleccionada = [];
-      this.requerimiento = '';
-      this.listaDatosRequeridos = [];
-      this.resetForm();
-      this.errorMessageGen = '';
+      this.limpiarFormulario();
+      this.alertaMensaje = 'Requerimiento agregado exitosamente.';
+      this.alertatipo = 'satisfaccion';
+      this.mostrarAlerta();
+
     } else {
+
       this.alertaMensaje = 'Debe completar todos los campos para agregar un requerimiento.';
       this.alertatipo = 'error';
       this.mostrarAlerta();

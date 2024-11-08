@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './alerta.component.html',
   styleUrls: ['./alerta.component.css']
 })
-export class AlertaComponent implements OnInit {
+export class AlertaComponent implements OnChanges {
   @Input() tipo: string = 'satisfaccion';
   @Input() mensaje: string = '';
   @Input() visible: boolean = false;
@@ -18,7 +18,7 @@ export class AlertaComponent implements OnInit {
   backgroundColor: string = '#ffffff'; // Fondo del contenedor
   color: string = '#000000';           // Color de todo el texto
 
-  ngOnInit(): void {
+  ngOnChanges(): void {
     this.aplicarEstilos();
   }
 

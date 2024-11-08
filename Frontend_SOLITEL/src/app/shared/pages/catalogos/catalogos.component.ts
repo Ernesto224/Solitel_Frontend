@@ -17,6 +17,8 @@ import { FiscaliaService } from '../../services/fiscalia.service';
 import { TipoAnalisisService } from '../../services/tipo-analisis.service';
 import { ObjetivoAnalisisService } from '../../services/objetivo-analisis.service';
 import { CommonModule } from '@angular/common';
+import { AlertaComponent } from '../../components/alerta/alerta.component';
+import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
 
 @Component({
   selector: 'app-catalogos',
@@ -27,12 +29,21 @@ import { CommonModule } from '@angular/common';
     RouterOutlet,
     NavbarComponent,
     ReactiveFormsModule,
-    CommonModule
+    CommonModule,
+    AlertaComponent,
+    ModalConfirmacionComponent
   ],
   templateUrl: './catalogos.component.html',
   styleUrls: ['./catalogos.component.css']
 })
 export default class CatalogosComponent implements OnInit {
+  alertatipo: string = "error";
+  alertaMensaje: string = "";
+  alertaVisible: boolean = false;
+
+  modalEstadoVisible = false;
+  datoSeleccionado = '';
+  idDatoSeleccionado = 0;
 
   servicios!: { [key: string]: any };
   dependencias: { id: string, nombre: string }[] = [];
@@ -147,6 +158,15 @@ export default class CatalogosComponent implements OnInit {
 
   }
 
+  mostrarAlerta(): void {
+    this.alertaVisible = true;
+
+    // Opcional: Cerrar la alerta después de unos segundos
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000); // 3 segundos
+  }
+
   cambiarTamanoPagina(event: Event) {
     const target = event.target as HTMLSelectElement;
     this.pageSize = +target.value;
@@ -204,11 +224,15 @@ export default class CatalogosComponent implements OnInit {
     if (servicio && data) {
       servicio.insertar(data).subscribe(
         (response: any) => {
-          console.log(`Inserción de ${catalog} exitosa:`, response);
+          this.alertaMensaje = `Inserción de ${catalog} exitosa.`;
+          this.alertatipo = 'satisfaccion';
+          this.mostrarAlerta();
           this.obtenerDatos(this.catalogoSeleccionado);
         },
         (error: any) => {
-          console.error(`Error al insertar ${catalog}:`, error);
+          this.alertaMensaje = `Error al insertar ${catalog}.`;
+          this.alertatipo = 'error';
+          this.mostrarAlerta();
         }
       );
     } else {
@@ -224,11 +248,15 @@ export default class CatalogosComponent implements OnInit {
     if (servicio && servicio.eliminar) {
       servicio.eliminar(key).subscribe(
         (response: any) => {
-          console.log(`Elemento eliminado de ${catalogo}:`, response);
+          this.alertaMensaje = `Elemento eliminado de ${catalogo}.`;
+          this.alertatipo = 'satisfaccion';
+          this.mostrarAlerta();
           this.obtenerDatos(catalogo);
         },
         (error: any) => {
-          console.error(`Error al eliminar de ${catalogo}:`, error);
+          this.alertaMensaje = `Error al eliminar de ${catalogo}.`;
+          this.alertatipo = 'error';
+          this.mostrarAlerta();
         }
       );
     } else {
@@ -294,6 +322,25 @@ export default class CatalogosComponent implements OnInit {
         dependencyControl?.disable(); // Asegurarse de deshabilitar para otros catálogos
       }
     }
+  }
+
+  abrirModalCambioEstado(row: any) {
+    this.datoSeleccionado = row.nombre;
+    this.idDatoSeleccionado = this.obtenerId(row);
+    this.modalEstadoVisible = true;
+  }
+
+  cerrarModalCambioEstado() {
+    this.modalEstadoVisible = false;
+    this.datoSeleccionado = '';
+    this.idDatoSeleccionado = 0;
+  }
+
+  confirmarCambioEstado() {
+    this.modalEstadoVisible = false;
+    this.eliminar(this.catalogoSeleccionado, this.idDatoSeleccionado);
+    this.datoSeleccionado = '';
+    this.idDatoSeleccionado = 0;
   }
 
 }

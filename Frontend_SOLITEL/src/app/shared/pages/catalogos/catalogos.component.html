@@ -1,5 +1,5 @@
 <div class="flex flex-col mb-0 pb-0">
-
+    <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
     <div class="filter-container">
 
         <h2>Catálogos</h2>
@@ -106,7 +106,7 @@
 
                     <div class="flex justify-center space-x-2">
 
-                        <button (click)="eliminar(catalogoSeleccionado, obtenerId(row))"
+                        <button (click)="abrirModalCambioEstado(row)"
                             class="bg-red-500 text-white px-4 py-2 rounded focus:outline-none focus:ring">
 
                             <i class="material-icons">delete</i>
@@ -168,3 +168,12 @@
     </div>
 
 </div>
+
+<!-- Modal de confirmación -->
+<app-modal-confirmacion [modalEstadoVisible]="modalEstadoVisible" (confirmar)="confirmarCambioEstado()"
+  (cancelar)="cerrarModalCambioEstado()">
+  <div modal-header>
+    <h2 class="text-xl font-semibold mb-4">Confirmar Eliminacion</h2>
+    <p>¿Está seguro de que deseas eliminar "{{ datoSeleccionado }}"?</p>
+  </div>
+</app-modal-confirmacion>
