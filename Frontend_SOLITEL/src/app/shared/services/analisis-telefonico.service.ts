@@ -26,6 +26,7 @@ export interface TipoDato {
 })
 export class AnalisisTelefonicoService {
   private baseUrl: string = 'https://localhost:7211/api/';
+  private urlObtenerSolicitudesAnalisis:  string = 'SolicitudAnalisis/consultar';
   private urlInsertar: string = 'SolicitudAnalisis';
   private urlObtenerSolicitudesProveedor: string =
     'SolicitudProveedor/listarNumerosUnicosTramitados';
@@ -72,6 +73,14 @@ export class AnalisisTelefonicoService {
     );
   }
 
+  obtenerSolicitudesAnalisis(): Observable<any[]> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      accept: 'application/json',
+    });
+    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerSolicitudesAnalisis}`, { headers });
+  }
+  
   obtenerOficinasAnalisis(): Observable<any[]> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',

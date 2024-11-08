@@ -11,6 +11,7 @@ import { ArchivoService } from '../../services/archivo.service';
 import { TablaVisualizacionComponent } from '../../components/tabla-visualizacion/tabla-visualizacion.component';
 import { ModalInformacionComponent } from '../../components/modal-informacion/modal-informacion.component';
 import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
+import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
 
 @Component({
   selector: 'app-bandeja',
@@ -39,6 +40,9 @@ export default class BandejaComponent implements OnInit {
   solicitudes: any[] = [];
   solicitudesFiltradas: any[] = [];
   solicitudesPaginadas: any[] = [];
+  solicitudesAnalisis: any[] = [];
+  solicitudesAnalisisOriginales: any[] = []; // Nueva variable para mantener las solicitudes originales
+  mostrarTablaProveedor: boolean = true; // Controla cuál tabla mostrar
   columnasVisibles: { [key: string]: boolean } = {};
   numeroDePagina: number = 1;
   cantidadDeRegistros: number = 5;
@@ -81,21 +85,24 @@ export default class BandejaComponent implements OnInit {
       actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
       columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
     },
-    EnAnálisis: {
-      headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
-      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    'En Análisis': {
+      headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+      actions: ['historico', 'ver', 'requerimientos'],
+      columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
     },
     Analizado: {
-      headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
-      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+      headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+      actions: ['historico', 'ver', 'requerimientos'],
+      columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
     },
-    "En Analisis": {
-      headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha de creación solicitud de provedor', 'Fecha de creación solicitud de analisis', 'Urgente', 'Creado por'],
-      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
-      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+    'Aprobar Análisis': {
+      headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+      actions: ['historico', 'ver', 'requerimientos'],
+      columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
     }
+
+
+
   };
 
   estadoSeleccionado: string = 'Creado';
@@ -158,7 +165,7 @@ export default class BandejaComponent implements OnInit {
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
-    private analisisTelefonico: AnalisisTelefonicoService,
+    private analisisTelefonicoService: AnalisisTelefonicoService,
     private estadoService: EstadoService,
     private archivoService: ArchivoService,
     private historicoService: HistoricoService,
@@ -207,17 +214,35 @@ export default class BandejaComponent implements OnInit {
   }
 
   obtenerSolicitudesAnalisis(): void {
-    this.analisisTelefonico.obtener().subscribe({
+    console.log("Método obtenerSolicitudesAnalisis llamado");
+
+    this.analisisTelefonicoService.obtenerSolicitudesAnalisis().subscribe({
       next: (value) => {
-        console.log("Entre")
-        console.log(value);
+        this.solicitudesAnalisis = value;
+        this.solicitudesAnalisisOriginales = value;
+        this.filtrarSolicitudes(); // Si deseas aplicar algún filtro
+        console.log("Solicitudes guardadas:", this.solicitudesAnalisis);
       },
       error: (err) => {
-        console.error('Error al obtener datos:', err);
-      },
+        console.error('Error al obtener solicitudes de análisis:', err);
+      }
     });
   }
 
+
+  obtenerOpcionesPorEstado(estado: string): string[] {
+    switch (estado) {
+      case "En Análisis":
+        return ["Ver histórico", "Ver Solicitud"];
+      case "Analizado":
+        return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Agregar informe", "Finalizar solicitud de análisis", "Enviar a legajo solicitud de análisis"];
+      case "Aprobar Análisis":
+        return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior"];
+      default:
+        return [];
+    }
+  }
+  
   //modales
   reiniciarDatosDeTabla(): void {
     this.numeroDePagina = 1;
@@ -305,7 +330,7 @@ export default class BandejaComponent implements OnInit {
 
     this.cantidadPorEstadoAnalisis = this.estadosAnalisis.map(estado => {
       const nombreEstado = estado.nombre;
-      const cantidad = this.solicitudes.filter(solicitud => solicitud.estado?.nombre === nombreEstado && solicitud.estado?.idEstado >= 8 && solicitud.estado?.idEstado <= 13).length;
+      const cantidad = this.solicitudesAnalisis.filter(solicitudAnalisis => solicitudAnalisis.estado?.nombre === nombreEstado && solicitudAnalisis.estado?.idEstado >= 8 && solicitudAnalisis.estado?.idEstado <= 13).length;
       return { nombre: nombreEstado, cantidad };
     });
 
@@ -372,6 +397,17 @@ export default class BandejaComponent implements OnInit {
     this.solicitudesPaginadas = this.solicitudesFiltradas.slice(inicio, fin);
   }
 
+
+  filtrarSolicitudesAnalisis(): void {
+    // Usa solicitudesAnalisisOriginales como base y asigna el resultado filtrado a solicitudesAnalisis
+    this.solicitudesAnalisis = this.solicitudesAnalisisOriginales.filter(solicitudAnalisis =>
+      solicitudAnalisis.estado?.nombre === this.estadoTemporal &&
+      ["En Análisis", "Analizado", "Aprobar Análisis"].includes(solicitudAnalisis.estado?.nombre)
+    );
+    console.log("Solicitudes filtradas:", this.solicitudesAnalisis);
+  }
+
+
   filtrarSolicitudes() {
     console.log(this.solicitudes)
     this.reiniciarDatosDeTabla();
@@ -384,6 +420,13 @@ export default class BandejaComponent implements OnInit {
 
     this.actualizarPaginacion();
     this.contarSolicitudesPorEstado();
+
+     // Verifica si el estado seleccionado pertenece a Proveedor o Análisis
+     this.mostrarTablaProveedor = this.cantidadPorEstadoProveedor.some(estado => estado.nombre === this.estadoTemporal);
+
+     if (!this.mostrarTablaProveedor) {
+       this.filtrarSolicitudesAnalisis();
+     }
   }
 
   aplicarFiltroEstado() {
