@@ -126,71 +126,6 @@ export default class SolicitudProveedorComponent {
 
   ) { }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-    }
-  }
-
-
-  insertarArchivo() {
-    if (this.selectedFile) {
-      const formData = new FormData();
-      formData.append('TC_Nombre', this.selectedFile.name);
-      formData.append('file', this.selectedFile);  // Renombrado a 'file'
-      formData.append('TC_FormatoAchivo', this.selectedFile.type);
-      formData.append('TF_FechaModificacion', '2024-10-10');
-
-      console.log(formData);
-
-      this.archivoService.insertarArchivo(formData).subscribe({
-        next: response => {
-          console.log('Archivo guardado con exito', response);
-          alert('Archivo guardado con éxito');
-        },
-        error: err => {
-          console.error('Error al guardar el archivo:', err);
-        }
-      });
-    }
-  }
-
-
-  descargarArchivo(id: number): void {
-    this.archivoService.descargarArchivo(id).subscribe(response => {
-      // Decodifica el contenido Base64 a un Blob
-      const byteCharacters = atob(response.contenidoArchivo);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: response.tipoArchivo });
-
-      // Crea la URL para el archivo Blob
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = response.nombreArchivo; // Usa el nombre del archivo desde la respuesta
-      document.body.appendChild(a);
-      a.click();
-
-      // Limpia el DOM y revoca la URL
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    }, error => {
-      console.error('Error al descargar el archivo:', error);
-    });
-  }
-
-  // Método auxiliar para extraer el nombre del archivo desde el encabezado 'content-disposition'
-  private getFileName(contentDisposition: string): string {
-    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-    const matches = filenameRegex.exec(contentDisposition);
-    return (matches != null && matches[1]) ? matches[1].replace(/['"]/g, '') : 'archivo_descargado';
-  }
-
   ngOnInit() {
 
     this.getCategories();
@@ -243,8 +178,62 @@ export default class SolicitudProveedorComponent {
     return /^[^!]+$/.test(texto);
   };
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    }
+  }
 
-  // Método que se llama al cambiar la categoría de delito
+  insertarArchivo() {
+    if (this.selectedFile) {
+      const formData = new FormData();
+      formData.append('TC_Nombre', this.selectedFile.name);
+      formData.append('file', this.selectedFile);  // Renombrado a 'file'
+      formData.append('TC_FormatoAchivo', this.selectedFile.type);
+      formData.append('TF_FechaModificacion', '2024-10-10');
+
+      console.log(formData);
+
+      this.archivoService.insertarArchivo(formData).subscribe({
+        next: response => {
+          console.log('Archivo guardado con exito', response);
+          alert('Archivo guardado con éxito');
+        },
+        error: err => {
+          console.error('Error al guardar el archivo:', err);
+        }
+      });
+    }
+  }
+
+  descargarArchivo(id: number): void {
+    this.archivoService.descargarArchivo(id).subscribe(response => {
+      // Decodifica el contenido Base64 a un Blob
+      const byteCharacters = atob(response.contenidoArchivo);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: response.tipoArchivo });
+
+      // Crea la URL para el archivo Blob
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = response.nombreArchivo; // Usa el nombre del archivo desde la respuesta
+      document.body.appendChild(a);
+      a.click();
+
+      // Limpia el DOM y revoca la URL
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, error => {
+      console.error('Error al descargar el archivo:', error);
+    });
+  }
+
   onCategoriaDelitoChange(): void {
     if (this.idCategoriaDelitoSeleccionado) {
       this.delitoService.obtenerPorCategoria(this.idCategoriaDelitoSeleccionado)
@@ -264,7 +253,6 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-  // Método para obtener las submodalidades al cambiar la modalidad seleccionada
   onModalidadChange(): void {
     if (this.idModalidadSeleccionada) {
       this.subModalidadService.obtenerPorModalidad(this.idModalidadSeleccionada)
@@ -284,7 +272,6 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-  // Obtener operadoras
   getOperadoras() {
     this.proveedorService.obtener().subscribe({
       next: (data: any[]) => {
@@ -296,7 +283,6 @@ export default class SolicitudProveedorComponent {
     });
   }
 
-  // Obtener oficinas
   getOficinas() {
     this.oficinaService.obtener().subscribe({
       next: (data: any[]) => {
@@ -330,7 +316,6 @@ export default class SolicitudProveedorComponent {
 
     console.log('Solicitud cargada para edición:', solicitud);
   }
-
 
   actualizarSolicitud() {
     if (this.editingIndex !== null) {
@@ -569,6 +554,7 @@ export default class SolicitudProveedorComponent {
 
     console.log('Formulario completamente limpio');
   }
+
   limpiarFormulario() {
     // Limpiar el campo de tipo de solicitud
     this.tipoSolicitudSeleccionada = [];
@@ -581,8 +567,6 @@ export default class SolicitudProveedorComponent {
     this.requerimiento = '';
     this.listaDatosRequeridos = [];
   }
-
-
 
   agregarSolicitud() {
 
@@ -614,7 +598,6 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-  // Método para mostrar la alerta
   mostrarAlerta(): void {
     this.alertaVisible = true;
 
@@ -624,7 +607,6 @@ export default class SolicitudProveedorComponent {
     }, 3000); // 3 segundos
   }
 
-  // Método para obtener delitos
   getDelitos() {
     this.delitoService.obtener().subscribe({
       next: (data: any[]) => {
@@ -681,7 +663,6 @@ export default class SolicitudProveedorComponent {
     });
   }
 
-  // Método para obtener categorías de delito
   getCategories() {
     this.categoriaService.obtener().subscribe({
       next: (data: any[]) => {
@@ -693,7 +674,6 @@ export default class SolicitudProveedorComponent {
     });
   }
 
-  // Método para obtener fiscalías
   getFiscalias() {
     this.fiscaliaService.obtener().subscribe({
       next: (data: any[]) => {
@@ -788,8 +768,6 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-
-  // Deshabilitar el cambio de tipo de dato después de seleccionarlo
   onTipoDatoChange() {
 
     if (this.tipoDatoSeleccionadoBloqueado == false) {
@@ -830,5 +808,45 @@ export default class SolicitudProveedorComponent {
   closeModal() {
     this.isModalOpen = false;
   }
+
+  isCategoriaDelitoDisabled: boolean = false;
+
+  isFiscaliaDisabled: boolean = false;
+
+  isDelitoDisabled: boolean = false;
+
+  buscarInfoNumeroUnico(numeroUnico: string){
+    this.solicitudProveedorService.consultarInfoNumeroUnico(numeroUnico).subscribe({
+      next: (data: any) => {
+
+        this.idCategoriaDelitoSeleccionado = data.categoriaDelitoDTO.idCategoriaDelito;
+        this.idFiscaliaSeleccionada = data.fiscaliaDTO.idFiscalia;
+        this.idDelitoSeleccionado = data.delitoDTO.idDelito;
+        this.imputado = String(data.imputado);
+        this.ofendido = String(data.ofendido);
+        this.resennia = String(data.resennia);
+
+        this.isCategoriaDelitoDisabled = true;
+        this.isDelitoDisabled = true;
+        this.isFiscaliaDisabled = true;
+        
+      },
+      error: (err: any) => {
+        this.errorMessage = err;
+
+        this.idCategoriaDelitoSeleccionado = 0;
+        this.idFiscaliaSeleccionada = 0;
+        this.idDelitoSeleccionado = 0;
+        this.imputado = '';
+        this.ofendido = '';
+        this.resennia = '';
+
+        this.isCategoriaDelitoDisabled = false;
+        this.isDelitoDisabled = false;
+        this.isFiscaliaDisabled = false;
+      }
+    });
+  }
+
 }
 

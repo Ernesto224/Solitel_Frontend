@@ -20,12 +20,18 @@
             <!-- Primera fila de campos -->
             <div class="form-row">
 
+
+                      <!-- Mensaje de error -->
+        <div *ngIf="errorMessage" class="error-message" style="color: red;">
+          {{ errorMessage }}
+        </div>
+        
               <div class="form-group">
                 <label for="numero-unico">Número único:</label>
                 <div class="input-group">
                   <input type="text" id="numero-unico" [(ngModel)]="numeroUnico" name="numeroUnico"
                     placeholder="00-000000-0000-ab">
-                  <button type="button" class="search-btn">
+                  <button (click)="buscarInfoNumeroUnico(numeroUnico)" type="button" class="search-btn">
                     <i class="material-icons">search</i>
                   </button>
                 </div>
@@ -67,7 +73,8 @@
               <div class="form-group">
                 <label for="fiscalia">Fiscalía:</label>
                 <select id="fiscalia" class="required-field" [(ngModel)]="idFiscaliaSeleccionada"
-                  name="idFiscaliaSeleccionada" required>
+                  name="idFiscaliaSeleccionada" required
+                  [disabled]="isFiscaliaDisabled">
                   <option value="">Seleccione</option>
                   <option *ngFor="let fiscalia of fiscalias" [value]="fiscalia.idFiscalia">{{ fiscalia.nombre }}
                   </option>
@@ -92,7 +99,8 @@
               <div class="form-group">
                 <label for="categoria-delito">Categoría delito:</label>
                 <select id="categoria-delito" class="required-field" [(ngModel)]="idCategoriaDelitoSeleccionado"
-                  (change)="onCategoriaDelitoChange()" name="idCategoriaDelitoSeleccionado" required>
+                  (change)="onCategoriaDelitoChange()" name="idCategoriaDelitoSeleccionado" required
+                  [disabled]="isCategoriaDelitoDisabled">
                   <option value="">Seleccione</option>
                   <option *ngFor="let categoria of categoriasDelito" [value]="categoria.idCategoriaDelito">
                     {{ categoria.nombre }}
@@ -103,7 +111,8 @@
               <div class="form-group">
                 <label for="delito">Delito:</label>
                 <select id="delito" class="required-field" [(ngModel)]="idDelitoSeleccionado"
-                  name="idDelitoSeleccionado" required>
+                  name="idDelitoSeleccionado" required
+                  [disabled]="isDelitoDisabled">
                   <option value="">Seleccione</option>
                   <option *ngFor="let delito of delitos" [value]="delito.idDelito">
                     {{ delito.nombre }}
