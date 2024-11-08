@@ -3,6 +3,8 @@ import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { AuthenticacionService } from '../../services/authenticacion.service';
+import { AlertaComponent } from '../../components/alerta/alerta.component';
 import {
   AnalisisTelefonicoService,
   Archivo,
@@ -129,6 +131,7 @@ interface SubModalidad {
     FormsModule,
     NgMultiSelectDropDownModule,
     NgxMaskDirective,
+    AlertaComponent
   ],
   providers: [provideNgxMask()],
 })
@@ -167,15 +170,20 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   solicitudCompletaAnalisis: any = null;
   TipoDatos: TipoDato[] = [];
   idTipoDatoSeleccionado: number = 0;
+  usuarioActivo:any = null;
+  alertatipo: string = "error";
+  alertaMensaje: string = "";
+  alertaVisible: boolean = false;
   private subscription = new Subscription();
 
   // Control de modales
   mostrarConfirmacion = false;
   mostrarExito = false;
 
-  constructor(private analisisService: AnalisisTelefonicoService) {}
+  constructor(private analisisService: AnalisisTelefonicoService, private authService: AuthenticacionService) {}
 
   ngOnInit(): void {
+    this.cargarUsuarioEnSesion();
     this.cargarNumerosUnicos();
     this.cargarOficinasAnalisis();
     this.cargarObjetivosAnalisis();
@@ -285,6 +293,11 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     );
   }
 
+  cargarUsuarioEnSesion() {
+    this.usuarioActivo = this.authService.getUsuario();
+    console.log(this.usuarioActivo.idUsuario);
+  }
+
   obtenerArchivosSolicitudProveedor(): void {
     if (this.idsSolicitudProveedarArchivo.length > 0) {
       this.analisisService
@@ -335,47 +348,59 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   }
 
   agregarRequerimiento(): void {
+    // Validar que todos los campos estén llenos y que los IDs no sean cero
+    if (!this.objetivo || !this.utilizadoPor || this.idTipoDatoSeleccionado === 0 || this.condicionAnalisisEscogida === 0) {
+        this.alertatipo = "error";
+        this.alertaMensaje = "Debes llenar todos los campos de los requerimientos de análisis";
+        this.mostrarAlerta();
+        return;
+    }
+
     const condicionSeleccionada =
-      this.condicionesAnalisis[
-        (this.condicionAnalisisEscogida - this.condicionesAnalisis.length) * -1
-      ];
+        this.condicionesAnalisis[
+            (this.condicionAnalisisEscogida - this.condicionesAnalisis.length) * -1
+        ];
+
     const nuevoRequerimiento: Requerimiento = {
-      idRequerimientoAnalisis: this.requerimientos.length + 1,
-      objetivo: this.objetivo,
-      utilizadoPor: this.utilizadoPor,
-      tipoDato: {
-        idTipoDato: this.idTipoDatoSeleccionado,
-        nombre:
-          this.TipoDatos[
-            (this.idTipoDatoSeleccionado - this.TipoDatos.length) * -1
-          ]?.nombre || 'Tipo no especificado',
-        descripcion:
-          this.TipoDatos[
-            (this.idTipoDatoSeleccionado - this.TipoDatos.length) * -1
-          ]?.descripcion,
-      },
-      idAnalisis: this.requerimientos.length,
-      condicion: condicionSeleccionada || {
-        idCondicion: 0,
-        nombre: 'Nombre no especificado',
-        descripcion: 'Descripción no especificada',
-      },
+        idRequerimientoAnalisis: this.requerimientos.length + 1,
+        objetivo: this.objetivo,
+        utilizadoPor: this.utilizadoPor,
+        tipoDato: {
+            idTipoDato: this.idTipoDatoSeleccionado,
+            nombre:
+                this.TipoDatos[
+                    (this.idTipoDatoSeleccionado - this.TipoDatos.length) * -1
+                ]?.nombre || 'Tipo no especificado',
+            descripcion:
+                this.TipoDatos[
+                    (this.idTipoDatoSeleccionado - this.TipoDatos.length) * -1
+                ]?.descripcion,
+        },
+        idAnalisis: this.requerimientos.length,
+        condicion: condicionSeleccionada || {
+            idCondicion: 0,
+            nombre: 'Nombre no especificado',
+            descripcion: 'Descripción no especificada',
+        },
     };
+
     console.log(
-      nuevoRequerimiento.condicion.nombre +
+        nuevoRequerimiento.condicion.nombre +
         ' ' +
         nuevoRequerimiento.condicion.idCondicion
     );
 
     if (this.selectedIndex !== null && this.selectedIndex >= 0) {
-      this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
-      this.selectedIndex = null;
+        this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
+        this.selectedIndex = null;
     } else {
-      this.requerimientos.push(nuevoRequerimiento);
+        this.requerimientos.push(nuevoRequerimiento);
     }
-    console.log("CANTIDAD DE REQUERIMIENTOS ADD: "+this.requerimientos.length);
+
+    console.log("CANTIDAD DE REQUERIMIENTOS ADD: " + this.requerimientos.length);
     this.limpiarCamposRequerimiento();
-  }
+}
+
 
   cargarRequerimientoEnFormulario(index: number): void {
     if (index >= 0 && index < this.requerimientos.length) {
@@ -407,7 +432,9 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       !this.fechaHecho ||
       this.requerimientos.length === 0
     ) {
-      alert('Por favor, complete todos los campos requeridos.');
+      this.alertatipo = "error";
+      this.alertaMensaje = "Hay campos vacios";
+      this.mostrarAlerta();
       return;
     }
     console.log('NUMERO DE REQUERIMIENTOS: ' + this.requerimientos.length);
@@ -432,7 +459,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       fechaCreacion: new Date().toISOString(),
       numeroSolicitud: numeroSolicitud || 0,
       idOficina: Number(this.oficinaAnalisis) || 0,
-
+      idUsuario: Number(this.usuarioActivo.idUsuario) || 0,
       requerimentos: (this.requerimientos || []).map((requerimiento) => ({
         idRequerimientoAnalisis: requerimiento.idRequerimientoAnalisis,
         objetivo: requerimiento.objetivo || 'Objetivo no especificado',
@@ -658,10 +685,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     // Resetear los campos específicos de los requerimientos
     this.limpiarCamposRequerimiento();
 
-    // Cerrar cualquier modal que pudiera estar abierto
-    this.mostrarConfirmacion = false;
-    this.mostrarExito = false;
-
     console.log('Formulario completamente limpio');
   }
 
@@ -678,5 +701,14 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   validarUtilizadoPor(): boolean {
     const regex = /^[a-zA-Z\s]+$/;
     return regex.test(this.utilizadoPor) && this.utilizadoPor.length >= 20;
+  }
+
+  mostrarAlerta(): void {
+    this.alertaVisible = true;
+
+    // Opcional: Cerrar la alerta después de unos segundos
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000); // 3 segundos
   }
 }
