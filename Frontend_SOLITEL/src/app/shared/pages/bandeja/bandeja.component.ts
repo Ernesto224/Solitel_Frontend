@@ -228,7 +228,6 @@ export default class BandejaComponent implements OnInit {
     });
   }
 
-
   obtenerOpcionesPorEstado(estado: string): string[] {
     switch (estado) {
       case "En Análisis":
@@ -242,7 +241,6 @@ export default class BandejaComponent implements OnInit {
     }
   }
   
-  //modales
   reiniciarDatosDeTabla(): void {
     this.numeroDePagina = 1;
     this.estadoSeleccionado = this.estadoTemporal;
@@ -314,7 +312,6 @@ export default class BandejaComponent implements OnInit {
     this.isModalVisible = false; // Método para cerrar el modal
   }
 
-  //otros
   contarSolicitudesPorEstado() {
     // Reiniciar contadores
     this.cantidadPorEstadoProveedor = [];
@@ -396,7 +393,6 @@ export default class BandejaComponent implements OnInit {
     this.solicitudesPaginadas = this.solicitudesFiltradas.slice(inicio, fin);
   }
 
-
   filtrarSolicitudesAnalisis(): void {
     // Usa solicitudesAnalisisOriginales como base y asigna el resultado filtrado a solicitudesAnalisis
     this.solicitudesAnalisis = this.solicitudesAnalisisOriginales.filter(solicitudAnalisis =>
@@ -405,7 +401,6 @@ export default class BandejaComponent implements OnInit {
     );
     console.log("Solicitudes filtradas:", this.solicitudesAnalisis);
   }
-
 
   filtrarSolicitudes() {
     console.log(this.solicitudes)
