@@ -1,18 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { RouterOutlet } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticacionService {
   private usuarioKey = 'usuario';
+  private oficeKey = 'ofices';
 
   // Usuarios quemados para pruebas
   private usuarioPrueba = {
-    IdUsuario: 1,
+    idUsuario: 1,
     nombre: 'Eliecer',
-    Apellido: 'Melgara',
+    apellido: 'Melgara',
     correoElectronico: 'eliecermelgara1680@gmail.com',
     usuario: 'eliecer.melgara',
     contrasennia: 'Melgara1212!',
@@ -30,9 +29,9 @@ export class AuthenticacionService {
   };
 
   private usuarioPrueba2 = {
-    IdUsuario: 2,
+    idUsuario: 2,
     nombre: 'Jesner',
-    Apellido: 'Melgara',
+    apellido: 'Melgara',
     correoElectronico: 'eliecermelgara1680@gmail.com',
     usuario: 'eliecer.melgara',
     contrasennia: 'Melgara1212!!',
@@ -70,7 +69,7 @@ export class AuthenticacionService {
 
   usuarios = [this.usuarioPrueba, this.usuarioPrueba2];
 
-  constructor(private router: Router) {}
+  constructor() {}
 
   private isSessionStorageAvailable(): boolean {
     return (
@@ -83,7 +82,6 @@ export class AuthenticacionService {
       const usuario = this.usuarios.find(
         (user) => user.usuario === username && user.contrasennia === password
       );
-
       if (usuario) {
         console.log('Login successful')
         return usuario;
@@ -99,7 +97,12 @@ export class AuthenticacionService {
   logout(): void {
     if (this.isSessionStorageAvailable()) {
       sessionStorage.removeItem(this.usuarioKey);
-      localStorage.removeItem(this.usuarioKey);
+    }
+  }
+
+  deleteOfice(): void {
+    if (this.isSessionStorageAvailable()) {
+      sessionStorage.removeItem(this.oficeKey);
     }
   }
 
@@ -108,31 +111,39 @@ export class AuthenticacionService {
       const usuario = sessionStorage.getItem(this.usuarioKey);
       return usuario ? JSON.parse(usuario) : null;
     }
-    console.log("NULL EN EL SESSION");
     return null;
   }
+
+  getOficinas(): any {
+    if (this.isSessionStorageAvailable()) {
+      const oficina = sessionStorage.getItem(this.oficeKey);
+      return oficina ? JSON.parse(oficina) : null;
+    }
+    return null;
+  }
+
   tienePermiso(permiso: string): boolean {
     const usuario = this.getUsuario();
     if (!usuario || !usuario.oficina || !usuario.oficina.rol || !Array.isArray(usuario.oficina.rol.permisos)) {
       return false;
     }
-  
     return usuario.oficina.rol.permisos.some((p: { nombre: string }) => p.nombre === permiso || p.nombre === 'todos');
   }
-  
-  agregarUsuario(usuario:any, usuarioOriginal:any){
+
+  agregarUsuario(usuario: any) {
     if (this.isSessionStorageAvailable()) {
-        sessionStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
-        localStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
-        
+      sessionStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
     }
-    if(this.getUsuario() !== null){
-      this.router.navigate(['/']);
-      console.log('Usuario CONFIRMADO');
+  }
+
+  agregarOficinas(oficinas: any) {
+    if (this.isSessionStorageAvailable()) {
+      sessionStorage.setItem(this.oficeKey, JSON.stringify(oficinas));
     }
   }
 
   isAuthenticated(): boolean {
     return this.getUsuario() !== null;
   }
+
 }

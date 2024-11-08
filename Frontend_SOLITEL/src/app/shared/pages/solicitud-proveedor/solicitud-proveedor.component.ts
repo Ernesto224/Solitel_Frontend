@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
 import { DelitoService } from '../../services/delito.service';  // Importar el servicio de delitos
 import { FiscaliaService } from '../../services/fiscalia.service';  // Importar el servicio de fiscalías
 import { CategoriaDelitoService } from '../../services/categoria-delito.service';  // Importar el servicio de fiscalías
@@ -21,7 +20,6 @@ import { AlertaComponent } from '../../components/alerta/alerta.component';
   standalone: true,
   imports: [
     CommonModule,
-    RouterOutlet,
     FormsModule,
     NgMultiSelectDropDownModule,
     AlertaComponent

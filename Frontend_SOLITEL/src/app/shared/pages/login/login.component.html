@@ -1,89 +1,49 @@
 <app-navbar-simple></app-navbar-simple>
 
 <div class="flex justify-center items-center min-h-[87vh] bg-gray-100">
-  <div
-    *ngIf="inicioSesion !== true"
-    class="bg-white rounded-lg shadow-lg p-10 w-full max-w-lg"
-  >
+  <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
+  <div class="bg-white rounded-lg shadow-lg p-10 w-full max-w-lg">
     <!-- Imagen del encabezado -->
     <div class="flex justify-center mb-6">
-      <img
-        src="https://sitiooij.poder-judicial.go.cr/images/placa-lg.png"
-        alt="Placa OIJ"
-        class="w-28 h-auto"
-      />
+      <img src="https://sitiooij.poder-judicial.go.cr/images/placa-lg.png" alt="Placa OIJ" class="w-28 h-auto" />
     </div>
-
     <!-- Formulario de login -->
-    <form [formGroup]="formulario" (ngSubmit)="onSubmit()" class="space-y-6">
+    <form [formGroup]="formulario" class="space-y-6">
       <!-- Campo de usuario -->
       <div class="flex items-center border-b border-gray-300 py-3">
         <i class="material-icons">person</i>
-        <input
-          type="text"
-          formControlName="username"
-          placeholder="Usuario"
-          class="appearance-none bg-transparent border-none w-full text-gray-700 py-2 px-2 leading-tight focus:outline-none"
-        />
+        <input type="text" formControlName="username" placeholder="Usuario"
+          class="appearance-none bg-transparent border-none w-full text-gray-700 py-2 px-2 leading-tight focus:outline-none" />
       </div>
-      <div
-        *ngIf="
+      <div *ngIf="
           formulario.get('username')?.invalid &&
           formulario.get('username')?.touched
-        "
-        class="text-red-500 text-sm"
-      >
+        " class="text-red-500 text-sm">
         El campo de usuario es obligatorio.
       </div>
-
       <!-- Campo de contraseña -->
       <div class="flex items-center border-b border-gray-300 py-3">
         <i class="material-icons">lock</i>
-        <input
-          type="password"
-          formControlName="password"
-          placeholder="Contraseña"
-          class="appearance-none bg-transparent border-none w-full text-gray-700 py-2 px-2 leading-tight focus:outline-none"
-        />
+        <input type="password" formControlName="password" placeholder="Contraseña"
+          class="appearance-none bg-transparent border-none w-full text-gray-700 py-2 px-2 leading-tight focus:outline-none" />
       </div>
-      <div
-        *ngIf="
+      <div *ngIf="
           formulario.get('password')?.invalid &&
           formulario.get('password')?.touched
-        "
-        class="text-red-500 text-sm"
-      >
+        " class="text-red-500 text-sm">
         La contraseña es obligatoria.
       </div>
-
       <!-- Botón de inicio de sesión -->
       <div class="flex justify-center">
-        <button
-          type="submit"
+        <button type="submit"
           class="bg-blue-500 text-white font-bold px-4 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2 w-full"
-          (click)="verificarInicioSesion()"
-        >
+          (click)="verificarInicioSesion()">
           <i class="material-icons">login</i>
           <span>Iniciar Sesión</span>
         </button>
       </div>
     </form>
   </div>
-  <div *ngIf="inicioSesion" class="office-selection-container">
-    <div class="office-selection-input-container">
-      <label for="office-select" class="office-selection-label">
-        Favor seleccione la oficina en la que desea trabajar:
-      </label>
-      <select [(ngModel)]="idOficinaSeleccionada" (click)="verOficinaSeleecionada()" id="office-select" name="office" class="office-selection-select" >
-        <option value="" disabled selected>Seleccione una oficina</option>
-        <option *ngFor="let oficina of oficinas" [value]="oficina.idOficina">
-          {{ oficina.nombre }}
-        </option>
-      </select>      
-    </div>
-    <button type="submit" class="office-selection-btn-guardar" (click)="guardarUsuarioOficina()">Guardar</button>
-  </div>  
-  
 </div>
 
 <app-footer></app-footer>

@@ -9,6 +9,11 @@ export const routes: Routes = [
       import('./shared/pages/login/login.component'),
   },
   {
+    path: 'seleccionar-oficina',
+    canActivate: [autenticadoGuard],
+    loadComponent: () => import('./shared/pages/seleccionar-oficina/seleccionar-oficina.component'),
+  },
+  {
     path: '',
     component: DistribucionComponent,
     canActivateChild: [autenticadoGuard],
@@ -20,7 +25,7 @@ export const routes: Routes = [
           import(
             './shared/pages/analisis-telefonico/analisis-telefonico.component'
           ),
-      },{
+      }, {
         path: 'vista-proveedor',
         loadComponent: () =>
           import(
