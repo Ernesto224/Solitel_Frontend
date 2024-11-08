@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class TipoSolicitudService {
 
-  private urlServices: string = "https://localhost:7211/api/TipoSolicitud/";
+  private urlServices: string = "https://localhost:7211/api/TipoSolicitud";
 
   constructor(private http: HttpClient) { }
 
