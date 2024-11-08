@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +31,7 @@ export class AuthenticacionService {
 
   private usuarioPrueba2 = {
     IdUsuario: 2,
-    nombre: 'Eliecer',
+    nombre: 'Jesner',
     Apellido: 'Melgara',
     correoElectronico: 'eliecermelgara1680@gmail.com',
     usuario: 'eliecer.melgara',
@@ -68,7 +70,7 @@ export class AuthenticacionService {
 
   usuarios = [this.usuarioPrueba, this.usuarioPrueba2];
 
-  constructor() {}
+  constructor(private router: Router) {}
 
   private isSessionStorageAvailable(): boolean {
     return (
@@ -83,8 +85,7 @@ export class AuthenticacionService {
       );
 
       if (usuario) {
-        console.log('Login successful');
-        sessionStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
+        console.log('Login successful')
         return usuario;
       } else {
         console.error('Invalid username or password');
@@ -98,6 +99,7 @@ export class AuthenticacionService {
   logout(): void {
     if (this.isSessionStorageAvailable()) {
       sessionStorage.removeItem(this.usuarioKey);
+      localStorage.removeItem(this.usuarioKey);
     }
   }
 
@@ -109,23 +111,25 @@ export class AuthenticacionService {
     console.log("NULL EN EL SESSION");
     return null;
   }
-
   tienePermiso(permiso: string): boolean {
     const usuario = this.getUsuario();
-    if (!usuario) {
+    if (!usuario || !usuario.oficina || !usuario.oficina.rol || !Array.isArray(usuario.oficina.rol.permisos)) {
       return false;
     }
   
-    for (const oficina of usuario.oficina) {
-      if (oficina.rol.permisos.some((p: { nombre: string }) => p.nombre === permiso || p.nombre === 'todos')) {
-        return true;
-      }
-    }
-    return false;
+    return usuario.oficina.rol.permisos.some((p: { nombre: string }) => p.nombre === permiso || p.nombre === 'todos');
   }
-
-  agregarUsuario(usuario:any){
-    sessionStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
+  
+  agregarUsuario(usuario:any, usuarioOriginal:any){
+    if (this.isSessionStorageAvailable()) {
+        sessionStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
+        localStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
+        
+    }
+    if(this.getUsuario() !== null){
+      this.router.navigate(['/']);
+      console.log('Usuario CONFIRMADO');
+    }
   }
 
   isAuthenticated(): boolean {

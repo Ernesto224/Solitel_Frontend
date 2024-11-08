@@ -1,13 +1,21 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormGroup,
+  FormControl,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NavbarSimpleComponent } from '../../components/navbar-simple/navbar-simple.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { AuthenticacionService } from '../../services/authenticacion.service';
-import { OficinaService } from '../../services/oficina.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms'; // Importa FormsModule
+
+interface Permiso {
+  nombre: string;
+}
 
 @Component({
   selector: 'app-login',
@@ -18,52 +26,46 @@ import { FormsModule } from '@angular/forms'; // Importa FormsModule
     ReactiveFormsModule,
     FormsModule, // Asegúrate de importar FormsModule aquí también
     NavbarSimpleComponent,
-    FooterComponent
+    FooterComponent,
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
 })
 export default class LoginComponent {
-
   // Definición del formulario reactivo
   formulario!: FormGroup;
   inicioSesion: boolean = false;
   oficinas: any[] = [];
   usuario: any = null;
+  usuarioAux: any = null;
   idOficinaSeleccionada: number = 0; // Inicializa la variable como número
 
   constructor(
     private authService: AuthenticacionService,
-    private router: Router,
-    private oficinaService: OficinaService
-  ) { }
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    // Verificar si el usuario ya está autenticado
-    if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/ruta-deseada']); // Cambia '/ruta-deseada' por la ruta a la que quieres redirigir
-    }
-
     // Inicialización del formulario con FormGroup y validadores
     this.formulario = new FormGroup({
       username: new FormControl('', Validators.required),
-      password: new FormControl('', Validators.required)
+      password: new FormControl('', Validators.required),
     });
-    this.obtenerOficinas();
   }
 
   verificarInicioSesion(): void {
     // Validación de los campos del formulario
     const usernameControl = this.formulario.get('username');
     const passwordControl = this.formulario.get('password');
-  
+
     if (usernameControl && passwordControl) {
       const username = usernameControl.value;
       const password = passwordControl.value;
-      console.log("NOMBRE USUARIO: " + username);
-      console.log("PASSWORD: " + password);
+      console.log('NOMBRE USUARIO: ' + username);
+      console.log('PASSWORD: ' + password);
       this.usuario = this.authService.login(username, password);
       if (this.usuario !== null) {
+        this.oficinas = this.usuario.oficina;
         this.inicioSesion = true;
       } else {
         this.inicioSesion = false;
@@ -73,37 +75,51 @@ export default class LoginComponent {
     }
   }
 
-  verOficinaSeleecionada(){
+  verOficinaSeleecionada() {
     console.log(this.idOficinaSeleccionada);
   }
-
   guardarOficinaEscogida(): void {
-    this.oficinas.forEach(oficina => console.log(oficina));
+    this.oficinas.forEach((oficina) => console.log(oficina));
     console.log(this.idOficinaSeleccionada);
-    console.log(this.oficinas.find(oficina => oficina.idOficina === this.idOficinaSeleccionada));
-    this.usuario.oficina = this.oficinas.find(oficina => oficina.idOficina === Number(this.idOficinaSeleccionada));
+    const oficinaSeleccionada = this.oficinas.find(
+      (oficina) => oficina.idOficina === Number(this.idOficinaSeleccionada)
+    );
+    console.log(oficinaSeleccionada);
+
+    if (oficinaSeleccionada) {
+      // Asignar la oficina seleccionada directamente a this.usuario.oficina
+      this.usuarioAux = {
+        ...this.usuario, // Copiar todos los datos del usuario actual
+        oficina: {
+          idOficina: oficinaSeleccionada.idOficina,
+          nombre: oficinaSeleccionada.nombre,
+          tipo: oficinaSeleccionada.tipo,
+          rol: {
+            nombre: oficinaSeleccionada.rol.nombre,
+            permisos: oficinaSeleccionada.rol.permisos.map(
+              (permiso: Permiso) => ({ nombre: permiso.nombre })
+            ),
+          },
+        },
+      };
+
+      console.log('USUARIO');
+      console.log(this.usuarioAux);
+      console.log('USUARIO');
+    } else {
+      console.error('No se encontró la oficina seleccionada.');
+    }
   }
 
   guardarUsuarioOficina(): void {
     this.guardarOficinaEscogida();
-    console.log(this.usuario.oficina);
-    if (this.usuario && this.usuario.oficina) {
-      this.authService.agregarUsuario(this.usuario);
-      console.log("Usuario guardado en la sesión");
+    console.log(this.usuarioAux.oficina);
+    if (this.usuarioAux && this.usuarioAux.oficina) {
+      this.authService.agregarUsuario(this.usuarioAux, this.usuario);
+      console.log('Usuario guardado en la sesión');
     } else {
       console.error('No se pudo guardar el usuario en la sesión');
     }
-  }
-
-  obtenerOficinas(): void {
-    this.oficinaService.obtener().subscribe({
-      next: (data: any[]) => {
-        this.oficinas = data;
-      },
-      error: (err: any) => {
-        console.error('Error al obtener oficinas:', err);
-      }
-    });
   }
 
   // Método de envío del formulario
