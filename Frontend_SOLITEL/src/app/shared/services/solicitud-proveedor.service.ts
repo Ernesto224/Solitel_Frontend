@@ -99,18 +99,7 @@ export class SolicitudProveedorService {
   }
 
   public consultarInfoNumeroUnico(numeroUnico: string):Observable<any> {
-    return this.http.get<any>(`${this.urlServices}${this.urlConsultarInfoNumeroUnico}?numeroUnico=${numeroUnico}`).pipe(
-      catchError(this.handleError));
-  }
-
-  private handleError(error: HttpErrorResponse) {
-    if (error.status === 404) {
-      // Manejar el error 404 específicamente
-      return throwError('No se encontró ninguna solicitud con ese número único.');
-    } else {
-      // Manejar otros errores
-      return throwError('Ocurrió un error inesperado.');
-    }
+    return this.http.get<any>(`${this.urlServices}${this.urlConsultarInfoNumeroUnico}?numeroUnico=${numeroUnico}`);
   }
 
 }

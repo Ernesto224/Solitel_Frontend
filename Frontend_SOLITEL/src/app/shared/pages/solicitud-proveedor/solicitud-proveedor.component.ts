@@ -15,6 +15,8 @@ import { OficinaService } from '../../services/oficina.service'; // Para cargar 
 import { ArchivoService } from '../../services/archivo.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { AlertaComponent } from '../../components/alerta/alerta.component';
+import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
+
 
 @Component({
   selector: 'app-solicitud-proveedor',
@@ -24,12 +26,21 @@ import { AlertaComponent } from '../../components/alerta/alerta.component';
     RouterOutlet,
     FormsModule,
     NgMultiSelectDropDownModule,
-    AlertaComponent
+    AlertaComponent,
+    ModalConfirmacionComponent
   ],
   templateUrl: './solicitud-proveedor.component.html',
   styleUrls: ['./solicitud-proveedor.component.css']
 })
 export default class SolicitudProveedorComponent {
+
+  modalConfirmacionisible: boolean = false;
+
+  isCategoriaDelitoDisabled: boolean = false;
+
+  isFiscaliaDisabled: boolean = false;
+
+  isDelitoDisabled: boolean = false;
 
   alertatipo: string = "error";
   alertaMensaje: string = "";
@@ -430,13 +441,13 @@ export default class SolicitudProveedorComponent {
         },
 
         modalidad: {
-          idModalidad: this.idModalidadSeleccionada,
+          idModalidad: this.idModalidadSeleccionada != 0 ? this.idModalidadSeleccionada: 0,
           nombre: "Modalidad X",
           descripcion: "Descripción de la modalidad"
         },
 
         subModalidad: {
-          idSubModalidad: this.idSubModalidadSeleccionada,
+          idSubModalidad: this.idSubModalidadSeleccionada != 0 ? this.idSubModalidadSeleccionada: 0,
           nombre: "Submodalidad X",
           descripcion: "Descripción de la submodalidad",
           idModalida: this.idModalidadSeleccionada
@@ -448,8 +459,10 @@ export default class SolicitudProveedorComponent {
         next: response => {
           this.alertaMensaje = 'Solicitud guardada con éxito.';
           this.alertatipo = 'satisfaccion';
+          this.cerrarModalConfirmacion();
           this.mostrarAlerta();
           this.limpiarTodo();
+          //Redireccionar a la bandeja
         },
         error: err => {
           this.alertaMensaje = `Error al guardar la solicitud: ${err}`;
@@ -820,13 +833,7 @@ export default class SolicitudProveedorComponent {
     this.isModalOpen = false;
   }
 
-  isCategoriaDelitoDisabled: boolean = false;
-
-  isFiscaliaDisabled: boolean = false;
-
-  isDelitoDisabled: boolean = false;
-
-  buscarInfoNumeroUnico(numeroUnico: string){
+  buscarInfoNumeroUnico(numeroUnico: string): void{
     this.solicitudProveedorService.consultarInfoNumeroUnico(numeroUnico).subscribe({
       next: (data: any) => {
 
@@ -843,7 +850,9 @@ export default class SolicitudProveedorComponent {
         
       },
       error: (err: any) => {
-        this.errorMessage = err;
+        this.alertaMensaje = 'No se encontro solicitud con ese numero unico';
+        this.alertatipo = 'error';
+        this.mostrarAlerta();
 
         this.idCategoriaDelitoSeleccionado = 0;
         this.idFiscaliaSeleccionada = 0;
@@ -857,6 +866,14 @@ export default class SolicitudProveedorComponent {
         this.isFiscaliaDisabled = false;
       }
     });
+  }
+
+  abrirModalConfirmacion(){
+    this.modalConfirmacionisible = true;
+  }
+
+  cerrarModalConfirmacion(){
+    this.modalConfirmacionisible = false;
   }
 
 }

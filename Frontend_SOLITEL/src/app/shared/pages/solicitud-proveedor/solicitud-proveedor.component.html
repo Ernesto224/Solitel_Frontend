@@ -276,7 +276,7 @@
               <button type="button" class="btn btn-secondary text-[#FFFFFF] px-4 
                       py-2 rounded
                       focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
-                (click)="guardarSolicitud()">
+                (click)="abrirModalConfirmacion()">
                 <i class="material-icons">save</i>
                 <span>Guardar</span>
               </button>
@@ -287,6 +287,15 @@
     </div>
   </main>
 </div>
+
+ <!-- Modal Confirmacion -->
+ <app-modal-confirmacion [modalEstadoVisible]="modalConfirmacionisible" (confirmar)="guardarSolicitud()"
+ (cancelar)="cerrarModalConfirmacion()">
+ <div modal-header>
+   <h2 class="text-xl font-semibold mb-4">Confirmacion Tramitación</h2>
+   <p>¿Estás seguro de que desea registrar la solicitud?</p>
+ </div>
+</app-modal-confirmacion>
 
 <!-- Modal -->
 <div class="modal-container" [ngClass]="{ 'hidden': !isModalOpen }">
