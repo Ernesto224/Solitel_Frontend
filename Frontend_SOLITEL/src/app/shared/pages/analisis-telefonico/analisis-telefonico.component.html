@@ -22,8 +22,11 @@
                       ? cargarSolicitudesPorNumeroUnico(numeroUnico.toString())
                       : null
                   "
-                  class="input select"
+                  class="input select required-field"
+                  required
+                  [ngClass]="{'ng-invalid ng-touched': !numeroUnico && numeroUnico !== null}"
                 >
+                  <option value="" disabled [selected]="!numeroUnico">Seleccione el Número Unico</option>
                   <option *ngFor="let numero of numerosUnicos" [value]="numero">
                     {{ numero }}
                   </option>
@@ -43,6 +46,7 @@
                 [settings]="dropdownSettingsSolicitudes"
                 name="idSolicitudSeleccionada"
                 required
+                [ngClass]="{'invalid': solicitudesProveedorSeleccionadas?.length === 0}"
               ></ng-multiselect-dropdown>
             </section>
 
@@ -57,6 +61,7 @@
                 [settings]="dropdownSettingsArchivos"
                 name="idArchivoSeleccionada"
                 required
+                [ngClass]="{'invalid': archivosAnalizarSeleccionados?.length === 0}"
               ></ng-multiselect-dropdown>
             </section>
           </section>
@@ -70,13 +75,13 @@
               <label>Oficina de análisis criminal:</label>
               <select
                 [(ngModel)]="oficinaAnalisis"
-                class="input select"
+                class="input select required-field"
                 (click)="VerIdOficina()"
+                required
+                [ngClass]="{'ng-invalid ng-touched': !oficinaAnalisis}"
               >
-                <option
-                  *ngFor="let oficina of oficinasAnalisis"
-                  [value]="oficina.idOficina"
-                >
+                <option value="" disabled [selected]="!oficinaAnalisis">Seleccione la Oficina de análisis</option>
+                <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.idOficina">
                   {{ oficina.nombre }}
                 </option>
               </select>
@@ -84,8 +89,8 @@
 
             <section class="form-group">
               <label>Tipo de análisis:</label>
-              <select [(ngModel)]="tipoAnalisis" class="input select">
-                <option value="Seleccione">Seleccione</option>
+              <select [(ngModel)]="tipoAnalisis" class="input select required-field" required [ngClass]="{'ng-invalid ng-touched': !tipoAnalisis}">
+                <option value="" disabled [selected]="!tipoAnalisis">Seleccione el Tipo de Análisis</option>
                 <option
                   *ngFor="let tipoAnalisis of tiposAnalisis"
                   [value]="tipoAnalisis.idTipoAnalisis"
@@ -106,6 +111,7 @@
                 [settings]="dropdownSettingsObjetivos"
                 name="idObjetivoSeleccionada"
                 required
+                [ngClass]="{'invalid': objetivosAnalisisSeleccionados?.length === 0}"
               ></ng-multiselect-dropdown>
             </section>
           </section>
@@ -114,12 +120,12 @@
           <section class="form-row">
             <section class="form-group">
               <label>Fecha del hecho:</label>
-              <input [(ngModel)]="fechaHecho" type="date" class="input" />
+              <input [(ngModel)]="fechaHecho" type="date" class="input required-field" required [ngClass]="{'ng-invalid ng-touched': !fechaHecho}">
             </section>
 
             <section class="form-group">
               <label>Otros (objetivos):</label>
-              <input [(ngModel)]="otrosObjetivos" type="text" class="input" />
+              <input [(ngModel)]="otrosObjetivos" type="text" class="input required-field" [ngClass]="{'ng-invalid ng-touched': !otrosObjetivos}">
             </section>
           </section>
 
@@ -130,7 +136,9 @@
               [(ngModel)]="otrosDetalles"
               (blur)="validarOtrosDetalles()"
               rows="4"
-              class="input textarea"
+              class="input textarea required-field"
+              [ngClass]="{'ng-invalid ng-touched': !otrosDetalles}"
+              required
             ></textarea>
           </section>
 
@@ -143,10 +151,12 @@
               <label>Tipo Objetivo:</label>
               <select
                 [(ngModel)]="idTipoDatoSeleccionado"
-                class="input select"
+                class="input select required-field"
                 (click)="verificarIdTipoDatos()"
+                required
+                [ngClass]="{'ng-invalid ng-touched': !idTipoDatoSeleccionado}"
               >
-                <option value="">Seleccione</option>
+                <option value="" disabled [selected]="!idTipoDatoSeleccionado">Seleccione el Tipo de Objetivo</option>
                 <option
                   *ngFor="let tipoDato of TipoDatos"
                   [value]="tipoDato.idTipoDato"
@@ -163,7 +173,8 @@
                 (blur)="validarObjetivo()"
                 mask="00000000"
                 type="text"
-                class="input"
+                class="input required-field"
+                [ngClass]="{'invalid': !objetivo}"
               />
             </section>
 
@@ -173,7 +184,8 @@
                 [(ngModel)]="utilizadoPor"
                 (blur)="validarUtilizadoPor()"
                 type="text"
-                class="input"
+                class="input required-field"
+                [ngClass]="{'invalid': !utilizadoPor}"
               />
             </section>
 
@@ -181,9 +193,11 @@
               <label>Condición:</label>
               <select
                 [(ngModel)]="condicionAnalisisEscogida"
-                class="input select"
+                class="input select required-field"
+                required
+                [ngClass]="{'ng-invalid ng-touched': !condicionAnalisisEscogida}"
               >
-                <option value="">Seleccione</option>
+                <option value="" disabled [selected]="!condicionAnalisisEscogida">Seleccione la Condición</option>
                 <option
                   *ngFor="let condicionValor of condicionesAnalisis"
                   [value]="condicionValor.idCondicion"
@@ -254,6 +268,7 @@
                   <td>{{ requerimiento.objetivo }}</td>
                   <td>{{ requerimiento.utilizadoPor }}</td>
                   <td>{{ requerimiento.condicion.nombre }}</td>
+                  <td>{{''}}</td>
                 </tr>
               </tbody>
             </table>
@@ -275,6 +290,7 @@
   </section>
 </div>
 
+
 <!-- Modal de Confirmación -->
 <section *ngIf="mostrarConfirmacion" class="modal-container">
   <div class="modal-content">
@@ -283,11 +299,11 @@
       <button (click)="cerrarModal()">✕</button>
     </header>
     <p>¿Está seguro que desea registrar la solicitud?</p>
-    <section class="buttons-row">
-      <button class="btn btn-secondary" (click)="cerrarModal()">
+    <section class="custom-modal-buttons buttons-row">
+      <button class="modal-btn modal-btn-cancel" (click)="cerrarModal()">
         Cancelar
       </button>
-      <button class="btn btn-primary" (click)="confirmarGuardado()">
+      <button class="modal-btn modal-btn-confirmation" (click)="confirmarGuardado()">
         Aceptar
       </button>
     </section>
@@ -302,8 +318,8 @@
       <button (click)="cerrarModal()">✕</button>
     </header>
     <p>La operación ha sido realizada con éxito.</p>
-    <section class="buttons-row">
-      <button class="btn btn-secondary" (click)="cerrarModal()">Aceptar</button>
+    <section class="custom-modal-buttons buttons-row">
+      <button class="modal-btn modal-btn-confirmation" (click)="cerrarModal()">Aceptar</button>
     </section>
   </div>
 </section>
