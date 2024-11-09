@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';
 import { HistoricoService } from '../../services/historico.service';
-import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EstadoService } from '../../services/estado.service';
@@ -11,17 +10,19 @@ import { TablaVisualizacionComponent } from '../../components/tabla-visualizacio
 import { ModalInformacionComponent } from '../../components/modal-informacion/modal-informacion.component';
 import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
 import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
+import { AlertaComponent } from '../../components/alerta/alerta.component';
+
 
 @Component({
   selector: 'app-bandeja',
   standalone: true,
   imports: [
-    RouterOutlet,
     CommonModule,
     FormsModule,
     TablaVisualizacionComponent,
     ModalInformacionComponent,
-    ModalConfirmacionComponent
+    ModalConfirmacionComponent,
+    AlertaComponent
   ],
   providers: [
     DatePipe
@@ -115,6 +116,11 @@ export default class BandejaComponent implements OnInit {
   solicitudSeleccionada: any = null;
   solicitudIdParaActualizar: number | null = null;
 
+  // Variables para la alerta component
+  alertatipo: string = "error";
+  alertaMensaje: string = "";
+  alertaVisible: boolean = false;
+
   modalVisible = false;
   encabezadosRequerimientos: any[] = [
     { key: 'requerimiento', label: 'Requerimiento' },
@@ -160,7 +166,82 @@ export default class BandejaComponent implements OnInit {
       icon: 'folder' // Icono para el botón
     },
   ];
+
   archivos: any[] = [];
+
+
+  // Variables necesarias para ver y descargar archivos UAC
+  archivosUAC: any[] = [];
+  modalArchivosUACVisible: boolean = false;
+  encabezadosArchivosUAC: any[] = [
+    { key: 'nombre', label: 'Nombre Documento' }
+  ];
+  accionesArchivosUAC: any[] = [
+    {
+      style: "background-color: #1C355C;",
+      class: "text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring w-[55px]",
+      action: (archivo: any) => this.descargarArchivo(archivo),
+      icon: 'download'
+    }
+  ];
+  encabezadosAccionesArchivosUAC: any[] = [
+    'Descargar'
+  ];
+
+
+  // Variables necesarias para agregar informe 
+  modalArchivosInformeFinalVisible: boolean = false;
+  archivosInformeFinal: any[] = [];
+  archivosInformeFinalDB: any[] = [];
+  idSolicitudAnalisisSeleccionada: number = 0;
+  encabezadosArchivosInforme: any[] = [
+    { key: 'nombre', label: 'Nombre Documento' }
+  ];
+  accionesArchivosInforme: any[] = [
+    {
+      style: "background-color: #1C355C;",
+      class: "text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring w-[55px]",
+      action: (archivo: any) => this.descargarArchivo(archivo),
+      icon: 'download'
+    }
+  ];
+  encabezadosAccionesArchivosInforme: any[] = [
+    'Descargar'
+  ];
+
+
+  // Variables para el modal historico analisis
+  historicoDeSolicitudAnalisisSeleccionada: any[] = [];
+  modalHistoricoAnalisisVisible: boolean = false;
+  encabezadosHistoricoAnalisis: any[] = [
+    { key: 'idSolicitudAnalisis', label: 'Solicitud' },
+    { key: 'estado', label: 'Estado' },
+    { key: 'fechaEstado', label: 'Fecha Estado' },
+    { key: 'usuario', label: 'Usuario' },
+    { key: 'observacion', label: 'Observación' }
+  ];
+
+
+  // Variables para confirmar Legajo analisis
+  modalLegajorAnalisis: boolean = false;
+  observacionLegajoAnalisis: string = '';
+
+
+  // Variables para aprobar analisis
+  modalAprobarAnalisis: boolean = false;
+  observacionAprobarAnalisis: string = '';
+
+
+  // Variables para devolver Analizado
+  modalDevolverAnalizado: boolean = false;
+  observacionDevolverAnalizado: string = '';
+
+
+  // Variables para finalizar una solicitud de analisis
+  modalFinalizarAnalisis: boolean = false;
+  observacionFinalizarAnalisis: string = '';
+
+
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
@@ -172,7 +253,10 @@ export default class BandejaComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.cargarDatosBandeja();
+  }
 
+  cargarDatosBandeja() {
     this.isModalVisible = true; // Mostrar el modal al iniciar la operación
 
     // Simulación de una operación asíncrona
@@ -181,7 +265,11 @@ export default class BandejaComponent implements OnInit {
       this.obtenerSolicitudes();
       this.obtenerSolicitudesAnalisis();
     }, 3000); // Simular 3 segundos de procesamiento
+  }
 
+  vaciarDatosBandeja() {
+    this.solicitudes = [];
+    this.solicitudesAnalisis = [];
   }
 
   //obtener datos
@@ -240,7 +328,7 @@ export default class BandejaComponent implements OnInit {
         return [];
     }
   }
-  
+
   reiniciarDatosDeTabla(): void {
     this.numeroDePagina = 1;
     this.estadoSeleccionado = this.estadoTemporal;
@@ -415,12 +503,12 @@ export default class BandejaComponent implements OnInit {
     this.actualizarPaginacion();
     this.contarSolicitudesPorEstado();
 
-     // Verifica si el estado seleccionado pertenece a Proveedor o Análisis
-     this.mostrarTablaProveedor = this.cantidadPorEstadoProveedor.some(estado => estado.nombre === this.estadoTemporal);
+    // Verifica si el estado seleccionado pertenece a Proveedor o Análisis
+    this.mostrarTablaProveedor = this.cantidadPorEstadoProveedor.some(estado => estado.nombre === this.estadoTemporal);
 
-     if (!this.mostrarTablaProveedor) {
-       this.filtrarSolicitudesAnalisis();
-     }
+    if (!this.mostrarTablaProveedor) {
+      this.filtrarSolicitudesAnalisis();
+    }
   }
 
   aplicarFiltroEstado() {
@@ -541,101 +629,236 @@ export default class BandejaComponent implements OnInit {
   }
 
 
-  // Variables y metodos necesarios para ver y descargar archivos UAC
-  archivosUAC: any[] = [];
-
-  modalArchivosUACVisible: boolean = false;
-  tablaArchivosUACVisible: boolean = false;
-
-  encabezadosArchivosUAC: any[] = [
-    { key: 'nombre', label: 'Nombre Documento' }
-  ];
-
-  accionesArchivosUAC: any[] = [
-    {
-      style: "background-color: #1C355C;",
-      class: "text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring w-[55px]",
-      action: (archivo: any) => this.descargarArchivo(archivo), 
-      icon: 'download' 
-    }
-  ];
-
-  encabezadosAccionesArchivosUAC: any[] = [
-    'Descargar'
-  ];
-
-  abrirModalArchivosUAC(idSolicitudAnalisis: number){
+  // Metodos para funciones de archivos UAC
+  abrirModalArchivosUAC(idSolicitudAnalisis: number) {
     this.cargarArchivosUAC(idSolicitudAnalisis);
     this.modalArchivosUACVisible = true;
   }
 
-  cerrarModalArchivosUAC(){
+  cerrarModalArchivosUAC() {
     this.modalArchivosUACVisible = false;
-    this.tablaArchivosUACVisible = false;
     this.archivosUAC = [];
   }
 
-  cargarArchivosUAC(idSolicitudAnalisis: number){
+  cargarArchivosUAC(idSolicitudAnalisis: number) {
     this.archivoService.obtenerArchivosRespuestaDeSolicitudAnalisis(idSolicitudAnalisis).subscribe({
       next: (archivos: any[]) => {
         this.archivosUAC = archivos;
-        this.tablaArchivosUACVisible = true;
       },
       error: (err) => {
         console.error('Error al cargar archivos:', err);
-        this.tablaArchivosUACVisible = false; // Opcional: ocultar la tabla si falla la carga
       }
     });
   }
 
-  // Variables necesarias para agregar informe 
-  modalArchivosInformeFinalVisible: boolean = false;
 
-  archivosInformeFinal: any[] = [];
-
-  abrirModalArchivosInformeFinal(){
+  // Metodos para funciones de archivos Informe Final
+  abrirModalArchivosInformeFinal(idSolicitudAnalisis: number) {
+    this.idSolicitudAnalisisSeleccionada = idSolicitudAnalisis;
+    this.cargarArchivosInformeFinal(idSolicitudAnalisis);
     this.modalArchivosInformeFinalVisible = true;
   }
 
-  cerrarModalArchivosInformeFinal(){
+  cerrarModalArchivosInformeFinal() {
+    this.idSolicitudAnalisisSeleccionada = 0;
     this.modalArchivosInformeFinalVisible = false;
   }
 
-  quitarArchivosInformeFinal(){
-    this.archivosInformeFinal = [];
-  }
-
   seleccionarArchivosInformeFinal(event: any) {
-    const seleccionados = event.target.files as FileList; 
+    const seleccionados = event.target.files as FileList;
     this.archivosInformeFinal = Array.from(seleccionados).map((file: File) => {
       return {
-        nombre: file.name,  
-        file: file,         
-        tipo: file.type,   
-        tamaño: file.size   
+        nombre: file.name,
+        file: file,
+        tipo: file.type,
+        tamaño: file.size
       };
     });
   }
 
-  subirArchivosInformeFinal(idSolicitudAnalisis: number){
-    if (this.archivosInformeFinal.length > 0) {
+  subirArchivosInformeFinal() {
+    if (this.archivosInformeFinal.length > 0 && this.idSolicitudAnalisisSeleccionada != 0) {
       this.archivosInformeFinal.forEach((archivo: any) => {
         const formData = new FormData();
-        formData.append('Nombre', archivo.nombre); 
-        formData.append('file', archivo.file); 
-        formData.append('FormatoAchivo', archivo.tipo); 
-        formData.append('FechaModificacion', new Date().toISOString()); 
-        formData.append('idSolicitudAnalisis', String(idSolicitudAnalisis)); 
-        
-        this.archivoService.insertarArchivoRespuestaSolicitudAnalisis(formData).subscribe({
+        formData.append('Nombre', archivo.nombre);
+        formData.append('file', archivo.file);
+        formData.append('FormatoAchivo', archivo.tipo);
+        formData.append('FechaModificacion', new Date().toISOString());
+        formData.append('idSolicitudAnalisis', String(this.idSolicitudAnalisisSeleccionada));
+
+        this.archivoService.insertarArchivoInformeSolicitudAnalisis(formData).subscribe({
           next: response => {
+            this.alertatipo = "satisfaccion";
+            this.alertaMensaje = "Archivos Subidos con Exito";
+            this.alertaVisible = true;
+
+            this.cargarArchivosInformeFinal(this.idSolicitudAnalisisSeleccionada);
           },
           error: err => {
             console.error('Error al guardar el archivo:', archivo.nombre, err);
           }
         });
       });
+
+
+
+
+    } else {
+      console.log('No hay archivos que subir');
     }
+  }
+
+  cargarArchivosInformeFinal(idSolicitudAnalisis: number) {
+    this.archivoService.obtenerArchivosInformeFinalSolicitudAnalisis(idSolicitudAnalisis).subscribe({
+      next: (archivos: any[]) => {
+        this.archivosInformeFinalDB = archivos;
+
+      },
+      error: (err) => {
+        console.error('Error al cargar archivos:', err);
+      }
+    });
+  }
+
+
+  // Metodos para modal historico Analisis
+  abrirModalHistoricoAnalisis(idSolicitudAnalisis: any) {
+    this.obtenerHistoricoSolicitudAnalisis(idSolicitudAnalisis);
+    this.modalHistoricoAnalisisVisible = true;
+  }
+
+  cerrarModalHistoricoAnalisis() {
+    this.modalHistoricoAnalisisVisible = false;
+  }
+
+  obtenerHistoricoSolicitudAnalisis(idSolicitudAnalisis: number): void {
+    this.historicoService.obtenerHistoricoAnalisis(idSolicitudAnalisis).subscribe({
+      next: (data: any) => {
+        this.historicoDeSolicitudSeleccionada = data;
+        this.historicoDeSolicitudAnalisisSeleccionada = this.historicoDeSolicitudSeleccionada.map((item: any) => ({
+          idSolicitudAnalisis: item.idAnalisis,
+          estado: item.estadoDTO.nombre || 'N/A',
+          fechaEstado: this.datePipe.transform(item.fechaEstado, 'MM/dd/yyyy HH:mm:ss') || 'N/A',
+          usuario: item.usuarioDTO.nombre || 'N/A',
+          observacion: item.observacion || 'N/A'
+        }));
+      },
+      error: (err) => {
+        console.log('')
+        if (err.status === 0) {
+          console.log('');
+        }
+      }
+    })
+  }
+
+
+
+  // Metodos para mover a Legajo Analisis
+  abrirModalLegajoAnalisis(idSolicitudAnalisis: number) {
+    this.idSolicitudAnalisisSeleccionada = idSolicitudAnalisis;
+    this.modalLegajorAnalisis = true;
+  }
+
+  cerrarModalLegajoAnalisis() {
+    this.idSolicitudAnalisisSeleccionada = 0;
+    this.modalLegajorAnalisis = false;
+  }
+
+  actualizarEstadoLegajoAnalisis() {
+    this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
+      next: response => {
+        this.alertatipo = "satisfaccion";
+        this.alertaMensaje = "Solicitud de Analisis Movida a Legajo";
+        this.alertaVisible = true;
+        this.vaciarDatosBandeja();
+        this.cargarDatosBandeja();
+      },
+      error: err => {
+        console.error('Error al mover a legajo la solicitud de analisis:', err);
+      }
+    });
+  }
+
+
+  // Metodos para aprobar Analisis
+  abrirModalAprobarAnalisis(idSolicitudAnalisis: number) {
+    this.idSolicitudAnalisisSeleccionada = idSolicitudAnalisis;
+    this.modalAprobarAnalisis = true;
+  }
+
+  cerrarModalAprobarAnalisis() {
+    this.idSolicitudAnalisisSeleccionada = 0;
+    this.modalAprobarAnalisis = false;
+  }
+
+  aprobarSolicitudAnalisis() {
+    this.analisisTelefonicoService.aprobarSolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
+      next: response => {
+        this.alertatipo = "satisfaccion";
+        this.alertaMensaje = "Solicitud de Analisis Aprobada";
+        this.alertaVisible = true;
+        this.vaciarDatosBandeja();
+        this.cargarDatosBandeja();
+      },
+      error: err => {
+        console.error('Error al aprobar la solicitud de analisis:', err);
+      }
+    });
+  }
+
+
+  // Metodos para devolver a Analizado
+  abrirModalDevolverAnalizado(idSolicitudAnalisis: number) {
+    this.idSolicitudAnalisisSeleccionada = idSolicitudAnalisis;
+    this.modalDevolverAnalizado = true;
+  }
+
+  cerrarModalDevolverAnalizado() {
+    this.idSolicitudAnalisisSeleccionada = 0;
+    this.modalDevolverAnalizado = false;
+  }
+
+  devolverAnalizadoSolicitudAnalisis() {
+    this.analisisTelefonicoService.devolverAnalizado(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
+      next: response => {
+        this.alertatipo = "satisfaccion";
+        this.alertaMensaje = "Solicitud de Analisis devuelta a Analizado";
+        this.alertaVisible = true;
+        this.vaciarDatosBandeja();
+        this.cargarDatosBandeja();
+      },
+      error: err => {
+        console.error('Error al devolver la solicitud de analisis:', err);
+      }
+    });
+  }
+
+
+ // Metodos para finalizar solicitud Analisis
+  abrirModalFinalizarAnalisis(idSolicitudAnalisis: number) {
+    this.idSolicitudAnalisisSeleccionada = idSolicitudAnalisis;
+    this.modalFinalizarAnalisis = true;
+  }
+
+  cerrarModalFinalizarAnalisis() {
+    this.idSolicitudAnalisisSeleccionada = 0;
+    this.modalFinalizarAnalisis = false;
+  }
+
+  finalizarSolicitudAnalisis() {
+    this.analisisTelefonicoService.finalizarSolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
+      next: response => {
+        this.alertatipo = "satisfaccion";
+        this.alertaMensaje = "Solicitud de Analisis Correctamente Finalizada";
+        this.alertaVisible = true;
+        this.vaciarDatosBandeja();
+        this.cargarDatosBandeja();
+      },
+      error: err => {
+        console.error('Error al finalizar la solicitud de analisis:', err);
+      }
+    });
   }
 
 }

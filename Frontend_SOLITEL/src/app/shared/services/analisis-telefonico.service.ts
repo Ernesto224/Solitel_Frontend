@@ -139,6 +139,7 @@ export class AnalisisTelefonicoService {
       { headers }
     );
   }
+
   obtenerArchivosSolicitudProveedor(
     idSolicitudes: number[]
   ): Observable<any[]> {
@@ -181,5 +182,49 @@ export class AnalisisTelefonicoService {
   
     return this.http.put<any>(url, {}, { headers });
   }
+
+  finalizarSolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any>{
+    const headers = new HttpHeaders({
+      'accept': 'text/plain',
+      'Content-Type': 'application/json'
+    });
+
+    const url = `${this.baseUrl}SolicitudAnalisis/actualizarEstadoFinalizado?id=${idSolicitudAnalisis}&idUsuario=${idUsuario}&observacion=${observacion}`;
   
+    return this.http.put<any>(url, {}, { headers });
+  }
+
+  ActualizarEstadoLegajoolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any>{
+    const headers = new HttpHeaders({
+      'accept': 'text/plain',
+      'Content-Type': 'application/json'
+    });
+
+    const url = `${this.baseUrl}SolicitudAnalisis/actualizarEstadoLegajo?id=${idSolicitudAnalisis}&idUsuario=${idUsuario}&observacion=${observacion}`;
+  
+    return this.http.put<any>(url, {}, { headers });
+  }
+  
+  aprobarSolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any>{
+    const headers = new HttpHeaders({
+      'accept': 'text/plain',
+      'Content-Type': 'application/json'
+    });
+
+    const url = `${this.baseUrl}SolicitudAnalisis/AprobarSolicitudAnalisis?idSolicitudAnalisis=${idSolicitudAnalisis}&idUsuario=${idUsuario}&observacion=${observacion}`;
+  
+    return this.http.put<any>(url, {}, { headers });
+  }
+
+  devolverAnalizado(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any>{
+    const headers = new HttpHeaders({
+      'accept': 'text/plain',
+      'Content-Type': 'application/json'
+    });
+
+    const url = `${this.baseUrl}SolicitudAnalisis/devolverAnalizado?id=${idSolicitudAnalisis}&idUsuario=${idUsuario}&observacion=${observacion}`;
+  
+    return this.http.put<any>(url, {}, { headers });
+  }
+
 }
