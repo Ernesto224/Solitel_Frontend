@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit , ChangeDetectorRef } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';
 import { HistoricoService } from '../../services/historico.service';
@@ -46,8 +46,9 @@ export default class BandejaComponent implements OnInit {
   numeroDePagina: number = 1;
   cantidadDeRegistros: number = 5;
 
-  cantidadPorEstadoProveedor: { nombre: string, cantidad: number }[] = [];
-  cantidadPorEstadoAnalisis: { nombre: string, cantidad: number }[] = [];
+  cantidadPorEstadoProveedor: { idEstado: number, nombre: string, cantidad: number }[] = [];
+  cantidadPorEstadoAnalisis: { idEstado: number, nombre: string, cantidad: number }[] = [];
+
   estadoColumnas: { [key: string]: { headers: string[], actions: string[], columnasVisibles: {} } } = {
     Creado: {
       headers: ['Aprobar', 'Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
@@ -106,6 +107,7 @@ export default class BandejaComponent implements OnInit {
 
   estadoSeleccionado: string = 'Creado';
   estadoTemporal: string = 'Creado';
+  idEstadoSeleccionado: number | null = null;
   numeroUnicoFiltro: string = '';
   fechaInicioFiltro: string = '';
   fechaFinFiltro: string = '';
@@ -152,6 +154,8 @@ export default class BandejaComponent implements OnInit {
   encabezadosAccionesRequerimientosTramitados: any[] = [
     'Archivos'
   ];
+
+
   accionesrequerimientosRespondidos: any[] = [
     {
       style: "background-color: #1C355C;",
@@ -168,7 +172,10 @@ export default class BandejaComponent implements OnInit {
     private estadoService: EstadoService,
     private archivoService: ArchivoService,
     private historicoService: HistoricoService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private cdr: ChangeDetectorRef
+
+    
   ) { }
 
   ngOnInit(): void {
@@ -182,6 +189,7 @@ export default class BandejaComponent implements OnInit {
       this.obtenerSolicitudesAnalisis();
     }, 3000); // Simular 3 segundos de procesamiento
 
+
   }
 
   //obtener datos
@@ -191,11 +199,14 @@ export default class BandejaComponent implements OnInit {
         this.estados = estados;
         this.estadosProveedor = estados.filter(estado => estado.tipo === 'Proveedor');
         this.estadosAnalisis = estados.filter(estado => estado.tipo === 'Analisis');
+        console.log("Estados Analisis:", JSON.stringify(this.estadosAnalisis, null, 2));
+
       },
       error: (err) => {
         console.error('Error al obtener datos:', err);
       }
     });
+
   }
 
   obtenerSolicitudes(): void {
@@ -236,12 +247,17 @@ export default class BandejaComponent implements OnInit {
       case "Analizado":
         return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Agregar informe", "Finalizar solicitud de análisis", "Enviar a legajo solicitud de análisis"];
       case "Aprobar Análisis":
+        return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior", "Aprobar Solicitud"];
+      case "Finalizado":
         return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior"];
+      case "Legajo":
+        return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior"];
+
       default:
         return [];
     }
   }
-  
+
   //modales
   reiniciarDatosDeTabla(): void {
     this.numeroDePagina = 1;
@@ -320,20 +336,22 @@ export default class BandejaComponent implements OnInit {
     this.cantidadPorEstadoProveedor = [];
     this.cantidadPorEstadoAnalisis = [];
 
-    // Filtrar y contar solicitudes por tipo de estado
-    this.cantidadPorEstadoProveedor = this.estadosProveedor.map(estado => {
-      const nombreEstado = estado.nombre;
-      const cantidad = this.solicitudes.filter(solicitud => solicitud.estado?.nombre === nombreEstado && solicitud.estado?.idEstado <= 7).length;
-      return { nombre: nombreEstado, cantidad };
-    });
+    // Filtrar y contar solicitudes agrupadas por tipo
+    this.estados.forEach(estado => {
+      const solicitudesFiltradas = estado.tipo === 'Proveedor'
+        ? this.solicitudes.filter(solicitud => solicitud.estado?.idEstado === estado.idEstado)
+        : this.solicitudesAnalisis.filter(solicitud => solicitud.estado?.idEstado === estado.idEstado);
 
-    this.cantidadPorEstadoAnalisis = this.estadosAnalisis.map(estado => {
-      const nombreEstado = estado.nombre;
-      const cantidad = this.solicitudesAnalisis.filter(solicitudAnalisis => solicitudAnalisis.estado?.nombre === nombreEstado && solicitudAnalisis.estado?.idEstado >= 8 && solicitudAnalisis.estado?.idEstado <= 13).length;
-      return { nombre: nombreEstado, cantidad };
-    });
+      const contador = { idEstado: estado.idEstado, nombre: estado.nombre, cantidad: solicitudesFiltradas.length };
 
+      if (estado.tipo === 'Proveedor') {
+        this.cantidadPorEstadoProveedor.push(contador);
+      } else {
+        this.cantidadPorEstadoAnalisis.push(contador);
+      }
+    });
   }
+
 
   obtenerHistoricoSolicitud(idSolicitudProveedor: number): void {
     this.historicoService.obtener(idSolicitudProveedor).subscribe({
@@ -398,17 +416,56 @@ export default class BandejaComponent implements OnInit {
 
 
   filtrarSolicitudesAnalisis(): void {
-    // Usa solicitudesAnalisisOriginales como base y asigna el resultado filtrado a solicitudesAnalisis
     this.solicitudesAnalisis = this.solicitudesAnalisisOriginales.filter(solicitudAnalisis =>
       solicitudAnalisis.estado?.nombre === this.estadoTemporal &&
-      ["En Análisis", "Analizado", "Aprobar Análisis"].includes(solicitudAnalisis.estado?.nombre)
+      ["En Análisis", "Analizado", "Aprobar Análisis", "Finalizado"].includes(solicitudAnalisis.estado?.nombre)
     );
     console.log("Solicitudes filtradas:", this.solicitudesAnalisis);
   }
 
 
+  onEstadoChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedOption = selectElement.selectedOptions[0];
+  
+    if (selectedOption) {
+      const idEstado = selectedOption.getAttribute('data-idEstado');
+      const nombreEstado = selectedOption.value;
+  
+      if (idEstado && nombreEstado) {
+        this.idEstadoSeleccionado = parseInt(idEstado, 10);
+        this.estadoTemporal = nombreEstado; // Asegura la visualización correcta
+        console.log('ID del estado seleccionado:', this.idEstadoSeleccionado);
+        console.log('Nombre del estado seleccionado:', this.estadoTemporal);
+
+        this.cdr.detectChanges();
+
+      }
+    }
+  }
+  
+  trackByEstadoId(index: number, estado: any): number {
+    return estado.idEstado; // Usa el ID del estado como clave única
+  }
+  
+
+
+
+
+
   filtrarSolicitudes() {
-    console.log(this.solicitudes)
+    if (this.idEstadoSeleccionado) {
+      // Determinar si mostrar la tabla de Proveedor o de Análisis
+      if (this.idEstadoSeleccionado >= 1 && this.idEstadoSeleccionado <= 7) {
+        this.mostrarTablaProveedor = true;
+        console.log('Mostrando tabla de Proveedor');
+      } else if (this.idEstadoSeleccionado >= 9 && this.idEstadoSeleccionado <= 13) {
+        this.mostrarTablaProveedor = false;
+        console.log('Mostrando tabla de Análisis');
+      } else {
+        console.warn('ID de estado desconocido:', this.idEstadoSeleccionado);
+      }
+    }
     this.reiniciarDatosDeTabla();
     this.solicitudesFiltradas = this.solicitudes;
 
@@ -420,13 +477,16 @@ export default class BandejaComponent implements OnInit {
     this.actualizarPaginacion();
     this.contarSolicitudesPorEstado();
 
-     // Verifica si el estado seleccionado pertenece a Proveedor o Análisis
-     this.mostrarTablaProveedor = this.cantidadPorEstadoProveedor.some(estado => estado.nombre === this.estadoTemporal);
-
-     if (!this.mostrarTablaProveedor) {
-       this.filtrarSolicitudesAnalisis();
-     }
+    if (!this.mostrarTablaProveedor) {
+      // Si es de análisis, aplica el filtro de solicitudes de análisis
+      this.filtrarSolicitudesAnalisis();
+    }
   }
+
+  jsonEstado(tipo: string, nombre: string): string {
+    return JSON.stringify({ tipo, nombre });
+  }
+
 
   aplicarFiltroEstado() {
     if (this.estadoSeleccionado) {
