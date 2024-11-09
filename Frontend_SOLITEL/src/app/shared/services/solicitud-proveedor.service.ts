@@ -10,6 +10,7 @@ export class SolicitudProveedorService {
 
   private urlServices: string = "https://localhost:7211/api/SolicitudProveedor/";
   private urlObtener: string = "consultarSolicitudesProveedor";
+  private urlObtenerUna: string = "consultarSolicitudProveedor";
   private urlInsertar: string = "insertarSolicitudProveedor";
   private urlMoverEstadoSinEfecto: string = "moverEstadoASinEfecto";
   private urlObtenerPorEstado: string = "obtenerSolicitudesProveedorPorEstado";
@@ -20,6 +21,10 @@ export class SolicitudProveedorService {
 
   public obtener(): Observable<any[]> {
     return this.http.get<any[]>(`${this.urlServices}${this.urlObtener}`);
+  }
+
+  public obtenerUna(idSolicitudProveedor: number): Observable<any> {
+    return this.http.get<any>(`${this.urlServices}${this.urlObtenerUna}?idSolicitud=${idSolicitudProveedor}`);
   }
 
   public obtenerSolicitudesPorEstado(idEstado: number, pageNumber: number, pageSize: number): Observable<any[]> {

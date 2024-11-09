@@ -12,6 +12,8 @@
 
 <div class="flex flex-col mb-0 pb-0">
 
+  <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
+
   <!--Filtro de -->
   <div class="filter-container">
     <h2>Filtro de solicitudes telefónicas</h2>
@@ -28,19 +30,26 @@
       <div class="form-group">
         <label for="estado">Estado:</label>
         <div class="badge-container">
-          <select [(ngModel)]="estadoTemporal"> <!-- Cambiado a onEstadoChange() -->
+          <select [(ngModel)]="estadoTemporal" (change)="onEstadoChange($event)">
             <optgroup label="Solicitud Proveedor">
-              <option *ngFor="let estado of cantidadPorEstadoProveedor" [value]="estado.nombre">
+              <option *ngFor="let estado of cantidadPorEstadoProveedor;  trackBy: trackByEstadoId" 
+                      [value]="estado.nombre" 
+                      [attr.data-idEstado]="estado.idEstado">
                 {{ estado.nombre }} ({{ estado.cantidad }})
               </option>
             </optgroup>
             <optgroup label="Solicitud Análisis">
-              <option *ngFor="let estado of cantidadPorEstadoAnalisis" [value]="estado.nombre">
+              <option *ngFor="let estado of cantidadPorEstadoAnalisis;  trackBy: trackByEstadoId" 
+                      [value]="estado.nombre" 
+                      [attr.data-idEstado]="estado.idEstado">
                 {{ estado.nombre }} ({{ estado.cantidad }})
               </option>
             </optgroup>
           </select>
+          
         </div>
+
+
       </div>
 
       <!-- Número único -->
@@ -252,7 +261,8 @@
               <span>ID Solicitud de Análisis: {{ solicitud.idSolicitudAnalisis }}</span>
 
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver histórico')">
-                <button class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalHistoricoAnalisis(solicitud.idSolicitudAnalisis)"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">sports_score</span>
                   <span>Ver histórico</span>
                 </button>
@@ -268,7 +278,8 @@
               </ng-container>
 
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Descargar informe UAC')">
-                <button (click)="abrirModalArchivosUAC(solicitud.idSolicitudAnalisis)" class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalArchivosUAC(solicitud.idSolicitudAnalisis)"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">download</span>
                   <span>Descargar informe UAC</span>
                 </button>
@@ -285,7 +296,8 @@
               </ng-container>
 
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Agregar informe')">
-                <button (click)="abrirModalArchivosInformeFinal()" class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalArchivosInformeFinal(solicitud.idSolicitudAnalisis)"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">upload</span>
                   <span>Agregar informe</span>
                 </button>
@@ -294,7 +306,8 @@
 
               <ng-container
                 *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Finalizar solicitud de análisis')">
-                <button class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalFinalizarAnalisis(solicitud.idSolicitudAnalisis)"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">download</span>
                   <span>Finalizar solicitud de análisis</span>
                 </button>
@@ -303,9 +316,18 @@
 
               <ng-container
                 *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Enviar a legajo solicitud de análisis')">
-                <button class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalLegajoAnalisis(solicitud.idSolicitudAnalisis)" class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">do_not_disturb_on_total_silence</span>
                   <span>Enviar a legajo solicitud de análisis</span>
+                </button>
+                <span> | </span>
+              </ng-container>
+
+              <ng-container
+                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Aprobar Solicitud')">
+                <button class="inline-flex items-center space-x-1">
+                  <span class="material-icons text-sm">do_not_disturb_on_total_silence</span>
+                  <span>Aprobar Solicitud</span>
                 </button>
                 <span> | </span>
               </ng-container>
@@ -324,21 +346,21 @@
           <ng-container *ngFor="let solicitudProveedor of solicitud.solicitudesProveedor">
             <tr class="bg-[#F3F4F6] border-b border-gray-300 hover:bg-gray-200">
               <td *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">
-                <button (click)="abrirModalHistorico(solicitud)" class="text-white px-4 py-2 
+                <button (click)="abrirModalHistorico(solicitudProveedor)" class="text-white px-4 py-2 
                   rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
                   <i class="material-icons">sports_score</i>
                 </button>
               </td>
 
               <td *ngIf="columnasVisibles['requerimientos']" class="border px-4 py-2 text-center">
-                <button (click)="abrirModalRequerimientos(solicitud)" class="text-white px-4 py-2 
+                <button (click)="abrirModalRequerimientos(solicitudProveedor)" class="text-white px-4 py-2 
                   rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
                   <i class="material-icons">description</i>
                 </button>
               </td>
 
               <td class="px-4 py-2 text-center">
-                <button (click)="abrirModalDeDetalles(solicitud)" class="text-white px-4 py-2 
+                <button (click)="abrirModalDeDetalles(solicitudProveedor)" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
                   <i class="material-icons">info</i>
                 </button>
@@ -511,7 +533,8 @@
           </div>
           <div>
             <label class="label" for="operadora">Operadora:</label>
-            <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras[0].nombre"
+            
+            <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras? solicitudSeleccionada.operadoras[0].nombre: 'N/A' "
               readonly>
           </div>
         </div>
@@ -578,6 +601,7 @@
       </button>
     </div>
   </div>
+
 </app-modal-informacion>
 
 <!-- Modal de confirmación -->
@@ -594,26 +618,22 @@
   </div>
 </app-modal-confirmacion>
 
-  <!-- Tabla Archivos -->
-  <app-modal-informacion [isModalOpen]="modalArchivosUACVisible">
-    <div *ngIf="archivosUAC.length > 0; else noArchivosTemplate">
-      <app-tabla-visualizacion 
-        [headers]="encabezadosArchivosUAC" 
-        [data]="archivosUAC" 
-        [actions]="accionesArchivosUAC" 
-        [actionsheaders]="encabezadosAccionesArchivosUAC">
-      </app-tabla-visualizacion>
-    </div>
-  
-    <ng-template #noArchivosTemplate>
-      <p>No hay archivos disponibles.</p>
-    </ng-template>
-  
-    <button (click)="cerrarModalArchivosUAC()" class="modal-close is-large">Cerrar</button>
-  </app-modal-informacion>
+<!-- Modal Archivos UAC -->
+<app-modal-informacion [isModalOpen]="modalArchivosUACVisible">
+  <div *ngIf="archivosUAC.length > 0; else noArchivosTemplate">
+    <app-tabla-visualizacion [headers]="encabezadosArchivosUAC" [data]="archivosUAC" [actions]="accionesArchivosUAC"
+      [actionsheaders]="encabezadosAccionesArchivosUAC">
+    </app-tabla-visualizacion>
+  </div>
 
+  <ng-template #noArchivosTemplate>
+    <p>No hay archivos disponibles.</p>
+  </ng-template>
 
-  <!-- Modal Archivos Respuesta -->
+  <button (click)="cerrarModalArchivosUAC()" class="modal-close is-large">Cerrar</button>
+</app-modal-informacion>
+
+<!-- Modal Archivos Informe Final -->
 <app-modal-informacion [isModalOpen]="modalArchivosInformeFinalVisible">
   <div class="modal-contenido">
     <span class="cerrar" (click)="cerrarModalArchivosInformeFinal()">&times;</span>
@@ -621,10 +641,108 @@
 
     <input type="file" (change)="seleccionarArchivosInformeFinal($event)" multiple />
 
+    <button (click)="subirArchivosInformeFinal()">Guardar</button>
+
     <ul>
       <li *ngFor="let archivoInforme of archivosInformeFinal">{{ archivoInforme.nombre }}</li>
     </ul>
+
+    <h2>Archivos Informe:</h2>
+    <div *ngIf="archivosInformeFinalDB.length > 0; else noArchivosTemplate">
+      <app-tabla-visualizacion [headers]="encabezadosArchivosInforme" [data]="archivosInformeFinalDB"
+        [actions]="accionesArchivosInforme" [actionsheaders]="encabezadosAccionesArchivosInforme">
+      </app-tabla-visualizacion>
+    </div>
+
+    <ng-template #noArchivosTemplate>
+      <p>No hay archivos disponibles.</p>
+    </ng-template>
+
   </div>
-  <button (click)="cerrarModalArchivosInformeFinal()">Guardar</button>
-  <button (click)="quitarArchivosInformeFinal()">Limpiar</button>
+
+  <button (click)="cerrarModalArchivosInformeFinal()">Cerrar</button>
 </app-modal-informacion>
+
+<!-- Modal de historico Analisis -->
+<app-modal-informacion [isModalOpen]="modalHistoricoAnalisisVisible">
+
+  <div modal-header>
+    <h3 class="text-lg font-medium">Solicitud Analisis</h3>
+    <h3 class="text-lg font-medium">Histórico</h3>
+  </div>
+
+  <div>
+    <div *ngIf="historicoDeSolicitudAnalisisSeleccionada">
+      <app-tabla-visualizacion [headers]="encabezadosHistoricoAnalisis" [data]="historicoDeSolicitudAnalisisSeleccionada">
+      </app-tabla-visualizacion>
+    </div>
+  </div>
+
+  <div modal-footer>
+    <div class="buttons-row space-x-4">
+      <button type="button" class="bg-[#D32F2F] text-[#FFFFFF] 
+        px-4 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+        (click)="cerrarModalHistoricoAnalisis()">
+        <i class="material-icons">cancel</i>
+        <span>Cerrar</span>
+      </button>
+    </div>
+  </div>
+
+</app-modal-informacion>
+
+<!-- Modal FinalizarAnalisis -->
+<app-modal-confirmacion [modalEstadoVisible]="modalFinalizarAnalisis" (confirmar)="finalizarSolicitudAnalisis()"
+  (cancelar)="cerrarModalFinalizarAnalisis()">
+  <div modal-header>
+    <h2 class="text-xl font-semibold mb-4">Confirmar Cambio de Estado</h2>
+    <p>¿Estás seguro de que deseas finalizar la solicitud de analisis?</p>
+  </div>
+  <div class="mt-4" modal-content>
+    <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
+    <textarea id="observacion" rows="3" [(ngModel)]="observacionFinalizarAnalisis"
+      class="w-full p-2 border rounded-md focus:outline-none focus:ring"></textarea>
+  </div>
+</app-modal-confirmacion>
+
+<!-- Modal MoverLegajoAnalisis -->
+<app-modal-confirmacion [modalEstadoVisible]="modalLegajorAnalisis" (confirmar)="actualizarEstadoLegajoAnalisis()"
+  (cancelar)="cerrarModalLegajoAnalisis()">
+  <div modal-header>
+    <h2 class="text-xl font-semibold mb-4">Confirmar Cambio de Estado</h2>
+    <p>¿Estás seguro de que deseas mover a legajo la solicitud de analisis?</p>
+  </div>
+  <div class="mt-4" modal-content>
+    <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
+    <textarea id="observacion" rows="3" [(ngModel)]="observacionLegajoAnalisis"
+      class="w-full p-2 border rounded-md focus:outline-none focus:ring"></textarea>
+  </div>
+</app-modal-confirmacion>
+
+<!-- Modal AprobarAnalisis -->
+<app-modal-confirmacion [modalEstadoVisible]="modalAprobarAnalisis" (confirmar)="aprobarSolicitudAnalisis()"
+  (cancelar)="cerrarModalAprobarAnalisis()">
+  <div modal-header>
+    <h2 class="text-xl font-semibold mb-4">Confirmar Cambio de Estado</h2>
+    <p>¿Estás seguro de que deseas aprobar la solicitud de analisis?</p>
+  </div>
+  <div class="mt-4" modal-content>
+    <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
+    <textarea id="observacion" rows="3" [(ngModel)]="observacionAprobarAnalisis"
+      class="w-full p-2 border rounded-md focus:outline-none focus:ring"></textarea>
+  </div>
+</app-modal-confirmacion>
+
+<!-- Modal devolverAnalizado -->
+<app-modal-confirmacion [modalEstadoVisible]="modalDevolverAnalizado" (confirmar)="devolverAnalizadoSolicitudAnalisis()"
+  (cancelar)="cerrarModalDevolverAnalizado()">
+  <div modal-header>
+    <h2 class="text-xl font-semibold mb-4">Confirmar Cambio de Estado</h2>
+    <p>¿Estás seguro de que deseas aprobar la solicitud de analisis?</p>
+  </div>
+  <div class="mt-4" modal-content>
+    <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
+    <textarea id="observacion" rows="3" [(ngModel)]="observacionAprobarAnalisis"
+      class="w-full p-2 border rounded-md focus:outline-none focus:ring"></textarea>
+  </div>
+</app-modal-confirmacion>
