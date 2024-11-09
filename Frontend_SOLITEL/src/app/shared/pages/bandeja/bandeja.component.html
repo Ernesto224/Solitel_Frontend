@@ -30,19 +30,26 @@
       <div class="form-group">
         <label for="estado">Estado:</label>
         <div class="badge-container">
-          <select [(ngModel)]="estadoTemporal"> <!-- Cambiado a onEstadoChange() -->
+          <select [(ngModel)]="estadoTemporal" (change)="onEstadoChange($event)">
             <optgroup label="Solicitud Proveedor">
-              <option *ngFor="let estado of cantidadPorEstadoProveedor" [value]="estado.nombre">
+              <option *ngFor="let estado of cantidadPorEstadoProveedor;  trackBy: trackByEstadoId" 
+                      [value]="estado.nombre" 
+                      [attr.data-idEstado]="estado.idEstado">
                 {{ estado.nombre }} ({{ estado.cantidad }})
               </option>
             </optgroup>
             <optgroup label="Solicitud Análisis">
-              <option *ngFor="let estado of cantidadPorEstadoAnalisis" [value]="estado.nombre">
+              <option *ngFor="let estado of cantidadPorEstadoAnalisis;  trackBy: trackByEstadoId" 
+                      [value]="estado.nombre" 
+                      [attr.data-idEstado]="estado.idEstado">
                 {{ estado.nombre }} ({{ estado.cantidad }})
               </option>
             </optgroup>
           </select>
+          
         </div>
+
+
       </div>
 
       <!-- Número único -->
@@ -312,6 +319,15 @@
                 <button (click)="abrirModalLegajoAnalisis(solicitud.idSolicitudAnalisis)" class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">do_not_disturb_on_total_silence</span>
                   <span>Enviar a legajo solicitud de análisis</span>
+                </button>
+                <span> | </span>
+              </ng-container>
+
+              <ng-container
+                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Aprobar Solicitud')">
+                <button class="inline-flex items-center space-x-1">
+                  <span class="material-icons text-sm">do_not_disturb_on_total_silence</span>
+                  <span>Aprobar Solicitud</span>
                 </button>
                 <span> | </span>
               </ng-container>
