@@ -38,8 +38,8 @@
                 </div>
                 <div class="form-group">
                   <label for="oficina">Oficina:</label>
-                  <select id="oficina" [(ngModel)]="idOficinaSeleccionada" name="idOficinaSeleccionada" required>
-                    <option value="1">Oficina Gneral</option>
+                  <select id="oficina" [(ngModel)]="idOficinaSeleccionada" name="idOficinaSeleccionada">
+                    <option value="{{idOficinaSeleccionada}}" disabled selected>{{nombreOficina}}</option>
                     <!--option *ngFor="let oficina of oficinas" [value]="oficina.tN_IdOficina">
                     {{ oficina.tC_Nombre }}
                   </option-->
