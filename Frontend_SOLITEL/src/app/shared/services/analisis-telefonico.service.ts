@@ -26,6 +26,7 @@ export interface TipoDato {
 })
 export class AnalisisTelefonicoService {
   private baseUrl: string = 'https://localhost:7211/api/';
+  private urlObtenerBandejaAnalista: string = 'SolicitudAnalisis/obtenerBandejaAnalista';
   private urlObtenerSolicitudesAnalisis:  string = 'SolicitudAnalisis/consultar';
   private urlInsertar: string = 'SolicitudAnalisis';
   private urlObtenerSolicitudesProveedor: string =
@@ -182,4 +183,27 @@ export class AnalisisTelefonicoService {
     return this.http.put<any>(url, {}, { headers });
   }
   
+  obtenerBandejaAnalista(estado: number, fechaInicio: string | null, fechaFin: string | null, numeroUnico: string | null): Observable<any[]> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      accept: 'application/json',
+    });
+
+    let params = new HttpParams().set('estado', estado.toString());
+    if (fechaInicio) {
+      params = params.set('fechaInicio', fechaInicio);
+    }
+    if (fechaFin) {
+      params = params.set('fechaFin', fechaFin);
+    }
+    if (numeroUnico) {
+      params = params.set('numeroUnico', numeroUnico);
+    }
+
+    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerBandejaAnalista}`, {
+      headers,
+      params,
+    });
+  }
+
 }
