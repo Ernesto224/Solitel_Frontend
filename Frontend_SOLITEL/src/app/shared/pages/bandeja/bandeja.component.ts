@@ -352,14 +352,19 @@ export default class BandejaComponent implements OnInit {
 
   abrirModalDeDetalles(solicitud: any) {
     this.solicitudSeleccionada = solicitud;
-    this.requerimientosDeSolicitudSeleccionada = this.solicitudSeleccionada.requerimientos.map((requerimiento: any) => ({
-      requerimiento: requerimiento.requerimiento || 'N/A', // Si el requerimiento no está presente, asignamos 'N/A'
-      tipoSolicitudes: requerimiento.tipoSolicitudes.map((tipo: any) => tipo.nombre).join(', ') || 'N/A', // Mapear los tipos de solicitud y unirlos con coma
-      datosRequeridos: requerimiento.datosRequeridos.map((dato: any) => dato.datoRequeridoContenido).join(', ') || 'N/A', // Mapear los datos requeridos y unirlos
-      fechaInicio: this.datePipe.transform(requerimiento.fechaInicio, 'MM/dd/yyyy') || 'N/A', // Formatear la fecha de inicio
-      fechaFinal: this.datePipe.transform(requerimiento.fechaFinal, 'MM/dd/yyyy') || 'N/A' // Formatear la fecha final
-    }));
-    this.modalVisible = true;
+    this.solicitudProveedorService.obtenerUna(this.solicitudSeleccionada.idSolicitudProveedor).subscribe({
+      next: (data: any) => {
+        this.solicitudSeleccionada = data;
+        this.requerimientosDeSolicitudSeleccionada = this.solicitudSeleccionada.requerimientos.map((requerimiento: any) => ({
+          requerimiento: requerimiento.requerimiento || 'N/A', // Si el requerimiento no está presente, asignamos 'N/A'
+          tipoSolicitudes: requerimiento.tipoSolicitudes.map((tipo: any) => tipo.nombre).join(', ') || 'N/A', // Mapear los tipos de solicitud y unirlos con coma
+          datosRequeridos: requerimiento.datosRequeridos.map((dato: any) => dato.datoRequeridoContenido).join(', ') || 'N/A', // Mapear los datos requeridos y unirlos
+          fechaInicio: this.datePipe.transform(requerimiento.fechaInicio, 'MM/dd/yyyy') || 'N/A', // Formatear la fecha de inicio
+          fechaFinal: this.datePipe.transform(requerimiento.fechaFinal, 'MM/dd/yyyy') || 'N/A' // Formatear la fecha final
+        }));
+        this.modalVisible = true;
+      }
+    });
   }
 
   cerrarModalDeDetalles() {
@@ -369,6 +374,7 @@ export default class BandejaComponent implements OnInit {
 
   abrirModalHistorico(solicitud: any) {
     this.solicitudSeleccionada = solicitud;
+    console.log(this.solicitudSeleccionada);
     this.obtenerHistoricoSolicitud(this.solicitudSeleccionada.idSolicitudProveedor);
     this.modalHistoricoVisible = true;
   }
@@ -380,14 +386,20 @@ export default class BandejaComponent implements OnInit {
 
   abrirModalRequerimientos(solicitud: any) {
     this.solicitudSeleccionada = solicitud;
-    this.requerimientosRespondidos = this.solicitudSeleccionada.requerimientos.map((requerimiento: any) => ({
-      idRequerimientoProveedor: requerimiento.idRequerimientoProveedor,
-      requerimiento: requerimiento.requerimiento || 'N/A',
-      numRequerido: requerimiento.datosRequeridos.map((dato: any) => dato.datoRequeridoContenido).join(', ') || 'N/A',
-      rangoFechas: `${requerimiento.fechaInicio} al ${requerimiento.fechaFinal}` || 'N/A',
-      observacion: requerimiento.observacion || 'N/A'
-    }));
-    this.modalRequerimientosVisible = true;
+
+    this.solicitudProveedorService.obtenerUna(this.solicitudSeleccionada.idSolicitudProveedor).subscribe({
+      next: (data: any) => {
+        this.solicitudSeleccionada = data;
+        this.requerimientosRespondidos = this.solicitudSeleccionada.requerimientos.map((requerimiento: any) => ({
+          idRequerimientoProveedor: requerimiento.idRequerimientoProveedor,
+          requerimiento: requerimiento.requerimiento || 'N/A',
+          numRequerido: requerimiento.datosRequeridos.map((dato: any) => dato.datoRequeridoContenido).join(', ') || 'N/A',
+          rangoFechas: `${requerimiento.fechaInicio} al ${requerimiento.fechaFinal}` || 'N/A',
+          observacion: requerimiento.observacion || 'N/A'
+        }));
+        this.modalRequerimientosVisible = true;
+      }
+    });
   }
 
   cerrarModalRequerimientos() {
@@ -781,7 +793,7 @@ export default class BandejaComponent implements OnInit {
 
 
   // Metodos para modal historico Analisis
-  abrirModalHistoricoAnalisis(idSolicitudAnalisis: any) {
+  abrirModalHistoricoAnalisis(idSolicitudAnalisis: number) {
     this.obtenerHistoricoSolicitudAnalisis(idSolicitudAnalisis);
     this.modalHistoricoAnalisisVisible = true;
   }

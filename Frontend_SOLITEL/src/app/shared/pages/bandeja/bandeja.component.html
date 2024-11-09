@@ -346,21 +346,21 @@
           <ng-container *ngFor="let solicitudProveedor of solicitud.solicitudesProveedor">
             <tr class="bg-[#F3F4F6] border-b border-gray-300 hover:bg-gray-200">
               <td *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">
-                <button (click)="abrirModalHistorico(solicitud)" class="text-white px-4 py-2 
+                <button (click)="abrirModalHistorico(solicitudProveedor)" class="text-white px-4 py-2 
                   rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
                   <i class="material-icons">sports_score</i>
                 </button>
               </td>
 
               <td *ngIf="columnasVisibles['requerimientos']" class="border px-4 py-2 text-center">
-                <button (click)="abrirModalRequerimientos(solicitud)" class="text-white px-4 py-2 
+                <button (click)="abrirModalRequerimientos(solicitudProveedor)" class="text-white px-4 py-2 
                   rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
                   <i class="material-icons">description</i>
                 </button>
               </td>
 
               <td class="px-4 py-2 text-center">
-                <button (click)="abrirModalDeDetalles(solicitud)" class="text-white px-4 py-2 
+                <button (click)="abrirModalDeDetalles(solicitudProveedor)" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
                   <i class="material-icons">info</i>
                 </button>
@@ -533,7 +533,8 @@
           </div>
           <div>
             <label class="label" for="operadora">Operadora:</label>
-            <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras[0].nombre"
+            
+            <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras? solicitudSeleccionada.operadoras[0].nombre: 'N/A' "
               readonly>
           </div>
         </div>
@@ -663,7 +664,7 @@
 </app-modal-informacion>
 
 <!-- Modal de historico Analisis -->
-<app-modal-informacion [isModalOpen]="modalFinalizarAnalisis">
+<app-modal-informacion [isModalOpen]="modalHistoricoAnalisisVisible">
 
   <div modal-header>
     <h3 class="text-lg font-medium">Solicitud Analisis</h3>
