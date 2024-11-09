@@ -1,10 +1,6 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { SidebarComponent } from '../../components/sidebar/sidebar.component';
-import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
-import { FooterComponent } from '../../components/footer/footer.component';
 import { DelitoService } from '../../services/delito.service';  // Importar el servicio de delitos
 import { FiscaliaService } from '../../services/fiscalia.service';  // Importar el servicio de fiscalías
 import { CategoriaDelitoService } from '../../services/categoria-delito.service';  // Importar el servicio de fiscalías
@@ -15,36 +11,46 @@ import { TipoDatoService } from '../../services/tipo-dato.service';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';  // Agregar el servicio
 import { ProveedorService } from '../../services/proveedor.service'; // Para cargar operadoras
 import { OficinaService } from '../../services/oficina.service'; // Para cargar oficinas
+import { ArchivoService } from '../../services/archivo.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { ArchivoService} from '../../services/archivo.service';
-import { HttpResponse } from '@angular/common/http';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { AlertaComponent } from '../../components/alerta/alerta.component';
+import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
+import { AuthenticacionService } from '../../services/authenticacion.service';
 
 @Component({
   selector: 'app-solicitud-proveedor',
   standalone: true,
-  imports: [CommonModule,
-    SidebarComponent,
-    RouterOutlet,
-    NavbarComponent,
-    FooterComponent,
+  imports: [
+    CommonModule,
     FormsModule,
-    NgMultiSelectDropDownModule],
+    NgMultiSelectDropDownModule,
+    AlertaComponent,
+    ModalConfirmacionComponent
+  ],
   templateUrl: './solicitud-proveedor.component.html',
   styleUrls: ['./solicitud-proveedor.component.css']
 })
 export default class SolicitudProveedorComponent {
 
-  selectedFile: File | null = null;
+  modalConfirmacionisible: boolean = false;
 
+  isCategoriaDelitoDisabled: boolean = false;
+
+  isFiscaliaDisabled: boolean = false;
+
+  isDelitoDisabled: boolean = false;
+
+  alertatipo: string = "error";
+  alertaMensaje: string = "";
+  alertaVisible: boolean = false;
+
+  selectedFile: File | null = null;
   fileId: number = 0;
 
   // Estados y modales
   isModalOpen = false;
   isUrgent = false;
   errorMessage: string = '';
-
   // Listas dinámicas para desplegables (combobox)
   categoriasDelito: any[] = [];
   fiscalias: any[] = [];
@@ -112,6 +118,8 @@ export default class SolicitudProveedorComponent {
 
   // requrimiento que se está editando
   editingIndex: number | null = null;
+  usuario: any = {};
+  nombreOficina: string = '';
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
@@ -124,76 +132,16 @@ export default class SolicitudProveedorComponent {
     private subModalidadService: SubModalidadService,
     private tipoSolicitudService: TipoSolicitudService,
     private tipoDatoService: TipoDatoService,
-    private archivoService: ArchivoService
+    private archivoService: ArchivoService,
+    private auteticate: AuthenticacionService
 
   ) { }
 
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-    }
-  }
-
-  insertarArchivo() {
-    if (this.selectedFile) {
-      const formData = new FormData();
-      formData.append('TC_Nombre', this.selectedFile.name);
-      formData.append('file', this.selectedFile);  // Renombrado a 'file'
-      formData.append('TC_FormatoAchivo', this.selectedFile.type);
-      formData.append('TF_FechaModificacion', '2024-10-10');
-
-      console.log(formData);
-  
-      this.archivoService.insertarArchivo(formData).subscribe({
-        next: response => {
-          console.log('Archivo guardado con exito', response);
-          alert('Archivo guardado con éxito');
-        },
-        error: err => {
-          console.error('Error al guardar el archivo:', err);
-        }
-      });
-    }
-  }
-
-  
-  descargarArchivo(id: number): void {
-    this.archivoService.descargarArchivo(id).subscribe(response => {
-      // Decodifica el contenido Base64 a un Blob
-      const byteCharacters = atob(response.contenidoArchivo);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: response.tipoArchivo });
-  
-      // Crea la URL para el archivo Blob
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = response.nombreArchivo; // Usa el nombre del archivo desde la respuesta
-      document.body.appendChild(a);
-      a.click();
-  
-      // Limpia el DOM y revoca la URL
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    }, error => {
-      console.error('Error al descargar el archivo:', error);
-    });
-  }
-
-  // Método auxiliar para extraer el nombre del archivo desde el encabezado 'content-disposition'
-  private getFileName(contentDisposition: string): string {
-    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-    const matches = filenameRegex.exec(contentDisposition);
-    return (matches != null && matches[1]) ? matches[1].replace(/['"]/g, '') : 'archivo_descargado';
-  }
-
   ngOnInit() {
 
+    this.usuario = this.auteticate.getUsuario();
+    this.idOficinaSeleccionada = this.usuario.oficina.idOficina;
+    this.nombreOficina = this.usuario.oficina.nombre;
     this.getCategories();
     this.getFiscalias();
     this.getDelitos();
@@ -216,7 +164,7 @@ export default class SolicitudProveedorComponent {
     };
 
 
-    
+
     this.dropdownSettings2 = {
       singleSelection: false,
       idField: 'idTipoSolicitud',       // Cambia 'id' por el campo de ID que uses en `tiposSolicitud`
@@ -229,7 +177,7 @@ export default class SolicitudProveedorComponent {
 
   }
 
-  private validarNumUnico = (nombre:string) => {
+  private validarNumUnico = (nombre: string) => {
     //se verifica que solo incluya caracteres y su rango
     return /^[0-9]{2}-[0-9]{6}-[0-9]{4}-[a-z]{2}$/.test(nombre);
   };
@@ -243,9 +191,63 @@ export default class SolicitudProveedorComponent {
     // Permite cualquier texto que no contenga signos de exclamación
     return /^[^!]+$/.test(texto);
   };
-  
-  
-  // Método que se llama al cambiar la categoría de delito
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
+  insertarArchivo() {
+    if (this.selectedFile) {
+      const formData = new FormData();
+      formData.append('TC_Nombre', this.selectedFile.name);
+      formData.append('file', this.selectedFile);  // Renombrado a 'file'
+      formData.append('TC_FormatoAchivo', this.selectedFile.type);
+      formData.append('TF_FechaModificacion', '2024-10-10');
+
+      console.log(formData);
+
+      this.archivoService.insertarArchivo(formData).subscribe({
+        next: response => {
+          console.log('Archivo guardado con exito', response);
+          alert('Archivo guardado con éxito');
+        },
+        error: err => {
+          console.error('Error al guardar el archivo:', err);
+        }
+      });
+    }
+  }
+
+  descargarArchivo(id: number): void {
+    this.archivoService.descargarArchivo(id).subscribe(response => {
+      // Decodifica el contenido Base64 a un Blob
+      const byteCharacters = atob(response.contenidoArchivo);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: response.tipoArchivo });
+
+      // Crea la URL para el archivo Blob
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = response.nombreArchivo; // Usa el nombre del archivo desde la respuesta
+      document.body.appendChild(a);
+      a.click();
+
+      // Limpia el DOM y revoca la URL
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, error => {
+      console.error('Error al descargar el archivo:', error);
+    });
+  }
+
   onCategoriaDelitoChange(): void {
     if (this.idCategoriaDelitoSeleccionado) {
       this.delitoService.obtenerPorCategoria(this.idCategoriaDelitoSeleccionado)
@@ -265,7 +267,6 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-  // Método para obtener las submodalidades al cambiar la modalidad seleccionada
   onModalidadChange(): void {
     if (this.idModalidadSeleccionada) {
       this.subModalidadService.obtenerPorModalidad(this.idModalidadSeleccionada)
@@ -285,7 +286,6 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-  // Obtener operadoras
   getOperadoras() {
     this.proveedorService.obtener().subscribe({
       next: (data: any[]) => {
@@ -297,7 +297,6 @@ export default class SolicitudProveedorComponent {
     });
   }
 
-  // Obtener oficinas
   getOficinas() {
     this.oficinaService.obtener().subscribe({
       next: (data: any[]) => {
@@ -322,37 +321,39 @@ export default class SolicitudProveedorComponent {
     this.fechaInicio = solicitud.tF_FechaInicio;                 // Cargar fecha de inicio
     this.fechaFinal = solicitud.tF_FechaFinal;                   // Cargar fecha final
     this.listaDatosRequeridos = solicitud.datosRequeridos;       // Cargar datos requeridos
-
     this.tipoDatoSeleccionadoBloqueado = true;
-
-
-    this.listaSolicitudes.splice(index, 1);
-
-
-    console.log('Solicitud cargada para edición:', solicitud);
   }
-
 
   actualizarSolicitud() {
     if (this.editingIndex !== null) {
-      // Actualizar la solicitud con los valores del formulario
-      const solicitudActualizada = {
-        tN_IdRequerimientoProveedor: 0, // Se puede mantener si es nuevo
-        tF_FechaInicio: this.fechaInicio,
-        tF_FechaFinal: this.fechaFinal,
-        tC_Requerimiento: this.requerimiento,
-        tipoSolicitudes: this.tipoSolicitudSeleccionada,
-        datosRequeridos: this.listaDatosRequeridos
-      };
+      if (this.tipoSolicitudSeleccionada.length > 0
+        && this.requerimiento && this.fechaInicio
+        && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
 
-      // Reemplazar la solicitud en la lista
-      this.listaSolicitudes[this.editingIndex] = solicitudActualizada;
+        //se extrae el fromulario
+        const solicitud = this.listaSolicitudes[this.editingIndex];
 
-      // Limpiar el índice de edición y los campos del formulario
-      this.editingIndex = null;
-      this.limpiarFormulario();
+        // Actualizar la solicitud con los valores del formulario
+        solicitud.tipoSolicitudes = this.tipoSolicitudSeleccionada;  // Cargar tipos de solicitud
+        solicitud.tC_Requerimiento = this.requerimiento;             // Cargar el requerimiento
+        solicitud.tF_FechaInicio = this.fechaInicio;                 // Cargar fecha de inicio
+        solicitud.tF_FechaFinal = this.fechaFinal;                   // Cargar fecha final
+        solicitud.datosRequeridos = this.listaDatosRequeridos;
 
-      console.log('Solicitud actualizada:', solicitudActualizada);
+        // Limpiar el índice de edición y los campos del formulario
+        this.editingIndex = null;
+        this.tipoDatoSeleccionadoBloqueado = false;
+        this.limpiarFormulario();
+        this.alertaMensaje = 'Requerimiento editado exitosamente.';
+        this.alertatipo = 'satisfaccion';
+        this.mostrarAlerta();
+
+      } else {
+
+        this.alertaMensaje = 'Debe completar todos los campos para agregar un requerimiento.';
+        this.alertatipo = 'error';
+        this.mostrarAlerta();
+      }
     }
   }
 
@@ -378,19 +379,19 @@ export default class SolicitudProveedorComponent {
         resennia: this.resennia || "string",
         urgente: this.isUrgent || false,
         fechaCreacion: new Date().toISOString(),
-        
+
         requerimientos: this.listaSolicitudes.map(solicitud => ({
           idRequerimientoProveedor: 0,
           fechaInicio: solicitud.tF_FechaInicio || new Date().toISOString(),
           fechaFinal: solicitud.tF_FechaFinal || new Date().toISOString(),
           requerimiento: solicitud.tC_Requerimiento || "string",
-          
+
           tipoSolicitudes: solicitud.tipoSolicitudes.map((tipo: any) => ({
             idTipoSolicitud: tipo.idTipoSolicitud,
             nombre: tipo.nombre,
             descripcion: tipo.descripcion || "Descripción no proporcionada"
           })),
-          
+
           datosRequeridos: solicitud.datosRequeridos.map((dato: any) => ({
             idDatoRequerido: dato.tN_IdDatoRequerido || 0,
             datoRequeridoContenido: dato.tC_DatoRequerido || "string",
@@ -398,80 +399,85 @@ export default class SolicitudProveedorComponent {
             idTipoDato: dato.tN_IdTipoDato
           }))
         })),
-        
+
         operadoras: this.operadoraSeleccionada.map(operadora => ({
           idProveedor: operadora.idProveedor,
           nombre: operadora.nombre
         })),
-        
+
         usuarioCreador: {
-          idUsuario: 1,
+          idUsuario: this.usuario.idUsuario,
           nombre: "Juan",
           apellido: "Pérez",
           usuario: "jperez",
           correoElectronico: "jperez@example.com"
         },
-        
+
         delito: {
           idDelito: this.idDelitoSeleccionado,
           nombre: "Delito X",
           descripcion: "Descripción del delito",
           idCategoriaDelito: this.idCategoriaDelitoSeleccionado
         },
-        
+
         categoriaDelito: {
           idCategoriaDelito: this.idCategoriaDelitoSeleccionado,
           nombre: "Categoría X",
           descripcion: "Descripción de la categoría"
         },
-        
+
         estado: {
           idEstado: 4,
           nombre: "Creado",
           descripcion: "Solicitud creada",
           tipo: "string"
         },
-        
+
         fiscalia: {
           idFiscalia: this.idFiscaliaSeleccionada,
           nombre: this.fiscalias.find(f => f.tN_IdFiscalia === this.idFiscaliaSeleccionada)?.tC_Nombre || "Desconocido"
         },
-        
+
         oficina: {
           idOficina: this.idOficinaSeleccionada,
           nombre: this.oficinas.find(o => o.tN_IdOficina === this.idOficinaSeleccionada)?.tC_Nombre || "Desconocido",
           tipo: "string"
         },
-        
+
         modalidad: {
-          idModalidad: this.idModalidadSeleccionada,
+          idModalidad: this.idModalidadSeleccionada != 0 ? this.idModalidadSeleccionada: 0,
           nombre: "Modalidad X",
           descripcion: "Descripción de la modalidad"
         },
-        
+
         subModalidad: {
-          idSubModalidad: this.idSubModalidadSeleccionada,
+          idSubModalidad: this.idSubModalidadSeleccionada != 0 ? this.idSubModalidadSeleccionada: 0,
           nombre: "Submodalidad X",
           descripcion: "Descripción de la submodalidad",
           idModalida: this.idModalidadSeleccionada
         }
       };
-  
+
       // Llamar al servicio para enviar la solicitud
       this.solicitudProveedorService.insertarSolicitudProveedor(solicitudProveedor).subscribe({
         next: response => {
-          console.log('Solicitud guardada con éxito', response);
-          alert('Solicitud guardada con éxito');
+          this.alertaMensaje = 'Solicitud guardada con éxito.';
+          this.alertatipo = 'satisfaccion';
+          this.cerrarModalConfirmacion();
+          this.mostrarAlerta();
           this.limpiarTodo();
+          //Redireccionar a la bandeja
         },
         error: err => {
-          console.error('Error al guardar la solicitud:', err);
+          this.alertaMensaje = `Error al guardar la solicitud: ${err}`;
+          this.alertatipo = 'error';
+          this.mostrarAlerta();
         }
       });
-  
+
     } else {
       let errores = [];
-  
+
       if (!(this.validarNumUnico(this.numeroUnico) == true || this.numeroCaso)) {
         errores.push("Número único o número de caso");
       }
@@ -502,10 +508,12 @@ export default class SolicitudProveedorComponent {
       if (this.listaSolicitudes.length < 1) {
         errores.push("Lista de solicitudes con al menos un elemento");
       }
-  
+
       // Mostrar alert con los errores
       if (errores.length > 0) {
-        alert("Los siguientes campos son requeridos o tienen errores:\n- " + errores.join("\n- "));
+        this.alertaMensaje = "Los siguientes campos son requeridos o tienen errores:\n- " + errores.join("\n- ");
+        this.alertatipo = 'error';
+        this.mostrarAlerta();
       }
     }
   }
@@ -523,7 +531,7 @@ export default class SolicitudProveedorComponent {
     this.ofendido = '';
     this.resennia = '';
     this.isUrgent = false;
-  
+
     // Limpiar las selecciones de listas desplegables
     this.idOperadoraSeleccionada = 0;
     this.idOficinaSeleccionada = 0;
@@ -533,13 +541,13 @@ export default class SolicitudProveedorComponent {
     this.idEstadoSeleccionado = 0;
     this.idModalidadSeleccionada = 0;
     this.idSubModalidadSeleccionada = 0;
-  
+
     // Limpiar las listas
     this.tipoSolicitudSeleccionada = [];
     this.operadoraSeleccionada = [];
     this.listaSolicitudes = [];
     this.listaDatosRequeridos = [];
-  
+
     // Limpiar las variables adicionales
     this.requerimiento = '';
     this.fechaInicio = '';
@@ -547,28 +555,32 @@ export default class SolicitudProveedorComponent {
     this.datoRequerido = '';
     this.repitaDatoRequerido = '';
     this.motivation = '';
-  
+
     // Limpiar el campo de tipo de dato y resetear su placeholder y maxlength
     this.tipoDatoSeleccionado = null;
-    this.placeholderDatoRequerido = 'Ingrese el dato requerido'; 
+    this.placeholderDatoRequerido = 'Ingrese el dato requerido';
     this.maxlengthDatoRequerido = 100; // Restablecer el límite de caracteres a un valor por defecto
-  
+
     // Limpiar mensajes de error o cualquier otra notificación
     this.errorMessage = '';
-  
+
     // Restablecer cualquier índice de edición
     this.editingIndex = null;
-  
+
     // Desbloquear cualquier campo bloqueado previamente
     this.tipoDatoSeleccionadoBloqueado = false; // Bloquea la selección del tipo de dato
     this.tipoDatoSeleccionadoBloqueado = false;
-  
+
     // Si el modal está abierto, ciérralo
     this.isModalOpen = false;
-  
+
     console.log('Formulario completamente limpio');
   }
+
   limpiarFormulario() {
+
+    this.tipoDatoSeleccionadoBloqueado = false;
+
     // Limpiar el campo de tipo de solicitud
     this.tipoSolicitudSeleccionada = [];
 
@@ -579,18 +591,15 @@ export default class SolicitudProveedorComponent {
     // Limpiar el campo de requerimiento
     this.requerimiento = '';
     this.listaDatosRequeridos = [];
+
+    this.resetForm();
   }
 
-
-
   agregarSolicitud() {
+    if (this.tipoSolicitudSeleccionada.length > 0
+      && this.requerimiento && this.fechaInicio
+      && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
 
-    console.log("Requerimiento: ", this.requerimiento);
-    console.log("Fecha Inicio: ", this.fechaInicio);
-    console.log("Fecha Final: ", this.fechaFinal);
-    console.log("Datos Requeridos: ", this.listaDatosRequeridos);
-
-    if (this.tipoSolicitudSeleccionada && this.requerimiento && this.fechaInicio && this.fechaFinal && this.listaDatosRequeridos.length > 0) {
       // Crear el objeto de solicitud con la estructura solicitada
       const nuevaSolicitud = {
         tN_IdRequerimientoProveedor: 0, // Asumimos que es nuevo
@@ -603,19 +612,29 @@ export default class SolicitudProveedorComponent {
 
       // Agregar la nueva solicitud a la lista de solicitudes
       this.listaSolicitudes.push(nuevaSolicitud);
-      console.log('Lista de solicitudes:', this.listaSolicitudes);
-
       this.tipoDatoSeleccionadoBloqueado = false;
-      this.tipoSolicitudSeleccionada = [];
-      this.requerimiento = '';
-      this.listaDatosRequeridos = [];
-      this.resetForm();
+      this.limpiarFormulario();
+      this.alertaMensaje = 'Requerimiento agregado exitosamente.';
+      this.alertatipo = 'satisfaccion';
+      this.mostrarAlerta();
+
     } else {
-      this.errorMessage = 'Debe completar todos los campos.';
+
+      this.alertaMensaje = 'Debe completar todos los campos para agregar un requerimiento.';
+      this.alertatipo = 'error';
+      this.mostrarAlerta();
     }
   }
 
-  // Método para obtener delitos
+  mostrarAlerta(): void {
+    this.alertaVisible = true;
+
+    // Opcional: Cerrar la alerta después de unos segundos
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000); // 3 segundos
+  }
+
   getDelitos() {
     this.delitoService.obtener().subscribe({
       next: (data: any[]) => {
@@ -672,7 +691,6 @@ export default class SolicitudProveedorComponent {
     });
   }
 
-  // Método para obtener categorías de delito
   getCategories() {
     this.categoriaService.obtener().subscribe({
       next: (data: any[]) => {
@@ -684,7 +702,6 @@ export default class SolicitudProveedorComponent {
     });
   }
 
-  // Método para obtener fiscalías
   getFiscalias() {
     this.fiscaliaService.obtener().subscribe({
       next: (data: any[]) => {
@@ -710,33 +727,33 @@ export default class SolicitudProveedorComponent {
   agregarDatoRequerido() {
     console.log("tipoDatoSeleccionado antes de agregar:", this.tipoDatoSeleccionado); // Verificación
 
-      if (this.datoRequerido && this.repitaDatoRequerido && this.motivation && this.tipoDatoSeleccionado) {
+    if (this.datoRequerido && this.repitaDatoRequerido && this.motivation && this.tipoDatoSeleccionado) {
 
-        if (this.datoRequerido === this.repitaDatoRequerido) {
-          // El ID y el nombre del tipo de dato se toman directamente del objeto seleccionado
-          const nuevoDato = {
-            tN_IdDatoRequerido: this.tipoDatoSeleccionado.tN_IdTipoDato, // Asigna el ID correcto
-            tC_DatoRequerido: this.datoRequerido,
-            tC_Motivacion: this.motivation,
-            tN_IdTipoDato: this.tipoDatoSeleccionado.idTipoDato, // El ID del tipo de dato seleccionado
-            tC_NombreTipoDato: this.tipoDatoSeleccionado.tC_Nombre // El nombre del tipo de dato seleccionado
-          };
+      if (this.datoRequerido === this.repitaDatoRequerido) {
+        // El ID y el nombre del tipo de dato se toman directamente del objeto seleccionado
+        const nuevoDato = {
+          tN_IdDatoRequerido: this.tipoDatoSeleccionado.tN_IdTipoDato, // Asigna el ID correcto
+          tC_DatoRequerido: this.datoRequerido,
+          tC_Motivacion: this.motivation,
+          tN_IdTipoDato: this.tipoDatoSeleccionado.idTipoDato, // El ID del tipo de dato seleccionado
+          tC_NombreTipoDato: this.tipoDatoSeleccionado.tC_Nombre // El nombre del tipo de dato seleccionado
+        };
 
-          this.listaDatosRequeridos.push(nuevoDato); // Agregar el dato a la lista
-          this.tipoDatoSeleccionadoBloqueado = true;
-          this.resetForm();  // Limpiar los campos del formulario
-          this.errorMessage = '';  // Limpiar el mensaje de error
+        this.listaDatosRequeridos.push(nuevoDato); // Agregar el dato a la lista
+        this.tipoDatoSeleccionadoBloqueado = true;
+        this.resetForm();  // Limpiar los campos del formulario
+        this.errorMessage = '';  // Limpiar el mensaje de error
 
-          console.log("Nuevo dato agregado:", nuevoDato);
-          console.log("Lista de datos requeridos:", this.listaDatosRequeridos);
-        } else {
-          this.errorMessage = 'Los campos "Dato Requerido" y "Repita el Dato Requerido" deben coincidir.';
-        }
+        console.log("Nuevo dato agregado:", nuevoDato);
+        console.log("Lista de datos requeridos:", this.listaDatosRequeridos);
       } else {
-        this.errorMessage = 'Todos los campos son obligatorios. Por favor, verifique.';
-
+        this.errorMessage = 'Los campos "Dato Requerido" y "Repita el Dato Requerido" deben coincidir.';
       }
-    
+    } else {
+      this.errorMessage = 'Todos los campos son obligatorios. Por favor, verifique.';
+
+    }
+
 
 
 
@@ -746,7 +763,7 @@ export default class SolicitudProveedorComponent {
     return this.listaDatosRequeridos.map(item => `${item.tC_DatoRequerido}`).join(', ');
   }
 
- onDatoRequeridoChange(event: any) {
+  onDatoRequeridoChange(event: any) {
     const idSeleccionado = event.target.value;  // Obtenemos el ID del dato requerido seleccionado
     console.log("ID seleccionado para eliminar:", idSeleccionado);
     this.selectedDatoRequerido = event.target.value;  // Asignamos el objeto seleccionado
@@ -759,28 +776,26 @@ export default class SolicitudProveedorComponent {
     console.log("Dato seleccionado:", this.selectedDatoRequerido);
   }
 
-eliminarDatoRequerido() {
-  if (this.selectedDatoRequerido) {
-    this.listaDatosRequeridos = this.listaDatosRequeridos.filter(
-      item => item !== this.selectedDatoRequerido
-    );
+  eliminarDatoRequerido() {
+    if (this.selectedDatoRequerido) {
+      this.listaDatosRequeridos = this.listaDatosRequeridos.filter(
+        item => item !== this.selectedDatoRequerido
+      );
 
-    console.log("Dato eliminado:", this.selectedDatoRequerido);
-    console.log("Lista actualizada de datos requeridos:", this.listaDatosRequeridos);
+      console.log("Dato eliminado:", this.selectedDatoRequerido);
+      console.log("Lista actualizada de datos requeridos:", this.listaDatosRequeridos);
 
-    // Limpiar la selección
-    this.selectedDatoRequerido = null;
-    if(this.listaDatosRequeridos.length === 0){
-      this.tipoDatoSeleccionadoBloqueado = false;
+      // Limpiar la selección
+      this.selectedDatoRequerido = null;
+      if (this.listaDatosRequeridos.length === 0) {
+        this.tipoDatoSeleccionadoBloqueado = false;
+      }
+
+    } else {
+      console.error("No hay ningún dato seleccionado para eliminar.");
     }
-
-  } else {
-    console.error("No hay ningún dato seleccionado para eliminar.");
   }
-}
 
-
-  // Deshabilitar el cambio de tipo de dato después de seleccionarlo
   onTipoDatoChange() {
 
     if (this.tipoDatoSeleccionadoBloqueado == false) {
@@ -821,5 +836,49 @@ eliminarDatoRequerido() {
   closeModal() {
     this.isModalOpen = false;
   }
+
+  buscarInfoNumeroUnico(numeroUnico: string): void{
+    this.solicitudProveedorService.consultarInfoNumeroUnico(numeroUnico).subscribe({
+      next: (data: any) => {
+
+        this.idCategoriaDelitoSeleccionado = data.categoriaDelitoDTO.idCategoriaDelito;
+        this.idFiscaliaSeleccionada = data.fiscaliaDTO.idFiscalia;
+        this.idDelitoSeleccionado = data.delitoDTO.idDelito;
+        this.imputado = String(data.imputado);
+        this.ofendido = String(data.ofendido);
+        this.resennia = String(data.resennia);
+
+        this.isCategoriaDelitoDisabled = true;
+        this.isDelitoDisabled = true;
+        this.isFiscaliaDisabled = true;
+        
+      },
+      error: (err: any) => {
+        this.alertaMensaje = 'No se encontro solicitud con ese numero unico';
+        this.alertatipo = 'error';
+        this.mostrarAlerta();
+
+        this.idCategoriaDelitoSeleccionado = 0;
+        this.idFiscaliaSeleccionada = 0;
+        this.idDelitoSeleccionado = 0;
+        this.imputado = '';
+        this.ofendido = '';
+        this.resennia = '';
+
+        this.isCategoriaDelitoDisabled = false;
+        this.isDelitoDisabled = false;
+        this.isFiscaliaDisabled = false;
+      }
+    });
+  }
+
+  abrirModalConfirmacion(){
+    this.modalConfirmacionisible = true;
+  }
+
+  cerrarModalConfirmacion(){
+    this.modalConfirmacionisible = false;
+  }
+
 }
 

@@ -1,187 +1,215 @@
 import { Component, OnInit } from '@angular/core';
-import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';
-import { HistoricoService } from '../../services/historico.service';
-import { SidebarComponent } from '../../components/sidebar/sidebar.component';
-import { FooterComponent } from '../../components/footer/footer.component';
-import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { EstadoService } from '../../services/estado.service';
+import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-bandeja-analista',
   standalone: true,
   imports: [
-    SidebarComponent,
-    FooterComponent,
-    RouterOutlet,
-    NavbarComponent,
     CommonModule,
     FormsModule
   ],
   templateUrl: './bandeja-analista.component.html',
   styleUrl: './bandeja-analista.component.css'
 })
-export default class BandejaAnalistaComponent {
+export default class BandejaAnalistaComponent implements OnInit {
 
-  solicitudes: any[] = [];  // Aquí guardamos los datos de las solicitudes
-  pageNumber: number = 1;   // Número de página inicial
-  pageSize: number = 5;    // Tamaño de página
-  modalVisible = false;
-  modalHistoricoVisible = false;
-  solicitudSeleccionada: any = null;
-  historicoDeSolicitudSeleccionada: any = null;
-  filtroCaracter: string = '';
+  estadosPermitidos: string[] = ["Finalizado", "En Análisis", "Analizado"];
+  estados: any[] = [];
+  encabezados: any[] = [];
+  solicitudesAnalisis: any[] = [];
 
-  //Filtro
-  estadoSeleccionado: string = 'Pendiente';
+  numeroDePagina: number = 1;
+  cantidadDeRegistros: number = 5;
+  solicitudesAnalisisFiltradas: any[] = [];
+  solicitudesAnalisisPaginadas: any[] = [];
+
+  estadoColumnas: { [key: string]: { headers: string[] } } = {
+    10: {
+      headers: ['Solicitud telefónica', 'Número único', 'Investigador', 'Oficina', 'Aprobado por', 'Fecha creación S.A.', 'Fecha aprobación S.A.', 'Asignada a', 'Fecha de asignación', 'Estado solicitud', 'Urgente', 'Fecha analizada']
+    },
+    12: {
+      headers: ['Solicitud telefónica', 'Número único', 'Investigador', 'Oficina', 'Aprobado por', 'Fecha creación S.A.', 'Fecha aprobación S.A.', 'Asignada a', 'Fecha de asignación', 'Estado solicitud', 'Urgente', 'Fecha analizada']
+    },
+    13: {
+      headers: ['Solicitud telefónica', 'Número único', 'Investigador', 'Oficina', 'Aprobado por', 'Fecha creación S.A.', 'Fecha aprobación S.A.', 'Asignada a', 'Fecha de asignación', 'Estado solicitud', 'Urgente', 'Fecha analizada']
+    }
+  };
+
+  estadoTemporal: number = 12;
+  estadoSeleccionado: number = 12;
   numeroUnicoFiltro: string = '';
   fechaInicioFiltro: string = '';
   fechaFinFiltro: string = '';
-  cantidadSolicitudes: number = 0;
+  filtroCaracter: string = '';
+  isSwitchDisabled: boolean = false;
+
+  solicitudSeleccionada: any = null;
+  solicitudIdParaActualizar: number | null = null;
+
+  isModalVisible: boolean = false;
+  modalEstadoVisible = false;
+  observacion: string = '';
+  nuevoEstado: string = '';
 
   constructor(
-    private solicitudProveedorService: SolicitudProveedorService,
-    private historicoService: HistoricoService
+    private analisisTelefonicoService: AnalisisTelefonicoService,
+    private estadoService: EstadoService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
-    // Hacemos la solicitud después de que la vista esté completamente cargada
-    this.obtenerSolicitudes(this.pageNumber, this.pageSize);
+    this.modalVisible();
+    setTimeout(() => {
+      this.obtenerEstados();
+      this.obtenerSolicitudesAnalisis();
+    }, 3000);
   }
 
-  // Abre el modal con la solicitud seleccionada
-  abrirModal(solicitud: any) {
-    this.solicitudSeleccionada = solicitud;
-    this.modalVisible = true;
-    console.log('Solicitud seleccionada:', this.solicitudSeleccionada);
-  }
-
-  // Cierra el modal
-  cerrarModal() {
-    this.modalVisible = false;
-    this.solicitudSeleccionada = null;
-  }
-
-  abrirModalHistorico(solicitud: any){
-    this.solicitudSeleccionada = solicitud;
-    this.obtenerHistoricoSolicitud(this.solicitudSeleccionada.idSolicitudProveedor)
-    console.log('Historico: ', this.historicoDeSolicitudSeleccionada);
-    this.modalHistoricoVisible = true;
-  }
-
-  cerrarModalHistorico(){
-    this.modalHistoricoVisible = false;
-  }
-
-  cambiarEstadoASinEfeceto(solicitud: any){
-    const confirmacion = window.confirm("¿Estás seguro de que deseas realizar esta acción?");
-    if (confirmacion) {
-      this.solicitudSeleccionada = solicitud;
-      this.solicitudProveedorService.moverEstadoASinEfecto(solicitud.idSolicitudProveedor)
-        .subscribe({
-          next: (respuesta) => {
-            if (respuesta) {
-              console.log("Estado cambiado con éxito.");
-              this.obtenerSolicitudes(this.pageNumber, this.pageSize);
-            } else {
-              console.error("No se pudo cambiar el estado.");
-            }
-          },
-          error: (error) => {
-            console.error("Ocurrió un error en la solicitud:", error);
+  //obtener datos
+  obtenerEstados(): void {
+    this.estadoService.obtenerEstados()
+      .subscribe({
+        next: (estados) => {
+          this.estados = estados;
+          this.estados = this.estados.filter(estado => estado.tipo === 'Analisis');//se filtran los estados por tipo
+          this.estados = this.estados.filter((estado) => {
+            return this.estadosPermitidos.includes(estado.nombre)
           }
-        });
-    }
+          );//se filtran los estados permitidos en la vista
+        },
+        error: (err) => {
+          console.error('Error al obtener datos:', err);
+        }
+      });
   }
 
+  obtenerSolicitudesAnalisis(): void {
+    this.analisisTelefonicoService.obtenerBandejaAnalista(this.estadoSeleccionado, this.fechaInicioFiltro, this.fechaFinFiltro, this.numeroUnicoFiltro)
+      .subscribe({
+        next: (value) => {
+          this.solicitudesAnalisis = value;
+          console.log(this.solicitudesAnalisis);
+          this.reiniciarDatosDeTabla();
+          console.log(this.solicitudesAnalisisFiltradas);
+          this.actualizarPaginacion();
+          console.log(this.solicitudesAnalisisPaginadas);
+          this.modalInvisible();
+        },
+        error: (err) => {
+          console.error('Error al obtener solicitudes de análisis:', err);
+          this.modalInvisible();
+        },
+      });
+  }
 
-  obtenerSolicitudes(pageNumber: number, pageSize: number): void {
-    this.solicitudProveedorService.obtener().subscribe({
-      next: (data: any) => {
-        this.solicitudes = data;  // Guardamos los datos de la solicitud
-      },
-      error: (err) => {
-        console.log('');
-        if (err.status === 0) {
-          console.log('');
-        }
-      }
+  verDetalle(solicitud: any) {
+    this.router.navigate(['detalle-solicitud-analista', solicitud.idSolicitudAnalisis], {
+      state: { objeto: solicitud }
     });
   }
 
-  obtenerHistoricoSolicitud(idSolicitudProveedor: number): void {
-    this.historicoService.obtener(idSolicitudProveedor).subscribe({
-      next: (data: any) => {
-        this.historicoDeSolicitudSeleccionada = data;
-      },
-      error: (err) => {
-        console.log('')
-        if(err.status === 0) {
-          console.log('');
-        }
-      }
-    })
-  }
-
-  calcularDiasTranscurridos(fechaInicio: string): number {
-    const fecha = new Date(fechaInicio);
-    const hoy = new Date();
-    const diferenciaEnMilisegundos = hoy.getTime() - fecha.getTime();
-    const diasTranscurridos = Math.floor(diferenciaEnMilisegundos / (1000 * 60 * 60 * 24));
-    return diasTranscurridos;
-  }
-
   cambiarPagina(incremento: number): void {
-    this.pageNumber += incremento;
-    if (this.pageNumber < 1) {
-      this.pageNumber = 1;
+    const maxPage = Math.ceil(this.solicitudesAnalisisFiltradas.length / this.cantidadDeRegistros);
+    const newPage = this.numeroDePagina + incremento;
+
+    if (newPage >= 1 && newPage <= maxPage) {
+      this.numeroDePagina = newPage;
+      this.actualizarPaginacion(); // Actualizar los datos mostrados en la página actual
     }
-    this.obtenerSolicitudes(this.pageNumber, this.pageSize);
   }
 
   cambiarTamanoPagina(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
-    this.pageSize = +value;
-    this.obtenerSolicitudes(this.pageNumber, this.pageSize);
+    this.cantidadDeRegistros = +value;
+    this.numeroDePagina = 1; // Reinicia la página al cambiar el tamaño de página
+    this.actualizarPaginacion();
   }
 
-  filtrarPorEstado() {
-    const solicitudesFiltradas = this.solicitudes.filter(solicitud => solicitud.estado === this.estadoSeleccionado);
-    this.cantidadSolicitudes = solicitudesFiltradas.length;  // Actualiza la cantidad en el badge
+  actualizarPaginacion() {
+    const inicio = (this.numeroDePagina - 1) * this.cantidadDeRegistros;
+    const fin = inicio + this.cantidadDeRegistros;
+    this.solicitudesAnalisisPaginadas = this.solicitudesAnalisisFiltradas.slice(inicio, fin);
   }
 
   limpiarFiltros() {
-    this.estadoSeleccionado = 'Pendiente';
     this.numeroUnicoFiltro = '';
     this.fechaInicioFiltro = '';
     this.fechaFinFiltro = '';
-    this.filtrarPorEstado();
+    this.filtroCaracter = '';
+    this.reiniciarDatosDeTabla();
+    console.log(this.solicitudesAnalisisFiltradas);
+    this.actualizarPaginacion();
+    console.log(this.solicitudesAnalisisPaginadas);
   }
 
+
   filtrarSolicitudes() {
-    let solicitudesFiltradas = this.solicitudes;
+    console.log(this.estadoSeleccionado);
+    this.obtenerSolicitudesAnalisis();
+  }
 
-    // Filtro por estado
-    if (this.estadoSeleccionado) {
-      solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => solicitud.estado === this.estadoSeleccionado);
+  aplicarFiltroCaracter() {
+    if (this.filtroCaracter) {
+      const filtro = this.filtroCaracter.toLowerCase();
+      console.log(this.filtroCaracter);
+      // Filtro principal sobre el objeto
+      this.solicitudesAnalisisFiltradas = this.solicitudesAnalisis.filter(solicitud =>
+        solicitud.idSolicitudAnalisis.toString().includes(filtro) ||
+        solicitud.fechaDelHecho?.toLowerCase().includes(filtro) || // Si el filtro incluye formato de fecha
+        solicitud.fechaCrecion?.toLowerCase().includes(filtro) ||
+        solicitud.requerimentos.some((req: any) =>
+          req.objetivo?.toLowerCase().includes(filtro) ||
+          req.utilizadoPor?.toLowerCase().includes(filtro) ||
+          req.tipoDato?.nombre?.toLowerCase().includes(filtro) ||
+          req.condicion?.nombre?.toLowerCase().includes(filtro)
+        ) ||
+        solicitud.objetivosAnalisis.some((obj: any) =>
+          obj.nombre?.toLowerCase().includes(filtro) ||
+          obj.descripcion?.toLowerCase().includes(filtro)
+        ) ||
+        solicitud.solicitudesProveedor.some((prov: any) =>
+          prov.numeroUnico?.toLowerCase().includes(filtro) ||
+          prov.imputado?.toLowerCase().includes(filtro) ||
+          prov.ofendido?.toLowerCase().includes(filtro) ||
+          prov.usuarioCreador?.nombre?.toLowerCase().includes(filtro) ||
+          prov.delito?.nombre?.toLowerCase().includes(filtro) ||
+          prov.categoriaDelito?.nombre?.toLowerCase().includes(filtro) ||
+          prov.estado?.nombre?.toLowerCase().includes(filtro) ||
+          prov.fiscalia?.nombre?.toLowerCase().includes(filtro) ||
+          prov.modalidad?.nombre?.toLowerCase().includes(filtro) ||
+          prov.subModalidad?.nombre?.toLowerCase().includes(filtro) ||
+          prov.proveedor?.nombre?.toLowerCase().includes(filtro)
+        )
+      );
+      this.actualizarPaginacion();
+      console.log(this.solicitudesAnalisisPaginadas);
     }
+  }
 
-    // Filtro por número único
-    if (this.numeroUnicoFiltro) {
-      solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => solicitud.numeroUnico.includes(this.numeroUnicoFiltro));
+  reiniciarDatosDeTabla(): void {
+    this.numeroDePagina = 1;
+    this.solicitudesAnalisisFiltradas = this.solicitudesAnalisis;
+    this.encabezados = this.estadoColumnas[this.estadoSeleccionado].headers;
+  }
+
+  obtenerOpcionesPorEstado(estado: string): string[] {
+    switch (estado) {
+      case "En Análisis":
+        return ["Ver histórico", "Ver Solicitud"];
+      default:
+        return [];
     }
+  }
 
-    // Filtro por fecha de inicio
-    if (this.fechaInicioFiltro) {
-      solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => new Date(solicitud.fecha) >= new Date(this.fechaInicioFiltro));
-    }
+  modalVisible(): void {
+    this.isModalVisible = true;
+  }
 
-    // Filtro por fecha de fin
-    if (this.fechaFinFiltro) {
-      solicitudesFiltradas = solicitudesFiltradas.filter(solicitud => new Date(solicitud.fecha) <= new Date(this.fechaFinFiltro));
-    }
-
-    console.log('Solicitudes filtradas:', solicitudesFiltradas);
+  modalInvisible(): void {
+    this.isModalVisible = false;
   }
 }

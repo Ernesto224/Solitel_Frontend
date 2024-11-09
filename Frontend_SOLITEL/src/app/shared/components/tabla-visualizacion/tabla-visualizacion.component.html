@@ -1,0 +1,56 @@
+<div class="flex justify-between items-center mt-4 space-x-8">
+    <!-- Selector de tamaño de filas alineado a la izquierda -->
+    <div class="flex items-center">
+        <label for="pageSize" class="mr-2">Mostrar:</label>
+        <select id="pageSize" (change)="changePageSize($event)" class="border border-gray-300 rounded">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+        </select>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="min-w-full table-auto border-collapse">
+        <thead>
+            <tr class="bg-[#1C355C] text-white">
+                <th *ngFor="let actionheader of actionsheaders" class="border px-4 py-2 text-center">{{ actionheader }}
+                </th>
+                <th *ngFor="let header of headers" class="border px-4 py-2 text-center">{{ header.label }}</th>
+            </tr>
+        </thead>
+        <tbody class="bg-[#F3F4F6] text-black">
+            <tr *ngFor="let row of paginatedData" class="hover:bg-gray-200">
+                <td *ngFor="let action of actions" class="border px-4 py-2 text-center">
+                    <div class="flex justify-center space-x-2">
+                        <!-- Botones dinámicos -->
+                        <button (click)="action.action(row)" class={{action.class}} style={{action.style}}>
+                            <i class="material-icons">{{ action.icon }}</i> {{ action.label }}
+                        </button>
+                    </div>
+                </td>
+                <td *ngFor="let header of headers" class="border px-4 py-2 text-center">
+                    {{ getValueByKey(row, header.key) }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="flex justify-between items-center mt-4 space-x-8">
+    <div class="flex items-center">
+        <label for="pageSize" class="mr-2">Mostrando registros del {{((pageNumber - 1) * pageSize) + 1}}
+            al {{((pageNumber - 1) * pageSize) + pageSize}}
+            de un total de {{data.length}} registros
+        </label>
+    </div>
+    <div class="flex items-center space-x-2">
+        <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="changePageNumber(-1)">
+            Anterior
+        </button>
+        <span>{{ pageNumber }}</span>
+        <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="changePageNumber(1)">
+            Siguiente
+        </button>
+    </div>
+</div>

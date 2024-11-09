@@ -3,15 +3,23 @@ import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-import { AnalisisTelefonicoService, Archivo } from '../../services/analisis-telefonico.service';
+import { AuthenticacionService } from '../../services/authenticacion.service';
+import { AlertaComponent } from '../../components/alerta/alerta.component';
+import {
+  AnalisisTelefonicoService,
+  Archivo,
+  Condicion,
+  TipoDato,
+} from '../../services/analisis-telefonico.service';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
 interface Requerimiento {
-  idRequerimiento: number;
-  tipoObjetivo: string;
+  idRequerimientoAnalisis: number;
   objetivo: string;
   utilizadoPor: string;
-  condicion: string;
+  tipoDato: TipoDato;
+  idAnalisis: number;
+  condicion: Condicion;
 }
 
 interface SolicitudProveedor {
@@ -118,8 +126,14 @@ interface SubModalidad {
   templateUrl: './analisis-telefonico.component.html',
   styleUrls: ['./analisis-telefonico.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, NgMultiSelectDropDownModule, NgxMaskDirective],
-  providers: [provideNgxMask()]
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgMultiSelectDropDownModule,
+    NgxMaskDirective,
+    AlertaComponent
+  ],
+  providers: [provideNgxMask()],
 })
 export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   solicitudAnalisisId: number = 1;
@@ -142,7 +156,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   fechaHecho: string = '';
   otrosObjetivos: string = '';
   otrosDetalles: string = '';
-  tipoObjetivo: string = '';
   objetivo: string = '';
   utilizadoPor: string = '';
   condicion: string = '';
@@ -150,26 +163,34 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   solicitudesProveedor: any[] = [];
   archivos: Archivo[] = [];
   idObjetivoAnalisis: number = -1;
-  condicionesAnalisis: any[] = [];
+  condicionesAnalisis: Condicion[] = [];
   tiposAnalisis: any[] = [];
-  condicionAnalisisEscogida: string = '';
+  condicionAnalisisEscogida: number = 0;
   idsSolicitudProveedarArchivo: number[] = [];
-  solicitudCompletaAnalisis:any=null;
+  solicitudCompletaAnalisis: any = null;
+  TipoDatos: TipoDato[] = [];
+  idTipoDatoSeleccionado: number = 0;
+  usuarioActivo:any = null;
+  alertatipo: string = "error";
+  alertaMensaje: string = "";
+  alertaVisible: boolean = false;
   private subscription = new Subscription();
 
   // Control de modales
   mostrarConfirmacion = false;
   mostrarExito = false;
 
-  constructor(private analisisService: AnalisisTelefonicoService) { }
+  constructor(private analisisService: AnalisisTelefonicoService, private authService: AuthenticacionService) {}
 
   ngOnInit(): void {
+    this.cargarUsuarioEnSesion();
     this.cargarNumerosUnicos();
     this.cargarOficinasAnalisis();
     this.cargarObjetivosAnalisis();
     this.inicializarDropdownSettings();
     this.obtenerCondiciones();
     this.obtenerTipoAnalisis();
+    this.cargarTiposDatos();
   }
 
   ngOnDestroy(): void {
@@ -192,16 +213,18 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
 
   cargarSolicitudesPorNumeroUnico(numeroUnico: string): void {
     this.subscription.add(
-      this.analisisService.obtenerSolicitudesPorNumeroUnico(numeroUnico).subscribe(
-        (solicitudes) => {
-          this.solicitudesProveedor = solicitudes.map(solicitud => ({
-            ...solicitud,
-            displayText: `${solicitud.idSolicitudProveedor} - ${solicitud.numeroUnico} - ${solicitud.nombreProveedor}`
-          }));
-          console.log("Solicitudes Proveedor cargadas");
-        },
-        (error) => console.error('Error al cargar solicitudes:', error)
-      )
+      this.analisisService
+        .obtenerSolicitudesPorNumeroUnico(numeroUnico)
+        .subscribe(
+          (solicitudes) => {
+            this.solicitudesProveedor = solicitudes.map((solicitud) => ({
+              ...solicitud,
+              displayText: `${solicitud.idSolicitudProveedor} - ${solicitud.numeroUnico} - ${solicitud.nombreProveedor}`,
+            }));
+            console.log('Solicitudes Proveedor cargadas');
+          },
+          (error) => console.error('Error al cargar solicitudes:', error)
+        )
     );
   }
 
@@ -261,20 +284,36 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       )
     );
   }
+  cargarTiposDatos(): void {
+    this.subscription.add(
+      this.analisisService.ObtenerTiposDato().subscribe(
+        (tipos) => (this.TipoDatos = tipos),
+        (error) => console.error('Error al cargar tipos:', error)
+      )
+    );
+  }
+
+  cargarUsuarioEnSesion() {
+    this.usuarioActivo = this.authService.getUsuario();
+    console.log(this.usuarioActivo.idUsuario);
+  }
 
   obtenerArchivosSolicitudProveedor(): void {
     if (this.idsSolicitudProveedarArchivo.length > 0) {
-      this.analisisService.obtenerArchivosSolicitudProveedor(this.idsSolicitudProveedarArchivo).subscribe(
-        (archivos) => {
-          console.log("Archivos recibidos:", archivos);
+      this.analisisService
+        .obtenerArchivosSolicitudProveedor(this.idsSolicitudProveedarArchivo)
+        .subscribe(
+          (archivos) => {
+            console.log('Archivos recibidos:', archivos);
 
-          this.archivos = archivos.map((archivo) => ({
-            ...archivo,
-            nombreArchivo: `${archivo.nombre}.${archivo.formatoArchivo}`, // Concatenar el nombre y formato
-          }));
-        },
-        (error) => console.error('Error al cargar archivos de la solicitud:', error)
-      );
+            this.archivos = archivos.map((archivo) => ({
+              ...archivo,
+              nombreArchivo: `${archivo.nombre}.${archivo.formatoArchivo}`, // Concatenar el nombre y formato
+            }));
+          },
+          (error) =>
+            console.error('Error al cargar archivos de la solicitud:', error)
+        );
     } else {
       this.idsSolicitudProveedarArchivo = [];
       this.archivos = [];
@@ -282,220 +321,331 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   }
 
   obtenerIdSolicitudProveedorArhivos(): void {
-    this.idsSolicitudProveedarArchivo = this.solicitudesProveedorSeleccionadas.map((solicitudes) => solicitudes.idSolicitudProveedor);
-    console.log("Ids de solicitudes seleccionadas:", this.idsSolicitudProveedarArchivo);
+    this.idsSolicitudProveedarArchivo =
+      this.solicitudesProveedorSeleccionadas.map(
+        (solicitudes) => solicitudes.idSolicitudProveedor
+      );
+    console.log(
+      'Ids de solicitudes seleccionadas:',
+      this.idsSolicitudProveedarArchivo
+    );
     this.obtenerArchivosSolicitudProveedor();
   }
 
   cargarObjetivosAnalisis(): void {
     this.subscription.add(
-      this.analisisService.obtenerObjetivosAnalisis(this.idObjetivoAnalisis).subscribe(
-        (objetivos) => {
-          console.log("Objetivos recibidos:", objetivos);
-          this.objetivosAnalista = objetivos;
-        },
-        (error) => console.error('Error al cargar objetivos de análisis:', error)
-      )
+      this.analisisService
+        .obtenerObjetivosAnalisis(this.idObjetivoAnalisis)
+        .subscribe(
+          (objetivos) => {
+            console.log('Objetivos recibidos:', objetivos);
+            this.objetivosAnalista = objetivos;
+          },
+          (error) =>
+            console.error('Error al cargar objetivos de análisis:', error)
+        )
     );
   }
 
   agregarRequerimiento(): void {
+    // Validar que todos los campos estén llenos y que los IDs no sean cero
+    if (!this.objetivo || !this.utilizadoPor || this.idTipoDatoSeleccionado === 0 || this.condicionAnalisisEscogida === 0) {
+        this.alertatipo = "error";
+        this.alertaMensaje = "Debes llenar todos los campos de los requerimientos de análisis";
+        this.mostrarAlerta();
+        return;
+    }
+
+    const condicionSeleccionada =
+        this.condicionesAnalisis[
+            (this.condicionAnalisisEscogida - this.condicionesAnalisis.length) * -1
+        ];
+
     const nuevoRequerimiento: Requerimiento = {
-      idRequerimiento: this.requerimientos.length + 1,
-      tipoObjetivo: this.tipoObjetivo,
-      objetivo: this.objetivo,
-      utilizadoPor: this.utilizadoPor,
-      condicion: this.condicionAnalisisEscogida,
+        idRequerimientoAnalisis: this.requerimientos.length + 1,
+        objetivo: this.objetivo,
+        utilizadoPor: this.utilizadoPor,
+        tipoDato: {
+            idTipoDato: this.idTipoDatoSeleccionado,
+            nombre:
+                this.TipoDatos[
+                    (this.idTipoDatoSeleccionado - this.TipoDatos.length) * -1
+                ]?.nombre || 'Tipo no especificado',
+            descripcion:
+                this.TipoDatos[
+                    (this.idTipoDatoSeleccionado - this.TipoDatos.length) * -1
+                ]?.descripcion,
+        },
+        idAnalisis: this.requerimientos.length,
+        condicion: condicionSeleccionada || {
+            idCondicion: 0,
+            nombre: 'Nombre no especificado',
+            descripcion: 'Descripción no especificada',
+        },
     };
 
+    console.log(
+        nuevoRequerimiento.condicion.nombre +
+        ' ' +
+        nuevoRequerimiento.condicion.idCondicion
+    );
+
     if (this.selectedIndex !== null && this.selectedIndex >= 0) {
-      this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
-      this.selectedIndex = null;
+        this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
+        this.selectedIndex = null;
     } else {
-      this.requerimientos.push(nuevoRequerimiento);
+        this.requerimientos.push(nuevoRequerimiento);
     }
+
+    console.log("CANTIDAD DE REQUERIMIENTOS ADD: " + this.requerimientos.length);
     this.limpiarCamposRequerimiento();
-  }
+}
+
 
   cargarRequerimientoEnFormulario(index: number): void {
     if (index >= 0 && index < this.requerimientos.length) {
       const requerimiento = this.requerimientos[index];
       this.selectedIndex = index;
-      this.tipoObjetivo = requerimiento.tipoObjetivo;
+      requerimiento.tipoDato.nombre || 'Tipo no especificado';
       this.objetivo = requerimiento.objetivo;
       this.utilizadoPor = requerimiento.utilizadoPor;
-      this.condicion = requerimiento.condicion;
+      this.condicionAnalisisEscogida = requerimiento.condicion.idCondicion;
+      this.idTipoDatoSeleccionado = requerimiento.tipoDato.idTipoDato;
     }
   }
-
   eliminarRequerimiento(index: number): void {
     if (index >= 0 && index < this.requerimientos.length) {
       this.requerimientos.splice(index, 1);
       this.limpiarCamposRequerimiento();
     }
+    console.log("CANTIDAD DE REQUERIMIENTOS: "+this.requerimientos.length);
+  }
+
+  VerIdOficina(): void {
+    console.log(this.oficinaAnalisis);
   }
 
   enviarSolicitud(): void {
-    if (!this.numeroUnico || !this.oficinaAnalisis || !this.fechaHecho || this.requerimientos.length === 0) {
-        alert('Por favor, complete todos los campos requeridos.');
-        return;
+    if (
+      !this.numeroUnico ||
+      !this.oficinaAnalisis ||
+      !this.fechaHecho ||
+      this.requerimientos.length === 0
+    ) {
+      this.alertatipo = "error";
+      this.alertaMensaje = "Hay campos vacios";
+      this.mostrarAlerta();
+      return;
     }
-
-    const numeroSolicitud = typeof this.numeroUnico === 'string' ? parseInt(this.numeroUnico, 10) : this.numeroUnico;
-
+    console.log('NUMERO DE REQUERIMIENTOS: ' + this.requerimientos.length);
+    console.log(this.oficinaAnalisis);
+    const numeroSolicitud =
+      typeof this.numeroUnico === 'string'
+        ? parseInt(this.numeroUnico, 10)
+        : this.numeroUnico;
     const solicitudCompleta = {
-        idSolicitudAnalisis: 0,
-        fechaDelHecho: new Date(this.fechaHecho).toISOString(),
-        otrosDetalles: this.otrosDetalles || "Detalles no proporcionados",
-        otrosObjetivosDeAnalisis: this.otrosObjetivos || "Objetivos adicionales no especificados",
-        aprobado: false,
-        fechaCreacion: new Date().toISOString(),
-        numeroSolicitud: numeroSolicitud || 0,
-        idOficina: Number(this.oficinaAnalisis) || 0,
+      idSolicitudAnalisis: 0,
+      fechaDelHecho: new Date(this.fechaHecho).toISOString(),
+      otrosDetalles: this.otrosDetalles || 'Detalles no proporcionados',
+      otrosObjetivosDeAnalisis:
+        this.otrosObjetivos || 'Objetivos adicionales no especificados',
+      aprobado: false,
+      estado: {
+        idEstado: 4,
+        nombre: 'Estado no especificado',
+        descripcion: 'Descripción del estado',
+        tipo: 'Tipo no especificado',
+      },
+      fechaCreacion: new Date().toISOString(),
+      numeroSolicitud: numeroSolicitud || 0,
+      idOficina: Number(this.oficinaAnalisis) || 0,
+      idUsuario: Number(this.usuarioActivo.idUsuario) || 0,
+      requerimentos: (this.requerimientos || []).map((requerimiento) => ({
+        idRequerimientoAnalisis: requerimiento.idRequerimientoAnalisis,
+        objetivo: requerimiento.objetivo || 'Objetivo no especificado',
+        utilizadoPor:
+          requerimiento.utilizadoPor || 'Utilizado por no especificado',
+        tipoDatoDTO: {
+          idTipoDato: requerimiento.tipoDato.idTipoDato || 0,
+          nombre: requerimiento.tipoDato.nombre || 'Tipo no especificado',
+          descripcion:
+            requerimiento.tipoDato.descripcion || 'Nombre no especificado',
+        },
+        idAnalisis: requerimiento.idAnalisis || 0,
+        condicion: requerimiento.condicion || {
+          idCondicion: 0,
+          nombre: 'Sin Nombre',
+          descripcion: 'Sin descripción',
+        },
+      })),
 
-        requerimentos: (this.requerimientos || []).map((requerimiento) => ({
-            idRequerimientoAnalisis: 0,
-            objetivo: requerimiento.objetivo || "Objetivo no especificado",
-            utilizadoPor: requerimiento.utilizadoPor || "Utilizado por no especificado",
-            idTipo: 0,
-            idAnalisis: requerimiento.idRequerimiento || 0
-        })),
+      objetivosAnalisis: (this.objetivosAnalisisSeleccionados || []).map(
+        (objetivo) => ({
+          idObjetivoAnalisis: objetivo.idObjetivoAnalisis || 0,
+          nombre: objetivo.nombre || 'Nombre no especificado',
+          descripcion: objetivo.descripcion || 'Descripción no especificada',
+        })
+      ),
 
-        objetivosAnalisis: (this.objetivosAnalisisSeleccionados || []).map((objetivo) => ({
-            idObjetivoAnalisis: objetivo.idObjetivoAnalisis || 0,
-            nombre: objetivo.nombre || "Nombre no especificado",
-            descripcion: objetivo.descripcion || "Descripción no especificada"
-        })),
+      solicitudesProveedor: (this.solicitudesProveedorSeleccionadas || []).map(
+        (solicitud) => ({
+          idSolicitudProveedor: solicitud.idSolicitudProveedor || 0,
+          numeroUnico: solicitud.numeroUnico || 'string',
+          numeroCaso: solicitud.numeroCaso || 'Caso no especificado',
+          imputado: solicitud.imputado || 'Imputado no especificado',
+          ofendido: solicitud.ofendido || 'Ofendido no especificado',
+          resennia: solicitud.resenna || 'Reseña no especificada',
+          urgente: solicitud.urgente || false,
+          fechaCreacion: new Date().toISOString(),
+          requerimientos: (solicitud.requerimientos || []).map(
+            (requerimiento) => ({
+              idRequerimientoProveedor:
+                requerimiento.idRequerimientoProveedor || 0,
+              fechaInicio:
+                requerimiento.fechaInicio || new Date().toISOString(),
+              fechaFinal: requerimiento.fechaFinal || new Date().toISOString(),
+              requerimiento:
+                requerimiento.requerimiento || 'Requerimiento no especificado',
+              tipoSolicitudes: (requerimiento.tipoSolicitudes || []).map(
+                (tipo) => ({
+                  idTipoSolicitud: tipo.idTipoSolicitud || 0,
+                  nombre: tipo.nombre || 'Nombre no especificado',
+                  descripcion:
+                    tipo.descripcion || 'Descripción no especificada',
+                })
+              ),
+              datosRequeridos: (requerimiento.datosRequeridos || []).map(
+                (dato) => ({
+                  idDatoRequerido: dato.idDatoRequerido || 0,
+                  datoRequeridoContenido:
+                    dato.datoRequerido || 'Dato requerido no especificado',
+                  motivacion: dato.motivacion || 'Motivación no especificada',
+                  idTipoDato: dato.idTipoDato || 0,
+                })
+              ),
+            })
+          ),
 
-        solicitudesProveedor: (this.solicitudesProveedorSeleccionadas || []).map((solicitud) => ({
-            idSolicitudProveedor: solicitud.idSolicitudProveedor || 0,
-            numeroUnico: solicitud.numeroUnico || "string",
-            numeroCaso: solicitud.numeroCaso || "Caso no especificado",
-            imputado: solicitud.imputado || "Imputado no especificado",
-            ofendido: solicitud.ofendido || "Ofendido no especificado",
-            resenna: solicitud.resenna || "Reseña no especificada",
-            urgente: solicitud.urgente || false,
-            fechaCreacion: new Date().toISOString(),
-            requerimientos: (solicitud.requerimientos || []).map((requerimiento) => ({
-                idRequerimientoProveedor: requerimiento.idRequerimientoProveedor || 0,
-                fechaInicio: requerimiento.fechaInicio || new Date().toISOString(),
-                fechaFinal: requerimiento.fechaFinal || new Date().toISOString(),
-                requerimiento: requerimiento.requerimiento || "Requerimiento no especificado",
-                tipoSolicitudes: (requerimiento.tipoSolicitudes || []).map((tipo) => ({
-                    idTipoSolicitud: tipo.idTipoSolicitud || 0,
-                    nombre: tipo.nombre || "Nombre no especificado",
-                    descripcion: tipo.descripcion || "Descripción no especificada"
-                })),
-                datosRequeridos: (requerimiento.datosRequeridos || []).map((dato) => ({
-                    idDatoRequerido: dato.idDatoRequerido || 0,
-                    datoRequeridoContenido: dato.datoRequerido || "Dato requerido no especificado",
-                    motivacion: dato.motivacion || "Motivación no especificada",
-                    idTipoDato: dato.idTipoDato || 0
-                }))
-            })),
+          operadoras: (solicitud.operadoras || []).map((operadora) => ({
+            idProveedor: operadora.idProveedor || 0,
+            nombre: operadora.nombre || 'Proveedor no especificado',
+          })),
 
-            operadoras: (solicitud.operadoras || []).map((operadora) => ({
-                idProveedor: operadora.idProveedor || 0,
-                nombre: operadora.nombre || "Proveedor no especificado"
-            })),
+          usuarioCreador: {
+            idUsuario: solicitud.usuarioCreador?.idUsuario || 0,
+            nombre:
+              solicitud.usuarioCreador?.nombre || 'Nombre no especificado',
+            apellido:
+              solicitud.usuarioCreador?.apellido || 'Apellido no especificado',
+            usuario:
+              solicitud.usuarioCreador?.usuario || 'Usuario no especificado',
+            correoElectronico:
+              solicitud.usuarioCreador?.correoElectronico ||
+              'Correo no especificado',
+          },
 
-            usuarioCreador: {
-                idUsuario: solicitud.usuarioCreador?.idUsuario || 0,
-                nombre: solicitud.usuarioCreador?.nombre || "Nombre no especificado",
-                apellido: solicitud.usuarioCreador?.apellido || "Apellido no especificado",
-                usuario: solicitud.usuarioCreador?.usuario || "Usuario no especificado",
-                correoElectronico: solicitud.usuarioCreador?.correoElectronico || "Correo no especificado"
-            },
+          delito: solicitud.delito || {
+            idDelito: 0,
+            nombre: 'Delito no especificado',
+            descripcion: 'Descripción del delito',
+            idCategoriaDelito: 0,
+          },
+          categoriaDelito: solicitud.categoriaDelito || {
+            idCategoriaDelito: 0,
+            nombre: 'Categoría no especificada',
+            descripcion: 'Descripción de la categoría',
+          },
+          estado: solicitud.estado || {
+            idEstado: 1,
+            nombre: 'Estado no especificado',
+            descripcion: 'Descripción del estado',
+            tipo: 'Tipo no especificado',
+          },
+          fiscalia: solicitud.fiscalia || {
+            idFiscalia: 0,
+            nombre: 'Fiscalía no especificada',
+          },
+          oficina: solicitud.oficina || {
+            idOficina: 0,
+            nombre: 'Oficina no especificada',
+            tipo: 'Tipo de oficina no especificado',
+          },
+          modalidad: solicitud.modalidad || {
+            idModalidad: 0,
+            nombre: 'Modalidad no especificada',
+            descripcion: 'Descripción de la modalidad',
+          },
+          subModalidad: solicitud.subModalidad || {
+            idSubModalidad: 0,
+            nombre: 'Submodalidad no especificada',
+            descripcion: 'Descripción de la submodalidad',
+            idModalidad: 0,
+          },
+        })
+      ),
 
-            delito: solicitud.delito || {
-                idDelito: 0,
-                nombre: "Delito no especificado",
-                descripcion: "Descripción del delito",
-                idCategoriaDelito: 0
-            },
-            categoriaDelito: solicitud.categoriaDelito || {
-                idCategoriaDelito: 0,
-                nombre: "Categoría no especificada",
-                descripcion: "Descripción de la categoría"
-            },
-            estado: solicitud.estado || {
-                idEstado: 1,
-                nombre: "Estado no especificado",
-                descripcion: "Descripción del estado",
-                tipo: "Tipo no especificado"
-            },
-            fiscalia: solicitud.fiscalia || {
-                idFiscalia: 0,
-                nombre: "Fiscalía no especificada"
-            },
-            oficina: solicitud.oficina || {
-                idOficina: 0,
-                nombre: "Oficina no especificada",
-                tipo: "Tipo de oficina no especificado"
-            },
-            modalidad: solicitud.modalidad || {
-                idModalidad: 0,
-                nombre: "Modalidad no especificada",
-                descripcion: "Descripción de la modalidad"
-            },
-            subModalidad: solicitud.subModalidad || {
-                idSubModalidad: 0,
-                nombre: "Submodalidad no especificada",
-                descripcion: "Descripción de la submodalidad",
-                idModalidad: 0
-            }
-        })),
-
-        tipoAnalisis: (this.tiposAnalisis || []).map((tipo) => ({
-            idTipoAnalisis: tipo.idTipoAnalisis || 0,
-            nombre: tipo.nombre || "Tipo de análisis no especificado",
-            descripcion: tipo.descripcion || "Descripción no especificada"
-        })),
-        condiciones: [
-            {
-                idCondicion: this.condicionesAnalisis.find(condicion => condicion.nombre === this.condicionAnalisisEscogida)?.idCondicion || 0,
-                nombre: this.condicionAnalisisEscogida,
-                descripcion: "Descripción de la condición seleccionada"
-            }
-        ],
-        archivos: (this.archivosAnalizarSeleccionados || []).map((archivo) => ({
-            idArchivo: archivo.idArchivo || 0,
-            nombre: "Archivo no especificado",
-            contenido: "",
-            formatoAchivo: archivo.formatoArchivo || "Sin formato",
-            fechaModificacion: new Date().toISOString()
-        }))
+      tipoAnalisis: (this.tiposAnalisis || []).map((tipo) => ({
+        idTipoAnalisis: tipo.idTipoAnalisis || 0,
+        nombre: tipo.nombre || 'Tipo de análisis no especificado',
+        descripcion: tipo.descripcion || 'Descripción no especificada',
+      })),
+      condiciones: [
+        {
+          idCondicion:
+            this.condicionesAnalisis.find(
+              (condicion) =>
+                condicion.idCondicion === this.condicionAnalisisEscogida
+            )?.idCondicion || 0,
+          nombre: this.condicionAnalisisEscogida,
+          descripcion: 'Descripción de la condición seleccionada',
+        },
+      ],
+      archivos: (this.archivosAnalizarSeleccionados || []).map((archivo) => ({
+        idArchivo: archivo.idArchivo || 0,
+        nombre: archivo.nombre || 'Archivo no especificado',
+        contenido: archivo.contenido || '',
+        formatoAchivo: archivo.formatoArchivo || 'Sin formato',
+        fechaModificacion: new Date().toISOString(),
+      })),
     };
 
-    console.log("Solicitud JSON enviada:", JSON.stringify(solicitudCompleta));
+    console.log('Solicitud JSON enviada:', JSON.stringify(solicitudCompleta));
     this.solicitudCompletaAnalisis = solicitudCompleta;
     this.mostrarConfirmacionModal();
   }
-  guardarSolicitudAnalisis(){
+
+  guardarSolicitudAnalisis() {
     console.log(this.solicitudCompletaAnalisis);
-    this.analisisService.agregarSolicitudAnalisis(this.solicitudCompletaAnalisis).subscribe(
-      response => {
+    this.analisisService
+      .agregarSolicitudAnalisis(this.solicitudCompletaAnalisis)
+      .subscribe(
+        (response) => {
           this.mostrarExito = true;
           console.log('Solicitud enviada con éxito:', response);
           this.limpiarFormulario();
-      },
-      error => console.error('Error al enviar la solicitud:', error.error)
-  );
+        },
+        (error) => console.error('Error al enviar la solicitud:', error.error)
+      );
   }
   obtenerCondiciones(): void {
     this.analisisService.obtenerCondiciones().subscribe(
       (condiciones) => {
-        console.log("Condiciones recibidas:", condiciones);
+        console.log('Condiciones recibidas:', condiciones);
         this.condicionesAnalisis = condiciones;
       },
-      (error) => console.error('Error al cargar condiciones de análisis:', error)
+      (error) =>
+        console.error('Error al cargar condiciones de análisis:', error)
     );
+  }
+
+  verificarIdTipoDatos(): void {
+    console.log(this.idTipoDatoSeleccionado);
   }
 
   obtenerTipoAnalisis(): void {
     this.analisisService.obtenerTipoAnalisis().subscribe(
       (tipos) => {
-        console.log("Tipos recibidos:", tipos);
+        console.log('Tipos recibidos:', tipos);
         this.tiposAnalisis = tipos;
       },
       (error) => console.error('Error al cargar tipos de análisis:', error)
@@ -503,13 +653,14 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   }
 
   limpiarCamposRequerimiento(): void {
-    this.tipoObjetivo = '';
     this.objetivo = '';
     this.utilizadoPor = '';
     this.condicion = '';
     this.selectedIndex = null;
+    this.idTipoDatoSeleccionado = 0;
+    this.condicionAnalisisEscogida = 0;
   }
-  
+
   limpiarFormulario(): void {
     // Restablecer campos principales del formulario
     this.numeroUnico = null;
@@ -521,26 +672,21 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.fechaHecho = '';
     this.otrosObjetivos = '';
     this.otrosDetalles = '';
-  
+
     // Limpiar requerimientos y campos específicos de la solicitud
     this.requerimientos = [];
     this.solicitudCompletaAnalisis = null;
-  
+
     // Limpiar configuraciones seleccionadas para los dropdowns y reiniciar opciones
     this.operadoraSeleccionada = [];
-    this.condicionAnalisisEscogida = '';
+    this.condicionAnalisisEscogida = 0;
     this.idsSolicitudProveedarArchivo = [];
-    
+
     // Resetear los campos específicos de los requerimientos
     this.limpiarCamposRequerimiento();
-  
-    // Cerrar cualquier modal que pudiera estar abierto
-    this.mostrarConfirmacion = false;
-    this.mostrarExito = false;
-  
-    console.log("Formulario completamente limpio");
+
+    console.log('Formulario completamente limpio');
   }
-  
 
   validarOtrosDetalles(): boolean {
     const regex = /^[a-zA-Z0-9\s.,;:!?()-]+$/;
@@ -555,5 +701,14 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   validarUtilizadoPor(): boolean {
     const regex = /^[a-zA-Z\s]+$/;
     return regex.test(this.utilizadoPor) && this.utilizadoPor.length >= 20;
+  }
+
+  mostrarAlerta(): void {
+    this.alertaVisible = true;
+
+    // Opcional: Cerrar la alerta después de unos segundos
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000); // 3 segundos
   }
 }

@@ -18,7 +18,8 @@
   .office-selection-label {
     margin-bottom: 5px;
     font-weight: bold;
-    background-color: #ffeb3b; /* Color de fondo amarillo tipo alerta */
+    background-color: #FFCA28; /* Color de fondo amarillo tipo alerta */
+    color: #000000;
     padding: 5px;
     border-radius: 3px;
   }

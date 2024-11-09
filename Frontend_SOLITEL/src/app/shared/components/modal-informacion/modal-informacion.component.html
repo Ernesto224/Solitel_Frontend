@@ -1,0 +1,18 @@
+<div *ngIf="isModalOpen" class="modal-container">
+    <div class="modal-content">
+        <!-- Encabezado del Modal -->
+        <div class="modal-header">
+            <ng-content select="[modal-header]"></ng-content>
+        </div>
+
+        <!-- Cuerpo del Modal -->
+        <div class="modal-body">
+            <ng-content></ng-content> <!-- Aquí irá el contenido del cuerpo del modal -->
+        </div>
+
+        <!-- Footer del Modal (contenidos personalizados) -->
+        <div class="modal-footer">
+            <ng-content select="[modal-footer]"></ng-content>
+        </div>
+    </div>
+</div>

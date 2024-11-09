@@ -1,398 +1,159 @@
-<div class="flex flex-col mb-0 pb-0">
+<!-- Modal Carga-->
+<div class="modal" [ngClass]="{'is-active': isModalVisible}">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <p class="is-size-4">Procesando...</p>
+        <div class="box has-text-centered">
+            <div class="loader"></div>
+        </div>
+    </div>
+    <button class="modal-close is-large" aria-label="close" (click)="modalInvisible()" *ngIf="isModalVisible"></button>
+</div>
 
+<div class="flex flex-col mb-0 pb-0">
+    <!--Filtro de -->
+    <div class="filter-container">
+
+        <h2>Filtro de solicitudes telefónicas</h2>
+
+        <div class="filter-form">
+
+            <!-- Filtrar por carácter - ocupa toda la fila -->
+            <div class="form-group filter-full-width">
+                <label for="filtro-caracter">Filtrar por carácter:</label>
+                <input type="text" id="filtro-caracter" class="w-full p-2 border rounded" placeholder="Ingrese carácter"
+                    [(ngModel)]="filtroCaracter" (ngModelChange)="aplicarFiltroCaracter()">
+            </div>            
+
+            <!-- Estado -->
+            <div class="form-group">
+                <label for="estado">Estado:</label>
+                <div class="badge-container">
+                    <select [(ngModel)]="estadoSeleccionado"> <!-- Cambiado a onEstadoChange() -->
+                        <optgroup label="Solicitud Análisis">
+                            <option *ngFor="let estado of estados" [value]="estado.idEstado">
+                                {{ estado.nombre }}
+                            </option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Número único -->
+            <div class="form-group">
+                <label for="numero-unico">Número único:</label>
+                <input type="text" id="numero-unico" class="w-full p-2 border rounded" placeholder="Número único"
+                    [(ngModel)]="numeroUnicoFiltro">
+            </div>
+
+            <!-- Fecha inicio -->
+            <div class="form-group">
+                <label for="fecha-inicio">Fecha inicio:</label>
+                <input type="date" id="fecha-inicio" class="w-full p-2 border rounded" [(ngModel)]="fechaInicioFiltro">
+            </div>
+
+            <!-- Fecha fin -->
+            <div class="form-group">
+                <label for="fecha-fin">Fecha fin:</label>
+                <input type="date" id="fecha-fin" class="w-full p-2 border rounded" [(ngModel)]="fechaFinFiltro">
+            </div>
+
+            <!-- Botones centrados respecto al cuadro -->
+            <div class="button-group">
+                <button type="button" class="btn limpiar" (click)="limpiarFiltros()">
+                    <i class="material-icons">cached</i> Limpiar
+                </button>
+                <button type="button" class="btn filtrar" (click)="filtrarSolicitudes()">
+                    <i class="material-icons">filter_alt</i> Filtrar
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Contenedor con scroll horizontal y vertical si es necesario -->
     <div class="overflow-x-auto overflow-y-auto max-h-screen">
 
-
-        <!--Filtro de -->
-        <div class="filter-container">
-            <h2>Filtro de solicitudes telefónicas</h2>
-
-            <div class="filter-form">
-                <!-- Filtrar por carácter - ocupa toda la fila -->
-                <div class="form-group filter-full-width">
-                    <label for="filtro-caracter">Filtrar por carácter:</label>
-                    <input type="text" id="filtro-caracter" class="w-full p-2 border rounded"
-                        placeholder="Ingrese carácter" [(ngModel)]="filtroCaracter">
-                </div>
-
-                <!-- Estado -->
-                <div class="form-group">
-                    <label for="estado">Estado:</label>
-                    <div class="badge-container">
-                        <select id="estado" [(ngModel)]="estadoSeleccionado" (change)="filtrarPorEstado()"
-                            class="w-full p-2 border rounded">
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="Aprobado">Aprobado</option>
-                            <option value="Rechazado">Rechazado</option>
-                        </select>
-                        <span class="badge ml-2 bg-blue-500 text-white px-2 py-1 rounded">{{cantidadSolicitudes}}</span>
-                    </div>
-                </div>
-
-                <!-- Número único -->
-                <div class="form-group">
-                    <label for="numero-unico">Número único:</label>
-                    <input type="text" id="numero-unico" class="w-full p-2 border rounded" placeholder="Número único"
-                        [(ngModel)]="numeroUnicoFiltro">
-                </div>
-
-                <!-- Fecha inicio -->
-                <div class="form-group">
-                    <label for="fecha-inicio">Fecha inicio:</label>
-                    <input type="date" id="fecha-inicio" class="w-full p-2 border rounded"
-                        [(ngModel)]="fechaInicioFiltro">
-                </div>
-
-                <!-- Fecha fin -->
-                <div class="form-group">
-                    <label for="fecha-fin">Fecha fin:</label>
-                    <input type="date" id="fecha-fin" class="w-full p-2 border rounded" [(ngModel)]="fechaFinFiltro">
-                </div>
-
-                <!-- Botones centrados respecto al cuadro -->
-                <div class="button-group">
-                    <button type="button" class="btn limpiar" (click)="limpiarFiltros()">
-                        <i class="material-icons">cached</i> Limpiar
-                    </button>
-
-                    <button type="button" class="btn filtrar" (click)="filtrarSolicitudes()">
-                        <i class="material-icons">filter_alt</i> Filtrar
-                    </button>
-                </div>
+        <!-- Paginación y tamaño de filas alineados a los bordes -->
+        <div class="flex justify-between items-center mt-4 space-x-8">
+            <!-- Selector de tamaño de filas alineado a la izquierda -->
+            <div class="flex items-center">
+                <label for="pageSize" class="mr-2">
+                    Mostrar:
+                </label>
+                <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="border border-gray-300 rounded">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                </select>
             </div>
         </div>
 
-
-
-
-
-
-        <!-- Tabla con columnas ajustadas y paginación -->
+        <!-- Tabla -->
         <table class="min-w-full table-auto border-collapse">
-
             <thead>
                 <tr class="bg-[#1C355C] text-white">
-                    <th class="border px-4 py-2 text-center">Aprobar</th>
-                    <th class="border px-4 py-2 text-center">Sin efecto</th>
-                    <th class="border px-4 py-2 text-center">Histórico</th>
-                    <th class="border px-4 py-2 text-center">Ver</th>
-                    <th class="border px-4 py-2 text-center">Número de Caso</th>
-                    <th class="border px-4 py-2 text-center">Número único</th>
-                    <th class="border px-4 py-2 text-center">Fecha requerimiento</th>
-                    <th class="border px-4 py-2 text-center">Días transcurridos</th>
-                    <th class="border px-4 py-2 text-center">Estado</th>
-                    <th class="border px-4 py-2 text-center">Urgente</th>
-                    <th class="border px-4 py-2 text-center">Creado por</th>
+                    <th *ngFor="let encabezado of encabezados" class="border px-4 py-2 text-center">{{encabezado}}</th>
                 </tr>
             </thead>
-
-            <tbody class="bg-[#F3F4F6] text-black">
-
-                <tr *ngFor="let solicitud of solicitudes" class="hover:bg-gray-200">
-
-                    <td class="border px-4 py-2 text-center">
-                        <input type="checkbox" class="toggle-checkbox" />
-                    </td>
-
-
-                    <!-- Sin Efecto -->
-                    <td class="border px-4 py-2 text-center">
-                        <div class="flex justify-center">
-                            <button (click)="cambiarEstadoASinEfeceto(solicitud)" class="bg-blue-500 text-white px-4 py-2 rounded 
-                  focus:outline-none focus:ring flex items-center 
-                  space-x-2">
-                                <i class="material-icons">info</i>
-                            </button>
-                        </div>
-                    </td>
-
-                    <!-- Boton Historico -->
-                    <td class="border px-4 py-2 text-center">
-                        <div class="flex justify-center">
-                            <button (click)="abrirModalHistorico(solicitud)" class="bg-blue-500 text-white px-4 py-2 rounded 
-                  focus:outline-none focus:ring flex items-center 
-                  space-x-2">
-                                <i class="material-icons">info</i>
-                            </button>
-                        </div>
-                    </td>
-
-                    <!-- Boton Ver -->
-                    <td class="border px-4 py-2 text-center">
-                        <div class="flex justify-center">
-                            <button (click)="abrirModal(solicitud)" class="bg-blue-500 text-white px-4 py-2 rounded 
-                  focus:outline-none focus:ring flex items-center 
-                  space-x-2">
-                                <i class="material-icons">info</i>
-                            </button>
-                        </div>
-                    </td>
-
-                    <!-- Muestra el número de caso -->
-                    <td class="border px-4 py-2 text-center">{{ solicitud.numeroCaso }}</td>
-
-                    <!-- Muestra el número único -->
-                    <td class="border px-4 py-2 text-center">{{ solicitud.numeroUnico }}</td>
-
-                    <!-- Muestra la fecha del primer requerimiento -->
-                    <td class="border px-4 py-2 text-center">
-                        {{ solicitud.requerimientos?.[0]?.tF_FechaInicio | date: 'dd/MM/yyyy' }}
-                    </td>
-
-                    <!-- Calcula los días transcurridos desde la fecha de inicio del primer requerimiento -->
-                    <td class="border px-4 py-2 text-center">
-                        {{ calcularDiasTranscurridos(solicitud.requerimientos?.[0]?.tF_FechaInicio) }}
-                    </td>
-
-                    <!-- Muestra el estado de la solicitud -->
-                    <td class="border px-4 py-2 text-center">{{ solicitud.estado?.tC_Nombre }}</td>
-
-                    <!-- Muestra si es urgente o no -->
-                    <td class="border px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
-
-                    <!-- Muestra el nombre del creador -->
-                    <td class="border px-4 py-2 text-center">
-                        {{ solicitud.usuarioCreador?.tC_Nombre }} {{ solicitud.usuarioCreador?.tC_Apellido }}
-                    </td>
-
-                </tr>
-
+            <tbody class="text-black">
+                <ng-container *ngFor="let solicitud of solicitudesAnalisisPaginadas">
+                    <!-- Opciones de línea gris (una sola fila para cada solicitudAnalisis) -->
+                    <tr class="bg-gray-100">
+                        <td colspan="12" class="colspan px-4 py-2 text-left">
+                            <span>ID Solicitud de Análisis: {{ solicitud.idSolicitudAnalisis }}</span>
+                            <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver Solicitud')">
+                                <span> | </span>
+                                <button class="inline-flex items-center space-x-1" (click)="verDetalle(solicitud)">
+                                    <span class="material-icons text-sm">info</span>
+                                    <span>Ver Solicitud</span>
+                                </button>
+                                <span> | </span>
+                            </ng-container>
+                        </td>
+                    </tr>
+                    <!-- Iterar sobre cada solicitudProveedor dentro de una solicitud de análisis -->
+                    <ng-container *ngFor="let solicitudProveedor of solicitud.solicitudesProveedor">
+                        <tr class="bg-[#F3F4F6] border-b border-gray-300 hover:bg-gray-200">
+                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.idSolicitudProveedor }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.numeroUnico }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.usuarioCreador.nombre }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.oficina }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.aprobador }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.fechaCrecion | date: 'dd/MM/yyyy' }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.fechaAprobacion | date: 'dd/MM/yyyy'}}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.asignado }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.fechaAsignacion | date: 'dd/MM/yyyy'}}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitud.estado.nombre }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitud.fechaAnalizado | date: 'dd/MM/yyyy' }}</td>
+                        </tr>
+                    </ng-container>
+                </ng-container>
             </tbody>
-
         </table>
-
     </div>
 
     <!-- Paginación y tamaño de filas centrados -->
-    <div class="flex justify-center items-center mt-4 space-x-8">
-
-        <!-- Selector de tamaño de filas -->
+    <div class="flex justify-between items-center mt-4 space-x-8">
         <div class="flex items-center">
-            <label for="pageSize" class="mr-2">Tamaño:</label>
-            <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="border border-gray-300 rounded p-1">
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-            </select>
+            <label for="pageSize" class="mr-2">Mostrar registros del {{((this.numeroDePagina - 1) *
+                this.cantidadDeRegistros) + 1}}
+                al {{((this.numeroDePagina - 1) * this.cantidadDeRegistros) + this.cantidadDeRegistros}}
+                de un total de {{solicitudesAnalisisPaginadas.length}} registros
+            </label>
         </div>
-
         <!-- Paginación -->
         <div class="flex items-center space-x-2">
-
             <!-- Botón regresar -->
             <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(-1)">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
+                Anterior
             </button>
-
-            <span>{{ pageNumber }}</span> <!-- Número de página -->
-
+            <span>{{ numeroDePagina }}</span> <!-- Número de página -->
             <!-- Botón siguiente -->
             <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(1)">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
+                Siguiente
             </button>
-
         </div>
-
-    </div>
-
-    <div>
-
-
-
-
-
-        <!-- Modal de solicitud -->
-        <div *ngIf="modalVisible" class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
-            aria-modal="true">
-
-            <div class="flex items-center justify-center min-h-screen text-center sm:block sm:p-0">
-
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-
-                <!-- Contenedor que centra el modal -->
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-                <!-- Contenido del modal centrado y desplazable -->
-
-                <div
-                    class="inline-block align-middle bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-4xl sm:w-full">
-
-                    <!-- Encabezado del modal -->
-                    <div class="modal-header">
-                        <h3 class="text-lg font-medium">Solicitud #{{ solicitudSeleccionada.idSolicitudProveedor }}</h3>
-                        <h3 class="text-lg font-medium">Solicitud archivos telefónicos a proveedor</h3>
-                    </div>
-
-                    <!-- Contenido del formulario -->
-                    <div class="modal-body">
-
-                        <!-- Información General -->
-                        <div class="grid-section">
-
-                            <div>
-                                <label class="label" for="numeroUnico">Número único:</label>
-                                <input type="text" id="numeroUnico" class="input"
-                                    [value]="solicitudSeleccionada.numeroUnico" readonly>
-                            </div>
-
-                            <div>
-                                <label class="label" for="numeroCaso">Número caso:</label>
-                                <input type="text" id="numeroCaso" class="input"
-                                    [value]="solicitudSeleccionada.numeroCaso" readonly>
-                            </div>
-
-                            <div>
-                                <label class="label" for="fiscalia">Fiscalía:</label>
-                                <input type="text" id="fiscalia" class="input"
-                                    [value]="solicitudSeleccionada.fiscalia.nombre" readonly>
-                            </div>
-
-                        </div>
-
-                        <!-- Información sobre Delito y Modalidad -->
-                        <div class="grid-section">
-
-                            <div>
-                                <label class="label" for="categoriaDelito">Categoría delito:</label>
-                                <input type="text" id="categoriaDelito" class="input"
-                                    [value]="solicitudSeleccionada.categoriaDelito.nombre" readonly>
-                            </div>
-
-                            <div>
-                                <label class="label" for="modalidad">Modalidad:</label>
-                                <input type="text" id="modalidad" class="input"
-                                    [value]="solicitudSeleccionada.modalidad.nombre" readonly>
-                            </div>
-
-                            <div>
-                                <label class="label" for="imputado">Imputado:</label>
-                                <input type="text" id="imputado" class="input" [value]="solicitudSeleccionada.imputado"
-                                    readonly>
-                            </div>
-
-                        </div>
-
-                        <!-- Información sobre Delito y Sub Modalidad -->
-                        <div class="grid-section">
-
-                            <div>
-                                <label class="label" for="delito">Delito:</label>
-                                <input type="text" id="delito" class="input"
-                                    [value]="solicitudSeleccionada.delito.nombre" readonly>
-                            </div>
-
-                            <div>
-                                <label class="label" for="subModalidad">Sub modalidad:</label>
-                                <input type="text" id="subModalidad" class="input"
-                                    [value]="solicitudSeleccionada.subModalidad.nombre" readonly>
-                            </div>
-
-                            <div>
-                                <label class="label" for="ofendido">Ofendido:</label>
-                                <input type="text" id="ofendido" class="input" [value]="solicitudSeleccionada.ofendido"
-                                    readonly>
-                            </div>
-
-                        </div>
-
-                        <!-- Botón de urgente -->
-                        <div class="grid-section">
-
-                            <div>
-                                <label class="label" for="urgente">Urgente:</label>
-                                <button type="button" id="urgente" class="text-white py-2 px-4 rounded-md w-full"
-                                    [ngClass]="{'bg-red-600': solicitudSeleccionada.urgente, 'bg-gray-400': !solicitudSeleccionada.urgente}">
-                                    Urgente
-                                </button>
-                            </div>
-
-                            <div>
-                                <label class="label" for="oficina">Oficina:</label>
-                                <input type="text" id="oficina" class="input" readonly>
-                            </div>
-
-                            <div>
-                                <label class="label" for="operadora">Operadora:</label>
-                                <input type="text" id="operadora" class="input"
-                                    [value]="solicitudSeleccionada.operadoras[0].nombre" readonly>
-                            </div>
-
-                        </div>
-
-                        <!-- Sección de "Registros de requerimientos" -->
-                        <div class="mt-6">
-
-                            <h4 class="text-lg font-medium">Registros de requerimientos</h4>
-
-                            <div class="border-t mt-2"></div>
-
-                            <table class="table">
-
-                                <thead>
-                                    <tr>
-                                        <th>Requerimiento</th>
-                                        <th>Tipo Solicitud</th>
-                                        <th>Datos Requeridos</th>
-                                        <th>Fecha Inicio</th>
-                                        <th>Fecha Final</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-
-                                    <tr *ngFor="let requerimiento of solicitudSeleccionada.requerimientos">
-
-                                        <td>{{ requerimiento.tC_Requerimiento }}</td>
-
-                                        <td>
-                                            <ul>
-                                                <li *ngFor="let tipo of requerimiento.tipoSolicitudes">{{ tipo.nombre
-                                                    }},</li>
-                                            </ul>
-                                        </td>
-
-                                        <td>
-                                            <ul>
-                                                <li *ngFor="let dato of requerimiento.datosRequeridos">{{
-                                                    dato.tC_DatoRequerido }},</li>
-                                            </ul>
-                                        </td>
-
-                                        <td>{{ requerimiento.tF_FechaInicio | date:'shortDate' }}</td>
-
-                                        <td>{{ requerimiento.tF_FechaFinal | date:'shortDate' }}</td>
-                                    </tr>
-
-                                </tbody>
-
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Botón de cerrar -->
-                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="button"
-                            class="bg-[#D32F2F] text-white py-2 px-4 rounded-md items-center space-x-2"
-                            (click)="cerrarModal()">
-                            <i class="material-icons">cancel</i>
-                            <span>Cerrar</span>
-                        </button>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
     </div>
 
 </div>

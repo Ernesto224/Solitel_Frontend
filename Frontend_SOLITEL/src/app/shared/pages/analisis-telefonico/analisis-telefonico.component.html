@@ -1,13 +1,14 @@
 <div class="flex flex-col mb-0 pb-0">
   <!-- Layout principal con Sidebar y contenido -->
   <div class="flex flex-col mb-0 pb-0">
+    <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
     <!-- Contenido principal -->
     <main class="flex-grow ml-64">
       <div class="flex flex-col mb-0 pb-0">
         <!-- Título de la Solicitud -->
         <section class="form-container">
           <h2>Solicitud de análisis telefónico</h2>
-          <hr>
+          <hr />
 
           <!-- Selección de solicitudes de proveedor -->
           <section class="form-row">
@@ -16,10 +17,19 @@
               <div class="input-group">
                 <select
                   [(ngModel)]="numeroUnico"
-                  (change)="numeroUnico !== null ? cargarSolicitudesPorNumeroUnico(numeroUnico.toString()) : null"
-                  class="input select"                
+                  (change)="
+                    numeroUnico !== null
+                      ? cargarSolicitudesPorNumeroUnico(numeroUnico.toString())
+                      : null
+                  "
+                  class="input select required-field"
+                  required
+                  [ngClass]="{'ng-invalid ng-touched': !numeroUnico && numeroUnico !== null}"
                 >
-                  <option *ngFor="let numero of numerosUnicos" [value]="numero">{{ numero }}</option>
+                  <option value="" disabled [selected]="!numeroUnico">Seleccione el Número Unico</option>
+                  <option *ngFor="let numero of numerosUnicos" [value]="numero">
+                    {{ numero }}
+                  </option>
                 </select>
               </div>
             </section>
@@ -36,6 +46,7 @@
                 [settings]="dropdownSettingsSolicitudes"
                 name="idSolicitudSeleccionada"
                 required
+                [ngClass]="{'invalid': solicitudesProveedorSeleccionadas?.length === 0}"
               ></ng-multiselect-dropdown>
             </section>
 
@@ -50,27 +61,40 @@
                 [settings]="dropdownSettingsArchivos"
                 name="idArchivoSeleccionada"
                 required
+                [ngClass]="{'invalid': archivosAnalizarSeleccionados?.length === 0}"
               ></ng-multiselect-dropdown>
             </section>
           </section>
 
           <!-- Detalle de solicitud -->
           <h3>Detalle de la solicitud</h3>
-          <hr>
+          <hr />
 
           <section class="form-row">
             <section class="form-group">
               <label>Oficina de análisis criminal:</label>
-              <select [(ngModel)]="oficinaAnalisis" class="input select">
-                <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.idOficina">{{ oficina.nombre }}</option>
+              <select
+                [(ngModel)]="oficinaAnalisis"
+                class="input select required-field"
+                (click)="VerIdOficina()"
+                required
+                [ngClass]="{'ng-invalid ng-touched': !oficinaAnalisis}"
+              >
+                <option value="" disabled [selected]="!oficinaAnalisis">Seleccione la Oficina de análisis</option>
+                <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.idOficina">
+                  {{ oficina.nombre }}
+                </option>
               </select>
             </section>
 
             <section class="form-group">
               <label>Tipo de análisis:</label>
-              <select [(ngModel)]="tipoAnalisis" class="input select">
-                <option value="Análisis Telefónico">Análisis Telefónico</option>
-                <option *ngFor="let tipoAnalisis of tiposAnalisis" [value]="tipoAnalisis.idTipoAnalisis">
+              <select [(ngModel)]="tipoAnalisis" class="input select required-field" required [ngClass]="{'ng-invalid ng-touched': !tipoAnalisis}">
+                <option value="" disabled [selected]="!tipoAnalisis">Seleccione el Tipo de Análisis</option>
+                <option
+                  *ngFor="let tipoAnalisis of tiposAnalisis"
+                  [value]="tipoAnalisis.idTipoAnalisis"
+                >
                   {{ tipoAnalisis.nombre }}
                 </option>
               </select>
@@ -87,6 +111,7 @@
                 [settings]="dropdownSettingsObjetivos"
                 name="idObjetivoSeleccionada"
                 required
+                [ngClass]="{'invalid': objetivosAnalisisSeleccionados?.length === 0}"
               ></ng-multiselect-dropdown>
             </section>
           </section>
@@ -95,20 +120,12 @@
           <section class="form-row">
             <section class="form-group">
               <label>Fecha del hecho:</label>
-              <input
-                [(ngModel)]="fechaHecho"
-                type="date"
-                class="input"
-              />
+              <input [(ngModel)]="fechaHecho" type="date" class="input required-field" required [ngClass]="{'ng-invalid ng-touched': !fechaHecho}">
             </section>
 
             <section class="form-group">
               <label>Otros (objetivos):</label>
-              <input
-                [(ngModel)]="otrosObjetivos"
-                type="text"
-                class="input"
-              />
+              <input [(ngModel)]="otrosObjetivos" type="text" class="input required-field" [ngClass]="{'ng-invalid ng-touched': !otrosObjetivos}">
             </section>
           </section>
 
@@ -119,23 +136,33 @@
               [(ngModel)]="otrosDetalles"
               (blur)="validarOtrosDetalles()"
               rows="4"
-              class="input textarea"
+              class="input textarea required-field"
+              [ngClass]="{'ng-invalid ng-touched': !otrosDetalles}"
+              required
             ></textarea>
           </section>
 
           <!-- Registros de requerimientos -->
           <h3>Registros de requerimientos</h3>
-          <hr>
+          <hr />
 
           <section class="form-row">
             <section class="form-group">
               <label>Tipo Objetivo:</label>
-              <select [(ngModel)]="tipoObjetivo" class="input select">
-                <option value="">Seleccione</option>
-                <option value="Teléfono">Teléfono</option>
-                <option value="IMEI">IMEI</option>
-                <option value="Radio Base">Radio Base</option>
-                <option value="SIM">SIM</option>
+              <select
+                [(ngModel)]="idTipoDatoSeleccionado"
+                class="input select required-field"
+                (click)="verificarIdTipoDatos()"
+                required
+                [ngClass]="{'ng-invalid ng-touched': !idTipoDatoSeleccionado}"
+              >
+                <option value="" disabled [selected]="!idTipoDatoSeleccionado">Seleccione el Tipo de Objetivo</option>
+                <option
+                  *ngFor="let tipoDato of TipoDatos"
+                  [value]="tipoDato.idTipoDato"
+                >
+                  {{ tipoDato.nombre }}
+                </option>
               </select>
             </section>
 
@@ -146,7 +173,8 @@
                 (blur)="validarObjetivo()"
                 mask="00000000"
                 type="text"
-                class="input"
+                class="input required-field"
+                [ngClass]="{'invalid': !objetivo}"
               />
             </section>
 
@@ -156,15 +184,24 @@
                 [(ngModel)]="utilizadoPor"
                 (blur)="validarUtilizadoPor()"
                 type="text"
-                class="input"
+                class="input required-field"
+                [ngClass]="{'invalid': !utilizadoPor}"
               />
             </section>
 
             <section class="form-group">
               <label>Condición:</label>
-              <select [(ngModel)]="condicionAnalisisEscogida" class="input select">
-                <option value="">Seleccione</option>
-                <option *ngFor="let condicionValor of condicionesAnalisis" [value]="condicionValor.nombre">
+              <select
+                [(ngModel)]="condicionAnalisisEscogida"
+                class="input select required-field"
+                required
+                [ngClass]="{'ng-invalid ng-touched': !condicionAnalisisEscogida}"
+              >
+                <option value="" disabled [selected]="!condicionAnalisisEscogida">Seleccione la Condición</option>
+                <option
+                  *ngFor="let condicionValor of condicionesAnalisis"
+                  [value]="condicionValor.idCondicion"
+                >
                   {{ condicionValor.nombre }}
                 </option>
               </select>
@@ -173,7 +210,10 @@
 
           <!-- Botones de acción -->
           <section class="buttons-row space-x-4">
-            <button class="btn btn-primary" (click)="limpiarCamposRequerimiento()">
+            <button
+              class="btn btn-primary"
+              (click)="limpiarCamposRequerimiento()"
+            >
               <i class="material-icons pr-2">remove</i> Limpiar
             </button>
 
@@ -181,7 +221,10 @@
               <i class="material-icons pr-2">add</i> Agregar
             </button>
 
-            <button class="btn btn-secondary" (click)="selectedIndex !== null ? agregarRequerimiento() : null">
+            <button
+              class="btn btn-secondary"
+              (click)="selectedIndex !== null ? agregarRequerimiento() : null"
+            >
               <i class="material-icons pr-2">edit</i> Editar
             </button>
           </section>
@@ -189,7 +232,7 @@
           <!-- Tabla de registros -->
           <section class="mt-8">
             <h2>Lista de Requerimientos Agregados</h2>
-            <hr>
+            <hr />
             <table class="styled-table">
               <thead>
                 <tr>
@@ -205,18 +248,27 @@
                 <tr *ngFor="let requerimiento of requerimientos; let i = index">
                   <td>
                     <section class="buttons-row space-x-4">
-                      <button class="btn btn-primary" title="Editar" (click)="cargarRequerimientoEnFormulario(i)">
+                      <button
+                        class="btn btn-primary"
+                        title="Editar"
+                        (click)="cargarRequerimientoEnFormulario(i)"
+                      >
                         <i class="material-icons">edit</i>
                       </button>
-                      <button class="btn btn-secondary" title="Eliminar" (click)="eliminarRequerimiento(i)">
+                      <button
+                        class="btn btn-secondary"
+                        title="Eliminar"
+                        (click)="eliminarRequerimiento(i)"
+                      >
                         <i class="material-icons">delete</i>
                       </button>
                     </section>
                   </td>
-                  <td>{{ requerimiento.tipoObjetivo }}</td>
+                  <td>{{ requerimiento.tipoDato.nombre }}</td>
                   <td>{{ requerimiento.objetivo }}</td>
                   <td>{{ requerimiento.utilizadoPor }}</td>
-                  <td>{{ requerimiento.condicion }}</td>
+                  <td>{{ requerimiento.condicion.nombre }}</td>
+                  <td>{{''}}</td>
                 </tr>
               </tbody>
             </table>
@@ -238,6 +290,7 @@
   </section>
 </div>
 
+
 <!-- Modal de Confirmación -->
 <section *ngIf="mostrarConfirmacion" class="modal-container">
   <div class="modal-content">
@@ -246,9 +299,13 @@
       <button (click)="cerrarModal()">✕</button>
     </header>
     <p>¿Está seguro que desea registrar la solicitud?</p>
-    <section class="buttons-row">
-      <button class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
-      <button class="btn btn-primary" (click)="confirmarGuardado()">Aceptar</button>
+    <section class="custom-modal-buttons buttons-row">
+      <button class="modal-btn modal-btn-cancel" (click)="cerrarModal()">
+        Cancelar
+      </button>
+      <button class="modal-btn modal-btn-confirmation" (click)="confirmarGuardado()">
+        Aceptar
+      </button>
     </section>
   </div>
 </section>
@@ -261,11 +318,14 @@
       <button (click)="cerrarModal()">✕</button>
     </header>
     <p>La operación ha sido realizada con éxito.</p>
-    <section class="buttons-row">
-      <button class="btn btn-secondary" (click)="cerrarModal()">Aceptar</button>
+    <section class="custom-modal-buttons buttons-row">
+      <button class="modal-btn modal-btn-confirmation" (click)="cerrarModal()">Aceptar</button>
     </section>
   </div>
 </section>
 
 <!-- Cargar Material Icons -->
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<link
+  href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  rel="stylesheet"
+/>

@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FooterComponent } from '../footer/footer.component';
-import BandejaComponent from "../../pages/bandeja/bandeja.component";
 import { AuthenticacionService } from '../../services/authenticacion.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [SidebarComponent, CommonModule, RouterLink, RouterLinkActive, FooterComponent, BandejaComponent],
+  imports: [SidebarComponent, CommonModule, RouterLink, FooterComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
@@ -20,13 +19,16 @@ export class NavbarComponent implements OnInit {
   usuarioNombre = ''; // Nombre del usuario
   usuarioOficina = ''; // Oficina del usuario
 
-  constructor(private authService: AuthenticacionService) { }
+  constructor(
+    private authService: AuthenticacionService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     // Obtener datos del usuario al iniciar el componente
     const usuario = this.authService.getUsuario();
     if (usuario) {
-      this.usuarioNombre = usuario.nombre;
+      this.usuarioNombre = usuario.nombre + ' ' + usuario.apellido;
       this.usuarioOficina = usuario.oficina.nombre;
     }
   }
@@ -41,12 +43,11 @@ export class NavbarComponent implements OnInit {
 
   logout() {
     this.authService.logout(); // Llamada al servicio para cerrar sesión
-    window.location.href = '/login'; // Redirigir a la página de inicio de sesión
+    this.router.navigate(['/login']);// Redirigir a la página de inicio de sesión
   }
 
   changeOffice() {
-    // Lógica para cambiar de oficina si está disponible
-    console.log('Cambiar de oficina');
+    this.router.navigate(['/seleccionar-oficina']); // Redirigir a la página de inicio de sesión
   }
 
 }

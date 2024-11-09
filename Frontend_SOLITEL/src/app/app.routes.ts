@@ -9,6 +9,11 @@ export const routes: Routes = [
       import('./shared/pages/login/login.component'),
   },
   {
+    path: 'seleccionar-oficina',
+    canActivate: [autenticadoGuard],
+    loadComponent: () => import('./shared/pages/seleccionar-oficina/seleccionar-oficina.component'),
+  },
+  {
     path: '',
     component: DistribucionComponent,
     canActivateChild: [autenticadoGuard],
@@ -20,7 +25,7 @@ export const routes: Routes = [
           import(
             './shared/pages/analisis-telefonico/analisis-telefonico.component'
           ),
-      },{
+      }, {
         path: 'vista-proveedor',
         loadComponent: () =>
           import(
@@ -31,6 +36,11 @@ export const routes: Routes = [
         path: 'bandeja-analista',
         loadComponent: () =>
           import('./shared/pages/bandeja-analista/bandeja-analista.component'),
+      },
+      {
+        path: 'detalle-solicitud-analista/:id',
+        loadComponent: () =>
+          import('./shared/pages/detalle-solicitud-analista/detalle-solicitud-analista.component'),
       },
       {
         path: 'bandeja',

@@ -1,53 +1,112 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthenticacionService {
-
   private usuarioKey = 'usuario';
+  private oficeKey = 'ofices';
 
-  // Usuario quemado para pruebas
+  // Usuarios quemados para pruebas
   private usuarioPrueba = {
-    IdUsuario: 1,
-    nombre: "Eliecer Melgara",
-    correoElectronico: "eliecermelgara1680@gmail.com",
-    username: "eliecer.melgara",
-    oficina: {
-      idOficina: 2,
-      nombre: "0059-DELEGACION REGIONAL DE HEREDIA"
-    },
-    rol: {
-      nombre: "Administrador",
-      permisos: [
-        { nombre: 'todos' }
-      ]
-    }
+    idUsuario: 1,
+    nombre: 'Eliecer',
+    apellido: 'Melgara',
+    correoElectronico: 'eliecermelgara1680@gmail.com',
+    usuario: 'eliecer.melgara',
+    contrasennia: 'Melgara1212!',
+    oficina: [
+      {
+        idOficina: 2,
+        nombre: '0059-DELEGACION REGIONAL DE HEREDIA',
+        tipo: 'Investigacion',
+        rol: {
+          nombre: 'Administrador',
+          permisos: [{ nombre: 'todos' }],
+        },
+      },
+    ],
   };
 
-  constructor() { }
+  private usuarioPrueba2 = {
+    idUsuario: 2,
+    nombre: 'Jesner',
+    apellido: 'Melgara',
+    correoElectronico: 'eliecermelgara1680@gmail.com',
+    usuario: 'eliecer.melgara',
+    contrasennia: 'Melgara1212!!',
+    oficina: [
+      {
+        idOficina: 1,
+        nombre:
+          '1101-CENTRO JUDICIAL DE INTERVENCION DE LAS COMUNICACIONES (CJIC)',
+        tipo: 'Investigacion',
+        rol: {
+          nombre: 'Jefatura de Investigador',
+          permisos: [
+            { nombre: 'Crear Solicitud Proveedor' },
+            { nombre: 'Ver solicitudes propias' },
+            { nombre: 'Crear solicitudes de analisis' },
+            { nombre: 'Aprobar Solicitudes' },
+          ],
+        },
+      },
+      {
+        idOficina: 2,
+        nombre: '0059-DELEGACION REGIONAL DE HEREDIA',
+        tipo: 'Investigacion',
+        rol: {
+          nombre: 'Investigador',
+          permisos: [
+            { nombre: 'Crear Solicitud Proveedor' },
+            { nombre: 'Ver solicitudes propias' },
+            { nombre: 'Crear solicitudes de analisis' },
+          ],
+        },
+      },
+    ],
+  };
 
-  // Comprobar si `sessionStorage` está disponible (para evitar errores en SSR)
+  usuarios = [this.usuarioPrueba, this.usuarioPrueba2];
+
+  constructor() {}
+
   private isSessionStorageAvailable(): boolean {
-    return typeof window !== 'undefined' && typeof sessionStorage !== 'undefined';
+    return (
+      typeof window !== 'undefined' && typeof sessionStorage !== 'undefined'
+    );
   }
 
-  // Iniciar sesión guardando el usuario de prueba en sessionStorage
-  login() {
+  login(username: string, password: string): any {
     if (this.isSessionStorageAvailable()) {
-      sessionStorage.setItem(this.usuarioKey, JSON.stringify(this.usuarioPrueba));
+      const usuario = this.usuarios.find(
+        (user) => user.usuario === username && user.contrasennia === password
+      );
+      if (usuario) {
+        console.log('Login successful')
+        return usuario;
+      } else {
+        console.error('Invalid username or password');
+      }
+    } else {
+      console.error('Session storage is not available');
     }
+    return null;
   }
 
-  // Cerrar sesión
-  logout() {
+  logout(): void {
     if (this.isSessionStorageAvailable()) {
       sessionStorage.removeItem(this.usuarioKey);
     }
   }
 
-  // Obtener usuario de la sesión
-  getUsuario() {
+  deleteOfice(): void {
+    if (this.isSessionStorageAvailable()) {
+      sessionStorage.removeItem(this.oficeKey);
+    }
+  }
+
+  getUsuario(): any {
     if (this.isSessionStorageAvailable()) {
       const usuario = sessionStorage.getItem(this.usuarioKey);
       return usuario ? JSON.parse(usuario) : null;
@@ -55,13 +114,34 @@ export class AuthenticacionService {
     return null;
   }
 
-  // Verificar si el usuario tiene permiso
-  tienePermiso(permiso: string): boolean {
-    const usuario = this.getUsuario();
-    return usuario && usuario.rol.permisos.some((p: { nombre: string }) => p.nombre === permiso);
+  getOficinas(): any {
+    if (this.isSessionStorageAvailable()) {
+      const oficina = sessionStorage.getItem(this.oficeKey);
+      return oficina ? JSON.parse(oficina) : null;
+    }
+    return null;
   }
 
-  // Verificar si el usuario está autenticado
+  tienePermiso(permiso: string): boolean {
+    const usuario = this.getUsuario();
+    if (!usuario || !usuario.oficina || !usuario.oficina.rol || !Array.isArray(usuario.oficina.rol.permisos)) {
+      return false;
+    }
+    return usuario.oficina.rol.permisos.some((p: { nombre: string }) => p.nombre === permiso || p.nombre === 'todos');
+  }
+
+  agregarUsuario(usuario: any) {
+    if (this.isSessionStorageAvailable()) {
+      sessionStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
+    }
+  }
+
+  agregarOficinas(oficinas: any) {
+    if (this.isSessionStorageAvailable()) {
+      sessionStorage.setItem(this.oficeKey, JSON.stringify(oficinas));
+    }
+  }
+
   isAuthenticated(): boolean {
     return this.getUsuario() !== null;
   }

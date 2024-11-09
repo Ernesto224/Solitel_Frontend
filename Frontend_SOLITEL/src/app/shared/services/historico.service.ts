@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 export class HistoricoService {
   
   private urlServices: string = "https://localhost:7211/api/Historial";
+  private urlObtenerHistoricoAnalisis: string = '/Analisis';
 
   constructor(private http: HttpClient) { }
 
@@ -17,5 +18,13 @@ export class HistoricoService {
 
     // Realiza la solicitud GET con los parámetros
     return this.http.get(this.urlServices, { params });
+  }
+
+  public obtenerHistoricoAnalisis = (idSolicitudAnalisis: number): Observable<any> => {
+    // Crea los parámetros de consulta
+    const params = new HttpParams().set('idSolicitudProveedor', idSolicitudAnalisis);
+
+    // Realiza la solicitud GET con los parámetros
+    return this.http.get(`${this.urlServices}${this.urlObtenerHistoricoAnalisis}`, { params });
   }
 }
