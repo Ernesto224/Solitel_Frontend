@@ -106,6 +106,7 @@ export class SolicitudProveedorService {
   public consultarInfoNumeroUnico(numeroUnico: string):Observable<any> {
     return this.http.get<any>(`${this.urlServices}${this.urlConsultarInfoNumeroUnico}?numeroUnico=${numeroUnico}`);
   }
+ 
 
 }
 

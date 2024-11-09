@@ -32,21 +32,19 @@
         <div class="badge-container">
           <select [(ngModel)]="estadoTemporal" (change)="onEstadoChange($event)">
             <optgroup label="Solicitud Proveedor">
-              <option *ngFor="let estado of cantidadPorEstadoProveedor;  trackBy: trackByEstadoId" 
-                      [value]="estado.nombre" 
-                      [attr.data-idEstado]="estado.idEstado">
+              <option *ngFor="let estado of cantidadPorEstadoProveedor;  trackBy: trackByEstadoId"
+                [value]="estado.nombre" [attr.data-idEstado]="estado.idEstado">
                 {{ estado.nombre }} ({{ estado.cantidad }})
               </option>
             </optgroup>
             <optgroup label="Solicitud Análisis">
-              <option *ngFor="let estado of cantidadPorEstadoAnalisis;  trackBy: trackByEstadoId" 
-                      [value]="estado.nombre" 
-                      [attr.data-idEstado]="estado.idEstado">
+              <option *ngFor="let estado of cantidadPorEstadoAnalisis;  trackBy: trackByEstadoId"
+                [value]="estado.nombre" [attr.data-idEstado]="estado.idEstado">
                 {{ estado.nombre }} ({{ estado.cantidad }})
               </option>
             </optgroup>
           </select>
-          
+
         </div>
 
 
@@ -288,7 +286,8 @@
 
               <ng-container
                 *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Descargar informe de Investigador')">
-                <button class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalArchivosInformeFinal(solicitud.idSolicitudAnalisis, 'Finalizado')"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">download</span>
                   <span>Descargar informe de Investigador</span>
                 </button>
@@ -296,7 +295,7 @@
               </ng-container>
 
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Agregar informe')">
-                <button (click)="abrirModalArchivosInformeFinal(solicitud.idSolicitudAnalisis)"
+                <button (click)="abrirModalArchivosInformeFinal(solicitud.idSolicitudAnalisis, 'Analizado')"
                   class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">upload</span>
                   <span>Agregar informe</span>
@@ -316,16 +315,17 @@
 
               <ng-container
                 *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Enviar a legajo solicitud de análisis')">
-                <button (click)="abrirModalLegajoAnalisis(solicitud.idSolicitudAnalisis)" class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalLegajoAnalisis(solicitud.idSolicitudAnalisis)"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">do_not_disturb_on_total_silence</span>
                   <span>Enviar a legajo solicitud de análisis</span>
                 </button>
                 <span> | </span>
               </ng-container>
 
-              <ng-container
-                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Aprobar Solicitud')">
-                <button class="inline-flex items-center space-x-1">
+              <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Aprobar Solicitud')">
+                <button (click)="abrirModalAprobarAnalisis(solicitud.idSolicitudAnalisis)"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">do_not_disturb_on_total_silence</span>
                   <span>Aprobar Solicitud</span>
                 </button>
@@ -334,7 +334,7 @@
 
               <ng-container
                 *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Devolver al estado anterior')">
-                <button class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalDevolverAnalizado(solicitud.idSolicitudAnalisis)" class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">download</span>
                   <span>Devolver al estado anterior</span>
                 </button>
@@ -533,9 +533,9 @@
           </div>
           <div>
             <label class="label" for="operadora">Operadora:</label>
-            
-            <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras? solicitudSeleccionada.operadoras[0].nombre: 'N/A' "
-              readonly>
+
+            <input type="text" id="operadora" class="input"
+              [value]="solicitudSeleccionada.operadoras? solicitudSeleccionada.operadoras[0].nombre: 'N/A' " readonly>
           </div>
         </div>
         <!-- Sección de "Registros de requerimientos" -->
@@ -636,16 +636,19 @@
 <!-- Modal Archivos Informe Final -->
 <app-modal-informacion [isModalOpen]="modalArchivosInformeFinalVisible">
   <div class="modal-contenido">
-    <span class="cerrar" (click)="cerrarModalArchivosInformeFinal()">&times;</span>
-    <h2>Subir Archivos</h2>
 
-    <input type="file" (change)="seleccionarArchivosInformeFinal($event)" multiple />
+    <div *ngIf="subirArchivosInformeFinalOpcion"> 
+      <span class="cerrar" (click)="cerrarModalArchivosInformeFinal()">&times;</span>
+      <h2>Subir Archivos</h2>
 
-    <button (click)="subirArchivosInformeFinal()">Guardar</button>
+      <input type="file" (change)="seleccionarArchivosInformeFinal($event)" multiple /> <!-- Soporta Varios Archivos-->
 
-    <ul>
-      <li *ngFor="let archivoInforme of archivosInformeFinal">{{ archivoInforme.nombre }}</li>
-    </ul>
+      <button (click)="subirArchivosInformeFinal()">Guardar</button>
+
+      <ul>
+        <li *ngFor="let archivoInforme of archivosInformeFinal">{{ archivoInforme.nombre }}</li>
+      </ul>
+    </div>
 
     <h2>Archivos Informe:</h2>
     <div *ngIf="archivosInformeFinalDB.length > 0; else noArchivosTemplate">
@@ -673,7 +676,8 @@
 
   <div>
     <div *ngIf="historicoDeSolicitudAnalisisSeleccionada">
-      <app-tabla-visualizacion [headers]="encabezadosHistoricoAnalisis" [data]="historicoDeSolicitudAnalisisSeleccionada">
+      <app-tabla-visualizacion [headers]="encabezadosHistoricoAnalisis"
+        [data]="historicoDeSolicitudAnalisisSeleccionada">
       </app-tabla-visualizacion>
     </div>
   </div>
@@ -742,7 +746,7 @@
   </div>
   <div class="mt-4" modal-content>
     <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
-    <textarea id="observacion" rows="3" [(ngModel)]="observacionAprobarAnalisis"
+    <textarea id="observacion" rows="3" [(ngModel)]="observacionDevolverAnalizado"
       class="w-full p-2 border rounded-md focus:outline-none focus:ring"></textarea>
   </div>
 </app-modal-confirmacion>

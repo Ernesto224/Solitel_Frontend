@@ -195,6 +195,7 @@ export default class BandejaComponent implements OnInit {
 
   // Variables necesarias para agregar informe 
   modalArchivosInformeFinalVisible: boolean = false;
+  subirArchivosInformeFinalOpcion: boolean = false;
   archivosInformeFinal: any[] = [];
   archivosInformeFinalDB: any[] = [];
   idSolicitudAnalisisSeleccionada: number = 0;
@@ -724,7 +725,12 @@ export default class BandejaComponent implements OnInit {
 
 
   // Metodos para funciones de archivos Informe Final
-  abrirModalArchivosInformeFinal(idSolicitudAnalisis: number) {
+  abrirModalArchivosInformeFinal(idSolicitudAnalisis: number, estadoSolicitud: string) {
+    if(estadoSolicitud == "Finalizado"){
+      this.subirArchivosInformeFinalOpcion = false;
+    } else {
+      this.subirArchivosInformeFinalOpcion = true;
+    }
     this.idSolicitudAnalisisSeleccionada = idSolicitudAnalisis;
     this.cargarArchivosInformeFinal(idSolicitudAnalisis);
     this.modalArchivosInformeFinalVisible = true;
@@ -733,6 +739,8 @@ export default class BandejaComponent implements OnInit {
   cerrarModalArchivosInformeFinal() {
     this.idSolicitudAnalisisSeleccionada = 0;
     this.modalArchivosInformeFinalVisible = false;
+    this.archivosInformeFinal = [];
+    this.archivosInformeFinalDB = [];
   }
 
   seleccionarArchivosInformeFinal(event: any) {
@@ -849,6 +857,7 @@ export default class BandejaComponent implements OnInit {
         console.error('Error al mover a legajo la solicitud de analisis:', err);
       }
     });
+    this.cerrarModalLegajoAnalisis();
   }
 
 
@@ -864,11 +873,12 @@ export default class BandejaComponent implements OnInit {
   }
 
   aprobarSolicitudAnalisis() {
-    this.analisisTelefonicoService.aprobarSolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
+    this.analisisTelefonicoService.aprobarSolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionAprobarAnalisis).subscribe({
       next: response => {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis Aprobada";
         this.alertaVisible = true;
+        this.observacionAprobarAnalisis = '';
         this.vaciarDatosBandeja();
         this.cargarDatosBandeja();
       },
@@ -876,6 +886,7 @@ export default class BandejaComponent implements OnInit {
         console.error('Error al aprobar la solicitud de analisis:', err);
       }
     });
+    this.cerrarModalAprobarAnalisis();
   }
 
 
@@ -891,11 +902,12 @@ export default class BandejaComponent implements OnInit {
   }
 
   devolverAnalizadoSolicitudAnalisis() {
-    this.analisisTelefonicoService.devolverAnalizado(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
+    this.analisisTelefonicoService.devolverAnalizado(this.idSolicitudAnalisisSeleccionada, 1, this.observacionDevolverAnalizado).subscribe({
       next: response => {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis devuelta a Analizado";
         this.alertaVisible = true;
+        this.observacionDevolverAnalizado = '';
         this.vaciarDatosBandeja();
         this.cargarDatosBandeja();
       },
@@ -903,6 +915,7 @@ export default class BandejaComponent implements OnInit {
         console.error('Error al devolver la solicitud de analisis:', err);
       }
     });
+    this.cerrarModalDevolverAnalizado();
   }
 
 
@@ -923,6 +936,7 @@ export default class BandejaComponent implements OnInit {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis Correctamente Finalizada";
         this.alertaVisible = true;
+        this.observacionFinalizarAnalisis = '';
         this.vaciarDatosBandeja();
         this.cargarDatosBandeja();
       },
@@ -930,6 +944,7 @@ export default class BandejaComponent implements OnInit {
         console.error('Error al finalizar la solicitud de analisis:', err);
       }
     });
+    this.cerrarModalFinalizarAnalisis();
   }
 
 }
