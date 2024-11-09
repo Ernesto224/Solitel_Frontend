@@ -146,17 +146,18 @@
             </label>
           </td>
 
+          <td *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">
+            <button (click)="abrirModalHistorico(solicitud)" class="text-white px-4 py-2 
+            rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
+            <i class="material-icons">sports_score</i>
+          </button>
+
+          </td>
+
           <td *ngIf="columnasVisibles['sinEfecto']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Sin Efecto')" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[56px]" style="background-color: #1C355C;">
               <i class="material-icons">file_copy_off</i>
-            </button>
-          </td>
-
-          <td *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">
-            <button (click)="abrirModalHistorico(solicitud)" class="text-white px-4 py-2 
-              rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
-              <i class="material-icons">sports_score</i>
             </button>
           </td>
 
@@ -638,7 +639,7 @@
   <div class="modal-contenido">
 
     <div *ngIf="subirArchivosInformeFinalOpcion"> 
-      <span class="cerrar" (click)="cerrarModalArchivosInformeFinal()">&times;</span>
+
       <h2>Subir Archivos</h2>
 
       <input type="file" (change)="seleccionarArchivosInformeFinal($event)" multiple /> <!-- Soporta Varios Archivos-->

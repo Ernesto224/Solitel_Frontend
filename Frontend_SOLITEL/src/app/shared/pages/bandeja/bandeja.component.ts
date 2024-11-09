@@ -770,6 +770,9 @@ export default class BandejaComponent implements OnInit {
             this.alertatipo = "satisfaccion";
             this.alertaMensaje = "Archivos Subidos con Exito";
             this.alertaVisible = true;
+            setTimeout(() => {
+              this.alertaVisible = false;
+            }, 3000);
 
             this.cargarArchivosInformeFinal(this.idSolicitudAnalisisSeleccionada);
           },
@@ -845,11 +848,16 @@ export default class BandejaComponent implements OnInit {
   }
 
   actualizarEstadoLegajoAnalisis() {
-    this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
+    this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionLegajoAnalisis).subscribe({
       next: response => {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis Movida a Legajo";
         this.alertaVisible = true;
+        setTimeout(() => {
+          this.alertaVisible = false;
+        }, 3000);
+
+        this.observacionLegajoAnalisis = '';
         this.vaciarDatosBandeja();
         this.cargarDatosBandeja();
       },
@@ -878,6 +886,9 @@ export default class BandejaComponent implements OnInit {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis Aprobada";
         this.alertaVisible = true;
+        setTimeout(() => {
+          this.alertaVisible = false;
+        }, 3000);
         this.observacionAprobarAnalisis = '';
         this.vaciarDatosBandeja();
         this.cargarDatosBandeja();
@@ -907,6 +918,9 @@ export default class BandejaComponent implements OnInit {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis devuelta a Analizado";
         this.alertaVisible = true;
+        setTimeout(() => {
+          this.alertaVisible = false;
+        }, 3000);
         this.observacionDevolverAnalizado = '';
         this.vaciarDatosBandeja();
         this.cargarDatosBandeja();
@@ -936,6 +950,9 @@ export default class BandejaComponent implements OnInit {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis Correctamente Finalizada";
         this.alertaVisible = true;
+        setTimeout(() => {
+          this.alertaVisible = false;
+        }, 3000);
         this.observacionFinalizarAnalisis = '';
         this.vaciarDatosBandeja();
         this.cargarDatosBandeja();
