@@ -56,7 +56,6 @@ select {
 }
 
 select {
-  appearance: none;
   background-color: #fff;
 }
 
@@ -434,4 +433,8 @@ button:hover {
 
 .bg-red-100 {
   background-color: #F8B4B4; /* Rojo más intenso */
+}
+
+.colspan {
+  background-color: #b0bec5;
 }

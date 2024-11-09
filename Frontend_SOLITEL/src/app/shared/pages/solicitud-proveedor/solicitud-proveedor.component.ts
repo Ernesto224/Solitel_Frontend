@@ -15,7 +15,7 @@ import { ArchivoService } from '../../services/archivo.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { AlertaComponent } from '../../components/alerta/alerta.component';
 import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
-
+import { AuthenticacionService } from '../../services/authenticacion.service';
 
 @Component({
   selector: 'app-solicitud-proveedor',
@@ -118,6 +118,8 @@ export default class SolicitudProveedorComponent {
 
   // requrimiento que se está editando
   editingIndex: number | null = null;
+  usuario: any = {};
+  nombreOficina: string = '';
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
@@ -130,12 +132,16 @@ export default class SolicitudProveedorComponent {
     private subModalidadService: SubModalidadService,
     private tipoSolicitudService: TipoSolicitudService,
     private tipoDatoService: TipoDatoService,
-    private archivoService: ArchivoService
+    private archivoService: ArchivoService,
+    private auteticate: AuthenticacionService
 
   ) { }
 
   ngOnInit() {
 
+    this.usuario = this.auteticate.getUsuario();
+    this.idOficinaSeleccionada = this.usuario.oficina.idOficina;
+    this.nombreOficina = this.usuario.oficina.nombre;
     this.getCategories();
     this.getFiscalias();
     this.getDelitos();
@@ -400,7 +406,7 @@ export default class SolicitudProveedorComponent {
         })),
 
         usuarioCreador: {
-          idUsuario: 1,
+          idUsuario: this.usuario.idUsuario,
           nombre: "Juan",
           apellido: "Pérez",
           usuario: "jperez",

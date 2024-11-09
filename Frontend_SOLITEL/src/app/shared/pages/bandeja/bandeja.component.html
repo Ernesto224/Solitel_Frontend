@@ -255,9 +255,9 @@
         <ng-container *ngFor="let solicitud of solicitudesAnalisis">
           <!-- Opciones de línea gris (una sola fila para cada solicitudAnalisis) -->
           <tr class="bg-gray-100">
-            <td colspan="10" class="px-4 py-2 text-left">
+            <td colspan="10" class="colspan px-4 py-2 text-left">
               <span>ID Solicitud de Análisis: {{ solicitud.idSolicitudAnalisis }}</span>
-
+              <span> | </span>q
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver histórico')">
                 <button (click)="abrirModalHistoricoAnalisis(solicitud.idSolicitudAnalisis)"
                   class="inline-flex items-center space-x-1">
