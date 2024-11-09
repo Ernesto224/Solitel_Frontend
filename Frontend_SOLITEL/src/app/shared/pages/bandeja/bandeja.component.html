@@ -318,6 +318,15 @@
               </ng-container>
 
               <ng-container
+                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Aprobar Solicitud')">
+                <button class="inline-flex items-center space-x-1">
+                  <span class="material-icons text-sm">do_not_disturb_on_total_silence</span>
+                  <span>Aprobar Solicitud</span>
+                </button>
+                <span> | </span>
+              </ng-container>
+
+              <ng-container
                 *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Devolver al estado anterior')">
                 <button class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">download</span>

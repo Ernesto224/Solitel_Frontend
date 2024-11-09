@@ -187,6 +187,7 @@ export default class BandejaComponent implements OnInit {
       this.obtenerEstados();
       this.obtenerSolicitudes();
       this.obtenerSolicitudesAnalisis();
+      this.contarSolicitudesPorEstado(); 
     }, 3000); // Simular 3 segundos de procesamiento
 
 
@@ -199,8 +200,6 @@ export default class BandejaComponent implements OnInit {
         this.estados = estados;
         this.estadosProveedor = estados.filter(estado => estado.tipo === 'Proveedor');
         this.estadosAnalisis = estados.filter(estado => estado.tipo === 'Analisis');
-        console.log("Estados Analisis:", JSON.stringify(this.estadosAnalisis, null, 2));
-
       },
       error: (err) => {
         console.error('Error al obtener datos:', err);
@@ -231,7 +230,6 @@ export default class BandejaComponent implements OnInit {
         this.solicitudesAnalisis = value;
         this.solicitudesAnalisisOriginales = value;
         this.filtrarSolicitudes(); // Si deseas aplicar algún filtro
-        console.log("Solicitudes guardadas:", this.solicitudesAnalisis);
       },
       error: (err) => {
         console.error('Error al obtener solicitudes de análisis:', err);
@@ -416,12 +414,13 @@ export default class BandejaComponent implements OnInit {
 
 
   filtrarSolicitudesAnalisis(): void {
-    this.solicitudesAnalisis = this.solicitudesAnalisisOriginales.filter(solicitudAnalisis =>
-      solicitudAnalisis.estado?.nombre === this.estadoTemporal &&
-      ["En Análisis", "Analizado", "Aprobar Análisis", "Finalizado"].includes(solicitudAnalisis.estado?.nombre)
+    this.solicitudesAnalisis = this.solicitudesAnalisisOriginales.filter(solicitud =>
+      solicitud.estado?.nombre === this.estadoTemporal &&
+      ["En Análisis", "Analizado", "Aprobar Análisis", "Finalizado", "Legajo"].includes(solicitud.estado?.nombre)
     );
-    console.log("Solicitudes filtradas:", this.solicitudesAnalisis);
+  
   }
+  
 
 
   onEstadoChange(event: Event): void {
@@ -434,9 +433,8 @@ export default class BandejaComponent implements OnInit {
   
       if (idEstado && nombreEstado) {
         this.idEstadoSeleccionado = parseInt(idEstado, 10);
-        this.estadoTemporal = nombreEstado; // Asegura la visualización correcta
-        console.log('ID del estado seleccionado:', this.idEstadoSeleccionado);
-        console.log('Nombre del estado seleccionado:', this.estadoTemporal);
+        this.estadoTemporal = nombreEstado; 
+        
 
         this.cdr.detectChanges();
 
@@ -480,6 +478,7 @@ export default class BandejaComponent implements OnInit {
     if (!this.mostrarTablaProveedor) {
       // Si es de análisis, aplica el filtro de solicitudes de análisis
       this.filtrarSolicitudesAnalisis();
+
     }
   }
 
