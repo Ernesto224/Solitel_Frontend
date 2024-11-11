@@ -25,6 +25,7 @@ export interface TipoDato {
   providedIn: 'root',
 })
 export class AnalisisTelefonicoService {
+
   private baseUrl: string = 'https://localhost:7211/api/';
   private urlObtenerBandejaAnalista: string = 'SolicitudAnalisis/obtenerBandejaAnalista';
   private urlObtenerSolicitudesAnalisis:  string = 'SolicitudAnalisis/consultar';
@@ -43,6 +44,7 @@ export class AnalisisTelefonicoService {
     'obtenerArchivosDeSolicitudesProveedor';
   private readonly urlObtenerTipoDato: string = 'TipoDato';
   private readonly urlActualizarEstadoAnalizado: string = 'ActualizarEstadoAnalizadoSolicitudAnalisis'
+  
   constructor(private http: HttpClient) { }
 
   obtener(): Observable<any[]> {
@@ -74,13 +76,31 @@ export class AnalisisTelefonicoService {
     );
   }
 
-  obtenerSolicitudesAnalisis(): Observable<any[]> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      accept: 'application/json',
-    });
-    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerSolicitudesAnalisis}`, { headers });
-  }
+  obtenerSolicitudesAnalisis( idEstado?: number, fechainicio?: string, fechaFin?: string, numeroUnico?: string, idOficina?: number, idUsuario?: number): Observable<any[]> {
+    let params = new HttpParams();
+  
+    // Agregar los parámetros solo si tienen un valor definido
+    if (idEstado !== undefined) {
+      params = params.set('idEstado', idEstado.toString());
+    }
+    if (fechainicio) {
+      params = params.set('fechainicio', fechainicio);
+    }
+    if (fechaFin) {
+      params = params.set('fechaFin', fechaFin);
+    }
+    if (numeroUnico) {
+      params = params.set('numeroUnico', numeroUnico);
+    }
+    if (idOficina !== undefined) {
+      params = params.set('idOficina', idOficina.toString());
+    }
+    if (idUsuario !== undefined) {
+      params = params.set('idUsuario', idUsuario.toString());
+    }
+  
+    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerSolicitudesAnalisis}`, { params });
+  }  
   
   obtenerOficinasAnalisis(): Observable<any[]> {
     const headers = new HttpHeaders({

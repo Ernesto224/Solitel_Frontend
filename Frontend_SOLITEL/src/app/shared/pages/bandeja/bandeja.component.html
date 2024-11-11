@@ -32,15 +32,15 @@
         <div class="badge-container">
           <select [(ngModel)]="estadoTemporal" (change)="onEstadoChange($event)">
             <optgroup label="Solicitud Proveedor">
-              <option *ngFor="let estado of cantidadPorEstadoProveedor;  trackBy: trackByEstadoId"
-                [value]="estado.nombre" [attr.data-idEstado]="estado.idEstado">
-                {{ estado.nombre }} ({{ estado.cantidad }})
+              <option *ngFor="let estado of estadosProveedor;  trackBy: trackByEstadoId"
+                [value]="estado.nombre" [attr.data-idEstado]="estado | json">
+                {{ estado.nombre }} ({{ estado.cantidadSolicitudes }})
               </option>
             </optgroup>
             <optgroup label="Solicitud Análisis">
-              <option *ngFor="let estado of cantidadPorEstadoAnalisis;  trackBy: trackByEstadoId"
-                [value]="estado.nombre" [attr.data-idEstado]="estado.idEstado">
-                {{ estado.nombre }} ({{ estado.cantidad }})
+              <option *ngFor="let estado of estadosAnalisis;  trackBy: trackByEstadoId"
+                [value]="estado.nombre" [attr.data-idEstado]="estado | json">
+                {{ estado.nombre }} ({{ estado.cantidadSolicitudes }})
               </option>
             </optgroup>
           </select>
@@ -81,8 +81,6 @@
       </div>
     </div>
   </div>
-
-
 
   <!-- Contenedor con scroll horizontal y vertical si es necesario -->
   <div class="overflow-x-auto overflow-y-auto max-h-screen">
@@ -194,7 +192,7 @@
             {{ solicitud.numeroUnico }}
           </td>
 
-          <td *ngIf="columnasVisibles['proveedor']" class="border px-4 py-2 text-center">
+          <td *ngIf="columnasVisibles['operador']" class="border px-4 py-2 text-center">
             {{solicitud.operadoras[0].nombre }}
           </td>
 
@@ -253,12 +251,12 @@
         </tr>
       </thead>
       <tbody class="text-black">
-        <ng-container *ngFor="let solicitud of solicitudesAnalisis">
+        <ng-container *ngFor="let solicitud of solicitudesPaginadas">
           <!-- Opciones de línea gris (una sola fila para cada solicitudAnalisis) -->
           <tr class="bg-gray-100">
             <td colspan="10" class="colspan px-4 py-2 text-left">
               <span>ID Solicitud de Análisis: {{ solicitud.idSolicitudAnalisis }}</span>
-              <span> | </span>q
+              <span> | </span>
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver histórico')">
                 <button (click)="abrirModalHistoricoAnalisis(solicitud.idSolicitudAnalisis)"
                   class="inline-flex items-center space-x-1">
@@ -341,7 +339,6 @@
                 </button>
               </ng-container>
             </td>
-
           </tr>
           <!-- Iterar sobre cada solicitudProveedor dentro de una solicitud de análisis -->
           <ng-container *ngFor="let solicitudProveedor of solicitud.solicitudesProveedor">
@@ -372,7 +369,7 @@
               <td class="px-4 py-2 text-center">{{ solicitudProveedor.proveedor.nombre }}</td>
               <td class="px-4 py-2 text-center">{{ solicitudProveedor.usuarioCreador.nombre }}</td>
               <td class="px-4 py-2 text-center">{{ solicitudProveedor.fechaCrecion | date: 'dd/MM/yyyy' }}</td>
-              <td class="px-4 py-2 text-center">{{ solicitud.fechaCrecion | date: 'dd/MM/yyyy' }}</td>
+              <td class="px-4 py-2 text-center">{{ solicitud.fechaCreacion | date: 'dd/MM/yyyy' }}</td>
               <td class="px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
 
             </tr>
@@ -380,12 +377,6 @@
         </ng-container>
       </tbody>
     </table>
-
-
-
-
-
-
 
   </div>
 
@@ -459,7 +450,7 @@
 </app-modal-informacion>
 
 <!-- Modal de solicitud -->
-<app-modal-informacion [isModalOpen]="modalVisible">
+<app-modal-informacion [isModalOpen]="modalSolicitud">
   <!-- Encabezado personalizado del Modal -->
   <div modal-header>
     <h3 *ngIf="solicitudSeleccionada" class="text-lg font-medium">Solicitud #{{
@@ -496,7 +487,8 @@
           </div>
           <div>
             <label class="label" for="modalidad">Modalidad:</label>
-            <input type="text" id="modalidad" class="input" [value]="solicitudSeleccionada.modalidad.nombre" readonly>
+            <input type="text" id="modalidad" class="input" 
+              [value]="solicitudSeleccionada.modalidad.nombre? solicitudSeleccionada.modalidad.nombre : 'N/A'" readonly>
           </div>
           <div>
             <label class="label" for="imputado">Imputado:</label>
@@ -507,16 +499,18 @@
         <div class="grid-section">
           <div>
             <label class="label" for="delito">Delito:</label>
-            <input type="text" id="delito" class="input" [value]="solicitudSeleccionada.delito.nombre" readonly>
+            <input type="text" id="delito" class="input" 
+              [value]="solicitudSeleccionada.delito.nombre" readonly>
           </div>
           <div>
             <label class="label" for="subModalidad">Sub modalidad:</label>
-            <input type="text" id="subModalidad" class="input" [value]="solicitudSeleccionada.subModalidad.nombre"
-              readonly>
+            <input type="text" id="subModalidad" class="input" 
+              [value]="solicitudSeleccionada.subModalidad.nombre? solicitudSeleccionada.subModalidad.nombre: 'N/A'" readonly>
           </div>
           <div>
             <label class="label" for="ofendido">Ofendido:</label>
-            <input type="text" id="ofendido" class="input" [value]="solicitudSeleccionada.ofendido" readonly>
+            <input type="text" id="ofendido" class="input" 
+            [value]="solicitudSeleccionada.ofendido" readonly>
           </div>
         </div>
         <!-- Botón de urgente -->
@@ -530,7 +524,7 @@
           </div>
           <div>
             <label class="label" for="oficina">Oficina:</label>
-            <input type="text" id="oficina" class="input" readonly>
+            <input type="text" id="oficina" class="input"  readonly>
           </div>
           <div>
             <label class="label" for="operadora">Operadora:</label>
@@ -583,7 +577,7 @@
       </app-tabla-visualizacion>
     </div>
     <!-- Contenedor para botones de archivos -->
-    <div *ngIf="archivos && archivos.length > 0" class="mt-4">
+    <div *ngIf="archivos && archivos.length > 0 && mostrarTablaProveedor" class="mt-4">
       <button *ngFor="let archivo of archivos" class="text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring"
         style="background-color: #1C355C;" (click)="descargarArchivo(archivo)">
         {{ archivo.nombre }}
