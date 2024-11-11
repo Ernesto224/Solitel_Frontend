@@ -32,14 +32,14 @@
         <div class="badge-container">
           <select [(ngModel)]="estadoTemporal" (change)="onEstadoChange($event)">
             <optgroup label="Solicitud Proveedor">
-              <option *ngFor="let estado of estadosProveedor;  trackBy: trackByEstadoId"
-                [value]="estado.nombre" [attr.data-idEstado]="estado | json">
+              <option *ngFor="let estado of estadosProveedor;  trackBy: trackByEstadoId" [value]="estado.nombre"
+                [attr.data-idEstado]="estado | json">
                 {{ estado.nombre }} ({{ estado.cantidadSolicitudes }})
               </option>
             </optgroup>
             <optgroup label="Solicitud Análisis">
-              <option *ngFor="let estado of estadosAnalisis;  trackBy: trackByEstadoId"
-                [value]="estado.nombre" [attr.data-idEstado]="estado | json">
+              <option *ngFor="let estado of estadosAnalisis;  trackBy: trackByEstadoId" [value]="estado.nombre"
+                [attr.data-idEstado]="estado | json">
                 {{ estado.nombre }} ({{ estado.cantidadSolicitudes }})
               </option>
             </optgroup>
@@ -137,25 +137,24 @@
           <td *ngIf="columnasVisibles['aprobar']" class="border px-4 py-2 text-center">
             <!-- Switch para aprobar -->
             <label class="switch">
-              <input type="checkbox" [(ngModel)]="solicitud.aprobado"
-                (change)="onSwitchChange(solicitud.idSolicitudProveedor, solicitud.aprobado)"
+              <input type="checkbox" [checked]="solicitud.aprobado"
+                (click)="onSwitchClick($event, solicitud.idSolicitudProveedor, solicitud.aprobado)"
                 [disabled]="isSwitchDisabled">
               <span class="slider round"></span>
             </label>
-          </td>
-
-          <td *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">
-            <button (click)="abrirModalHistorico(solicitud)" class="text-white px-4 py-2 
-            rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
-            <i class="material-icons">sports_score</i>
-          </button>
-
           </td>
 
           <td *ngIf="columnasVisibles['sinEfecto']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Sin Efecto')" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[56px]" style="background-color: #1C355C;">
               <i class="material-icons">file_copy_off</i>
+            </button>
+          </td>
+
+          <td *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">
+            <button (click)="abrirModalHistorico(solicitud)" class="text-white px-4 py-2 
+            rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
+              <i class="material-icons">sports_score</i>
             </button>
           </td>
 
@@ -333,7 +332,8 @@
 
               <ng-container
                 *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Devolver al estado anterior')">
-                <button (click)="abrirModalDevolverAnalizado(solicitud.idSolicitudAnalisis)" class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalDevolverAnalizado(solicitud.idSolicitudAnalisis)"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">download</span>
                   <span>Devolver al estado anterior</span>
                 </button>
@@ -487,7 +487,7 @@
           </div>
           <div>
             <label class="label" for="modalidad">Modalidad:</label>
-            <input type="text" id="modalidad" class="input" 
+            <input type="text" id="modalidad" class="input"
               [value]="solicitudSeleccionada.modalidad.nombre? solicitudSeleccionada.modalidad.nombre : 'N/A'" readonly>
           </div>
           <div>
@@ -499,18 +499,17 @@
         <div class="grid-section">
           <div>
             <label class="label" for="delito">Delito:</label>
-            <input type="text" id="delito" class="input" 
-              [value]="solicitudSeleccionada.delito.nombre" readonly>
+            <input type="text" id="delito" class="input" [value]="solicitudSeleccionada.delito.nombre" readonly>
           </div>
           <div>
             <label class="label" for="subModalidad">Sub modalidad:</label>
-            <input type="text" id="subModalidad" class="input" 
-              [value]="solicitudSeleccionada.subModalidad.nombre? solicitudSeleccionada.subModalidad.nombre: 'N/A'" readonly>
+            <input type="text" id="subModalidad" class="input"
+              [value]="solicitudSeleccionada.subModalidad.nombre? solicitudSeleccionada.subModalidad.nombre: 'N/A'"
+              readonly>
           </div>
           <div>
             <label class="label" for="ofendido">Ofendido:</label>
-            <input type="text" id="ofendido" class="input" 
-            [value]="solicitudSeleccionada.ofendido" readonly>
+            <input type="text" id="ofendido" class="input" [value]="solicitudSeleccionada.ofendido" readonly>
           </div>
         </div>
         <!-- Botón de urgente -->
@@ -524,7 +523,8 @@
           </div>
           <div>
             <label class="label" for="oficina">Oficina:</label>
-            <input type="text" id="oficina" class="input"  readonly>
+            <input type="text" id="oficina" class="input" [value]="solicitudSeleccionada.oficina.nombre" readonly
+              title="{{ solicitudSeleccionada.oficina.nombre }}">
           </div>
           <div>
             <label class="label" for="operadora">Operadora:</label>
@@ -632,7 +632,7 @@
 <app-modal-informacion [isModalOpen]="modalArchivosInformeFinalVisible">
   <div class="modal-contenido">
 
-    <div *ngIf="subirArchivosInformeFinalOpcion"> 
+    <div *ngIf="subirArchivosInformeFinalOpcion">
 
       <h2>Subir Archivos</h2>
 

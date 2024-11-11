@@ -542,32 +542,27 @@ export default class BandejaComponent implements OnInit {
     window.URL.revokeObjectURL(url); // Liberar la URL
   }
 
-  onSwitchChange(idSolicitudProveedor: number, aprobado: boolean) {
+  onSwitchClick(event: Event, idSolicitudProveedor: number, aprobado: boolean) {
+
+    event.preventDefault();
+
+    this.abrirModalCambioEstado(idSolicitudProveedor, 'Aprobar');
     if (aprobado) {
-      this.aprobarSolicitud(idSolicitudProveedor, 'Aprobar');
       this.isSwitchDisabled = true; // Bloquear el switch después de aprobar
     }
   }
 
-  aprobarSolicitud(idSolicitudProveedor: number, estado: string) {
-    this.solicitudIdParaActualizar = idSolicitudProveedor;
-    this.nuevoEstado = estado;
-    this.confirmarCambioEstado();
-  }
-
   confirmarCambioEstado() {
     if (this.solicitudIdParaActualizar) {
-      const idUsuario = 1;
+      const usuario = this.autenticate.getUsuario();
       this.solicitudProveedorService.actualizarEstado(
         this.solicitudIdParaActualizar,
         this.nuevoEstado,
-        idUsuario,
+        usuario.idUsuario,
         this.observacion
       ).subscribe(
         response => {
-          console.log(`Estado actualizado a '${this.nuevoEstado}' para la solicitud con ID:`, this.solicitudIdParaActualizar);
-
-          // Eliminar la solicitud de la lista de solicitudes filtradas
+          // Eliminar la solicitud de la lista de solicitudes filtradas // NO HACE FALTA PORQUE LA TABLA SE RECARGA
           this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud => solicitud.idSolicitudProveedor !== this.solicitudIdParaActualizar);
           this.cerrarModalCambioEstado();
           this.obtenerSolicitudes();
