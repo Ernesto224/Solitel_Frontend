@@ -180,9 +180,13 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   mostrarConfirmacion = false;
   mostrarExito = false;
 
+  // Usuario para obtener la oficina de creacion
+  usuario: any = [];
+
   constructor(private analisisService: AnalisisTelefonicoService, private authService: AuthenticacionService) {}
 
   ngOnInit(): void {
+    this.usuario =  this.authService.getUsuario();
     this.cargarUsuarioEnSesion();
     this.cargarNumerosUnicos();
     this.cargarOficinasAnalisis();
@@ -284,6 +288,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       )
     );
   }
+
   cargarTiposDatos(): void {
     this.subscription.add(
       this.analisisService.ObtenerTiposDato().subscribe(
@@ -399,8 +404,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
 
     console.log("CANTIDAD DE REQUERIMIENTOS ADD: " + this.requerimientos.length);
     this.limpiarCamposRequerimiento();
-}
-
+  }
 
   cargarRequerimientoEnFormulario(index: number): void {
     if (index >= 0 && index < this.requerimientos.length) {
@@ -413,6 +417,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       this.idTipoDatoSeleccionado = requerimiento.tipoDato.idTipoDato;
     }
   }
+
   eliminarRequerimiento(index: number): void {
     if (index >= 0 && index < this.requerimientos.length) {
       this.requerimientos.splice(index, 1);
@@ -458,8 +463,9 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       },
       fechaCreacion: new Date().toISOString(),
       numeroSolicitud: numeroSolicitud || 0,
-      idOficina: Number(this.oficinaAnalisis) || 0,
-      idUsuario: Number(this.usuarioActivo.idUsuario) || 0,
+      idOficinaSolicitante: Number(this.oficinaAnalisis) || 0,
+      idOficinaCreacion: this.usuario.oficina.idOficina,
+      idUsuarioCreador: Number(this.usuarioActivo.idUsuario) || 0,
       requerimentos: (this.requerimientos || []).map((requerimiento) => ({
         idRequerimientoAnalisis: requerimiento.idRequerimientoAnalisis,
         objetivo: requerimiento.objetivo || 'Objetivo no especificado',
