@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EstadoService } from '../../services/estado.service';
 import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
+import { AuthenticacionService } from '../../services/authenticacion.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -16,6 +17,10 @@ import { Router } from '@angular/router';
   styleUrl: './bandeja-analista.component.css'
 })
 export default class BandejaAnalistaComponent implements OnInit {
+
+  usuario: any = {};
+  usuarioId: number = 0;
+  oficinaId: number = 0;
 
   estadosPermitidos: string[] = ["Finalizado", "En Análisis", "Analizado"];
   estados: any[] = [];
@@ -58,10 +63,12 @@ export default class BandejaAnalistaComponent implements OnInit {
   constructor(
     private analisisTelefonicoService: AnalisisTelefonicoService,
     private estadoService: EstadoService,
+    private autenticate: AuthenticacionService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
+    this.obtenerDatosDeUsuario();
     this.modalVisible();
     setTimeout(() => {
       this.obtenerEstados();
@@ -70,8 +77,14 @@ export default class BandejaAnalistaComponent implements OnInit {
   }
 
   //obtener datos
+  obtenerDatosDeUsuario(): void{
+    this.usuario = this.autenticate.getUsuario;
+    this.usuarioId = this.usuario.idUsuario;
+    this.oficinaId = this.usuario.oficina.idOficina;
+  }
+
   obtenerEstados(): void {
-    this.estadoService.obtenerEstados()
+    this.estadoService.obtenerEstados(this.usuarioId, this.oficinaId)
       .subscribe({
         next: (estados) => {
           this.estados = estados;
