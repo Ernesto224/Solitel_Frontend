@@ -108,7 +108,7 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit{
         objetivo: req.objetivo
       }));
       
-      this.consultarOficina(this.solicitudAnalisisSeleccionada.idOficina);
+      //this.consultarOficina(this.solicitudAnalisisSeleccionada.idOficina);
       this.cargarArchivos(this.idSolicitudAnalisisSeleccionada);
     }
 
