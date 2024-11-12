@@ -137,8 +137,8 @@
           <td *ngIf="columnasVisibles['aprobar']" class="border px-4 py-2 text-center">
             <!-- Switch para aprobar -->
             <label class="switch">
-              <input type="checkbox" [(ngModel)]="solicitud.aprobado"
-                (change)="onSwitchChange(solicitud.idSolicitudProveedor, solicitud.aprobado)"
+              <input type="checkbox" [checked]="solicitud.aprobado"
+                (click)="onSwitchClick($event, solicitud.idSolicitudProveedor, solicitud.aprobado)"
                 [disabled]="isSwitchDisabled">
               <span class="slider round"></span>
             </label>
@@ -523,7 +523,8 @@
           </div>
           <div>
             <label class="label" for="oficina">Oficina:</label>
-            <input type="text" id="oficina" class="input" readonly>
+            <input type="text" id="oficina" class="input" 
+            [value]="solicitudSeleccionada.oficina? solicitudSeleccionada.oficina.nombre : 'N/A'" readonly>
           </div>
           <div>
             <label class="label" for="operadora">Operadora:</label>

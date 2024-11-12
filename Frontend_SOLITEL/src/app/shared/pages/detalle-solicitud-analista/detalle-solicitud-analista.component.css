@@ -172,3 +172,42 @@ ul li {
   }
 }
 
+
+
+/* Estilo personalizado para el botón de selección de archivos */
+.custom-file-upload {
+  display: inline-block;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background-color 0.3s;
+}
+
+.custom-file-upload:hover {
+  background-color: #0056b3;
+}
+
+input[type="file"] {
+  display: none; /* Oculta el input original */
+}
+
+/* Lista de archivos seleccionados */
+.file-list {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.file-list li {
+  background-color: #e9ecef;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  text-align: left;
+}

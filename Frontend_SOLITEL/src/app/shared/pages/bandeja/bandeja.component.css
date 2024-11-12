@@ -438,3 +438,22 @@ button:hover {
 .colspan {
   background-color: #b0bec5;
 }
+
+
+.input {
+  width: fit-content; /* Ancho flexible según el contenido */
+  min-width: 150px; /* Evitar que los campos sean demasiado pequeños */
+  max-width: 300px; /* Limitar el ancho máximo para evitar desbordes */
+  white-space: nowrap; /* Evita que el texto se divida en líneas */
+  overflow: hidden; /* Ocultar el texto que se desborda */
+  text-overflow: ellipsis; /* Muestra '...' si el texto es demasiado largo */
+  padding: 8px; /* Agrega espacio interno para mejorar la legibilidad */
+  border: 1px solid #ccc; /* Bordes simples para un aspecto limpio */
+  border-radius: 4px; /* Bordes redondeados */
+  box-sizing: border-box; /* Incluir el relleno en el ancho total */
+}
+
+.scrollable-content {
+  max-width: 100%; /* Asegurar que el contenido no se desborde del contenedor padre */
+  overflow-x: auto; /* Permitir desplazamiento horizontal si es necesario */
+}
