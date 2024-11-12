@@ -225,9 +225,8 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
               ...solicitud,
               displayText: `${solicitud.idSolicitudProveedor} - ${solicitud.numeroUnico} - ${solicitud.nombreProveedor}`,
             }));
-            console.log('Solicitudes Proveedor cargadas');
           },
-          (error) => console.error('Error al cargar solicitudes:', error)
+          (error) => console.error('Error al cargar solicitudes:', error) // MOSTRAR MENSAJE POR ALERTA
         )
     );
   }
@@ -275,7 +274,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.analisisService.obtenerNumerosUnicos().subscribe(
         (numeros) => (this.numerosUnicos = numeros),
-        (error) => console.error('Error al cargar números únicos:', error)
+        (error) => console.error('Error al cargar números únicos:', error) // MOSTRAR ERROR EN ALERTA
       )
     );
   }
@@ -284,7 +283,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.analisisService.obtenerOficinasAnalisis().subscribe(
         (oficinas) => (this.oficinasAnalisis = oficinas),
-        (error) => console.error('Error al cargar oficinas de análisis:', error)
+        (error) => console.error('Error al cargar oficinas de análisis:', error) // MOSTRAR ERROR EN ALERTA
       )
     );
   }
@@ -293,14 +292,13 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.analisisService.ObtenerTiposDato().subscribe(
         (tipos) => (this.TipoDatos = tipos),
-        (error) => console.error('Error al cargar tipos:', error)
+        (error) => console.error('Error al cargar tipos:', error) // MOSTRAR ERROR EN ALERTA
       )
     );
   }
 
   cargarUsuarioEnSesion() {
     this.usuarioActivo = this.authService.getUsuario();
-    console.log(this.usuarioActivo.idUsuario);
   }
 
   obtenerArchivosSolicitudProveedor(): void {
@@ -309,15 +307,13 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
         .obtenerArchivosSolicitudProveedor(this.idsSolicitudProveedarArchivo)
         .subscribe(
           (archivos) => {
-            console.log('Archivos recibidos:', archivos);
-
             this.archivos = archivos.map((archivo) => ({
               ...archivo,
               nombreArchivo: `${archivo.nombre}.${archivo.formatoArchivo}`, // Concatenar el nombre y formato
             }));
           },
           (error) =>
-            console.error('Error al cargar archivos de la solicitud:', error)
+            console.error('Error al cargar archivos de la solicitud:', error) // MOSTRAR ERROR EN ALERTA
         );
     } else {
       this.idsSolicitudProveedarArchivo = [];
@@ -330,10 +326,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       this.solicitudesProveedorSeleccionadas.map(
         (solicitudes) => solicitudes.idSolicitudProveedor
       );
-    console.log(
-      'Ids de solicitudes seleccionadas:',
-      this.idsSolicitudProveedarArchivo
-    );
     this.obtenerArchivosSolicitudProveedor();
   }
 
@@ -343,11 +335,10 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
         .obtenerObjetivosAnalisis(this.idObjetivoAnalisis)
         .subscribe(
           (objetivos) => {
-            console.log('Objetivos recibidos:', objetivos);
             this.objetivosAnalista = objetivos;
           },
           (error) =>
-            console.error('Error al cargar objetivos de análisis:', error)
+            console.error('Error al cargar objetivos de análisis:', error) // MOSTRAR ERROR EN ALERTA
         )
     );
   }
@@ -389,12 +380,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
         },
     };
 
-    console.log(
-        nuevoRequerimiento.condicion.nombre +
-        ' ' +
-        nuevoRequerimiento.condicion.idCondicion
-    );
-
     if (this.selectedIndex !== null && this.selectedIndex >= 0) {
         this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
         this.selectedIndex = null;
@@ -402,7 +387,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
         this.requerimientos.push(nuevoRequerimiento);
     }
 
-    console.log("CANTIDAD DE REQUERIMIENTOS ADD: " + this.requerimientos.length);
     this.limpiarCamposRequerimiento();
   }
 
@@ -423,7 +407,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       this.requerimientos.splice(index, 1);
       this.limpiarCamposRequerimiento();
     }
-    console.log("CANTIDAD DE REQUERIMIENTOS: "+this.requerimientos.length);
   }
 
   VerIdOficina(): void {
@@ -443,8 +426,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       this.mostrarAlerta();
       return;
     }
-    console.log('NUMERO DE REQUERIMIENTOS: ' + this.requerimientos.length);
-    console.log(this.oficinaAnalisis);
     const numeroSolicitud =
       typeof this.numeroUnico === 'string'
         ? parseInt(this.numeroUnico, 10)
@@ -616,32 +597,28 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       })),
     };
 
-    console.log('Solicitud JSON enviada:', JSON.stringify(solicitudCompleta));
     this.solicitudCompletaAnalisis = solicitudCompleta;
     this.mostrarConfirmacionModal();
   }
 
   guardarSolicitudAnalisis() {
-    console.log(this.solicitudCompletaAnalisis);
     this.analisisService
       .agregarSolicitudAnalisis(this.solicitudCompletaAnalisis)
       .subscribe(
         (response) => {
           this.mostrarExito = true;
-          console.log('Solicitud enviada con éxito:', response);
           this.limpiarFormulario();
         },
-        (error) => console.error('Error al enviar la solicitud:', error.error)
+        (error) => console.error('Error al enviar la solicitud:', error.error) // MOSTRAR ERROR EN ALERTA
       );
   }
   obtenerCondiciones(): void {
     this.analisisService.obtenerCondiciones().subscribe(
       (condiciones) => {
-        console.log('Condiciones recibidas:', condiciones);
         this.condicionesAnalisis = condiciones;
       },
       (error) =>
-        console.error('Error al cargar condiciones de análisis:', error)
+        console.error('Error al cargar condiciones de análisis:', error) // MOSTRAR ERROR EN ALERTA
     );
   }
 
@@ -652,10 +629,9 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   obtenerTipoAnalisis(): void {
     this.analisisService.obtenerTipoAnalisis().subscribe(
       (tipos) => {
-        console.log('Tipos recibidos:', tipos);
         this.tiposAnalisis = tipos;
       },
-      (error) => console.error('Error al cargar tipos de análisis:', error)
+      (error) => console.error('Error al cargar tipos de análisis:', error) // MOSTRAR ERROR EN ALERTA
     );
   }
 
@@ -692,7 +668,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     // Resetear los campos específicos de los requerimientos
     this.limpiarCamposRequerimiento();
 
-    console.log('Formulario completamente limpio');
   }
 
   validarOtrosDetalles(): boolean {
