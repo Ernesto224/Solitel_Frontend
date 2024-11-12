@@ -22,7 +22,7 @@ export default class BandejaAnalistaComponent implements OnInit {
   usuarioId: number = 0;
   oficinaId: number = 0;
 
-  estadosPermitidos: string[] = ["Finalizado", "En Análisis", "Analizado"];
+  estadosPermitidos: string[] = ["Finalizado", "En Analisis", "Analizando"];
   estados: any[] = [];
   encabezados: any[] = [];
   solicitudesAnalisis: any[] = [];
@@ -33,19 +33,19 @@ export default class BandejaAnalistaComponent implements OnInit {
   solicitudesAnalisisPaginadas: any[] = [];
 
   estadoColumnas: { [key: string]: { headers: string[] } } = {
-    10: {
+    9: {
+      headers: ['Solicitud telefónica', 'Número único', 'Investigador', 'Oficina', 'Aprobado por', 'Fecha creación S.A.', 'Fecha aprobación S.A.', 'Asignada a', 'Fecha de asignación', 'Estado solicitud', 'Urgente', 'Fecha analizada']
+    },
+    11: {
       headers: ['Solicitud telefónica', 'Número único', 'Investigador', 'Oficina', 'Aprobado por', 'Fecha creación S.A.', 'Fecha aprobación S.A.', 'Asignada a', 'Fecha de asignación', 'Estado solicitud', 'Urgente', 'Fecha analizada']
     },
     12: {
       headers: ['Solicitud telefónica', 'Número único', 'Investigador', 'Oficina', 'Aprobado por', 'Fecha creación S.A.', 'Fecha aprobación S.A.', 'Asignada a', 'Fecha de asignación', 'Estado solicitud', 'Urgente', 'Fecha analizada']
-    },
-    13: {
-      headers: ['Solicitud telefónica', 'Número único', 'Investigador', 'Oficina', 'Aprobado por', 'Fecha creación S.A.', 'Fecha aprobación S.A.', 'Asignada a', 'Fecha de asignación', 'Estado solicitud', 'Urgente', 'Fecha analizada']
     }
   };
 
-  estadoTemporal: number = 12;
-  estadoSeleccionado: number = 12;
+  estadoTemporal: number = 11;
+  estadoSeleccionado: number = 11;
   numeroUnicoFiltro: string = '';
   fechaInicioFiltro: string = '';
   fechaFinFiltro: string = '';
@@ -78,7 +78,7 @@ export default class BandejaAnalistaComponent implements OnInit {
 
   //obtener datos
   obtenerDatosDeUsuario(): void{
-    this.usuario = this.autenticate.getUsuario;
+    this.usuario = this.autenticate.getUsuario();
     this.usuarioId = this.usuario.idUsuario;
     this.oficinaId = this.usuario.oficina.idOficina;
   }
@@ -211,7 +211,7 @@ export default class BandejaAnalistaComponent implements OnInit {
 
   obtenerOpcionesPorEstado(estado: string): string[] {
     switch (estado) {
-      case "En Análisis":
+      case "En Analisis":
         return ["Ver histórico", "Ver Solicitud"];
       default:
         return [];
