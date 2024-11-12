@@ -432,6 +432,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
 
   enviarSolicitud(): void {
     if (
+      (this.archivosAnalizarSeleccionados.length === 0) ||
       !this.numeroUnico ||
       !this.oficinaAnalisis ||
       !this.fechaHecho ||
