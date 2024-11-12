@@ -2,6 +2,8 @@
 
   <div class="row">
 
+    
+
     <!-- Columna izquierda -->
     <div class="col-md-6">
       <div class="form-group">
@@ -150,12 +152,14 @@
 <!-- Modal Archivos Respuesta -->
 <app-modal-informacion [isModalOpen]="modalArchivosVisible">
   <div class="modal-contenido">
-    <span class="cerrar" (click)="cerrarModalArchivosRespuesta()">&times;</span>
-    <h2>Subir Archivos</h2>
 
-    <input type="file" (change)="seleccionarArchivos($event)" multiple />
+    <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
 
-    <ul>
+    <label >SOLO SE PERMITEN ARCHIVOS WORD OFFICE +2007, PDF y TXT</label>
+    <label for="file-input" class="custom-file-upload">Seleccionar Archivos</label>
+    <input type="file" id="file-input" (change)="seleccionarArchivos($event)" multiple />
+
+    <ul class="file-list">
       <li *ngFor="let archivoRespuesta of archivosRespuesta">{{ archivoRespuesta.nombre }}</li>
     </ul>
   </div>
