@@ -46,10 +46,18 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
 
   modalArchivosVisible = false;
 
+  botonArchivosDeshabilitado: boolean = false;
+  botonTramitarDeshabilitado: boolean = false;
+
   // Variables para alertas
   alertatipo: string = "error";
   alertaMensaje: string = "";
   alertaVisible: boolean = false;
+
+  // Variables para alertas
+  alertatipo1: string = "error";
+  alertaMensaje1: string = "";
+  alertaVisible1: boolean = false;
 
 
   //Variables para la tabla de Requerimientos
@@ -144,8 +152,8 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
   seleccionarArchivos(event: any) {
     const seleccionados = event.target.files as FileList;
     const tiposPermitidos = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf', 'text/plain'];
-    const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB en bytes
-    const archivosValidos: Archivo[] = []; // Lista temporal para almacenar archivos válidos
+    const maxSizeInBytes = 5 * 1024 * 1024;
+    const archivosValidos: Archivo[] = []; 
 
     Array.from(seleccionados).forEach((file: File) => {
       const esTipoPermitido = tiposPermitidos.includes(file.type);
@@ -170,7 +178,6 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
         }, 3000);
       }
 
-      // Solo agregar el archivo si es válido en tipo y tamaño
       if (esTipoPermitido && esTamañoPermitido) {
         archivosValidos.push({
           nombre: file.name,
@@ -181,17 +188,10 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
       }
     });
 
-    // Actualiza la lista de archivos válidos acumulando los archivos previos con los nuevos
     this.archivosRespuesta = [...this.archivosRespuesta, ...archivosValidos];
 
-    // Limpiar el input de archivo para permitir una nueva selección
     event.target.value = '';
   }
-
-
-
-
-
 
   subirArchivosRespuesta() {
     if (this.archivosRespuesta.length > 0) {
@@ -280,6 +280,13 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
   tramitarSolicitudAnalisis() {
     this.actualizarEstadoAnalizado();
     this.subirArchivosRespuesta();
+    
+    this.alertatipo1 = "satisfaccion";
+    this.alertaMensaje1 = "Se respondio correctamente la solicitud de analisis";
+    this.alertaVisible1 = true;
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000);
     this.volverABandeja();
   }
 

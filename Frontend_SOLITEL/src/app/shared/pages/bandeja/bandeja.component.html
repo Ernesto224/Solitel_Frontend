@@ -523,8 +523,8 @@
           </div>
           <div>
             <label class="label" for="oficina">Oficina:</label>
-            <input type="text" id="oficina" class="input" [value]="solicitudSeleccionada.oficina.nombre" readonly
-              title="{{ solicitudSeleccionada.oficina.nombre }}">
+            <input type="text" id="oficina" class="input" 
+            [value]="solicitudSeleccionada.oficina? solicitudSeleccionada.oficina.nombre : 'N/A'" readonly>
           </div>
           <div>
             <label class="label" for="operadora">Operadora:</label>

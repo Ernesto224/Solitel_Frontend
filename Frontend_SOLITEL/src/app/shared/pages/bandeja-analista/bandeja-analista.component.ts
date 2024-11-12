@@ -22,7 +22,7 @@ export default class BandejaAnalistaComponent implements OnInit {
   usuarioId: number = 0;
   oficinaId: number = 0;
 
-  estadosPermitidos: string[] = ["Finalizado", "En Analisis", "Analizado"];
+  estadosPermitidos: string[] = ["Finalizado", "En Análisis", "Analizado"];
   estados: any[] = [];
   encabezados: any[] = [];
   solicitudesAnalisis: any[] = [];
@@ -211,7 +211,7 @@ export default class BandejaAnalistaComponent implements OnInit {
 
   obtenerOpcionesPorEstado(estado: string): string[] {
     switch (estado) {
-      case "En Analisis":
+      case "En Análisis":
         return ["Ver histórico", "Ver Solicitud"];
       default:
         return [];

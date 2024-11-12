@@ -165,11 +165,11 @@ export default class BandejaComponent implements OnInit {
       }
     },
     Analisis: {
-      'En Analisis': {
+      'En Análisis': {
         headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
         columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
       },
-      Analizando: {
+      Analizado: {
         headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
         columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
       },
@@ -355,7 +355,6 @@ export default class BandejaComponent implements OnInit {
 
   abrirModalHistorico(solicitud: any) {
     this.solicitudSeleccionada = solicitud;
-    console.log(this.solicitudSeleccionada);
     this.obtenerHistoricoSolicitud(this.solicitudSeleccionada.idSolicitudProveedor);
     this.modalHistoricoVisible = true;
   }
