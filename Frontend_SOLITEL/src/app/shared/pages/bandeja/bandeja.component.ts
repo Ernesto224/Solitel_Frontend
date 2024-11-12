@@ -283,6 +283,7 @@ export default class BandejaComponent implements OnInit {
           this.modalInvisible();
         },
         error: (err) => {
+          this.errorModalInfo();
           console.error('Error al obtener datos:', err);
           this.modalInvisible();
         },
@@ -555,6 +556,16 @@ export default class BandejaComponent implements OnInit {
     this.confirmarCambioEstado();
   }
 
+  errorModalInfo() {
+    this.alertatipo = "error";
+    this.alertaMensaje = "Hubo un error al momento de realizar la petición";
+    this.alertaVisible = true;
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000);
+
+  }
+
   confirmarCambioEstado() {
     if (this.solicitudIdParaActualizar) {
       const idUsuario = 1;
@@ -573,6 +584,8 @@ export default class BandejaComponent implements OnInit {
           this.obtenerSolicitudes();
         },
         error => {
+          this.cerrarModalCambioEstado();
+          this.errorModalInfo();
           console.error("Error al actualizar el estado:", error);
         }
       );
@@ -823,6 +836,12 @@ export default class BandejaComponent implements OnInit {
         this.obtenerSolicitudesAnalisis();
       },
       error: err => {
+        this.alertatipo = "error";
+        this.alertaMensaje = "Hubo un error al momento de realizar la petición";
+        this.alertaVisible = true;
+        setTimeout(() => {
+          this.alertaVisible = false;
+        }, 3000);
         console.error('Error al finalizar la solicitud de analisis:', err);
       }
     });
