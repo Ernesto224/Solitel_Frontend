@@ -841,9 +841,9 @@ export default class SolicitudProveedorComponent {
     this.solicitudProveedorService.consultarInfoNumeroUnico(numeroUnico).subscribe({
       next: (data: any) => {
 
-        this.idCategoriaDelitoSeleccionado = data.categoriaDelitoDTO.idCategoriaDelito;
-        this.idFiscaliaSeleccionada = data.fiscaliaDTO.idFiscalia;
-        this.idDelitoSeleccionado = data.delitoDTO.idDelito;
+        this.idCategoriaDelitoSeleccionado = data.categoriaDelito.idCategoriaDelito;
+        this.idFiscaliaSeleccionada = data.fiscalia.idFiscalia;
+        this.idDelitoSeleccionado = data.delito.idDelito;
         this.imputado = String(data.imputado);
         this.ofendido = String(data.ofendido);
         this.resennia = String(data.resennia);
