@@ -98,6 +98,24 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
     'Descargar'
   ];
 
+  //Variables para la tabla de Archivos de Respuesta
+  encabezadosArchivosRespuesta: any[] = [
+    { key: 'nombre', label: 'Nombre Documento' },
+  ];
+
+  accionesArchivosRespuesta: any[] = [
+    {
+      style: "background-color: #1C355C;",
+      class: "text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring w-[55px]",
+      action: (archivo: any) => this.descargarArchivo(archivo),
+      icon: 'download'
+    }
+  ];
+
+  encabezadosAccionesArchivosRespuesta: any[] = [
+    'Eliminar'
+  ];
+
   //Variables para el modal de confirmacion
   modalTramitadoVisible = false;
 
@@ -149,7 +167,7 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
     this.modalArchivosVisible = false;
   }
 
-  seleccionarArchivos(event: any) {
+  seleccionarArchivosRespuesta(event: any) {
     const seleccionados = event.target.files as FileList;
     const tiposPermitidos = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf', 'text/plain'];
     const maxSizeInBytes = 5 * 1024 * 1024;

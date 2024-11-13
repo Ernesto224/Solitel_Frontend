@@ -77,8 +77,7 @@
       <div class="form-group">
         <label for="campo12">Fecha del Hecho:</label>
         <input type="text" id="campo12" name="campo12" disabled
-        [(ngModel)]="solicitudAnalisisSeleccionada.fechaDelHecho"
-          class="form-control" />
+          [(ngModel)]="solicitudAnalisisSeleccionada.fechaDelHecho" class="form-control" />
       </div>
     </div>
     <div class="col-6">
@@ -92,8 +91,7 @@
       <div class="form-group">
         <label for="campo14">Detalle solicitud analisis:</label>
         <input type="text" id="campo14" name="campo14" disabled
-        [(ngModel)]="solicitudAnalisisSeleccionada.otrosDetalles"
-          class="form-control" />
+          [(ngModel)]="solicitudAnalisisSeleccionada.otrosDetalles" class="form-control" />
       </div>
     </div>
   </div>
@@ -139,7 +137,11 @@
   (cancelar)="cerrarModalConfirmarTramiado()">
   <div modal-header>
     <h2 class="text-xl font-semibold mb-4">Confirmacion Tramitación</h2>
-    <p>¿Estás seguro de que deseas tramitar la solicitud de análisis {{ idSolicitudAnalisisSeleccionada }}?</p>
+    <p>¿Estás seguro de que deseas tramitar la solicitud de análisis #{{ idSolicitudAnalisisSeleccionada }}?</p>
+    <div *ngIf="archivosRespuesta && archivosRespuesta.length > 0">
+      <p>Se enviaran los siguientes archivos</p>
+      <li *ngFor="let archivoRespuesta of archivosRespuesta">{{ archivoRespuesta.nombre }}</li>
+    </div>
   </div>
   <div class="mt-4" modal-content>
     <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
@@ -151,18 +153,22 @@
 
 <!-- Modal Archivos Respuesta -->
 <app-modal-informacion [isModalOpen]="modalArchivosVisible">
+  <div modal-header>
+    <h3 class="text-lg font-medium">Subir Archivos de Respuesta</h3>
+  </div>
+
   <div class="modal-contenido">
 
     <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
 
-    <label >SOLO SE PERMITEN ARCHIVOS WORD OFFICE +2007, PDF y TXT</label>
+    <label>FORMATOS PERMITIDOS: WORD OFFICE +2007, PDF y TXT</label>
     <label for="file-input" class="custom-file-upload">Seleccionar Archivos</label>
-    <input type="file" id="file-input" (change)="seleccionarArchivos($event)" multiple />
+    <input type="file" id="file-input" (change)="seleccionarArchivosRespuesta($event)" multiple />
 
-    <ul class="file-list">
-      <li *ngFor="let archivoRespuesta of archivosRespuesta">{{ archivoRespuesta.nombre }}</li>
-    </ul>
+    <app-tabla-visualizacion [headers]="encabezadosArchivos" [data]="archivosRespuesta" [actions]="accionesArchivos"
+      [actionsheaders]="encabezadosAccionesArchivos">
+    </app-tabla-visualizacion>
+
   </div>
   <button (click)="cerrarModalArchivosRespuesta()">Guardar</button>
-  <button (click)="quitarArchivos()">Cancelar</button>
 </app-modal-informacion>
