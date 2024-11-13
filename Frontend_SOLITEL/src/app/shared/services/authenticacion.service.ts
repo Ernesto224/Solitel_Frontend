@@ -14,58 +14,88 @@ export class AuthenticacionService {
     apellido: 'Melgara',
     correoElectronico: 'eliecermelgara1680@gmail.com',
     usuario: 'eliecer.melgara',
-    contrasennia: 'Melgara1212!',
+    contrasennia: 'asdfg123!',
     oficina: [
       {
         idOficina: 2,
-        nombre: '0059-DELEGACION REGIONAL DE HEREDIA',
+        nombre: 'DELEGACION REGIONAL DE HEREDIA',
         tipo: 'Investigacion',
         rol: {
           nombre: 'Administrador',
           permisos: [{ nombre: 'todos' }],
+        },
+      },{
+        idOficina: 3,
+        nombre:
+          'DELEGACION REGIONAL DE LIBERIA',
+        tipo: 'Investigacion',
+        rol: {
+          nombre: 'Jefatura Investigador',
+          permisos: [
+            { nombre: 'Crear Solicitud Proveedor' },
+            { nombre: 'Ver Solicitudes Proveedor Oficina' },
+            { nombre: 'Crear Solicitudes Analisis' },
+            { nombre: 'Ver Solicitudes Analisis Oficina' },
+            { nombre: 'Aprobar Solicitudes Proveedor' },
+            { nombre: 'Aprobar Solicitudes Analisis' },
+            { nombre: 'Aprobación Automatica' },
+          ],
+        },
+      },
+      {
+        idOficina: 11,
+        nombre: 'UNIDAD DE ANALISIS CRIMINAL',
+        tipo: 'Analisis',
+        rol: {
+          nombre: 'Jefatura Analista',
+          permisos: [
+            { nombre: 'Ver Solicitudes Analisis Oficina' },
+            { nombre: 'Asignar Solicitudes Analisis' },
+            { nombre: 'Responder Solicitudes Analisis' }
+          ],
         },
       },
     ],
   };
 
   private usuarioPrueba2 = {
-    idUsuario: 2,
-    nombre: 'Jesner',
-    apellido: 'Melgara',
-    correoElectronico: 'eliecermelgara1680@gmail.com',
-    usuario: 'eliecer.melgara',
-    contrasennia: 'Melgara1212!!',
+    idUsuario: 3,
+    nombre: 'Daniel',
+    apellido: 'Borges',
+    correoElectronico: 'danielborges2514@gmail.com',
+    usuario: 'daniel.borges',
+    contrasennia: 'asdfg123!',
     oficina: [
       {
-        idOficina: 1,
+        idOficina: 3,
         nombre:
-          '1101-CENTRO JUDICIAL DE INTERVENCION DE LAS COMUNICACIONES (CJIC)',
-        tipo: 'Investigacion',
-        rol: {
-          nombre: 'Jefatura de Investigador',
-          permisos: [
-            { nombre: 'Crear Solicitud Proveedor' },
-            { nombre: 'Ver solicitudes propias' },
-            { nombre: 'Crear solicitudes de analisis' },
-            { nombre: 'Aprobar Solicitudes' },
-          ],
-        },
-      },
-      {
-        idOficina: 2,
-        nombre: '0059-DELEGACION REGIONAL DE HEREDIA',
+          'DELEGACION REGIONAL DE LIBERIA',
         tipo: 'Investigacion',
         rol: {
           nombre: 'Investigador',
           permisos: [
             { nombre: 'Crear Solicitud Proveedor' },
-            { nombre: 'Ver solicitudes propias' },
-            { nombre: 'Crear solicitudes de analisis' },
+            { nombre: 'Ver Solicitudes Proveedor Propias' },
+            { nombre: 'Crear Solicitudes Analisis' },
+            { nombre: 'Ver Solicitudes Analisis Propias' },
+          ],
+        },
+      },
+      {
+        idOficina: 11,
+        nombre: 'UNIDAD DE ANALISIS CRIMINAL',
+        tipo: 'Analisis',
+        rol: {
+          nombre: 'Analista',
+          permisos: [
+            { nombre: 'Ver Solicitudes Analisis Propias' },
+            { nombre: 'Responder Solicitudes Analisis' }
           ],
         },
       },
     ],
   };
+
 
   usuarios = [this.usuarioPrueba, this.usuarioPrueba2];
 
@@ -123,12 +153,18 @@ export class AuthenticacionService {
   }
 
   tienePermiso(permiso: string): boolean {
-    const usuario = this.getUsuario();
+    const usuario: any = this.getUsuario();
+  
+    // Verificación de la existencia de propiedades requeridas
     if (!usuario || !usuario.oficina || !usuario.oficina.rol || !Array.isArray(usuario.oficina.rol.permisos)) {
       return false;
     }
-    return usuario.oficina.rol.permisos.some((p: { nombre: string }) => p.nombre === permiso || p.nombre === 'todos');
+  
+    // Verificación de permisos
+    return usuario.oficina.rol.permisos.some((p: any) => p.nombre === permiso || p.nombre === 'todos');
   }
+  
+  
 
   agregarUsuario(usuario: any) {
     if (this.isSessionStorageAvailable()) {
