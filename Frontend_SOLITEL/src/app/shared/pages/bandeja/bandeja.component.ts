@@ -454,11 +454,10 @@ export default class BandejaComponent implements OnInit {
   }
 
   limpiarFiltros() {
-    this.estadoSeleccionado = this.estadoTemporal;
+    this.filtroCaracter = ''
     this.numeroUnicoFiltro = '';
     this.fechaInicioFiltro = '';
     this.fechaFinFiltro = '';
-    this.filtrarSolicitudes();
   }
 
   actualizarPaginacion() {
