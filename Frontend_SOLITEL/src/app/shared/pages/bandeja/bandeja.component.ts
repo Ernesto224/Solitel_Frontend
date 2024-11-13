@@ -39,7 +39,7 @@ export default class BandejaComponent implements OnInit {
   oficinaId: any = null;
 
   // Estados y seleccionados
-  estadoSeleccionado: any = {};
+  estadoSeleccionado: any = {idEstado: 3, nombre: "Creado", tipo: "Proveedor"};
   estadoTemporal: string = 'Creado';
   idEstadoSeleccionado: number = 3;
   estados: any[] = [];
@@ -262,9 +262,9 @@ export default class BandejaComponent implements OnInit {
     this.estadoService.obtenerEstados(this.usuarioId, this.oficinaId).subscribe({
       next: (estados) => {
         this.estados = estados;
+        console.log(estados);
         this.estadosProveedor = estados.filter(estado => estado.tipo === 'Proveedor');
         this.estadosAnalisis = estados.filter(estado => estado.tipo === 'Analisis');
-        this.estadoSeleccionado = this.estados[0];
       },
       error: (err) => {
         console.error('Error al obtener datos:', err);
@@ -278,6 +278,7 @@ export default class BandejaComponent implements OnInit {
       this.fechaFinFiltro, this.numeroUnicoFiltro, this.oficinaId, this.usuarioId).subscribe({
         next: (value) => {
           this.solicitudes = value;
+          console.log(this.solicitudes)
           this.reiniciarDatosDeTabla();
           this.actualizarPaginacion();
           this.modalInvisible();
@@ -295,6 +296,7 @@ export default class BandejaComponent implements OnInit {
       this.fechaFinFiltro, this.numeroUnicoFiltro, this.oficinaId, this.usuarioId).subscribe({
         next: (value) => {
           this.solicitudes = value;
+          console.log(this.solicitudes)
           this.reiniciarDatosDeTabla();
           this.actualizarPaginacion();
           this.modalInvisible();
@@ -309,11 +311,11 @@ export default class BandejaComponent implements OnInit {
   obtenerOpcionesPorEstado(estado: string): string[] {
     switch (estado) {
       case "En Análisis":
-        return ["Ver histórico", "Ver Solicitud"];
+        return ["Ver histórico", "Ver Solicitud", "Enviar a legajo solicitud de análisis"];
       case "Analizado":
         return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Agregar informe", "Finalizar solicitud de análisis", "Enviar a legajo solicitud de análisis"];
       case "Aprobar Analisis":
-        return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior", "Aprobar Solicitud"];
+        return ["Ver histórico", "Ver Solicitud", "Aprobar Solicitud"];
       case "Finalizado":
         return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior"];
       case "Legajo":
@@ -327,6 +329,7 @@ export default class BandejaComponent implements OnInit {
   reiniciarDatosDeTabla(): void {
     this.numeroDePagina = 1;
     this.solicitudesFiltradas = this.solicitudes;
+    console.log(this.estadoSeleccionado)
     this.encabezados = this.estadoColumnas[this.estadoSeleccionado.tipo][this.estadoSeleccionado.nombre].headers;
     this.columnasVisibles = this.estadoColumnas[this.estadoSeleccionado.tipo][this.estadoSeleccionado.nombre].columnasVisibles;
   }
@@ -458,6 +461,7 @@ export default class BandejaComponent implements OnInit {
     this.numeroUnicoFiltro = '';
     this.fechaInicioFiltro = '';
     this.fechaFinFiltro = '';
+    this.filtrarSolicitudes();
   }
 
   actualizarPaginacion() {
@@ -497,18 +501,32 @@ export default class BandejaComponent implements OnInit {
   aplicarFiltroCaracter() {
     if (this.filtroCaracter) {
       const filtro = this.filtroCaracter.toLowerCase();
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
-        solicitud.numeroCaso?.toLowerCase().includes(filtro) ||
-        solicitud.imputado?.toLowerCase().includes(filtro) ||
-        solicitud.ofendido?.toLowerCase().includes(filtro) ||
-        solicitud.usuarioCreador?.nombre.toLowerCase().includes(filtro) ||
-        solicitud.usuarioCreador?.apellido?.toLowerCase().includes(filtro) ||
-        solicitud.delito?.nombre.toLowerCase().includes(filtro) ||
-        solicitud.operadoras[0]?.nombre.toLowerCase().includes(filtro)
+  
+      // Helper function to format dates to dd/MM/yyyy
+      const formatFecha = (fecha: string | null) => {
+        if (!fecha) return '';
+        const date = new Date(fecha);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+  
+      // Filtro principal basado en los criterios solicitados
+      this.solicitudesFiltradas = this.solicitudes.filter(solicitud =>
+        solicitud.idSolicitudAnalisis?.toString().includes(filtro) || // Filtrado por idSolicitudAnalisis (si aplica)
+        solicitud.idSolicitudProveedor?.toString().includes(filtro) || // Filtrado por idSolicitudProveedor (si aplica)
+        (solicitud.fechaCreacion && formatFecha(solicitud.fechaCreacion).includes(filtro)) || // Filtrado por fecha
+        (solicitud.proveedor?.nombre?.toLowerCase().includes(filtro) || // Filtrado por proveedor
+         solicitud.operadoras?.some((prov: any) => prov.nombre?.toLowerCase().includes(filtro))) || // Filtrado por operadoras si aplica
+        (solicitud.usuarioCreador?.nombre?.toLowerCase().includes(filtro) || // Filtrado por nombre de usuario creador
+         solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
       );
+  
+      this.actualizarPaginacion();
     }
   }
-
+  
   cargarArchivos(idRequerimiento: number): void {
     this.archivoService.obtenerArchivosDeSolicitud(idRequerimiento).subscribe((archivos: any[]) => {
       this.archivos = archivos;
@@ -552,16 +570,16 @@ export default class BandejaComponent implements OnInit {
 
   confirmarCambioEstado() {
     if (this.solicitudIdParaActualizar) {
-      const usuario = this.autenticate.getUsuario();
       this.solicitudProveedorService.actualizarEstado(
         this.solicitudIdParaActualizar,
         this.nuevoEstado,
-        usuario.idUsuario,
+        this.usuarioId,
         this.observacion
       ).subscribe(
         response => {
           // Eliminar la solicitud de la lista de solicitudes filtradas // NO HACE FALTA PORQUE LA TABLA SE RECARGA
           this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud => solicitud.idSolicitudProveedor !== this.solicitudIdParaActualizar);
+          this.obtenerEstados();
           this.cerrarModalCambioEstado();
           this.obtenerSolicitudes();
         },
@@ -711,7 +729,8 @@ export default class BandejaComponent implements OnInit {
   }
 
   actualizarEstadoLegajoAnalisis() {
-    this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionLegajoAnalisis).subscribe({
+    this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 
+      this.usuarioId, this.observacionLegajoAnalisis).subscribe({
       next: response => {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis Movida a Legajo";
@@ -727,6 +746,7 @@ export default class BandejaComponent implements OnInit {
         console.error('Error al mover a legajo la solicitud de analisis:', err);
       }
     });
+    this.obtenerEstados();
     this.cerrarModalLegajoAnalisis();
   }
 
@@ -758,6 +778,7 @@ export default class BandejaComponent implements OnInit {
         console.error('Error al aprobar la solicitud de analisis:', err);
       }
     });
+    this.obtenerEstados();
     this.cerrarModalAprobarAnalisis();
   }
 
@@ -773,7 +794,8 @@ export default class BandejaComponent implements OnInit {
   }
 
   devolverAnalizadoSolicitudAnalisis() {
-    this.analisisTelefonicoService.devolverAnalizado(this.idSolicitudAnalisisSeleccionada, 1, this.observacionDevolverAnalizado).subscribe({
+    this.analisisTelefonicoService.devolverAnalizado(this.idSolicitudAnalisisSeleccionada, 
+        this.usuarioId, this.observacionDevolverAnalizado).subscribe({
       next: response => {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis devuelta a Analizado";
@@ -788,6 +810,7 @@ export default class BandejaComponent implements OnInit {
         console.error('Error al devolver la solicitud de analisis:', err);
       }
     });
+    this.obtenerEstados();
     this.cerrarModalDevolverAnalizado();
   }
 
@@ -813,6 +836,7 @@ export default class BandejaComponent implements OnInit {
           this.alertaVisible = false;
         }, 3000);
         this.observacionFinalizarAnalisis = '';
+        this.obtenerEstados();
         this.obtenerSolicitudesAnalisis();
       },
       error: err => {

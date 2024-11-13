@@ -23,7 +23,7 @@
       <div class="form-group filter-full-width">
         <label for="filtro-caracter">Filtrar por carácter:</label>
         <input type="text" id="filtro-caracter" class="w-full p-2 border rounded" placeholder="Ingrese carácter"
-          [(ngModel)]="filtroCaracter">
+          [(ngModel)]="filtroCaracter" (ngModelChange)="aplicarFiltroCaracter()">
       </div>
 
       <!-- Estado -->
@@ -577,7 +577,7 @@
       </app-tabla-visualizacion>
     </div>
     <!-- Contenedor para botones de archivos -->
-    <div *ngIf="archivos && archivos.length > 0 && mostrarTablaProveedor" class="mt-4">
+    <div *ngIf="archivos && archivos.length > 0" class="mt-4">
       <button *ngFor="let archivo of archivos" class="text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring"
         style="background-color: #1C355C;" (click)="descargarArchivo(archivo)">
         {{ archivo.nombre }}
