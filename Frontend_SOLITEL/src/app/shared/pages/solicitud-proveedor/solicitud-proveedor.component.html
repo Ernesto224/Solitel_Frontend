@@ -1,62 +1,376 @@
-<!-- component -->
-<div class="min-h-screen flex flex-col">
-  <!-- Navbar -->
-  <app-navbar class="fixed top-0 w-full z-10"></app-navbar>
-
-  <!-- Layout principal con Sidebar y contenido -->
-  <div class="flex flex-grow mt-[72px]">
-    <!-- Ajuste del margen para evitar que el contenido se superponga con el navbar -->
-    <!-- Sidebar -->
-    <app-sidebar class="w-64 fixed top-[72px] h-[calc(100vh-72px)] z-10"></app-sidebar>
-
-    <!-- Contenido -->
-    <div class="flex-grow ml-64 p-4">
-      <div class="mt-12">
-
-        <div>
-          <h1 class="text-3xl font-bold mb-6">Formulario de Solicitudes de Proveedor</h1>
-
-          <div class="space-y-8">
-            <!-- Sección 1: Información del Proveedor -->
-            <section>
-              <h2 class="text-2xl font-semibold mb-4">Información del Proveedor</h2>
-              <p class="mb-2">Complete la siguiente información para enviar una solicitud al proveedor.</p>
-              <form class="space-y-4">
-                <div>
-                  <label for="nombre-proveedor" class="block text-lg font-medium">Nombre del Proveedor</label>
-                  <input type="text" id="nombre-proveedor" class="w-full p-2 border border-gray-300 rounded-md">
+<!-- Contenido principal -->
+<div class="flex flex-col mb-0 pb-0">
+  <main class="flex-grow ml-64 p-4">
+    <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
+    <div class="mt-12">
+      <div class="space-y-8">
+        <!-- Formulario de solicitudes -->
+        <section class="form-container">
+          <h2>Solicitud archivos telefónicos a proveedor</h2>
+          <hr>
+          <form>
+            <div>
+              <!-- Primera fila de campos -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="numero-unico">Número único:</label>
+                  <div class="input-group">
+                    <input type="text" id="numero-unico" [(ngModel)]="numeroUnico" name="numeroUnico"
+                      placeholder="00-000000-0000-ab">
+                    <button (click)="buscarInfoNumeroUnico(numeroUnico)" type="button" class="search-btn">
+                      <i class="material-icons">search</i>
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <label for="correo-proveedor" class="block text-lg font-medium">Correo Electrónico</label>
-                  <input type="email" id="correo-proveedor" class="w-full p-2 border border-gray-300 rounded-md">
+                <div class="form-group">
+                  <label for="urgente">Urgente:</label>
+                  <button type="button" id="urgente-btn" class="urgente-btn" [ngClass]="{'active': isUrgent}"
+                    (click)="toggleUrgente()">
+                    Urgente
+                  </button>
                 </div>
-                <div>
-                  <label for="descripcion" class="block text-lg font-medium">Descripción de la Solicitud</label>
-                  <textarea id="descripcion" class="w-full p-2 border border-gray-300 rounded-md" rows="4"></textarea>
+              </div>
+              <!-- Segunda fila de campos -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="numero-caso">Número caso:</label>
+                  <input type="text" id="numero-caso" [(ngModel)]="numeroCaso" name="numeroCaso">
                 </div>
-              </form>
+                <div class="form-group">
+                  <label for="oficina">Oficina:</label>
+                  <select id="oficina" [(ngModel)]="idOficinaSeleccionada" name="idOficinaSeleccionada">
+                    <option value="{{idOficinaSeleccionada}}" disabled selected>{{nombreOficina}}</option>
+                    <!--option *ngFor="let oficina of oficinas" [value]="oficina.tN_IdOficina">
+                    {{ oficina.tC_Nombre }}
+                  </option-->
+                  </select>
+                </div>
+              </div>
+              <!-- Tercera fila de campos -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fiscalia">Fiscalía:</label>
+                  <select id="fiscalia" class="required-field" [(ngModel)]="idFiscaliaSeleccionada"
+                    name="idFiscaliaSeleccionada" required
+                    [disabled]="isFiscaliaDisabled">
+                    <option value="">Seleccione</option>
+                    <option *ngFor="let fiscalia of fiscalias" [value]="fiscalia.idFiscalia">{{ fiscalia.nombre }}
+                    </option>
+                  </select>
+                </div>
+                <!-- Campo de operadora usando multiselect -->
+                <div class="form-group">
+                  <label for="operadora">Operadora:</label>
+                  <ng-multiselect-dropdown class="custom-multiselect-dropdown" [placeholder]="'Seleccione'"
+                    [data]="operadoras" [(ngModel)]="operadoraSeleccionada" [settings]="dropdownSettings"
+                    name="idOperadoraSeleccionada" required [ngClass]="{'invalid': operadoraSeleccionada.length === 0}">
+                  </ng-multiselect-dropdown>
+                </div>
+              </div>
+              <!-- Cuarta fila de campos -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="categoria-delito">Categoría delito:</label>
+                  <select id="categoria-delito" class="required-field" [(ngModel)]="idCategoriaDelitoSeleccionado"
+                    (change)="onCategoriaDelitoChange()" name="idCategoriaDelitoSeleccionado" required
+                    [disabled]="isCategoriaDelitoDisabled">
+                    <option value="">Seleccione</option>
+                    <option *ngFor="let categoria of categoriasDelito" [value]="categoria.idCategoriaDelito">
+                      {{ categoria.nombre }}
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="delito">Delito:</label>
+                  <select id="delito" class="required-field" [(ngModel)]="idDelitoSeleccionado"
+                    name="idDelitoSeleccionado" required
+                    [disabled]="isDelitoDisabled">
+                    <option value="">Seleccione</option>
+                    <option *ngFor="let delito of delitos" [value]="delito.idDelito">
+                      {{ delito.nombre }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <!-- Quinta fila de campos -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="modalidad">Modalidad:</label>
+                  <select id="modalidad" class="required-field" [(ngModel)]="idModalidadSeleccionada"
+                    (change)="onModalidadChange()" name="idModalidadSeleccionada" required>
+                    <option value="0">Seleccione</option>
+                    <option *ngFor="let modalidad of modalidades" [value]="modalidad.idModalidad">
+                      {{ modalidad.nombre }}
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="submodalidad">Submodalidad:</label>
+                  <select id="submodalidad" class="required-field" [(ngModel)]="idSubModalidadSeleccionada"
+                    name="idSubModalidadSeleccionada" required>
+                    <option value="0">Seleccione</option>
+                    <option *ngFor="let submodalidad of subModalidades" [value]="submodalidad.idSubModalidad">
+                      {{ submodalidad.nombre }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <!-- Sexta fila de campos -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="imputado">Imputado:</label>
+                  <input type="text" id="imputado" class="required-field" [(ngModel)]="imputado" name="imputado"
+                    required>
+                </div>
+                <div class="form-group">
+                  <label for="ofendido">Ofendido:</label>
+                  <input type="text" id="ofendido" class="required-field" [(ngModel)]="ofendido" name="ofendido"
+                    required>
+                </div>
+              </div>
+              <!-- Reseña -->
+              <div class="form-group">
+                <label for="resena">Reseña:</label>
+                <textarea id="resena" [(ngModel)]="resennia" name="resennia" class="required-field" required></textarea>
+              </div>
+            </div>
+            <section class="mt-8">
+              <h2>Registros de requerimientos</h2>
+              <hr>
+              <!-- Registros de requerimientos -->
+              <div class="form-row">
+                <!-- Tipo de Solicitud -->
+                <div class="form-group">
+                  <label for="tipo-solicitud">Tipo de Solicitud:</label>
+                  <ng-multiselect-dropdown id="tipo-solicitud" [(ngModel)]="tipoSolicitudSeleccionada"
+                    [data]="tiposSolicitud" [settings]="dropdownSettings2"
+                    [placeholder]="'Seleccione tipos de solicitud'" name="tipoSolicitudSeleccionada"
+                    class="custom-multiselect-dropdown" required
+                    [ngClass]="{'invalid': tipoSolicitudSeleccionada.length === 0}">
+                  </ng-multiselect-dropdown>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="dato-requerido">Dato requerido:</label>
+                  <div class="input-group">
+                    <input type="text" id="lista-datos-requeridos" [value]="getListaDatosFormateados()"
+                      class="required-field" [ngClass]="{'invalid': getListaDatosFormateados() === ''}" disabled>
+                    <button type="button" class="search-btn" (click)="openModal()">
+                      <i class="material-icons">phone_enabled</i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <!-- Fechas -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fecha-inicio">Fecha inicio:</label>
+                  <input type="datetime-local" id="fecha-inicio" [(ngModel)]="fechaInicio" name="fechaInicio" required>
+                </div>
+                <div class="form-group">
+                  <label for="fecha-final">Fecha final:</label>
+                  <input type="datetime-local" id="fecha-final" [(ngModel)]="fechaFinal" name="fechaFinal" required>
+                </div>
+              </div>
+              <!-- Requerimiento -->
+              <div class="form-group">
+                <label for="requerimiento">Requerimiento:</label>
+                <textarea id="requerimiento" [(ngModel)]="requerimiento" name="requerimiento" class="required-field"
+                  required></textarea>
+              </div>
+              <!-- Botones -->
+              <section class="center-buttons p-6 flex justify-end space-x-4">
+                <div class="buttons-row space-x-4">
+                  <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                  py-2 rounded 
+                  focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                    (click)="limpiarFormulario()">
+                    <i class="material-icons">remove</i>
+                    <span>Limpiar</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary text-[#FFFFFF] px-4 
+                  py-2 rounded
+                  focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                    (click)="agregarSolicitud()">
+                    <i class="material-icons">add</i>
+                    <span>Agregar</span>
+                  </button>
+                  <button type="button" class="btn btn-tertiary text-[#FFFFFF] px-4 
+                    py-2 rounded 
+                    focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                    (click)="actualizarSolicitud()">
+                    <i class="material-icons">edit_square</i>
+                    <span>Editar</span>
+                  </button>
+                </div>
+              </section>
             </section>
-
-            <!-- Sección 2: Estado de Solicitudes -->
-            <section>
-              <h2 class="text-2xl font-semibold mb-4">Solicitudes Pendientes</h2>
-              <p class="mb-2">Aquí puede ver el estado de las solicitudes enviadas a los proveedores.</p>
-              <ul class="list-disc pl-6 space-y-2">
-                <li>Solicitud 1: Pendiente de respuesta.</li>
-                <li>Solicitud 2: Aprobada por el proveedor.</li>
-                <li>Solicitud 3: Rechazada por el proveedor.</li>
-              </ul>
-            </section>
-          </div>
-        </div>
-
-
-        <router-outlet></router-outlet>
+          </form>
+          <!-- Tabla para mostrar las solicitudes agregadas -->
+          <section class="mt-8">
+            <h2>Lista de Solicitudes Agregadas</h2>
+            <hr>
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th>Acciones</th>
+                  <th>Tipo de Solicitud</th>
+                  <th>Requerimiento</th>
+                  <th>Dato Requerido</th>
+                  <th>Rango de Fechas</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let solicitud of listaSolicitudes; let i = index">
+                  <!-- Botón de eliminar -->
+                  <td>
+                    <div class="buttons-row space-x-4">
+                      <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                        py-2 rounded 
+                        focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                        (click)="eliminarSolicitud(i)">
+                        <i class="material-icons">delete</i>
+                      </button>
+                      <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                          py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                        (click)="editarSolicitud(i)">
+                        <i class="material-icons">edit</i>
+                      </button>
+                    </div>
+                  </td>
+                  <!-- Mostrar los tipos de solicitud -->
+                  <td>
+                    <span *ngFor="let tipo of solicitud.tipoSolicitudes; let last = last">
+                      {{ tipo.nombre }}<span *ngIf="!last">, </span>
+                    </span>
+                  </td>
+                  <!-- Mostrar el requerimiento -->
+                  <td>{{ solicitud.tC_Requerimiento }}</td>
+                  <!-- Mostrar los datos requeridos -->
+                  <td>
+                    <span *ngFor="let dato of solicitud.datosRequeridos; let last = last">
+                      {{ dato.tC_DatoRequerido }} ({{ dato.tC_Motivacion }})<span *ngIf="!last">, </span>
+                    </span>
+                  </td>
+                  <!-- Mostrar el rango de fechas -->
+                  <td>
+                    {{ solicitud.tF_FechaInicio | date: 'dd/MM/yyyy HH:mm' }} al
+                    {{ solicitud.tF_FechaFinal | date: 'dd/MM/yyyy HH:mm' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <hr>
+          </section>
+          <!-- Botones -->
+          <section class="center-buttons p-6 flex justify-center space-x-4">
+            <div class="buttons-row space-x-4">
+              <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                      py-2 rounded 
+                      focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                (click)="limpiarTodo()">
+                <i class="material-icons">cached</i>
+                <span>Limpiar</span>
+              </button>
+              <button type="button" class="btn btn-secondary text-[#FFFFFF] px-4 
+                      py-2 rounded
+                      focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                (click)="abrirModalConfirmacion()">
+                <i class="material-icons">save</i>
+                <span>Guardar</span>
+              </button>
+            </div>
+          </section>
+        </section>
       </div>
     </div>
+  </main>
+</div>
 
+ <!-- Modal Confirmacion -->
+ <app-modal-confirmacion [modalEstadoVisible]="modalConfirmacionisible" (confirmar)="guardarSolicitud()"
+ (cancelar)="cerrarModalConfirmacion()">
+ <div modal-header>
+   <h2 class="text-xl font-semibold mb-4">Confirmacion Tramitación</h2>
+   <p>¿Estás seguro de que desea registrar la solicitud?</p>
+ </div>
+</app-modal-confirmacion>
+
+<!-- Modal -->
+<div class="modal-container" [ngClass]="{ 'hidden': !isModalOpen }">
+  <div class="modal-content">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h5>Dato requerido</h5>
+      <button type="button" (click)="closeModal()">✕</button> <!-- Botón de cerrar -->
+    </div>
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <form>
+        <!-- Tipo Dato -->
+        <div class="form-group">
+          <label for="tipo-dato">Tipo de Dato:</label>
+          <select id="tipo-dato" class="required-field" [(ngModel)]="tipoDatoSeleccionado" name="tipoDatoSeleccionado"
+            (change)="onTipoDatoChange()" [disabled]="tipoDatoSeleccionadoBloqueado" required>
+            <option value="">Seleccione un tipo de dato</option>
+            <option *ngFor="let tipo of tiposDato" [ngValue]="tipo"> <!-- Guardar el objeto completo -->
+              {{ tipo.nombre }} <!-- Mostrar el nombre, pero guardar todo el objeto -->
+            </option>
+          </select>
+        </div>
+        <!-- Dato requerido -->
+        <div class="form-group">
+          <label for="dato-requerido">Dato requerido:</label>
+          <input type="text" id="dato-requerido" [(ngModel)]="datoRequerido" name="datoRequerido"
+            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required (copy)="false"
+            (cut)="false" (paste)="false">
+        </div>
+        <!-- Repita el dato requerido -->
+        <div class="form-group">
+          <label for="repita-dato">Repita el dato requerido:</label>
+          <input type="text" id="repita-dato" [(ngModel)]="repitaDatoRequerido" name="repitaDatoRequerido"
+            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required (copy)="false"
+            (cut)="false" (paste)="false">
+        </div>
+        <!-- Ingrese una motivación -->
+        <div class="form-group">
+          <label for="motivation">Ingrese una motivación:</label>
+          <textarea id="motivation" [(ngModel)]="motivation" name="motivation" required></textarea>
+          <div class="motivation-buttons">
+            <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                    py-2 rounded 
+                    focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+              (click)="eliminarDatoRequerido()">
+              <i class="material-icons">remove</i>
+            </button>
+            <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                    py-2 rounded 
+                    focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+              (click)="agregarDatoRequerido()">
+              <i class="material-icons">add</i>
+            </button>
+          </div>
+        </div>
+        <!-- Mensaje de error -->
+        <div *ngIf="errorMessage" class="error-message" style="color: red;">
+          {{ errorMessage }}
+        </div>
+        <!-- Lista de datos requeridos -->
+        <div class="form-group">
+          <label for="lista-datos">Lista de datos requeridos:</label>
+          <select id="lista-datos" [(ngModel)]="selectedDatoRequerido" name="listaDatosRequeridos" [ngClass]="{}">
+            <option value="">Seleccione un dato requerido</option>
+            <option *ngFor="let item of listaDatosRequeridos" [ngValue]="item">
+              {{ item.tC_DatoRequerido }}
+            </option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn-primary" (click)="closeModal()">Aceptar</button>
+    </div>
   </div>
-
-  <!-- Footer -->
-  <app-footer class="w-full"></app-footer>
 </div>

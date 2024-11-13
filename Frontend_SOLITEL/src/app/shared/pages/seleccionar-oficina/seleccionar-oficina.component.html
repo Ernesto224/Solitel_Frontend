@@ -1,0 +1,20 @@
+<app-navbar-simple></app-navbar-simple>
+
+<div class="flex justify-center items-center min-h-[87vh] bg-gray-100">
+    <div class="office-selection-container">
+        <div class="office-selection-input-container">
+            <label for="office-select" class="office-selection-label">
+                Favor seleccione la oficina en la que desea trabajar:
+            </label>
+            <select [(ngModel)]="idOficinaSeleccionada" id="office-select" name="office" class="office-selection-select"
+                (change)="guardarUsuarioOficina()">
+                <option value="" disabled selected>Seleccione una oficina</option>
+                <option *ngFor="let oficina of oficinas" [value]="oficina.idOficina">
+                    {{ oficina.nombre }}
+                </option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<app-footer></app-footer>

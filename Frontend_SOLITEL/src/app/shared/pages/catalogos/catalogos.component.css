@@ -1,0 +1,135 @@
+/* Estilo para la caja de filtro */
+.filter-container {
+  background-color: #f9e4b7;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 800px; /* Ampliar el ancho máximo */
+  margin: 0 auto 30px; /* Ajustar el margen para separar la tabla */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para el encabezado del filtro */
+.filter-container h2 {
+  text-align: center;
+  color: #8b6e39;
+  font-size: 24px;
+}
+
+/* Diseño del formulario: 2 columnas */
+.filter-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Dos columnas */
+  grid-gap: 15px;
+  margin-top: 20px;
+}
+
+/* El filtro por carácter ocupará ambas columnas */
+.filter-full-width {
+  grid-column: span 2; /* Hacer que el campo ocupe ambas columnas */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Estilo de los campos del formulario */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  color: #5b4535;
+  margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="date"],
+select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  text-align: center;
+  width: 100%;
+}
+
+select {
+  appearance: none;
+  background-color: #fff;
+}
+
+#pageSize {
+  margin-bottom: 1em;
+  margin-top: 1em;
+  width: 5em;
+  height: 2em;
+  padding: 0;
+  background-color: #fff;
+}
+
+/* Badge dinámico */
+.badge-container {
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 5px 10px;
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+/* Ajuste de los botones */
+.button-group {
+  grid-column: span 2; /* Hacer que los botones ocupen las dos columnas */
+  display: flex;
+  justify-content: center; /* Centramos los botones */
+  gap: 10px; /* Espaciado entre botones */
+  margin-top: 20px; /* Espacio adicional encima de los botones */
+}
+
+/* Estilo para los botones */
+.btn {
+  background-color: #1e73be;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.btn.limpiar {
+  background-color: #0066cc;
+}
+
+.btn.filtrar {
+  background-color: #00509d;
+}
+
+.btn:hover {
+  opacity: 0.8;
+}
+
+/* Alineación correcta de iconos y texto en los botones */
+.button-group .btn {
+  display: flex;
+  align-items: center; /* Alinear el icono y el texto verticalmente */
+  justify-content: center; /* Alinear el contenido horizontalmente */
+  gap: 8px; /* Espacio entre el icono y el texto */
+}
+
+.button-group .btn i {
+  font-size: 18px; /* Ajustar el tamaño del icono si es necesario */
+  line-height: 0; /* Asegurarse de que el icono esté alineado correctamente */
+}
+
+/* Espaciado entre el filtro y la tabla */
+.table {
+  margin-top: 20px; /* Separar la tabla del filtro */
+}

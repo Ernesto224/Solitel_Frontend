@@ -1,25 +1,57 @@
-<!-- component -->
-<nav class="flex bg-custom-blue items-center relative justify-between px-5 py-6 w-full">
-
-    <div class="flex items-center space-x-2">
-        <!-- Icono SVG -->
-        <svg width="41" height="39" viewBox="0 0 41 39" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Contenido del Icono SVG -->
-        </svg>
-
-       
-    </div>
-
-
-    <div class="flex items-center text-[#92aa34]">
-        <!-- Texto "Investigador de Golfito" -->
-        <span class="text-lg font-semibold whitespace-nowrap">Investigador de Golfito</span>
-
-        <!-- Imagen de perfil -->
-        <div
-            class="h-10 w-10 hover:ring-4 user cursor-pointer relative ring-blue-700/30 rounded-full bg-cover bg-center bg-[url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80')] ml-2">
-            <div class="drop-down w-48 overflow-hidden bg-white rounded-md shadow absolute top-12 right-3"></div>
+<div class="flex flex-col h-screen">
+    <!-- Navbar -->
+    <nav class="flex items-center justify-between bg-custom-blue px-5 py-4 w-full fixed top-0 left-0 z-50">
+        <div class="flex items-center space-x-4">
+            <!-- Hamburger Menu (Moved to the left) -->
+            <button (click)="toggleSidebar()" type="button" class="text-2xl text-[#92aa34] hover:text-[#92aa34]">
+                <svg *ngIf="!isSidebarVisible" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor" class="h-8 w-8">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+                <svg *ngIf="isSidebarVisible" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor" class="h-8 w-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <!-- Texto de identificación -->
+            <div>
+                <h1 class="text-lg font-bold text-[#92aa34]">Organismo de Investigación</h1>
+                <h2 class="text-lg text-[#92aa34]">Judicial SOLITEL</h2>
+            </div>
         </div>
-    </div>
+        <!-- Profile Dropdown Menu (Moved to the right) -->
+        <div class="relative inline-block text-left">
+            <div class="flex items-center space-x-2 cursor-pointer" (click)="toggleProfileDropdown()">
+                <!-- Texto de perfil a la izquierda -->
+                <span class="text-[#92aa34] text-end">{{ usuarioOficina }} <br> {{ usuarioNombre }}</span>
 
-</nav><q></q>
+                <!-- Icono de perfil a la derecha del texto -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-8 h-8 text-[#92aa34]">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 18.75a7.5 7.5 0 0115 0v.75H4.5v-.75z" />
+                </svg>
+            </div>
+            <!-- Dropdown menu -->
+            <div *ngIf="isProfileDropdownVisible"
+                class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-gray-700 ring-1 ring-black ring-opacity-5">
+                <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                    <a href="#" routerLink="/seleccionar-oficina"
+                        class="block px-4 py-2 text-sm text-white hover:bg-gray-600" role="menuitem">
+                        Cambiar de oficina</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-white hover:bg-gray-600" role="menuitem"
+                        (click)="logout()">Cerrar sesión</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Sidebar -->
+    <app-sidebar [isSidebarVisible]="isSidebarVisible"></app-sidebar>
+    <!-- Content -->
+    <div [class.ml-64]="isSidebarVisible" class="flex-grow p-6 transition-all duration-300 ease-in-out mt-16">
+        <ng-content></ng-content> <!-- This will be the dynamic content from other pages -->
+    </div>
+    <!-- Footer -->
+    <app-footer class="w-full"></app-footer>
+</div>
