@@ -15,17 +15,12 @@
             <section class="form-group">
               <label>Número único:</label>
               <div class="input-group">
-                <select
-                  [(ngModel)]="numeroUnico"
-                  (change)="
+                <select [(ngModel)]="numeroUnico" (change)="
                     numeroUnico !== null
                       ? cargarSolicitudesPorNumeroUnico(numeroUnico.toString())
                       : null
-                  "
-                  class="input select required-field"
-                  required
-                  [ngClass]="{'ng-invalid ng-touched': !numeroUnico && numeroUnico !== null}"
-                >
+                  " class="input select required-field" required
+                  [ngClass]="{'ng-invalid ng-touched': !numeroUnico && numeroUnico !== null}">
                   <option value="" disabled [selected]="!numeroUnico">Seleccione el Número Unico</option>
                   <option *ngFor="let numero of numerosUnicos" [value]="numero">
                     {{ numero }}
@@ -37,32 +32,20 @@
             <!-- Solicitudes de proveedor multiselect -->
             <section class="form-group">
               <label>Solicitudes de proveedor:</label>
-              <ng-multiselect-dropdown
-                class="input custom-multiselect-dropdown"
-                (click)="obtenerIdSolicitudProveedorArhivos()"
-                [placeholder]="'Seleccione solicitudes'"
-                [data]="solicitudesProveedor"
-                [(ngModel)]="solicitudesProveedorSeleccionadas"
-                [settings]="dropdownSettingsSolicitudes"
-                name="idSolicitudSeleccionada"
-                required
-                [ngClass]="{'invalid': solicitudesProveedorSeleccionadas?.length === 0}"
-              ></ng-multiselect-dropdown>
+              <ng-multiselect-dropdown class="input custom-multiselect-dropdown"
+                (click)="obtenerIdSolicitudProveedorArhivos()" [placeholder]="'Seleccione solicitudes'"
+                [data]="solicitudesProveedor" [(ngModel)]="solicitudesProveedorSeleccionadas"
+                [settings]="dropdownSettingsSolicitudes" name="idSolicitudSeleccionada" required
+                [ngClass]="{'invalid': solicitudesProveedorSeleccionadas?.length === 0}"></ng-multiselect-dropdown>
             </section>
 
             <!-- Archivos a analizar multiselect -->
             <section class="form-group">
               <label>Archivos a analizar:</label>
-              <ng-multiselect-dropdown
-                class="input custom-multiselect-dropdown"
-                [placeholder]="'Seleccione archivos'"
-                [data]="archivos"
-                [(ngModel)]="archivosAnalizarSeleccionados"
-                [settings]="dropdownSettingsArchivos"
-                name="idArchivoSeleccionada"
-                required
-                [ngClass]="{'invalid': archivosAnalizarSeleccionados?.length === 0}"
-              ></ng-multiselect-dropdown>
+              <ng-multiselect-dropdown class="input custom-multiselect-dropdown" [placeholder]="'Seleccione archivos'"
+                [data]="archivos" [(ngModel)]="archivosAnalizarSeleccionados" [settings]="dropdownSettingsArchivos"
+                name="idArchivoSeleccionada" required
+                [ngClass]="{'invalid': archivosAnalizarSeleccionados?.length === 0}"></ng-multiselect-dropdown>
             </section>
           </section>
 
@@ -73,13 +56,8 @@
           <section class="form-row">
             <section class="form-group">
               <label>Oficina de análisis criminal:</label>
-              <select
-                [(ngModel)]="oficinaAnalisis"
-                class="input select required-field"
-                (click)="VerIdOficina()"
-                required
-                [ngClass]="{'ng-invalid ng-touched': !oficinaAnalisis}"
-              >
+              <select [(ngModel)]="oficinaAnalisis" class="input select required-field" (click)="VerIdOficina()"
+                required [ngClass]="{'ng-invalid ng-touched': !oficinaAnalisis}">
                 <option value="" disabled [selected]="!oficinaAnalisis">Seleccione la Oficina de análisis</option>
                 <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.idOficina">
                   {{ oficina.nombre }}
@@ -89,12 +67,10 @@
 
             <section class="form-group">
               <label>Tipo de análisis:</label>
-              <select [(ngModel)]="tipoAnalisis" class="input select required-field" required [ngClass]="{'ng-invalid ng-touched': !tipoAnalisis}">
+              <select [(ngModel)]="tipoAnalisis" class="input select required-field" required
+                [ngClass]="{'ng-invalid ng-touched': !tipoAnalisis}">
                 <option value="" disabled [selected]="!tipoAnalisis">Seleccione el Tipo de Análisis</option>
-                <option
-                  *ngFor="let tipoAnalisis of tiposAnalisis"
-                  [value]="tipoAnalisis.idTipoAnalisis"
-                >
+                <option *ngFor="let tipoAnalisis of tiposAnalisis" [value]="tipoAnalisis.idTipoAnalisis">
                   {{ tipoAnalisis.nombre }}
                 </option>
               </select>
@@ -103,16 +79,10 @@
             <!-- Objetivos del análisis multiselect -->
             <section class="form-group">
               <label>Objetivos del análisis:</label>
-              <ng-multiselect-dropdown
-                class="input custom-multiselect-dropdown"
-                [placeholder]="'Seleccione objetivos'"
-                [data]="objetivosAnalista"
-                [(ngModel)]="objetivosAnalisisSeleccionados"
-                [settings]="dropdownSettingsObjetivos"
-                name="idObjetivoSeleccionada"
-                required
-                [ngClass]="{'invalid': objetivosAnalisisSeleccionados?.length === 0}"
-              ></ng-multiselect-dropdown>
+              <ng-multiselect-dropdown class="input custom-multiselect-dropdown" [placeholder]="'Seleccione objetivos'"
+                [data]="objetivosAnalista" [(ngModel)]="objetivosAnalisisSeleccionados"
+                [settings]="dropdownSettingsObjetivos" name="idObjetivoSeleccionada" required
+                [ngClass]="{'invalid': objetivosAnalisisSeleccionados?.length === 0}"></ng-multiselect-dropdown>
             </section>
           </section>
 
@@ -120,26 +90,23 @@
           <section class="form-row">
             <section class="form-group">
               <label>Fecha del hecho:</label>
-              <input [(ngModel)]="fechaHecho" type="date" class="input required-field" required [ngClass]="{'ng-invalid ng-touched': !fechaHecho}">
+              <input [(ngModel)]="fechaHecho" type="date" class="input required-field" required
+                [ngClass]="{'ng-invalid ng-touched': !fechaHecho}">
             </section>
 
             <section class="form-group">
               <label>Otros (objetivos):</label>
-              <input [(ngModel)]="otrosObjetivos" type="text" class="input required-field" [ngClass]="{'ng-invalid ng-touched': !otrosObjetivos}">
+              <input [(ngModel)]="otrosObjetivos" type="text" class="input required-field"
+                [ngClass]="{'ng-invalid ng-touched': !otrosObjetivos}">
             </section>
           </section>
 
           <!-- Otros detalles -->
           <section class="form-group">
             <label>Otros detalles:</label>
-            <textarea
-              [(ngModel)]="otrosDetalles"
-              (blur)="validarOtrosDetalles()"
-              rows="4"
-              class="input textarea required-field"
-              [ngClass]="{'ng-invalid ng-touched': !otrosDetalles}"
-              required
-            ></textarea>
+            <textarea [(ngModel)]="otrosDetalles" (blur)="validarOtrosDetalles()" rows="4"
+              class="input textarea required-field" [ngClass]="{'ng-invalid ng-touched': !otrosDetalles}"
+              required></textarea>
           </section>
 
           <!-- Registros de requerimientos -->
@@ -149,18 +116,11 @@
           <section class="form-row">
             <section class="form-group">
               <label>Tipo Objetivo:</label>
-              <select
-                [(ngModel)]="idTipoDatoSeleccionado"
-                class="input select required-field"
-                (click)="verificarIdTipoDatos()"
-                required
-                [ngClass]="{'ng-invalid ng-touched': !idTipoDatoSeleccionado}"
-              >
+              <select [(ngModel)]="idTipoDatoSeleccionado" class="input select required-field"
+                (click)="verificarIdTipoDatos()" required
+                [ngClass]="{'ng-invalid ng-touched': !idTipoDatoSeleccionado}">
                 <option value="" disabled [selected]="!idTipoDatoSeleccionado">Seleccione el Tipo de Objetivo</option>
-                <option
-                  *ngFor="let tipoDato of TipoDatos"
-                  [value]="tipoDato.idTipoDato"
-                >
+                <option *ngFor="let tipoDato of TipoDatos" [value]="tipoDato.idTipoDato">
                   {{ tipoDato.nombre }}
                 </option>
               </select>
@@ -168,40 +128,22 @@
 
             <section class="form-group">
               <label>Objetivo:</label>
-              <input
-                [(ngModel)]="objetivo"
-                (blur)="validarObjetivo()"
-                mask="00000000"
-                type="text"
-                class="input required-field"
-                [ngClass]="{'invalid': !objetivo}"
-              />
+              <input [(ngModel)]="objetivo" (blur)="validarObjetivo()" mask="00000000" type="text"
+                class="input required-field" [ngClass]="{'invalid': !objetivo}" />
             </section>
 
             <section class="form-group">
               <label>Utilizado por:</label>
-              <input
-                [(ngModel)]="utilizadoPor"
-                (blur)="validarUtilizadoPor()"
-                type="text"
-                class="input required-field"
-                [ngClass]="{'invalid': !utilizadoPor}"
-              />
+              <input [(ngModel)]="utilizadoPor" (blur)="validarUtilizadoPor()" type="text" class="input required-field"
+                [ngClass]="{'invalid': !utilizadoPor}" />
             </section>
 
             <section class="form-group">
               <label>Condición:</label>
-              <select
-                [(ngModel)]="condicionAnalisisEscogida"
-                class="input select required-field"
-                required
-                [ngClass]="{'ng-invalid ng-touched': !condicionAnalisisEscogida}"
-              >
+              <select [(ngModel)]="condicionAnalisisEscogida" class="input select required-field" required
+                [ngClass]="{'ng-invalid ng-touched': !condicionAnalisisEscogida}">
                 <option value="" disabled [selected]="!condicionAnalisisEscogida">Seleccione la Condición</option>
-                <option
-                  *ngFor="let condicionValor of condicionesAnalisis"
-                  [value]="condicionValor.idCondicion"
-                >
+                <option *ngFor="let condicionValor of condicionesAnalisis" [value]="condicionValor.idCondicion">
                   {{ condicionValor.nombre }}
                 </option>
               </select>
@@ -210,22 +152,25 @@
 
           <!-- Botones de acción -->
           <section class="buttons-row space-x-4">
-            <button
-              class="btn btn-primary"
-              (click)="limpiarCamposRequerimiento()"
-            >
+            <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+            py-2 rounded 
+            focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+              (click)="limpiarCamposRequerimiento()">
               <i class="material-icons pr-2">remove</i> Limpiar
             </button>
 
-            <button class="btn btn-secondary" (click)="agregarRequerimiento()">
+            <button type="button" class="btn btn-secondary text-[#FFFFFF] px-4 
+            py-2 rounded
+            focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+              (click)="agregarRequerimiento()">
               <i class="material-icons pr-2">add</i> Agregar
             </button>
 
-            <button
-              class="btn btn-secondary"
-              (click)="selectedIndex !== null ? agregarRequerimiento() : null"
-            >
-              <i class="material-icons pr-2">edit</i> Editar
+            <button type="button" class="btn btn-tertiary text-[#FFFFFF] px-4 
+            py-2 rounded 
+            focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+              (click)="selectedIndex !== null ? agregarRequerimiento() : null">
+              <i class="material-icons pr-2">edit_square</i> Editar
             </button>
           </section>
 
@@ -248,20 +193,20 @@
                 <tr *ngFor="let requerimiento of requerimientos; let i = index">
                   <td>
                     <section class="buttons-row space-x-4">
-                      <button
-                        class="btn btn-primary"
-                        title="Editar"
-                        (click)="cargarRequerimientoEnFormulario(i)"
-                      >
-                        <i class="material-icons">edit</i>
-                      </button>
-                      <button
-                        class="btn btn-secondary"
-                        title="Eliminar"
-                        (click)="eliminarRequerimiento(i)"
-                      >
+
+                      <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                      py-2 rounded 
+                      focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2" title="Eliminar"
+                        (click)="eliminarRequerimiento(i)">
                         <i class="material-icons">delete</i>
                       </button>
+
+                      <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                      py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                        title="Editar" (click)="cargarRequerimientoEnFormulario(i)">
+                        <i class="material-icons">edit</i>
+                      </button>
+
                     </section>
                   </td>
                   <td>{{ requerimiento.tipoDato.nombre }}</td>
@@ -325,7 +270,4 @@
 </section>
 
 <!-- Cargar Material Icons -->
-<link
-  href="https://fonts.googleapis.com/icon?family=Material+Icons"
-  rel="stylesheet"
-/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
