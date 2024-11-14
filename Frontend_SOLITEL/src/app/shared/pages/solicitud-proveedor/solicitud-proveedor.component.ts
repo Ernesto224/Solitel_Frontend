@@ -248,6 +248,20 @@ export default class SolicitudProveedorComponent {
     });
   }
 
+  validarFechas() {
+    if (this.fechaInicio && this.fechaFinal) {
+      const fechaInicioDate = new Date(this.fechaInicio);
+      const fechaFinalDate = new Date(this.fechaFinal);
+
+      if (fechaFinalDate < fechaInicioDate) {
+        this.alertaMensaje = 'La fecha y hora final no pueden ser menores que la fecha y hora de inicio.';
+        this.alertatipo = 'error';
+        this.mostrarAlerta();
+        this.fechaFinal = '';
+      }
+    }
+  }
+
   onCategoriaDelitoChange(): void {
     if (this.idCategoriaDelitoSeleccionado) {
       this.delitoService.obtenerPorCategoria(this.idCategoriaDelitoSeleccionado)
@@ -628,8 +642,6 @@ export default class SolicitudProveedorComponent {
 
   mostrarAlerta(): void {
     this.alertaVisible = true;
-
-    // Opcional: Cerrar la alerta después de unos segundos
     setTimeout(() => {
       this.alertaVisible = false;
     }, 3000); // 3 segundos

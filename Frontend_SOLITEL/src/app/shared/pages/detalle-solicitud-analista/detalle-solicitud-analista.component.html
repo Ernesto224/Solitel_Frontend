@@ -71,6 +71,14 @@
     <div class="col-6">
       <div class="form-group">
         <label for="campo11">Asignar a:</label>
+        <select class="required-field" [(ngModel)]="idUsuarioAsignadoSeleccionado" name="idCategoriaDelitoSeleccionado"
+          required>
+          <option value="">Seleccione</option>
+          <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario.idUsuario? usuario.idUsuario: 'N/A'">
+            {{ usuario.nombre? usuario.nombre: 'N/A' }}
+          </option>
+        </select>
+        <button (click)="asignarUsuario()">Asignar</button>
       </div>
     </div>
     <div class="col-6">
@@ -138,7 +146,7 @@
   <div modal-header>
     <h2 class="text-xl font-semibold mb-4">Confirmacion Tramitación</h2>
     <p>¿Estás seguro de que deseas tramitar la solicitud de análisis #{{ idSolicitudAnalisisSeleccionada }}?</p>
-    <div *ngIf="archivosRespuesta && archivosRespuesta.length > 0">
+    <div *ngIf="archivosRespuesta && archivosRespuesta.length > 0" style="background-color: #f2bebd; padding: 2%;">
       <p>Se enviaran los siguientes archivos</p>
       <li *ngFor="let archivoRespuesta of archivosRespuesta">{{ archivoRespuesta.nombre }}</li>
     </div>
@@ -162,13 +170,23 @@
     <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
 
     <label>FORMATOS PERMITIDOS: WORD OFFICE +2007, PDF y TXT</label>
-    <label for="file-input" class="custom-file-upload">Seleccionar Archivos</label>
-    <input type="file" id="file-input" (change)="seleccionarArchivosRespuesta($event)" multiple />
 
-    <app-tabla-visualizacion [headers]="encabezadosArchivos" [data]="archivosRespuesta" [actions]="accionesArchivos"
-      [actionsheaders]="encabezadosAccionesArchivos">
-    </app-tabla-visualizacion>
+    <div class="file-custom" style="border: 2px solid #ccc; border-radius: 3px;">
+      <!-- Label personalizado para el botón -->
+      <label for="file-input" class="btn-custom-file">Buscar</label>
+      <!-- Input de archivo oculto -->
+      <input type="file" id="file-input" (change)="seleccionarArchivosRespuesta($event)" multiple style="display: none;" />
+    </div>
+
+    <div *ngIf="archivosRespuesta && archivosRespuesta.length > 0">
+      <app-tabla-visualizacion [headers]="encabezadosArchivosRespuesta" [data]="archivosRespuesta"
+        [actions]="accionesArchivosRespuesta" [actionsheaders]="encabezadosAccionesArchivosRespuesta">
+      </app-tabla-visualizacion>
+    </div>
+
 
   </div>
-  <button (click)="cerrarModalArchivosRespuesta()">Guardar</button>
+  <div style="text-align: right; margin-top: 2%;">
+    <button (click)="cerrarModalArchivosRespuesta()">Cerrar</button>
+  </div>
 </app-modal-informacion>

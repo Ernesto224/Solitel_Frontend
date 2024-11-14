@@ -37,7 +37,7 @@
     </table>
 </div>
 
-<div class="flex justify-between items-center mt-4 space-x-8">
+<div class="flex justify-between items-center mt-4 space-x-8" *ngIf="showPagination()">
     <div class="flex items-center">
         <label for="pageSize" class="mr-2">Mostrando registros del {{((pageNumber - 1) * pageSize) + 1}}
             al {{((pageNumber - 1) * pageSize) + pageSize}}

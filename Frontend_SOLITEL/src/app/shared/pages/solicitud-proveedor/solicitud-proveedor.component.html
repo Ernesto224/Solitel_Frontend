@@ -1,15 +1,15 @@
 <!-- Contenido principal -->
-<div class="flex flex-col mb-0 pb-0">
+<div class="flex flex-col">
   <main class="flex-grow ml-64 p-4">
     <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
     <div class="mt-12">
-      <div class="space-y-8">
+      <div class="space-y-8" >
         <!-- Formulario de solicitudes -->
-        <section class="form-container">
-          <h2>Solicitud archivos telefónicos a proveedor</h2>
+        <section class="form-container general-div" >
+          <h2>Solicitud de Informe telefónicos a proveedor</h2>
           <hr>
           <form>
-            <div>
+            <div class="margin-div">
               <!-- Primera fila de campos -->
               <div class="form-row">
                 <div class="form-group">
@@ -51,8 +51,7 @@
                 <div class="form-group">
                   <label for="fiscalia">Fiscalía:</label>
                   <select id="fiscalia" class="required-field" [(ngModel)]="idFiscaliaSeleccionada"
-                    name="idFiscaliaSeleccionada" required
-                    [disabled]="isFiscaliaDisabled">
+                    name="idFiscaliaSeleccionada" required [disabled]="isFiscaliaDisabled">
                     <option value="">Seleccione</option>
                     <option *ngFor="let fiscalia of fiscalias" [value]="fiscalia.idFiscalia">{{ fiscalia.nombre }}
                     </option>
@@ -83,8 +82,7 @@
                 <div class="form-group">
                   <label for="delito">Delito:</label>
                   <select id="delito" class="required-field" [(ngModel)]="idDelitoSeleccionado"
-                    name="idDelitoSeleccionado" required
-                    [disabled]="isDelitoDisabled">
+                    name="idDelitoSeleccionado" required [disabled]="isDelitoDisabled">
                     <option value="">Seleccione</option>
                     <option *ngFor="let delito of delitos" [value]="delito.idDelito">
                       {{ delito.nombre }}
@@ -134,7 +132,9 @@
                 <textarea id="resena" [(ngModel)]="resennia" name="resennia" class="required-field" required></textarea>
               </div>
             </div>
-            <section class="mt-8">
+
+
+            <section class="mt-8 margin-div">
               <h2>Registros de requerimientos</h2>
               <hr>
               <!-- Registros de requerimientos -->
@@ -166,11 +166,13 @@
               <div class="form-row">
                 <div class="form-group">
                   <label for="fecha-inicio">Fecha inicio:</label>
-                  <input type="datetime-local" id="fecha-inicio" [(ngModel)]="fechaInicio" name="fechaInicio" required>
+                  <input type="datetime-local" id="fecha-inicio" [(ngModel)]="fechaInicio" name="fechaInicio" [max]="fechaFinal" (change)="validarFechas()" 
+                  requerid>
                 </div>
                 <div class="form-group">
                   <label for="fecha-final">Fecha final:</label>
-                  <input type="datetime-local" id="fecha-final" [(ngModel)]="fechaFinal" name="fechaFinal" required>
+                  <input type="datetime-local" id="fecha-final" [(ngModel)]="fechaFinal" name="fechaFinal" [min]="fechaInicio" (change)="validarFechas()"
+                  required="">
                 </div>
               </div>
               <!-- Requerimiento -->
@@ -209,7 +211,7 @@
           </form>
           <!-- Tabla para mostrar las solicitudes agregadas -->
           <section class="mt-8">
-            <h2>Lista de Solicitudes Agregadas</h2>
+            <h2>Lista de Requerimientos Agregados</h2>
             <hr>
             <table class="styled-table">
               <thead>
@@ -263,38 +265,42 @@
             </table>
             <hr>
           </section>
-          <!-- Botones -->
-          <section class="center-buttons p-6 flex justify-center space-x-4">
-            <div class="buttons-row space-x-4">
-              <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
-                      py-2 rounded 
-                      focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
-                (click)="limpiarTodo()">
-                <i class="material-icons">cached</i>
-                <span>Limpiar</span>
-              </button>
-              <button type="button" class="btn btn-secondary text-[#FFFFFF] px-4 
-                      py-2 rounded
-                      focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
-                (click)="abrirModalConfirmacion()">
-                <i class="material-icons">save</i>
-                <span>Guardar</span>
-              </button>
-            </div>
-          </section>
+          
+
+
+        </section>
+
+        <!-- Botones -->
+        <section class="center-buttons p-6 flex justify-center space-x-4">
+          <div class="buttons-row space-x-4">
+            <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                    py-2 rounded 
+                    focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+              (click)="limpiarTodo()">
+              <i class="material-icons">cached</i>
+              <span>Limpiar</span>
+            </button>
+            <button type="button" class="btn btn-secondary text-[#FFFFFF] px-4 
+                    py-2 rounded
+                    focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+              (click)="abrirModalConfirmacion()">
+              <i class="material-icons">save</i>
+              <span>Guardar</span>
+            </button>
+          </div>
         </section>
       </div>
     </div>
   </main>
 </div>
 
- <!-- Modal Confirmacion -->
- <app-modal-confirmacion [modalEstadoVisible]="modalConfirmacionisible" (confirmar)="guardarSolicitud()"
- (cancelar)="cerrarModalConfirmacion()">
- <div modal-header>
-   <h2 class="text-xl font-semibold mb-4">Confirmacion Tramitación</h2>
-   <p>¿Estás seguro de que desea registrar la solicitud?</p>
- </div>
+<!-- Modal Confirmacion -->
+<app-modal-confirmacion [modalEstadoVisible]="modalConfirmacionisible" (confirmar)="guardarSolicitud()"
+  (cancelar)="cerrarModalConfirmacion()">
+  <div modal-header>
+    <h2 class="text-xl font-semibold mb-4">Confirmacion Tramitación</h2>
+    <p>¿Estás seguro de que desea registrar la solicitud?</p>
+  </div>
 </app-modal-confirmacion>
 
 <!-- Modal -->
