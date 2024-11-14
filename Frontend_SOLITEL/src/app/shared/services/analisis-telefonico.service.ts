@@ -45,6 +45,7 @@ export class AnalisisTelefonicoService {
   private readonly urlObtenerTipoDato: string = 'TipoDato';
   private readonly urlActualizarEstadoAnalizado: string = 'ActualizarEstadoAnalizadoSolicitudAnalisis'
   private urlObtenerSolicitudPorId: string = 'SolicitudAnalisis/consultar'; // Nueva URL
+  private readonly urlAsignarUsuario: string = 'asignarUsuarioAnalista';
 
   constructor(private http: HttpClient) { }
 
@@ -281,9 +282,20 @@ export class AnalisisTelefonicoService {
       'Content-Type': 'application/json',
       'accept': 'application/json',
     });
-    
+
     const url = `${this.baseUrl}${this.urlObtenerSolicitudPorId}?idSolicitud=${idSolicitud}`;
     return this.http.get<any>(url, { headers });
+
+
+  }
+
+  asignarUsuario(idSolicitudAnalisis: number, idUsuario: number): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      accept: 'text/plain',
+    });
+    return this.http.post(
+      `${this.baseUrl}${this.urlAsignarUsuario}?idSolicitudAnalisis=${idSolicitudAnalisis}&idUsuario=${idUsuario}`, { headers });
   }
 
 }

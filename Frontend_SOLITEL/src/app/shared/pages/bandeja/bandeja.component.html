@@ -23,7 +23,7 @@
       <div class="form-group filter-full-width">
         <label for="filtro-caracter">Filtrar por carácter:</label>
         <input type="text" id="filtro-caracter" class="w-full p-2 border rounded" placeholder="Ingrese carácter"
-          [(ngModel)]="filtroCaracter">
+          [(ngModel)]="filtroCaracter" (ngModelChange)="aplicarFiltroCaracter()">
       </div>
 
       <!-- Estado -->
@@ -110,6 +110,9 @@
     <table *ngIf="mostrarTablaProveedor" class="min-w-full table-auto border-collapse">
       <thead>
         <tr class="bg-[#1C355C] text-white">
+          <th *ngIf="aprobar" class="border px-4 py-2 text-center">
+            Aprobar
+          </th>
           <th *ngFor="let header of encabezados" class="border px-4 py-2 text-center">
             {{header}}
           </th>
@@ -118,7 +121,6 @@
       <tbody class="bg-[#F3F4F6] text-black">
         <tr *ngFor="let solicitud of solicitudesPaginadas" [ngClass]="{ 'bg-red-100': solicitud.urgente }"
           class="hover:bg-gray-200">
-
 
           <td *ngIf="columnasVisibles['finalizar']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Finalizar')" class="text-white px-4 py-2 
@@ -134,14 +136,18 @@
             </button>
           </td>
 
-          <td *ngIf="columnasVisibles['aprobar']" class="border px-4 py-2 text-center">
+          <td *ngIf="aprobar" class="border px-4 py-2 text-center">
+            <button (click)="this.abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Aprobar');" class="text-white px-4 py-2 
+              rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
+              <i class="material-icons">library_add_check</i>
+            </button>
             <!-- Switch para aprobar -->
-            <label class="switch">
+            <!--label class="switch">
               <input type="checkbox" [checked]="solicitud.aprobado"
                 (click)="onSwitchClick($event, solicitud.idSolicitudProveedor, solicitud.aprobado)"
                 [disabled]="isSwitchDisabled">
               <span class="slider round"></span>
-            </label>
+            </label-->
           </td>
 
           <td *ngIf="columnasVisibles['sinEfecto']" class="border px-4 py-2 text-center">
@@ -200,7 +206,7 @@
           </td>
 
           <td *ngIf="columnasVisibles['aprobacion']" class="border px-4 py-2 text-center">
-            {{ solicitud.aprobacion }}
+            {{ solicitud.aprobacion? 'Si':'No' }}
           </td>
 
           <td *ngIf="columnasVisibles['fechaCreacion']" class="border px-4 py-2 text-center">
@@ -231,22 +237,13 @@
       </tbody>
     </table>
 
-
-
-    <!-- Tabla 2 -->
+    <!-- Tabla Analisis -->
     <table *ngIf="!mostrarTablaProveedor" class="min-w-full table-auto border-collapse">
       <thead>
         <tr class="bg-[#1C355C] text-white">
-          <th class="border px-4 py-2 text-center">Histórico</th>
-          <th class="border px-4 py-2 text-center">Requerimientos</th>
-          <th class="border px-4 py-2 text-center">Ver</th>
-          <th class="border px-4 py-2 text-center">Solicitud</th>
-          <th class="border px-4 py-2 text-center">Número único</th>
-          <th class="border px-4 py-2 text-center">Proveedor</th>
-          <th class="border px-4 py-2 text-center">Enviado por</th>
-          <th class="border px-4 py-2 text-center">Fecha sol. telef.</th>
-          <th class="border px-4 py-2 text-center">Fecha sol. análisis</th>
-          <th class="border px-4 py-2 text-center">Urgente</th>
+          <th *ngFor="let header of encabezados" class="border px-4 py-2 text-center">
+            {{header}}
+          </th>
         </tr>
       </thead>
       <tbody class="text-black">
@@ -322,7 +319,8 @@
                 <span> | </span>
               </ng-container>
 
-              <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Aprobar Solicitud')">
+              <ng-container
+                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Aprobar Solicitud') && aprobar">
                 <button (click)="abrirModalAprobarAnalisis(solicitud.idSolicitudAnalisis)"
                   class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">do_not_disturb_on_total_silence</span>
@@ -489,7 +487,8 @@
           <div>
             <label class="label" for="modalidad">Modalidad:</label>
             <input type="text" id="modalidad" class="input"
-              [value]="solicitudSeleccionada.modalidad.nombre? solicitudSeleccionada.modalidad.nombre : 'N/A'" readonly>
+              [value]="solicitudSeleccionada.modalidad.nombre"
+              readonly>
           </div>
           <div>
             <label class="label" for="imputado">Imputado:</label>
@@ -505,7 +504,7 @@
           <div>
             <label class="label" for="subModalidad">Sub modalidad:</label>
             <input type="text" id="subModalidad" class="input"
-              [value]="solicitudSeleccionada.subModalidad.nombre? solicitudSeleccionada.subModalidad.nombre: 'N/A'"
+              [value]="solicitudSeleccionada.subModalidad.nombre"
               readonly>
           </div>
           <div>
@@ -524,8 +523,8 @@
           </div>
           <div>
             <label class="label" for="oficina">Oficina:</label>
-            <input type="text" id="oficina" class="input" [value]="solicitudSeleccionada.oficina.nombre" readonly
-              title="{{ solicitudSeleccionada.oficina.nombre }}">
+            <input type="text" id="oficina" class="input"
+              [value]="solicitudSeleccionada.oficina? solicitudSeleccionada.oficina.nombre : 'N/A'" readonly>
           </div>
           <div>
             <label class="label" for="operadora">Operadora:</label>
@@ -580,7 +579,7 @@
       </app-tabla-visualizacion>
     </div>
     <!-- Contenedor para botones de archivos -->
-    <div *ngIf="archivos && archivos.length > 0 && mostrarTablaProveedor" class="mt-4">
+    <div *ngIf="archivos && archivos.length > 0" class="mt-4">
       <button *ngFor="let archivo of archivos" class="text-white px-4 py-2 m-1 rounded focus:outline-none focus:ring"
         style="background-color: #1C355C;" (click)="descargarArchivo(archivo)">
         {{ archivo.nombre }}

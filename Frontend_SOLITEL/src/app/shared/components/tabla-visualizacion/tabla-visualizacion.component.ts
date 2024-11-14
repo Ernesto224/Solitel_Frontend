@@ -43,6 +43,10 @@ export class TablaVisualizacionComponent implements OnChanges {
     }
   }
 
+  showPagination(): boolean {
+    return this.data.length > this.pageSize;
+  }
+
   get paginatedData() {
     const startIndex = (this.pageNumber - 1) * this.pageSize;
     return this.data.slice(startIndex, startIndex + this.pageSize);

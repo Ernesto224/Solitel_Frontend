@@ -36,6 +36,7 @@ export default class SeleccionarOficinaComponent implements OnInit {
     );
     this.usuario.oficina = oficinaSeleccionada;
     this.authService.agregarUsuario(this.usuario);
-    this.router.navigate(['']);
+    this.router.navigate([oficinaSeleccionada.tipo === 'Investigacion'? 'bandeja' : 'bandeja-analista']);
   }
+  
 }
