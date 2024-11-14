@@ -405,14 +405,20 @@ button:hover {
 }
 
 .modal-content {
-  display: flex; /* Usar flexbox para centrar contenido */
-  flex-direction: column; /* Alinear contenido en columna */
-  align-items: center; /* Centrar horizontalmente */
-  justify-content: center; /* Centrar verticalmente */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Alinea el contenido al inicio horizontalmente */
+  justify-content: flex-start; /* Alinea el contenido al inicio verticalmente */
   background: white;
-  border-radius: 5px;
-  padding: 20px;
+  border-radius: 8px; /* Incrementa el redondeo para un aspecto más moderno */
+  padding: 24px; /* Ajusta el padding para un mejor espaciado */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Añade un efecto de sombra para resaltar */
+  max-width: 600px; /* Limita el ancho máximo del modal */
+  width: 100%;
+  max-height: 80vh; /* Limita la altura máxima */
+  overflow-y: auto; /* Habilita el desplazamiento si el contenido es grande */
 }
+
 
 .loader {
   border: 8px solid #f3f3f3; /* Light grey */
@@ -533,3 +539,5 @@ button:hover {
 .btn-secondary {
   background-color: #d32f2f;
 }
+
+

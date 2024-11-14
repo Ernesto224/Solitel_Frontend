@@ -137,7 +137,10 @@
 </div>
 
 
-<button (click)="abriModalConfirmarTramitado()" [disabled]="botonTramitarDeshabilitado">Cerrar (Tramitar)</button>
+<div class="centered-button-container">
+  <button (click)="abriModalConfirmarTramitado()" [disabled]="botonTramitarDeshabilitado">Cerrar (Tramitar)</button>
+</div>
+
 
 <!-- Modal Confirmacion -->
 <app-modal-confirmacion [modalEstadoVisible]="modalTramitadoVisible" (confirmar)="tramitarSolicitudAnalisis()"
