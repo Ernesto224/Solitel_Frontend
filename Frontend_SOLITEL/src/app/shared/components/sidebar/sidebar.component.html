@@ -9,25 +9,25 @@
       </div>
 
       <div class="space-y-3">
-        <a *ngIf="authService.tienePermiso('Crear Solicitud Proveedor')" routerLink="bandeja"
+        <a *ngIf="authService.verificarPermisosVerDatos(authService.getUsuario())" routerLink="bandeja"
           class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
           <i class="material-icons">inventory_2</i>
           <span class="mx-2 text-sm font-medium">Bandeja</span>
         </a>
 
-        <a *ngIf="authService.tienePermiso('Ver solicitudes propias')" routerLink="bandeja-analista"
+        <a *ngIf="authService.verificarPermisosVerDatosAnalistas(authService.getUsuario())" routerLink="bandeja-analista"
           class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
           <i class="material-icons">inventory_2</i>
           <span class="mx-2 text-sm font-medium">Bandeja Analista</span>
         </a>
 
-        <a *ngIf="authService.tienePermiso('Crear Solicitud Proveedor')" routerLink="/solicitud-proveedor"
+        <a *ngIf="authService.verificarPermisosVerDatos(authService.getUsuario())" routerLink="/solicitud-proveedor"
           class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
           <i class="material-icons">note_add</i>
           <span class="mx-2 text-sm font-medium">Solicitud Proveedor</span>
         </a>
 
-        <a *ngIf="authService.tienePermiso('Crear solicitudes de analisis')" routerLink="/analisis-telefonico"
+        <a *ngIf="authService.verificarPermisosVerDatos(authService.getUsuario())" routerLink="/analisis-telefonico"
           class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
           <i class="material-icons">query_stats</i>
           <span class="mx-2 text-sm font-medium">Análisis Télefonico</span>

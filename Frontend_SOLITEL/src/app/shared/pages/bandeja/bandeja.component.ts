@@ -60,6 +60,7 @@ export default class BandejaComponent implements OnInit {
   filtroCaracter: string = '';
 
   // Variables de configuración y control de visualización
+  aprobar = false;
   mostrarTablaProveedor: boolean = true;
   isSwitchDisabled: boolean = false;
   isModalVisible: boolean = false;
@@ -136,8 +137,8 @@ export default class BandejaComponent implements OnInit {
   estadoColumnas: { [key: string]: { [key: string]: { headers: string[], columnasVisibles: {} } } } = {
     Proveedor: {
       Creado: {
-        headers: ['Aprobar', 'Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-        columnasVisibles: { aprobar: true, sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        headers: ['Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+        columnasVisibles: { sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
       },
       Finalizado: {
         headers: ['Devolver', 'Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
@@ -154,10 +155,6 @@ export default class BandejaComponent implements OnInit {
       Tramitado: {
         headers: ['Finalizar', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
         columnasVisibles: { finalizar: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-      },
-      Solicitado: {
-        headers: ['Aprobar', 'Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-        columnasVisibles: { aprobar: true, sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
       },
       Legajo: {
         headers: ['Devolver', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
@@ -254,7 +251,9 @@ export default class BandejaComponent implements OnInit {
   //obtener datos
   obtenerDatosDeUsuario(): void {
     this.usuario = this.autenticate.getUsuario();
-    this.usuarioId = this.usuario.idUsuario;
+    this.usuarioId = this.autenticate.verificarPermisosVerDatos(this.usuario);
+    console.log(this.autenticate.verificarPermisosAprobacion(this.usuario))
+    this.aprobar = this.autenticate.verificarPermisosAprobacion(this.usuario);
     this.oficinaId = this.usuario.oficina.idOficina;
   }
 
@@ -573,7 +572,7 @@ export default class BandejaComponent implements OnInit {
       this.solicitudProveedorService.actualizarEstado(
         this.solicitudIdParaActualizar,
         this.nuevoEstado,
-        this.usuarioId,
+        this.usuario.idUsuario,
         this.observacion
       ).subscribe(
         response => {
