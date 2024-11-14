@@ -3,6 +3,7 @@
   background-color: #f9e4b7;
   padding: 20px;
   border-radius: 10px;
+  border-color: #1c355c;
   width: 100%;
   max-width: 800px; /* Ampliar el ancho máximo */
   margin: 0 auto 30px; /* Ajustar el margen para separar la tabla */
@@ -456,4 +457,11 @@ button:hover {
 .scrollable-content {
   max-width: 100%; /* Asegurar que el contenido no se desborde del contenedor padre */
   overflow-x: auto; /* Permitir desplazamiento horizontal si es necesario */
+}
+
+.margin-div{
+  margin-bottom: 20px; /* Espacio hacia abajo de 20px */
+  padding: 20px; /* Espaciado interno (aumentado) */
+  border-color: #010102;
+  border-radius: 5px;
 }

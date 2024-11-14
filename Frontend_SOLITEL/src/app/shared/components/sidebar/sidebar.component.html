@@ -18,7 +18,8 @@
           <span class="mx-2 text-sm font-medium">Bandeja</span>
         </a>
 
-        <a *ngIf="authService.tienePermiso('Ver Solicitudes Analisis Propias Analisis')" routerLink="bandeja-analista"
+        <a *ngIf="authService.tienePermiso('Ver Solicitudes Analisis Oficina Analisis') 
+          || authService.tienePermiso('Ver Solicitudes Analisis Propias Analisis')" routerLink="bandeja-analista"
           class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
           <i class="material-icons">inventory_2</i>
           <span class="mx-2 text-sm font-medium">Bandeja Analista</span>

@@ -24,7 +24,7 @@
         <div class="relative inline-block text-left">
             <div class="flex items-center space-x-2 cursor-pointer" (click)="toggleProfileDropdown()">
                 <!-- Texto de perfil a la izquierda -->
-                <span class="text-[#92aa34] text-end">{{ usuarioOficina }} <br> {{ usuarioNombre }}</span>
+                <span class="text-[#92aa34] text-end">{{ usuarioOficina }} <br> {{ usuarioNombre }}: {{usuarioRol}}</span>
 
                 <!-- Icono de perfil a la derecha del texto -->
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -49,9 +49,9 @@
     <!-- Sidebar -->
     <app-sidebar [isSidebarVisible]="isSidebarVisible"></app-sidebar>
     <!-- Content -->
-    <div [class.ml-64]="isSidebarVisible" class="flex-grow p-6 transition-all duration-300 ease-in-out mt-16 lg:mt-4" style="margin-top: 7%;">
+    <div [class.ml-64]="isSidebarVisible" class="flex-grow p-6 transition-all duration-300 ease-in-out mt-16 lg:mt-4" style="margin-top: 6%;">
         <ng-content></ng-content> <!-- This will be the dynamic content from other pages -->
     </div>
     <!-- Footer -->
-    <app-footer class="w-full"></app-footer>
+
 </div>

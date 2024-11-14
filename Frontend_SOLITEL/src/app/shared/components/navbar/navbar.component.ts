@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -18,6 +18,7 @@ export class NavbarComponent implements OnInit {
   isProfileDropdownVisible = false;
   usuarioNombre = ''; // Nombre del usuario
   usuarioOficina = ''; // Oficina del usuario
+  usuarioRol = '';
 
   constructor(
     private authService: AuthenticacionService,
@@ -30,6 +31,7 @@ export class NavbarComponent implements OnInit {
     if (usuario) {
       this.usuarioNombre = usuario.nombre + ' ' + usuario.apellido;
       this.usuarioOficina = usuario.oficina.nombre;
+      this.usuarioRol = usuario.oficina.rol.nombre;
     }
   }
 
@@ -39,6 +41,15 @@ export class NavbarComponent implements OnInit {
 
   toggleProfileDropdown() {
     this.isProfileDropdownVisible = !this.isProfileDropdownVisible;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    // Si el dropdown está visible y el clic no ocurre dentro del dropdown, lo cerramos
+    if (this.isProfileDropdownVisible && !target.closest('.relative.inline-block')) {
+      this.toggleProfileDropdown();
+    }
   }
 
   logout() {

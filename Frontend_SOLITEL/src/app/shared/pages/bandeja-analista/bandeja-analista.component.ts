@@ -79,7 +79,7 @@ export default class BandejaAnalistaComponent implements OnInit {
   //obtener datos
   obtenerDatosDeUsuario(): void{
     this.usuario = this.autenticate.getUsuario();
-    this.usuarioId = this.usuario.idUsuario;
+    this.usuarioId = this.autenticate.verificarPermisosVerDatosAnalistas(this.usuario);
     this.oficinaId = this.usuario.oficina.idOficina;
   }
 
@@ -101,7 +101,8 @@ export default class BandejaAnalistaComponent implements OnInit {
   }
 
   obtenerSolicitudesAnalisis(): void {
-    this.analisisTelefonicoService.obtenerBandejaAnalista(this.estadoSeleccionado, this.fechaInicioFiltro, this.fechaFinFiltro, this.numeroUnicoFiltro)
+    this.analisisTelefonicoService.obtenerBandejaAnalista(this.estadoSeleccionado, 
+      this.fechaInicioFiltro, this.fechaFinFiltro, this.numeroUnicoFiltro, this.oficinaId, this.usuarioId)
       .subscribe({
         next: (value) => {
           this.solicitudesAnalisis = value;
