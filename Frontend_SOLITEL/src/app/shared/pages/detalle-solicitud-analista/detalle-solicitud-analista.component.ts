@@ -45,6 +45,8 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
 
   archivosRespuesta: any[] = [];
 
+  asignarDatos = false;
+
   modalArchivosVisible = false;
 
   botonArchivosDeshabilitado: boolean = false;
@@ -158,6 +160,7 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
       }));
       
       this.usuario = this.authenticationService.getUsuario();
+      this.asignarDatos = this.authenticationService.verificarPermisosAsignacion(this.usuario);
       this.cargarArchivos(this.idSolicitudAnalisisSeleccionada);
       this.obtenerUsuariosDisponibles();
     }
@@ -195,7 +198,6 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
   }
 
   obtenerUsuariosDisponibles(){
-
     this.usuariosDisponibles.push(this.authenticationService.usuarios[1]);
     console.log(this.usuariosDisponibles);
   }

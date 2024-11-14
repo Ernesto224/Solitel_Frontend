@@ -68,19 +68,18 @@
 
   <!-- Campos debajo -->
   <div class="row">
-    <div class="col-6">
+    <div *ngIf="asignarDatos" class="col-6">
       <div class="form-group">
         <label for="campo11">Asignar a:</label>
-        <select class="required-field" [(ngModel)]="idUsuarioAsignadoSeleccionado" name="idCategoriaDelitoSeleccionado"
-          required>
+        <select class="required-field" [(ngModel)]="idUsuarioAsignadoSeleccionado" name="idCategoriaDelitoSeleccionado" required>
           <option value="">Seleccione</option>
-          <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario? usuario.idUsuario: 0">
-            {{ usuario.nombre? usuario.nombre: 'N/A' }}
+          <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario ? usuario.idUsuario : 0">
+            {{ usuario.nombre ? usuario.nombre : 'N/A' }}
           </option>
         </select>
         <button (click)="asignarUsuario()">Asignar</button>
       </div>
-    </div>
+    </div>    
     <div class="col-6">
       <div class="form-group">
         <label for="campo12">Fecha del Hecho:</label>

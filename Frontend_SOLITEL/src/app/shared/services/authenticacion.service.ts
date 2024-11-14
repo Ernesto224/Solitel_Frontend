@@ -196,7 +196,8 @@ export class AuthenticacionService {
     // Si el usuario tiene el permiso para ver todas las solicitudes
     if (usuario.oficina.rol.permisos.some((permiso: any) =>
       permiso.nombre === 'Ver Solicitudes Proveedor Oficina' ||
-      permiso.nombre === 'Ver Solicitudes Analisis Oficina')) {
+      permiso.nombre === 'Ver Solicitudes Analisis Oficina'
+      || permiso.nombre === 'todos')) {
       return undefined; // Permitir ver todas las solicitudes (sin filtrar por idUsuario)
     }
 
@@ -215,7 +216,8 @@ export class AuthenticacionService {
 
     // Si el usuario tiene el permiso para ver todas las solicitudes
     if (usuario.oficina.rol.permisos.some((permiso: any) =>
-      permiso.nombre === 'Ver Solicitudes Analisis Oficina Analisis')
+      (permiso.nombre === 'Ver Solicitudes Analisis Oficina Analisis')
+      || permiso.nombre === 'todos')
       && usuario.oficina.rol.nombre.includes('Analista')) {
       return undefined; // Permitir ver todas las solicitudes (sin filtrar por idUsuario)
     }
@@ -235,12 +237,14 @@ export class AuthenticacionService {
 
     // Verificar si el usuario tiene permisos específicos de aprobación
     if (usuario.oficina.rol.permisos.some((permiso: any) =>
-      permiso.nombre === 'Aprobar Solicitudes Proveedor')) {
+      permiso.nombre === 'Aprobar Solicitudes Proveedor'
+      || permiso.nombre === 'todos')) {
       return true;
     }
 
     if (usuario.oficina.rol.permisos.some((permiso: any) =>
-      permiso.nombre === 'Aprobar Solicitudes Analisis')) {
+      permiso.nombre === 'Aprobar Solicitudes Analisis'
+      || permiso.nombre === 'todos')) {
       return true;
     }
 
@@ -260,15 +264,9 @@ export class AuthenticacionService {
   }
 
   public verificarPermisosAsignacion(usuario: any) {
-    // Si el usuario tiene permiso para asignar todas las solicitudes
-    if (this.gestionarPermisosAsignacion['todos'].valor) {
-      return true; // Permitir asignar todas las solicitudes
-    }
-
     // Verificar si el usuario tiene permisos específicos de asignación
     if (usuario.oficina.rol.permisos.some((permiso: any) =>
-      permiso.nombre === 'Asignar Solicitudes Analisis' &&
-      this.gestionarPermisosAsignacion['Asignar Solicitudes Analisis'].valor(usuario))) {
+      permiso.nombre === 'Asignar Solicitudes Analisis')) {
       return true;
     }
 
