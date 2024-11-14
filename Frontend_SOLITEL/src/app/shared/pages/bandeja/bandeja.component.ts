@@ -208,7 +208,7 @@ export default class BandejaComponent implements OnInit {
     this.estadoColumnas = {
       Proveedor: {
         Creado: {
-          headers: [ 'Aprobar', 'Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          headers: ['Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
           columnasVisibles: { aprobar: this.autenticate.verificarPermisosAprobacion(this.usuario), sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
         },
         Finalizado: {
@@ -234,27 +234,28 @@ export default class BandejaComponent implements OnInit {
       },
       Analisis: {
         'En Análisis': {
-          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
           columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
         },
         Analizado: {
-          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
           columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
         },
         'Aprobar Analisis': {
-          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
           columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
         },
         Finalizado: {
-          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
           columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
         },
         Legajo: {
-          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
           columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
         }
       }
     }
+    if(this.autenticate.verificarPermisosAprobacion(this.usuario)) this.estadoColumnas['Proveedor']['Creado'].headers.unshift('Aprobar');
   }
 
   obtenerEstados(): void {

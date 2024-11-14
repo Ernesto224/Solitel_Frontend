@@ -170,7 +170,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   solicitudCompletaAnalisis: any = null;
   TipoDatos: TipoDato[] = [];
   idTipoDatoSeleccionado: number = 0;
-  usuarioActivo:any = null;
+  usuarioActivo: any = null;
   alertatipo: string = "error";
   alertaMensaje: string = "";
   alertaVisible: boolean = false;
@@ -184,10 +184,10 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   // Usuario para obtener la oficina de creacion
   usuario: any = [];
 
-  constructor(private analisisService: AnalisisTelefonicoService, private authService: AuthenticacionService) {}
+  constructor(private analisisService: AnalisisTelefonicoService, private authService: AuthenticacionService) { }
 
   ngOnInit(): void {
-    this.usuario =  this.authService.getUsuario();
+    this.usuario = this.authService.getUsuario();
     this.cargarUsuarioEnSesion();
     this.cargarNumerosUnicos();
     this.cargarOficinasAnalisis();
@@ -347,44 +347,80 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   agregarRequerimiento(): void {
     // Validar que todos los campos estén llenos y que los IDs no sean cero
     if (!this.objetivo || !this.utilizadoPor || this.idTipoDatoSeleccionado === 0 || this.condicionAnalisisEscogida === 0) {
-        this.alertatipo = "error";
-        this.alertaMensaje = "Debes llenar todos los campos de los requerimientos de análisis";
-        this.mostrarAlerta();
-        return;
+      this.alertatipo = "error";
+      this.alertaMensaje = "Debes llenar todos los campos de los requerimientos de análisis";
+      this.mostrarAlerta();
+      return;
     }
-    const condicionSeleccionada = 
-    this.condicionesAnalisis.find(c => c.idCondicion === Number(this.condicionAnalisisEscogida));
+    const condicionSeleccionada =
+      this.condicionesAnalisis.find(c => c.idCondicion === Number(this.condicionAnalisisEscogida));
 
     const tipoDatoSeleccionado = this.TipoDatos.find(tipo => tipo.idTipoDato === Number(this.idTipoDatoSeleccionado)) || {
       nombre: 'Tipo no especificado',
       descripcion: '',
-  };
-  const nuevoRequerimiento: Requerimiento = {
+    };
+    const nuevoRequerimiento: Requerimiento = {
       idRequerimientoAnalisis: this.requerimientos.length + 1,
       objetivo: this.objetivo,
       utilizadoPor: this.utilizadoPor,
       tipoDato: {
-          idTipoDato: 'idTipoDato' in tipoDatoSeleccionado ? tipoDatoSeleccionado.idTipoDato : this.idTipoDatoSeleccionado, // Verificación adicional
-          nombre: tipoDatoSeleccionado.nombre,
-          descripcion: tipoDatoSeleccionado.descripcion,
+        idTipoDato: 'idTipoDato' in tipoDatoSeleccionado ? tipoDatoSeleccionado.idTipoDato : this.idTipoDatoSeleccionado, // Verificación adicional
+        nombre: tipoDatoSeleccionado.nombre,
+        descripcion: tipoDatoSeleccionado.descripcion,
       },
       idAnalisis: this.requerimientos.length,
       condicion: condicionSeleccionada != null ? condicionSeleccionada : {
-          idCondicion: 0,
-          nombre: 'Nombre no especificado',
-          descripcion: 'Descripción no especificada',
+        idCondicion: 0,
+        nombre: 'Nombre no especificado',
+        descripcion: 'Descripción no especificada',
       },
-  };
-  
-  
+    };
+
+    this.requerimientos.push(nuevoRequerimiento);
+
+
+    this.limpiarCamposRequerimiento();
+  }
+
+  editarRequerimientoAnalisis(): void {
+    // Validar que todos los campos estén llenos y que los IDs no sean cero
+    if (!this.objetivo || !this.utilizadoPor || this.idTipoDatoSeleccionado === 0 || this.condicionAnalisisEscogida === 0) {
+      this.alertatipo = "error";
+      this.alertaMensaje = "Debes llenar todos los campos de los requerimientos de análisis";
+      this.mostrarAlerta();
+      return;
+    }
+    const condicionSeleccionada =
+      this.condicionesAnalisis.find(c => c.idCondicion === Number(this.condicionAnalisisEscogida));
+
+    const tipoDatoSeleccionado = this.TipoDatos.find(tipo => tipo.idTipoDato === Number(this.idTipoDatoSeleccionado)) || {
+      nombre: 'Tipo no especificado',
+      descripcion: '',
+    };
+    const nuevoRequerimiento: Requerimiento = {
+      idRequerimientoAnalisis: this.requerimientos.length + 1,
+      objetivo: this.objetivo,
+      utilizadoPor: this.utilizadoPor,
+      tipoDato: {
+        idTipoDato: 'idTipoDato' in tipoDatoSeleccionado ? tipoDatoSeleccionado.idTipoDato : this.idTipoDatoSeleccionado, // Verificación adicional
+        nombre: tipoDatoSeleccionado.nombre,
+        descripcion: tipoDatoSeleccionado.descripcion,
+      },
+      idAnalisis: this.requerimientos.length,
+      condicion: condicionSeleccionada != null ? condicionSeleccionada : {
+        idCondicion: 0,
+        nombre: 'Nombre no especificado',
+        descripcion: 'Descripción no especificada',
+      },
+    };
+
+
 
     if (this.selectedIndex !== null && this.selectedIndex >= 0) {
-        this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
-        this.editarRequerimiento = false;
-        this.selectedIndex = null;
-    } else {
-        this.requerimientos.push(nuevoRequerimiento);
-    }
+      this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
+      this.editarRequerimiento = false;
+      this.selectedIndex = null;
+    } 
 
     this.limpiarCamposRequerimiento();
   }

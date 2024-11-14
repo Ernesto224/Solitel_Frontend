@@ -56,12 +56,8 @@
           <section class="form-row">
             <section class="form-group">
               <label>Oficina de análisis criminal:</label>
-              <select
-                [(ngModel)]="oficinaAnalisis"
-                class="input select required-field"
-                required
-                [ngClass]="{'ng-invalid ng-touched': !oficinaAnalisis}"
-              >
+              <select [(ngModel)]="oficinaAnalisis" class="input select required-field" required
+                [ngClass]="{'ng-invalid ng-touched': !oficinaAnalisis}">
                 <option value="" disabled [selected]="!oficinaAnalisis">Seleccione la Oficina de análisis</option>
                 <option *ngFor="let oficina of oficinasAnalisis" [value]="oficina.idOficina">
                   {{ oficina.nombre }}
@@ -120,12 +116,8 @@
           <section class="form-row">
             <section class="form-group">
               <label>Tipo Objetivo:</label>
-              <select
-                [(ngModel)]="idTipoDatoSeleccionado"
-                class="input select required-field"
-                required
-                [ngClass]="{'ng-invalid ng-touched': !idTipoDatoSeleccionado}"
-              >
+              <select [(ngModel)]="idTipoDatoSeleccionado" class="input select required-field" required
+                [ngClass]="{'ng-invalid ng-touched': !idTipoDatoSeleccionado}">
                 <option value="" disabled [selected]="!idTipoDatoSeleccionado">Seleccione el Tipo de Objetivo</option>
                 <option *ngFor="let tipoDato of TipoDatos" [value]="tipoDato.idTipoDato">
                   {{ tipoDato.nombre }}
@@ -170,8 +162,7 @@
               <button type="button" class="btn btn-secondary text-[#FFFFFF] px-4 
               py-2 rounded
               focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
-                (click)="agregarRequerimiento()" 
-                [disabled]="editarRequerimiento" 
+                (click)="agregarRequerimiento()" [disabled]="editarRequerimiento"
                 [ngClass]="{'btn-disabled': editarRequerimiento}">
                 <i class="material-icons">add</i>
                 <span>Agregar</span>
@@ -179,13 +170,15 @@
               <button type="button" class="btn btn btn-tertiary text-[#FFFFFF] px-4 
                 py-2 rounded 
                 focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
-                (click)="selectedIndex !== null ? agregarRequerimiento() : null">
+                [disabled]="!editarRequerimiento"
+                [ngClass]="{'btn-disabled': !editarRequerimiento}"
+                (click)="selectedIndex !== null ? editarRequerimientoAnalisis() : null">
                 <i class="material-icons">edit_square</i>
                 <span>Editar</span>
               </button>
             </div>
           </section>
-          
+
 
           <!-- Tabla de registros -->
           <section class="mt-8">
@@ -208,19 +201,17 @@
                       <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
                       py-2 rounded 
                       focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
-                        (click)="cargarRequerimientoEnFormulario(i)"
-                        title="Editar">
+                        (click)="cargarRequerimientoEnFormulario(i)" title="Editar">
                         <i class="material-icons">edit</i>
                       </button>
                       <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
                       py-2 rounded 
                       focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
-                        (click)="eliminarRequerimiento(i)"
-                        title="Eliminar">
+                        (click)="eliminarRequerimiento(i)" title="Eliminar">
                         <i class="material-icons">delete</i>
                       </button>
                     </div>
-                    
+
                   </td>
                   <td>{{ requerimiento.tipoDato.nombre }}</td>
                   <td>{{ requerimiento.objetivo }}</td>
@@ -254,7 +245,7 @@
       </button>
     </div>
   </section>
-  
+
 </div>
 
 <!-- Modal de Confirmación -->
