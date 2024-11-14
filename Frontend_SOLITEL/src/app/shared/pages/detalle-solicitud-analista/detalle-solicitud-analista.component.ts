@@ -158,7 +158,9 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
         utilizadoPor: req.utilizadoPor,
         objetivo: req.objetivo
       }));
-      
+      if(this.solicitudAnalisisSeleccionada.nombreUsuarioAsignado){
+        this.existeAsignacion = true;
+      }
       this.usuario = this.authenticationService.getUsuario();
       this.cargarArchivos(this.idSolicitudAnalisisSeleccionada);
       this.obtenerUsuariosDisponibles();
