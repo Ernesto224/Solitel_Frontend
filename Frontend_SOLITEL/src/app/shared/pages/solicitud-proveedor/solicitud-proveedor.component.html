@@ -3,9 +3,9 @@
   <main class="flex-grow ml-64 p-4">
     <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
     <div class="mt-12">
-      <div class="space-y-8" >
+      <div class="space-y-8">
         <!-- Formulario de solicitudes -->
-        <section class="form-container general-div" >
+        <section class="form-container general-div">
           <h2>Solicitud de Informe telefónicos a proveedor</h2>
           <hr>
           <form>
@@ -166,13 +166,13 @@
               <div class="form-row">
                 <div class="form-group">
                   <label for="fecha-inicio">Fecha inicio:</label>
-                  <input type="datetime-local" id="fecha-inicio" [(ngModel)]="fechaInicio" name="fechaInicio" [max]="fechaFinal" (change)="validarFechas()" 
-                  requerid>
+                  <input type="datetime-local" id="fecha-inicio" [(ngModel)]="fechaInicio" name="fechaInicio"
+                    [max]="fechaFinal" (change)="validarFechas()" requerid>
                 </div>
                 <div class="form-group">
                   <label for="fecha-final">Fecha final:</label>
-                  <input type="datetime-local" id="fecha-final" [(ngModel)]="fechaFinal" name="fechaFinal" [min]="fechaInicio" (change)="validarFechas()"
-                  required="">
+                  <input type="datetime-local" id="fecha-final" [(ngModel)]="fechaFinal" name="fechaFinal"
+                    [min]="fechaInicio" (change)="validarFechas()" required="">
                 </div>
               </div>
               <!-- Requerimiento -->
@@ -265,7 +265,7 @@
             </table>
             <hr>
           </section>
-          
+
 
 
         </section>
@@ -328,17 +328,19 @@
         <!-- Dato requerido -->
         <div class="form-group">
           <label for="dato-requerido">Dato requerido:</label>
-          <input type="text" id="dato-requerido" [(ngModel)]="datoRequerido" name="datoRequerido"
-            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required (copy)="false"
-            (cut)="false" (paste)="false">
+          <input type="text" id="dato-requerido" [(ngModel)]="datoRequerido" name="datoRequerido" [mask]="maskPattern"
+            [dropSpecialCharacters]="false" [placeholder]="placeholderDatoRequerido"
+            [maxlength]="maxlengthDatoRequerido" required (copy)="false" (cut)="false" (paste)="false" />
         </div>
+
         <!-- Repita el dato requerido -->
         <div class="form-group">
           <label for="repita-dato">Repita el dato requerido:</label>
           <input type="text" id="repita-dato" [(ngModel)]="repitaDatoRequerido" name="repitaDatoRequerido"
-            [attr.maxlength]="maxlengthDatoRequerido" [placeholder]="placeholderDatoRequerido" required (copy)="false"
-            (cut)="false" (paste)="false">
+            [mask]="maskPattern" [dropSpecialCharacters]="false" [placeholder]="placeholderDatoRequerido"
+            [maxlength]="maxlengthDatoRequerido" required (copy)="false" (cut)="false" (paste)="false" />
         </div>
+
         <!-- Ingrese una motivación -->
         <div class="form-group">
           <label for="motivation">Ingrese una motivación:</label>

@@ -16,7 +16,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { AlertaComponent } from '../../components/alerta/alerta.component';
 import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
 import { AuthenticacionService } from '../../services/authenticacion.service';
-
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 @Component({
   selector: 'app-solicitud-proveedor',
   standalone: true,
@@ -25,10 +25,12 @@ import { AuthenticacionService } from '../../services/authenticacion.service';
     FormsModule,
     NgMultiSelectDropDownModule,
     AlertaComponent,
+    NgxMaskDirective,
     ModalConfirmacionComponent
   ],
   templateUrl: './solicitud-proveedor.component.html',
-  styleUrls: ['./solicitud-proveedor.component.css']
+  styleUrls: ['./solicitud-proveedor.component.css'],
+  providers: [provideNgxMask()]
 })
 export default class SolicitudProveedorComponent {
 
@@ -121,6 +123,8 @@ export default class SolicitudProveedorComponent {
   usuario: any = {};
   nombreOficina: string = '';
 
+  //mascaras
+  maskPattern: string = '';
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
     private delitoService: DelitoService,
@@ -459,13 +463,13 @@ export default class SolicitudProveedorComponent {
         },
 
         modalidad: {
-          idModalidad: this.idModalidadSeleccionada != 0 ? this.idModalidadSeleccionada: 0,
+          idModalidad: this.idModalidadSeleccionada != 0 ? this.idModalidadSeleccionada : 0,
           nombre: "Modalidad X",
           descripcion: "Descripción de la modalidad"
         },
 
         subModalidad: {
-          idSubModalidad: this.idSubModalidadSeleccionada != 0 ? this.idSubModalidadSeleccionada: 0,
+          idSubModalidad: this.idSubModalidadSeleccionada != 0 ? this.idSubModalidadSeleccionada : 0,
           nombre: "Submodalidad X",
           descripcion: "Descripción de la submodalidad",
           idModalida: this.idModalidadSeleccionada
@@ -808,32 +812,49 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-  onTipoDatoChange() {
+  onTipoDatoChange(): void {
+    if (!this.tipoDatoSeleccionadoBloqueado) {
+      switch (this.tipoDatoSeleccionado?.nombre) {
+        case 'Número Nacional':
+          this.maskPattern = '0000-0000'; // Ejemplo: 2222-2222
+          this.placeholderDatoRequerido = '2222-2222';
+          this.maxlengthDatoRequerido = 9;
+          break;
+        case 'Número Internacional':
+          this.maskPattern = '+000 0000-0000'; // Ejemplo: +502 1234-5678
+          this.placeholderDatoRequerido = '+502 1234-5678';
+          this.maxlengthDatoRequerido = 14; // Ajusta según sea necesario
+          break;
 
-    if (this.tipoDatoSeleccionadoBloqueado == false) {
-
-      if (this.tipoDatoSeleccionado?.nombre === 'IMEI') {
-        this.maxlengthDatoRequerido = 15;  // Límite para IMEI (15 dígitos)
-        this.placeholderDatoRequerido = '123456789087654'
-      } else if (this.tipoDatoSeleccionado?.nombre === 'Número Nacional') {
-        this.maxlengthDatoRequerido = 8;  // Límite para número de teléfono (10 dígitos)
-        this.placeholderDatoRequerido = '2222-2222'
-      } else if (this.tipoDatoSeleccionado?.nombre === 'IP') {
-        this.maxlengthDatoRequerido = 15;  // Límite para email
-        this.placeholderDatoRequerido = '192.168.111.111'
-      } else if (this.tipoDatoSeleccionado?.nombre === 'Número Internacional') {
-        this.maxlengthDatoRequerido = 14;  // Límite para email
-        this.placeholderDatoRequerido = '+1 305 123-4567'
-      } else {
-        this.maxlengthDatoRequerido = 100;  // Valor por defecto
-        this.placeholderDatoRequerido = 'Ingrese el dato requerido'
+        case 'IMEI':
+          this.maskPattern = '000000000000000'; // Ejemplo: 15 dígitos
+          this.placeholderDatoRequerido = '123456789087654';
+          this.maxlengthDatoRequerido = 15;
+          break;
+        case 'SIM':
+          this.maskPattern = '0000000000'; // Ejemplo: 10 dígitos
+          this.placeholderDatoRequerido = '1234567890';
+          this.maxlengthDatoRequerido = 10;
+          break;
+        case 'IP':
+          this.maskPattern = '099.099.099.099'; // Ejemplo: 192.168.111.111
+          this.placeholderDatoRequerido = '192.168.111.111';
+          this.maxlengthDatoRequerido = 15;
+          break;
+        case 'Radio Base':
+          this.maskPattern = '000-000-0000'; // Ejemplo: 000-000-0000
+          this.placeholderDatoRequerido = '000-000-0000';
+          this.maxlengthDatoRequerido = 12;
+          break;
+        default:
+          this.maskPattern = ''; // Sin máscara
+          this.placeholderDatoRequerido = 'Ingrese el dato requerido';
+          this.maxlengthDatoRequerido = 25;
+          break;
       }
-
-    } else {
-      this.errorMessage = 'No se pueden cambiar el tipo de dato.';
-
     }
   }
+
 
   toggleUrgente() {
     // Cambiar el estado de urgente (true/false)
@@ -849,7 +870,7 @@ export default class SolicitudProveedorComponent {
     this.isModalOpen = false;
   }
 
-  buscarInfoNumeroUnico(numeroUnico: string): void{
+  buscarInfoNumeroUnico(numeroUnico: string): void {
     this.solicitudProveedorService.consultarInfoNumeroUnico(numeroUnico).subscribe({
       next: (data: any) => {
 
@@ -863,7 +884,7 @@ export default class SolicitudProveedorComponent {
         this.isCategoriaDelitoDisabled = true;
         this.isDelitoDisabled = true;
         this.isFiscaliaDisabled = true;
-        
+
       },
       error: (err: any) => {
         this.alertaMensaje = 'No se encontro solicitud con ese numero unico';
@@ -884,11 +905,11 @@ export default class SolicitudProveedorComponent {
     });
   }
 
-  abrirModalConfirmacion(){
+  abrirModalConfirmacion() {
     this.modalConfirmacionisible = true;
   }
 
-  cerrarModalConfirmacion(){
+  cerrarModalConfirmacion() {
     this.modalConfirmacionisible = false;
   }
 
