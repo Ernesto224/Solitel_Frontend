@@ -659,7 +659,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   }
   validarOtrosDetalles(): boolean {
     const regex = /^[a-zA-Z0-9\s.,;:!?()-]+$/;
-    return regex.test(this.otrosDetalles) && this.otrosDetalles.length >= 20;
+    return regex.test(this.otrosDetalles) && this.otrosDetalles.length >= 4;
   }
 
   validarObjetivo(): boolean {
@@ -669,7 +669,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
 
   validarUtilizadoPor(): boolean {
     const regex = /^[a-zA-Z\s]+$/;
-    return regex.test(this.utilizadoPor) && this.utilizadoPor.length >= 20;
+    return regex.test(this.utilizadoPor) && this.utilizadoPor.length >= 4;
   }
 
   mostrarAlerta(): void {

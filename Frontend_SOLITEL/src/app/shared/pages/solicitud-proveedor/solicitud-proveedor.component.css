@@ -509,3 +509,7 @@ textarea {
   width: 100%;
   box-sizing: border-box;
 }
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
