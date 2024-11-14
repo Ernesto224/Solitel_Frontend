@@ -152,7 +152,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   archivosAnalizarSeleccionados: Archivo[] = [];
   objetivosAnalisisSeleccionados: any[] = [];
   oficinaAnalisis: number | null = null;
-  tipoAnalisis: string = 'Análisis Telefónico';
+  tipoAnalisis: number = 0;
   fechaHecho: string = '';
   otrosObjetivos: string = '';
   otrosDetalles: string = '';
@@ -174,6 +174,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   alertatipo: string = "error";
   alertaMensaje: string = "";
   alertaVisible: boolean = false;
+  editarRequerimiento: boolean = false;
   private subscription = new Subscription();
 
   // Control de modales
@@ -218,7 +219,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   cargarSolicitudesPorNumeroUnico(numeroUnico: string): void {
     this.subscription.add(
       this.analisisService
-        .obtenerSolicitudesPorNumeroUnico(numeroUnico)
+        .obtenerSolicitudesPorNumeroUnico(numeroUnico, this.usuarioActivo)
         .subscribe(
           (solicitudes) => {
             this.solicitudesProveedor = solicitudes.map((solicitud) => ({
@@ -351,37 +352,35 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
         this.mostrarAlerta();
         return;
     }
+    const condicionSeleccionada = 
+    this.condicionesAnalisis.find(c => c.idCondicion === Number(this.condicionAnalisisEscogida));
 
-    const condicionSeleccionada =
-        this.condicionesAnalisis[
-            (this.condicionAnalisisEscogida - this.condicionesAnalisis.length) * -1
-        ];
-
-    const nuevoRequerimiento: Requerimiento = {
-        idRequerimientoAnalisis: this.requerimientos.length + 1,
-        objetivo: this.objetivo,
-        utilizadoPor: this.utilizadoPor,
-        tipoDato: {
-            idTipoDato: this.idTipoDatoSeleccionado,
-            nombre:
-                this.TipoDatos[
-                    (this.idTipoDatoSeleccionado - this.TipoDatos.length) * -1
-                ]?.nombre || 'Tipo no especificado',
-            descripcion:
-                this.TipoDatos[
-                    (this.idTipoDatoSeleccionado - this.TipoDatos.length) * -1
-                ]?.descripcion,
-        },
-        idAnalisis: this.requerimientos.length,
-        condicion: condicionSeleccionada || {
-            idCondicion: 0,
-            nombre: 'Nombre no especificado',
-            descripcion: 'Descripción no especificada',
-        },
-    };
+    const tipoDatoSeleccionado = this.TipoDatos.find(tipo => tipo.idTipoDato === Number(this.idTipoDatoSeleccionado)) || {
+      nombre: 'Tipo no especificado',
+      descripcion: '',
+  };
+  const nuevoRequerimiento: Requerimiento = {
+      idRequerimientoAnalisis: this.requerimientos.length + 1,
+      objetivo: this.objetivo,
+      utilizadoPor: this.utilizadoPor,
+      tipoDato: {
+          idTipoDato: 'idTipoDato' in tipoDatoSeleccionado ? tipoDatoSeleccionado.idTipoDato : this.idTipoDatoSeleccionado, // Verificación adicional
+          nombre: tipoDatoSeleccionado.nombre,
+          descripcion: tipoDatoSeleccionado.descripcion,
+      },
+      idAnalisis: this.requerimientos.length,
+      condicion: condicionSeleccionada != null ? condicionSeleccionada : {
+          idCondicion: 0,
+          nombre: 'Nombre no especificado',
+          descripcion: 'Descripción no especificada',
+      },
+  };
+  
+  
 
     if (this.selectedIndex !== null && this.selectedIndex >= 0) {
         this.requerimientos[this.selectedIndex] = { ...nuevoRequerimiento };
+        this.editarRequerimiento = false;
         this.selectedIndex = null;
     } else {
         this.requerimientos.push(nuevoRequerimiento);
@@ -399,6 +398,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       this.utilizadoPor = requerimiento.utilizadoPor;
       this.condicionAnalisisEscogida = requerimiento.condicion.idCondicion;
       this.idTipoDatoSeleccionado = requerimiento.tipoDato.idTipoDato;
+      this.editarRequerimiento = true;
     }
   }
 
@@ -408,11 +408,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       this.limpiarCamposRequerimiento();
     }
   }
-
-  VerIdOficina(): void {
-    console.log(this.oficinaAnalisis);
-  }
-
   enviarSolicitud(): void {
     if (
       (this.archivosAnalizarSeleccionados.length === 0) ||
@@ -621,11 +616,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
         console.error('Error al cargar condiciones de análisis:', error) // MOSTRAR ERROR EN ALERTA
     );
   }
-
-  verificarIdTipoDatos(): void {
-    console.log(this.idTipoDatoSeleccionado);
-  }
-
   obtenerTipoAnalisis(): void {
     this.analisisService.obtenerTipoAnalisis().subscribe(
       (tipos) => {
@@ -639,19 +629,17 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.objetivo = '';
     this.utilizadoPor = '';
     this.condicion = '';
-    this.selectedIndex = null;
     this.idTipoDatoSeleccionado = 0;
     this.condicionAnalisisEscogida = 0;
   }
 
   limpiarFormulario(): void {
-    // Restablecer campos principales del formulario
     this.numeroUnico = null;
     this.solicitudesProveedorSeleccionadas = [];
     this.archivosAnalizarSeleccionados = [];
     this.objetivosAnalisisSeleccionados = [];
     this.oficinaAnalisis = null;
-    this.tipoAnalisis = 'Análisis Telefónico';
+    this.tipoAnalisis = 0;
     this.fechaHecho = '';
     this.otrosObjetivos = '';
     this.otrosDetalles = '';
@@ -669,7 +657,6 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.limpiarCamposRequerimiento();
 
   }
-
   validarOtrosDetalles(): boolean {
     const regex = /^[a-zA-Z0-9\s.,;:!?()-]+$/;
     return regex.test(this.otrosDetalles) && this.otrosDetalles.length >= 20;

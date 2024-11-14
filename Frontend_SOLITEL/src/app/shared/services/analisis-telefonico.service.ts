@@ -32,7 +32,7 @@ export class AnalisisTelefonicoService {
   private urlInsertar: string = 'SolicitudAnalisis';
   private urlObtenerSolicitudesProveedor: string =
     'SolicitudProveedor/listarNumerosUnicosTramitados';
-  private urlObtenerOficinas: string = 'Oficina/consultarOficinas';
+  private urlObtenerOficinas: string = 'Oficina/ObtenerOficinas';
   private urlObtenerSolicitudesPorNumeroUnico: string =
     'SolicitudProveedor/consultarSolicitudesProveedorPorNumeroUnico';
   private urlObtenerObjetivoAnalisis: string =
@@ -104,24 +104,28 @@ export class AnalisisTelefonicoService {
 
   obtenerOficinasAnalisis(): Observable<any[]> {
     const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
     });
-    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerOficinas}`, {
-      headers,
-    });
-  }
 
-  obtenerSolicitudesPorNumeroUnico(numeroUnico: string): Observable<any[]> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      accept: 'application/json',
+    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerOficinas}?tipo=Analisis`, {
+        headers,
     });
-    return this.http.get<any[]>(
-      `${this.baseUrl}${this.urlObtenerSolicitudesPorNumeroUnico}?numeroUnico=${numeroUnico}`,
-      { headers }
-    );
-  }
+}
+
+
+obtenerSolicitudesPorNumeroUnico(numeroUnico: string, usuarioActual: any): Observable<any[]> {
+  const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+  });
+  console.log("USUARIO OFICINA: "+usuarioActual.idUsuario)
+  console.log("ID OFICINA "+usuarioActual.oficina.idOficina)
+  const url = `${this.baseUrl}${this.urlObtenerSolicitudesPorNumeroUnico}?numeroUnico=${numeroUnico}&idUsuario=${usuarioActual.idUsuario}&idOficina=${usuarioActual.oficina.idOficina}`;
+
+  return this.http.get<any[]>(url, { headers });
+}
+
 
   obtenerObjetivosAnalisis(idObjetivo: number): Observable<any[]> {
     const headers = new HttpHeaders({
