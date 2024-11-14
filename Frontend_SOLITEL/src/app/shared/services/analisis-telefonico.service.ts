@@ -122,8 +122,6 @@ obtenerSolicitudesPorNumeroUnico(numeroUnico: string, usuarioActual: any): Obser
       'Content-Type': 'application/json',
       'Accept': 'application/json',
   });
-  console.log("USUARIO OFICINA: "+usuarioActual.idUsuario)
-  console.log("ID OFICINA "+usuarioActual.oficina.idOficina)
   const url = `${this.baseUrl}${this.urlObtenerSolicitudesPorNumeroUnico}?numeroUnico=${numeroUnico}&idUsuario=${usuarioActual.idUsuario}&idOficina=${usuarioActual.oficina.idOficina}`;
 
   return this.http.get<any[]>(url, { headers });

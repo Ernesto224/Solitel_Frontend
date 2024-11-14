@@ -116,8 +116,13 @@
           <section class="form-row">
             <section class="form-group">
               <label>Tipo Objetivo:</label>
-              <select [(ngModel)]="idTipoDatoSeleccionado" class="input select required-field" required
-                [ngClass]="{'ng-invalid ng-touched': !idTipoDatoSeleccionado}">
+              <select
+                [(ngModel)]="idTipoDatoSeleccionado"
+                (ngModelChange)="establecerMascara(idTipoDatoSeleccionado)"
+                class="input select required-field"
+                required
+                [ngClass]="{'ng-invalid ng-touched': !idTipoDatoSeleccionado}"
+              >
                 <option value="" disabled [selected]="!idTipoDatoSeleccionado">Seleccione el Tipo de Objetivo</option>
                 <option *ngFor="let tipoDato of TipoDatos" [value]="tipoDato.idTipoDato">
                   {{ tipoDato.nombre }}
@@ -127,8 +132,15 @@
 
             <section class="form-group">
               <label>Objetivo:</label>
-              <input [(ngModel)]="objetivo" (blur)="validarObjetivo()" mask="00000000" type="text"
-                class="input required-field" [ngClass]="{'invalid': !objetivo}" />
+              <input
+                [(ngModel)]="objetivo"
+                [dropSpecialCharacters]="false"
+                (blur)="validarObjetivo()"
+                [mask]="mascara" 
+                type="text"
+                class="input required-field"
+                [ngClass]="{'invalid': !objetivo}"
+              />
             </section>
 
             <section class="form-group">

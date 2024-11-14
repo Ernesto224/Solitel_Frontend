@@ -185,27 +185,33 @@
               <section class="center-buttons p-6 flex justify-end space-x-4">
                 <div class="buttons-row space-x-4">
                   <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
-                  py-2 rounded 
-                  focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
-                    (click)="limpiarFormulario()">
+                          py-2 rounded 
+                          focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                          (click)="limpiarFormulario()">
                     <i class="material-icons">remove</i>
                     <span>Limpiar</span>
                   </button>
+                  
                   <button type="button" class="btn btn-secondary text-[#FFFFFF] px-4 
-                  py-2 rounded
-                  focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
-                    (click)="agregarSolicitud()">
+                          py-2 rounded
+                          focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                          (click)="agregarSolicitud()"
+                          [disabled]="editarRequerimiento" 
+                          [ngClass]="{'btn-disabled': editarRequerimiento}">
                     <i class="material-icons">add</i>
                     <span>Agregar</span>
                   </button>
+                  
                   <button type="button" class="btn btn-tertiary text-[#FFFFFF] px-4 
-                    py-2 rounded 
-                    focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
-                    (click)="actualizarSolicitud()">
+                          py-2 rounded 
+                          focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                          (click)="actualizarSolicitud()"
+                          [disabled]="!editarRequerimiento" 
+                          [ngClass]="{'btn-disabled': !editarRequerimiento}">
                     <i class="material-icons">edit_square</i>
                     <span>Editar</span>
                   </button>
-                </div>
+                </div>                
               </section>
             </section>
           </form>

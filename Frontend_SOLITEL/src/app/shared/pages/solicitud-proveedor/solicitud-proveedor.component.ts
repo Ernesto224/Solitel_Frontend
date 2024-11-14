@@ -49,6 +49,8 @@ export default class SolicitudProveedorComponent {
   selectedFile: File | null = null;
   fileId: number = 0;
 
+  //Variable para editar
+  editarRequerimiento: boolean = false;
   // Estados y modales
   isModalOpen = false;
   isUrgent = false;
@@ -155,6 +157,7 @@ export default class SolicitudProveedorComponent {
     this.getTiposDato();
     this.getOperadoras();  // Cargar operadoras
     //this.getOficinas();    // Cargar oficinas
+    this.editarRequerimiento = false;
 
     // Configuración para el Multi-Select Dropdown
     this.dropdownSettings = {
@@ -340,6 +343,7 @@ export default class SolicitudProveedorComponent {
     this.fechaFinal = solicitud.tF_FechaFinal;                   // Cargar fecha final
     this.listaDatosRequeridos = solicitud.datosRequeridos;       // Cargar datos requeridos
     this.tipoDatoSeleccionadoBloqueado = true;
+    this.editarRequerimiento = true;
   }
 
   actualizarSolicitud() {
@@ -610,6 +614,8 @@ export default class SolicitudProveedorComponent {
     this.requerimiento = '';
     this.listaDatosRequeridos = [];
 
+    //Condicion Editar
+    this.editarRequerimiento = false;
     this.resetForm();
   }
 

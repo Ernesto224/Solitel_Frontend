@@ -524,3 +524,8 @@ textarea {
   border-color: #010102;
   border-radius: 5px;
 }
+
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
