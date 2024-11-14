@@ -643,6 +643,16 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
         (error) => console.error('Error al enviar la solicitud:', error.error) // MOSTRAR ERROR EN ALERTA
       );
   }
+  errorModalInfo() {
+    this.alertatipo = "error";
+    this.alertaMensaje = "Hubo un error al momento de realizar la petición";
+    this.alertaVisible = true;
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000);
+
+  }
+
   obtenerCondiciones(): void {
     this.analisisService.obtenerCondiciones().subscribe(
       (condiciones) => {

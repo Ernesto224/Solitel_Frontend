@@ -52,7 +52,7 @@ export default class BandejaComponent implements OnInit {
   solicitudesPaginadas: any[] = [];
   solicitudSeleccionada: any = null;
   solicitudIdParaActualizar: number | null = null;
-
+  solicitudAnalisisSeleccionada: any = null;
   // Filtros
   numeroUnicoFiltro: string = '';
   fechaInicioFiltro: string = '';
@@ -75,6 +75,7 @@ export default class BandejaComponent implements OnInit {
   modalAprobarAnalisis: boolean = false;
   modalDevolverAnalizado: boolean = false;
   modalFinalizarAnalisis: boolean = false;
+  modalVerSolicitud: boolean = false;
   subirArchivosInformeFinalOpcion: boolean = false;
 
   // Variables relacionadas con la paginación y visibilidad
@@ -132,6 +133,8 @@ export default class BandejaComponent implements OnInit {
   encabezadosAccionesRequerimientosTramitados: any[] = [
     'Archivos'
   ];
+
+
 
   // Objetos complejos
   estadoColumnas: { [key: string]: { [key: string]: { headers: string[], columnasVisibles: {} } } } = {};
@@ -282,6 +285,7 @@ export default class BandejaComponent implements OnInit {
           this.modalInvisible();
         },
         error: (err) => {
+          this.errorModalInfo();
           console.error('Error al obtener datos:', err);
           this.modalInvisible();
         },
@@ -297,12 +301,29 @@ export default class BandejaComponent implements OnInit {
           this.reiniciarDatosDeTabla();
           this.actualizarPaginacion();
           this.modalInvisible();
+          console.log(value); // Mostrar el JSON recibido en la consola
         },
         error: (err) => {
           console.error('Error al obtener solicitudes de análisis:', err);
           this.modalInvisible();
         }
       });
+  }
+
+  abrirModalSolicitudAnalisis(idSolicitudAnalisis: number): void {
+    this.solicitudAnalisisSeleccionada = this.solicitudesPaginadas.find(
+      (solicitud) => solicitud.idSolicitudAnalisis === idSolicitudAnalisis
+    );
+    if (!this.solicitudAnalisisSeleccionada) {
+        console.warn('No se encontró la solicitud de análisis con ID:', idSolicitudAnalisis);
+        return;
+    }
+    this.modalVerSolicitud = true; 
+}
+
+  cerrarModalSolicitudAnalisis(): void {
+    this.modalVerSolicitud = false; // Oculta el modal
+    this.solicitudSeleccionada = null; // Limpia la selección
   }
 
   obtenerOpcionesPorEstado(estado: string): string[] {
@@ -561,6 +582,22 @@ export default class BandejaComponent implements OnInit {
     }
   }
 
+  aprobarSolicitud(idSolicitudProveedor: number, estado: string) {
+    this.solicitudIdParaActualizar = idSolicitudProveedor;
+    this.nuevoEstado = estado;
+    this.confirmarCambioEstado();
+  }
+
+  errorModalInfo() {
+    this.alertatipo = "error";
+    this.alertaMensaje = "Hubo un error al momento de realizar la petición";
+    this.alertaVisible = true;
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000);
+
+  }
+
   confirmarCambioEstado() {
     if (this.solicitudIdParaActualizar) {
       this.solicitudProveedorService.actualizarEstado(
@@ -577,6 +614,8 @@ export default class BandejaComponent implements OnInit {
           this.obtenerSolicitudes();
         },
         error => {
+          this.cerrarModalCambioEstado();
+          this.errorModalInfo();
           console.error("Error al actualizar el estado:", error);
         }
       );
@@ -829,6 +868,12 @@ export default class BandejaComponent implements OnInit {
         this.obtenerSolicitudesAnalisis();
       },
       error: err => {
+        this.alertatipo = "error";
+        this.alertaMensaje = "Hubo un error al momento de realizar la petición";
+        this.alertaVisible = true;
+        setTimeout(() => {
+          this.alertaVisible = false;
+        }, 3000);
         console.error('Error al finalizar la solicitud de analisis:', err);
       }
     });

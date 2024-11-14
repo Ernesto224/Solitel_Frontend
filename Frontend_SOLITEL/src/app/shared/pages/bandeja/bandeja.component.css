@@ -459,9 +459,77 @@ button:hover {
   overflow-x: auto; /* Permitir desplazamiento horizontal si es necesario */
 }
 
-.margin-div{
-  margin-bottom: 20px; /* Espacio hacia abajo de 20px */
-  padding: 20px; /* Espaciado interno (aumentado) */
-  border-color: #010102;
-  border-radius: 5px;
+/*modal de ver solicitud análisis*/
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.styled-table thead tr {
+  background-color: #1c355c;
+  color: #ffffff;
+  text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:nth-of-type(odd) {
+  background-color: #ffffff;
+}
+
+.styled-table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.form-container {
+  margin-bottom: 16px;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.form-group {
+  flex: 1 1 calc(50% - 16px);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+.buttons-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn {
+  background-color: #1c355c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background-color: #d32f2f;
 }
