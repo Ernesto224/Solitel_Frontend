@@ -150,6 +150,7 @@
               <label>Tipo Objetivo:</label>
               <select
                 [(ngModel)]="idTipoDatoSeleccionado"
+                (ngModelChange)="establecerMascara(idTipoDatoSeleccionado)"
                 class="input select required-field"
                 required
                 [ngClass]="{'ng-invalid ng-touched': !idTipoDatoSeleccionado}"
@@ -168,8 +169,9 @@
               <label>Objetivo:</label>
               <input
                 [(ngModel)]="objetivo"
+                [dropSpecialCharacters]="false"
                 (blur)="validarObjetivo()"
-                mask="00000000"
+                [mask]="mascara" 
                 type="text"
                 class="input required-field"
                 [ngClass]="{'invalid': !objetivo}"

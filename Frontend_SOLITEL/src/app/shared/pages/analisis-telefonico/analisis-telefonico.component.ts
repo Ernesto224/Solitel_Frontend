@@ -180,7 +180,9 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   // Control de modales
   mostrarConfirmacion = false;
   mostrarExito = false;
-
+  //Mascaras en los inputs
+  mascara:string = "";
+  
   // Usuario para obtener la oficina de creacion
   usuario: any = [];
 
@@ -399,6 +401,8 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       this.condicionAnalisisEscogida = requerimiento.condicion.idCondicion;
       this.idTipoDatoSeleccionado = requerimiento.tipoDato.idTipoDato;
       this.editarRequerimiento = true;
+      this.establecerMascara(this.idTipoDatoSeleccionado);
+      
     }
   }
 
@@ -631,6 +635,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.condicion = '';
     this.idTipoDatoSeleccionado = 0;
     this.condicionAnalisisEscogida = 0;
+    this.mascara = '';
   }
 
   limpiarFormulario(): void {
@@ -652,6 +657,7 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     this.operadoraSeleccionada = [];
     this.condicionAnalisisEscogida = 0;
     this.idsSolicitudProveedarArchivo = [];
+    this.mascara = '';
 
     // Resetear los campos específicos de los requerimientos
     this.limpiarCamposRequerimiento();
@@ -672,6 +678,27 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
     return regex.test(this.utilizadoPor) && this.utilizadoPor.length >= 4;
   }
 
+  mascaras: { [key: string]: { mask: string } } = {
+    "IP": { mask: "099.099.099.099" },
+    "Radio Base": { mask: "099.099.099.099" },
+    "Número Nacional": { mask: "0000-0000" },
+    "Número Internacional": { mask: "+000 0000-0000" },
+    "SIM": { mask: "0000000000" }
+  };  
+  
+  establecerMascara(idTipoDatoSeleccionado: number): void {
+    // Buscar el tipo de dato correspondiente
+    const tipoDato = this.TipoDatos.find(tipo => tipo.idTipoDato === Number(idTipoDatoSeleccionado));
+  
+    if (tipoDato && this.mascaras[tipoDato.nombre]) {
+      // Asignar la máscara según el nombre del tipo de dato
+      this.mascara = this.mascaras[tipoDato.nombre].mask;
+    } else {
+      // Valor predeterminado si no hay coincidencia
+      this.mascara = '';
+    }
+  }  
+  
   mostrarAlerta(): void {
     this.alertaVisible = true;
 
