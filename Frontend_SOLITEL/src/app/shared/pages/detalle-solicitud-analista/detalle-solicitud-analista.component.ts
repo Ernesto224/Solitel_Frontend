@@ -55,6 +55,8 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
 
   idUsuarioAsignadoSeleccionado: number = 0;
 
+  existeAsignacion: boolean = true;
+
   // Variables para alertas
   alertatipo: string = "error";
   alertaMensaje: string = "";
@@ -172,6 +174,7 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = response.message; // Mostrar el mensaje del backend
         this.alertaVisible = true;
+        this.existeAsignacion = true;
       } else {
         this.alertatipo = "error";
         this.alertaMensaje = response.message; // Mostrar el mensaje de error del backend
