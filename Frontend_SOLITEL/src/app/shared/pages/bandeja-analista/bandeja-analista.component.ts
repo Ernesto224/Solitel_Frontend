@@ -169,38 +169,29 @@ export default class BandejaAnalistaComponent implements OnInit {
   aplicarFiltroCaracter() {
     if (this.filtroCaracter) {
       const filtro = this.filtroCaracter.toLowerCase();
-      console.log(this.filtroCaracter);
-      // Filtro principal sobre el objeto
+  
+      // Helper function to format dates to dd/MM/yyyy
+      const formatFecha = (fecha: string | null) => {
+        if (!fecha) return '';
+        const date = new Date(fecha);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+  
+      // Filtro principal basado en los criterios solicitados
       this.solicitudesAnalisisFiltradas = this.solicitudesAnalisis.filter(solicitud =>
-        solicitud.idSolicitudAnalisis.toString().includes(filtro) ||
-        solicitud.fechaDelHecho?.toLowerCase().includes(filtro) || // Si el filtro incluye formato de fecha
-        solicitud.fechaCrecion?.toLowerCase().includes(filtro) ||
-        solicitud.requerimentos.some((req: any) =>
-          req.objetivo?.toLowerCase().includes(filtro) ||
-          req.utilizadoPor?.toLowerCase().includes(filtro) ||
-          req.tipoDato?.nombre?.toLowerCase().includes(filtro) ||
-          req.condicion?.nombre?.toLowerCase().includes(filtro)
-        ) ||
-        solicitud.objetivosAnalisis.some((obj: any) =>
-          obj.nombre?.toLowerCase().includes(filtro) ||
-          obj.descripcion?.toLowerCase().includes(filtro)
-        ) ||
-        solicitud.solicitudesProveedor.some((prov: any) =>
-          prov.numeroUnico?.toLowerCase().includes(filtro) ||
-          prov.imputado?.toLowerCase().includes(filtro) ||
-          prov.ofendido?.toLowerCase().includes(filtro) ||
-          prov.usuarioCreador?.nombre?.toLowerCase().includes(filtro) ||
-          prov.delito?.nombre?.toLowerCase().includes(filtro) ||
-          prov.categoriaDelito?.nombre?.toLowerCase().includes(filtro) ||
-          prov.estado?.nombre?.toLowerCase().includes(filtro) ||
-          prov.fiscalia?.nombre?.toLowerCase().includes(filtro) ||
-          prov.modalidad?.nombre?.toLowerCase().includes(filtro) ||
-          prov.subModalidad?.nombre?.toLowerCase().includes(filtro) ||
-          prov.proveedor?.nombre?.toLowerCase().includes(filtro)
-        )
+        solicitud.idSolicitudAnalisis?.toString().includes(filtro) || // Filtrado por idSolicitudAnalisis (si aplica)
+        solicitud.idSolicitudProveedor?.toString().includes(filtro) || // Filtrado por idSolicitudProveedor (si aplica)
+        (solicitud.fechaCreacion && formatFecha(solicitud.fechaCreacion).includes(filtro)) || // Filtrado por fecha
+        (solicitud.proveedor?.nombre?.toLowerCase().includes(filtro) || // Filtrado por proveedor
+         solicitud.operadoras?.some((prov: any) => prov.nombre?.toLowerCase().includes(filtro))) || // Filtrado por operadoras si aplica
+        (solicitud.usuarioCreador?.nombre?.toLowerCase().includes(filtro) || // Filtrado por nombre de usuario creador
+         solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
       );
+  
       this.actualizarPaginacion();
-      console.log(this.solicitudesAnalisisPaginadas);
     }
   }
 
