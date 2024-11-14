@@ -27,6 +27,7 @@ export interface TipoDato {
 export class AnalisisTelefonicoService {
 
   private baseUrl: string = 'https://localhost:7211/api/';
+  private baseUrl2: string = 'https://localhost:7211/';
   private urlObtenerBandejaAnalista: string = 'SolicitudAnalisis/obtenerBandejaAnalista';
   private urlObtenerSolicitudesAnalisis: string = 'SolicitudAnalisis/consultar';
   private urlInsertar: string = 'SolicitudAnalisis';
@@ -299,7 +300,7 @@ obtenerSolicitudesPorNumeroUnico(numeroUnico: string, usuarioActual: any): Obser
       accept: 'text/plain',
     });
     return this.http.post(
-      `${this.baseUrl}${this.urlAsignarUsuario}?idSolicitudAnalisis=${idSolicitudAnalisis}&idUsuario=${idUsuario}`, { headers });
+      `${this.baseUrl2}asignarUsuarioAnalista?idSolicitudAnalisis=${idSolicitudAnalisis}&idUsuario=${idUsuario}`, { headers });
   }
 
 }

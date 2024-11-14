@@ -108,8 +108,7 @@ export default class BandejaComponent implements OnInit {
   encabezadosRequerimientosTramitados: any[] = [
     { key: 'requerimiento', label: 'Requerimiento' },
     { key: 'numRequerido', label: 'Núm. requerido' },
-    { key: 'rangoFechas', label: 'Rango de fechas' },
-    { key: 'observacion', label: 'Observación' }
+    { key: 'rangoFechas', label: 'Rango de fechas' }
   ];
   encabezadosArchivosUAC: any[] = [
     { key: 'nombre', label: 'Nombre Documento' }
@@ -329,7 +328,7 @@ export default class BandejaComponent implements OnInit {
   obtenerOpcionesPorEstado(estado: string): string[] {
     switch (estado) {
       case "En Análisis":
-        return ["Ver histórico", "Ver Solicitud", "Enviar a legajo solicitud de análisis"];
+        return ["Ver histórico", "Ver Solicitud"];
       case "Analizado":
         return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Agregar informe", "Finalizar solicitud de análisis", "Enviar a legajo solicitud de análisis"];
       case "Aprobar Analisis":

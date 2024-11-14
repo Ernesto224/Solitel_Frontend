@@ -79,6 +79,7 @@ export default class BandejaAnalistaComponent implements OnInit {
   //obtener datos
   obtenerDatosDeUsuario(): void{
     this.usuario = this.autenticate.getUsuario();
+    console.log(this.autenticate.verificarPermisosVerDatosAnalistas(this.usuario));
     this.usuarioId = this.autenticate.verificarPermisosVerDatosAnalistas(this.usuario);
     this.oficinaId = this.usuario.oficina.idOficina;
   }

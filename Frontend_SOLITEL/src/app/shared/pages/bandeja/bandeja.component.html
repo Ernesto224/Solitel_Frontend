@@ -236,11 +236,12 @@
               </ng-container>
 
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver Solicitud')">
-                <button class="inline-flex items-center space-x-1" (click)="abrirModalSolicitudAnalisis(solicitud.idSolicitudAnalisis)">
+                <button class="inline-flex items-center space-x-1"
+                  (click)="abrirModalSolicitudAnalisis(solicitud.idSolicitudAnalisis)">
                   <span class="material-icons text-sm">info</span>
                   <span>Ver Solicitud</span>
                 </button>
-                
+
                 <span> | </span>
               </ng-container>
 
@@ -459,13 +460,11 @@
           </div>
           <div>
             <label class="label" for="modalidad">Modalidad:</label>
-            <input type="text" id="modalidad" class="input"
-              [value]="solicitudSeleccionada.modalidad.nombre"
-              readonly>
+            <input type="text" id="modalidad" class="input" [value]="solicitudSeleccionada.modalidad.nombre? solicitudSeleccionada.modalidad.nombre: 'N/A'" readonly>
           </div>
           <div>
             <label class="label" for="imputado">Imputado:</label>
-            <input type="text" id="imputado" class="input" [value]="solicitudSeleccionada.imputado" readonly>
+            <input type="text" id="imputado" class="input" [value]="solicitudSeleccionada.imputado " readonly>
           </div>
         </div>
         <!-- Información sobre Delito y Sub Modalidad -->
@@ -476,8 +475,7 @@
           </div>
           <div>
             <label class="label" for="subModalidad">Sub modalidad:</label>
-            <input type="text" id="subModalidad" class="input"
-              [value]="solicitudSeleccionada.subModalidad.nombre"
+            <input type="text" id="subModalidad" class="input" [value]="solicitudSeleccionada.subModalidad.nombre? solicitudSeleccionada.subModalidad.nombre :'N/A'"
               readonly>
           </div>
           <div>
@@ -532,8 +530,6 @@
     </div>
   </div>
 </app-modal-informacion>
-
-
 
 <!-- Modal para mostrar los requerimientos de la solicitud -->
 <app-modal-informacion [isModalOpen]="modalRequerimientosVisible">
@@ -742,23 +738,13 @@
           <div class="form-row">
             <div class="form-group">
               <label for="fechaDelHecho">Fecha del Hecho:</label>
-              <input
-                type="text"
-                id="fechaDelHecho"
-                class="input"
-                [value]="solicitudAnalisisSeleccionada?.fechaDelHecho | date: 'dd/MM/yyyy' || 'N/A'"
-                readonly
-              />
+              <input type="text" id="fechaDelHecho" class="input"
+                [value]="solicitudAnalisisSeleccionada?.fechaDelHecho | date: 'dd/MM/yyyy'" readonly />
             </div>
             <div class="form-group">
               <label for="estado">Estado:</label>
-              <input
-                type="text"
-                id="estado"
-                class="input"
-                [value]="solicitudAnalisisSeleccionada?.estado?.nombre || 'N/A'"
-                readonly
-              />
+              <input type="text" id="estado" class="input"
+                [value]="solicitudAnalisisSeleccionada?.estado?.nombre || 'N/A'" readonly />
             </div>
           </div>
         </section>
@@ -846,17 +832,10 @@
   <!-- Footer personalizado del Modal -->
   <div modal-footer>
     <div class="buttons-row space-x-4">
-      <button
-        type="button"
-        class="btn btn-secondary"
-        (click)="cerrarModalSolicitudAnalisis()"
-      >
+      <button type="button" class="btn btn-secondary" (click)="cerrarModalSolicitudAnalisis()">
         <i class="material-icons">cancel</i>
         <span>Cerrar</span>
       </button>
     </div>
   </div>
 </app-modal-informacion>
-
-
-  
