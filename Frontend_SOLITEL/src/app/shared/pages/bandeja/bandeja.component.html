@@ -236,10 +236,12 @@
               </ng-container>
 
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver Solicitud')">
-                <button class="inline-flex items-center space-x-1">
+                <button class="inline-flex items-center space-x-1"
+                  (click)="abrirModalSolicitudAnalisis(solicitud.idSolicitudAnalisis)">
                   <span class="material-icons text-sm">info</span>
                   <span>Ver Solicitud</span>
                 </button>
+
                 <span> | </span>
               </ng-container>
 
@@ -458,13 +460,11 @@
           </div>
           <div>
             <label class="label" for="modalidad">Modalidad:</label>
-            <input type="text" id="modalidad" class="input"
-              [value]="solicitudSeleccionada.modalidad.nombre"
-              readonly>
+            <input type="text" id="modalidad" class="input" [value]="solicitudSeleccionada.modalidad.nombre? solicitudSeleccionada.modalidad.nombre: 'N/A'" readonly>
           </div>
           <div>
             <label class="label" for="imputado">Imputado:</label>
-            <input type="text" id="imputado" class="input" [value]="solicitudSeleccionada.imputado" readonly>
+            <input type="text" id="imputado" class="input" [value]="solicitudSeleccionada.imputado " readonly>
           </div>
         </div>
         <!-- Información sobre Delito y Sub Modalidad -->
@@ -475,8 +475,7 @@
           </div>
           <div>
             <label class="label" for="subModalidad">Sub modalidad:</label>
-            <input type="text" id="subModalidad" class="input"
-              [value]="solicitudSeleccionada.subModalidad.nombre"
+            <input type="text" id="subModalidad" class="input" [value]="solicitudSeleccionada.subModalidad.nombre? solicitudSeleccionada.subModalidad.nombre :'N/A'"
               readonly>
           </div>
           <div>
@@ -717,3 +716,126 @@
       class="w-full p-2 border rounded-md focus:outline-none focus:ring"></textarea>
   </div>
 </app-modal-confirmacion>
+
+<app-modal-informacion [isModalOpen]="modalVerSolicitud">
+  <!-- Encabezado personalizado del Modal -->
+  <div modal-header>
+    <h3 class="text-lg font-medium">
+      Solicitud #{{ solicitudAnalisisSeleccionada?.idSolicitudAnalisis || 'N/A' }}
+    </h3>
+    <h3 class="text-lg font-medium">Detalle de la Solicitud de Análisis Telefónico</h3>
+  </div>
+
+  <!-- Cuerpo del Modal -->
+  <div>
+    <div *ngIf="solicitudAnalisisSeleccionada">
+      <!-- Contenedor desplazable -->
+      <div class="scrollable-content">
+        <!-- Información General -->
+        <section class="form-container">
+          <h3>Información General</h3>
+          <hr />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fechaDelHecho">Fecha del Hecho:</label>
+              <input type="text" id="fechaDelHecho" class="input"
+                [value]="solicitudAnalisisSeleccionada?.fechaDelHecho | date: 'dd/MM/yyyy'" readonly />
+            </div>
+            <div class="form-group">
+              <label for="estado">Estado:</label>
+              <input type="text" id="estado" class="input"
+                [value]="solicitudAnalisisSeleccionada?.estado?.nombre || 'N/A'" readonly />
+            </div>
+          </div>
+        </section>
+
+        <!-- Requerimientos -->
+        <section class="form-container">
+          <h3>Requerimientos</h3>
+          <hr />
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Objetivo</th>
+                <th>Utilizado Por</th>
+                <th>Tipo de Dato</th>
+                <th>Condición</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let req of solicitudAnalisisSeleccionada?.requerimentos || []">
+                <td>{{ req?.objetivo || 'N/A' }}</td>
+                <td>{{ req?.utilizadoPor || 'N/A' }}</td>
+                <td>{{ req?.tipoDato?.nombre || 'N/A' }}</td>
+                <td>{{ req?.condicion?.nombre || 'N/A' }}</td>
+              </tr>
+              <tr *ngIf="!(solicitudAnalisisSeleccionada?.requerimentos?.length)">
+                <td colspan="4">No hay requerimientos registrados.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Objetivos de Análisis -->
+        <section class="form-container">
+          <h3>Objetivos de Análisis</h3>
+          <hr />
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let objetivo of solicitudAnalisisSeleccionada?.objetivosAnalisis || []">
+                <td>{{ objetivo?.nombre || 'N/A' }}</td>
+                <td>{{ objetivo?.descripcion || 'N/A' }}</td>
+              </tr>
+              <tr *ngIf="!(solicitudAnalisisSeleccionada?.objetivosAnalisis?.length)">
+                <td colspan="2">No hay objetivos de análisis registrados.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Solicitudes de Proveedor -->
+        <section class="form-container">
+          <h3>Solicitudes de Proveedor</h3>
+          <hr />
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Proveedor</th>
+                <th>Número Único</th>
+                <th>Imputado</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let proveedor of solicitudAnalisisSeleccionada?.solicitudesProveedor || []">
+                <td>{{ proveedor?.proveedor?.nombre || 'N/A' }}</td>
+                <td>{{ proveedor?.numeroUnico || 'N/A' }}</td>
+                <td>{{ proveedor?.imputado || 'N/A' }}</td>
+                <td>{{ proveedor?.estado?.nombre || 'N/A' }}</td>
+              </tr>
+              <tr *ngIf="!(solicitudAnalisisSeleccionada?.solicitudesProveedor?.length)">
+                <td colspan="4">No hay solicitudes de proveedor registradas.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer personalizado del Modal -->
+  <div modal-footer>
+    <div class="buttons-row space-x-4">
+      <button type="button" class="btn btn-secondary" (click)="cerrarModalSolicitudAnalisis()">
+        <i class="material-icons">cancel</i>
+        <span>Cerrar</span>
+      </button>
+    </div>
+  </div>
+</app-modal-informacion>

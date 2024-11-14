@@ -215,7 +215,7 @@ export default class CatalogosComponent implements OnInit {
       'Proveedor': { idProveedor: 0, nombre: name },
       'Fiscalia': { idFiscalia: 0, nombre: name },
       'TipoAnalisis': { idTipoAnalisis: 0, nombre: name, descripcion: description },
-      'ObjetivoAnalisis': { tN_IdObjetivoAnalisis: 0, tC_Nombre: name, tC_Descripcion: description }
+      'ObjetivoAnalisis': { idObjetivoAnalisis: 0, nombre: name, descripcion: description }
     };
 
     const servicio = this.servicios[catalog];

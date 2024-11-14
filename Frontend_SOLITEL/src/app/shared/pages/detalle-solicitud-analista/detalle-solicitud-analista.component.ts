@@ -173,25 +173,35 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
     console.log(this.idSolicitudAnalisisSeleccionada, this.idUsuarioAsignadoSeleccionado);
     this.analisisTelefonicoService.asignarUsuario(this.idSolicitudAnalisisSeleccionada, this.idUsuarioAsignadoSeleccionado).subscribe(response => {
       if (response.success) {
-        this.alertatipo = "satisfaccion";
-        this.alertaMensaje = response.message; // Mostrar el mensaje del backend
-        this.alertaVisible = true;
-        this.existeAsignacion = true;
+        this.alertatipo1 = "satisfaccion";
+        this.alertaMensaje1 = response.message; // Mostrar el mensaje del backend
+        this.alertaVisible1 = true;
+        setTimeout(() => {
+          this.alertaVisible1 = false;
+        }, 3000);
       } else {
-        this.alertatipo = "error";
-        this.alertaMensaje = response.message; // Mostrar el mensaje de error del backend
-        this.alertaVisible = true;
+        this.alertatipo1 = "error";
+        this.alertaMensaje1 = response.message; // Mostrar el mensaje de error del backend
+        this.alertaVisible1 = true;
+        setTimeout(() => {
+          this.alertaVisible1 = false;
+        }, 3000);
       }
     }, error => {
       // Manejo de errores en caso de problemas con la conexión o el servidor
-      this.alertatipo = "error";
-      this.alertaMensaje = "Hubo un problema de conexión con el servidor.";
-      this.alertaVisible = true;
+      this.alertatipo1 = "error";
+      this.alertaMensaje1 = "Hubo un problema de conexión con el servidor.";
+      this.alertaVisible1 = true;
+      setTimeout(() => {
+        this.alertaVisible1 = false;
+      }, 3000);
     });
   }
 
   obtenerUsuariosDisponibles(){
-    // Consumir el servicio para obtener usuarios
+
+    this.usuariosDisponibles.push(this.authenticationService.usuarios[1]);
+    console.log(this.usuariosDisponibles);
   }
 
   mostrarTabla(tablaId: number) {

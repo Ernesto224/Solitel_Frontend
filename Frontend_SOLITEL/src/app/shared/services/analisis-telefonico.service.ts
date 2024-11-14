@@ -27,12 +27,13 @@ export interface TipoDato {
 export class AnalisisTelefonicoService {
 
   private baseUrl: string = 'https://localhost:7211/api/';
+  private baseUrl2: string = 'https://localhost:7211/';
   private urlObtenerBandejaAnalista: string = 'SolicitudAnalisis/obtenerBandejaAnalista';
   private urlObtenerSolicitudesAnalisis: string = 'SolicitudAnalisis/consultar';
   private urlInsertar: string = 'SolicitudAnalisis';
   private urlObtenerSolicitudesProveedor: string =
     'SolicitudProveedor/listarNumerosUnicosTramitados';
-  private urlObtenerOficinas: string = 'Oficina/consultarOficinas';
+  private urlObtenerOficinas: string = 'Oficina/ObtenerOficinas';
   private urlObtenerSolicitudesPorNumeroUnico: string =
     'SolicitudProveedor/consultarSolicitudesProveedorPorNumeroUnico';
   private urlObtenerObjetivoAnalisis: string =
@@ -44,6 +45,7 @@ export class AnalisisTelefonicoService {
     'obtenerArchivosDeSolicitudesProveedor';
   private readonly urlObtenerTipoDato: string = 'TipoDato';
   private readonly urlActualizarEstadoAnalizado: string = 'ActualizarEstadoAnalizadoSolicitudAnalisis'
+  private urlObtenerSolicitudPorId: string = 'SolicitudAnalisis/consultar'; // Nueva URL
   private readonly urlAsignarUsuario: string = 'asignarUsuarioAnalista';
 
   constructor(private http: HttpClient) { }
@@ -105,24 +107,28 @@ export class AnalisisTelefonicoService {
 
   obtenerOficinasAnalisis(): Observable<any[]> {
     const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
     });
-    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerOficinas}`, {
-      headers,
-    });
-  }
 
-  obtenerSolicitudesPorNumeroUnico(numeroUnico: string): Observable<any[]> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      accept: 'application/json',
+    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerOficinas}?tipo=Analisis`, {
+        headers,
     });
-    return this.http.get<any[]>(
-      `${this.baseUrl}${this.urlObtenerSolicitudesPorNumeroUnico}?numeroUnico=${numeroUnico}`,
-      { headers }
-    );
-  }
+}
+
+
+obtenerSolicitudesPorNumeroUnico(numeroUnico: string, usuarioActual: any): Observable<any[]> {
+  const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+  });
+  console.log("USUARIO OFICINA: "+usuarioActual.idUsuario)
+  console.log("ID OFICINA "+usuarioActual.oficina.idOficina)
+  const url = `${this.baseUrl}${this.urlObtenerSolicitudesPorNumeroUnico}?numeroUnico=${numeroUnico}&idUsuario=${usuarioActual.idUsuario}&idOficina=${usuarioActual.oficina.idOficina}`;
+
+  return this.http.get<any[]>(url, { headers });
+}
+
 
   obtenerObjetivosAnalisis(idObjetivo: number): Observable<any[]> {
     const headers = new HttpHeaders({
@@ -276,13 +282,25 @@ export class AnalisisTelefonicoService {
     return this.http.put<any>(url, {}, { headers });
   }
 
-  asignarUsuario(idSolicitudAnalisis: number, idUsuario: number): Observable<any>{
+  obtenerSolicitudPorId(idSolicitud: number): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+    });
+
+    const url = `${this.baseUrl}${this.urlObtenerSolicitudPorId}?idSolicitud=${idSolicitud}`;
+    return this.http.get<any>(url, { headers });
+
+
+  }
+
+  asignarUsuario(idSolicitudAnalisis: number, idUsuario: number): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       accept: 'text/plain',
     });
     return this.http.post(
-      `${this.baseUrl}${this.urlAsignarUsuario}?idSolicitudAnalisis=${idSolicitudAnalisis}&idUsuario=${idUsuario}`,{ headers });
+      `${this.baseUrl2}asignarUsuarioAnalista?idSolicitudAnalisis=${idSolicitudAnalisis}&idUsuario=${idUsuario}`, { headers });
   }
 
 }

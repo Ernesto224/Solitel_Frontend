@@ -52,7 +52,7 @@ export default class BandejaComponent implements OnInit {
   solicitudesPaginadas: any[] = [];
   solicitudSeleccionada: any = null;
   solicitudIdParaActualizar: number | null = null;
-
+  solicitudAnalisisSeleccionada: any = null;
   // Filtros
   numeroUnicoFiltro: string = '';
   fechaInicioFiltro: string = '';
@@ -75,6 +75,7 @@ export default class BandejaComponent implements OnInit {
   modalAprobarAnalisis: boolean = false;
   modalDevolverAnalizado: boolean = false;
   modalFinalizarAnalisis: boolean = false;
+  modalVerSolicitud: boolean = false;
   subirArchivosInformeFinalOpcion: boolean = false;
 
   // Variables relacionadas con la paginación y visibilidad
@@ -107,8 +108,7 @@ export default class BandejaComponent implements OnInit {
   encabezadosRequerimientosTramitados: any[] = [
     { key: 'requerimiento', label: 'Requerimiento' },
     { key: 'numRequerido', label: 'Núm. requerido' },
-    { key: 'rangoFechas', label: 'Rango de fechas' },
-    { key: 'observacion', label: 'Observación' }
+    { key: 'rangoFechas', label: 'Rango de fechas' }
   ];
   encabezadosArchivosUAC: any[] = [
     { key: 'nombre', label: 'Nombre Documento' }
@@ -132,6 +132,8 @@ export default class BandejaComponent implements OnInit {
   encabezadosAccionesRequerimientosTramitados: any[] = [
     'Archivos'
   ];
+
+
 
   // Objetos complejos
   estadoColumnas: { [key: string]: { [key: string]: { headers: string[], columnasVisibles: {} } } } = {};
@@ -208,7 +210,7 @@ export default class BandejaComponent implements OnInit {
     this.estadoColumnas = {
       Proveedor: {
         Creado: {
-          headers: [ 'Aprobar', 'Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          headers: ['Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
           columnasVisibles: { aprobar: this.autenticate.verificarPermisosAprobacion(this.usuario), sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
         },
         Finalizado: {
@@ -234,27 +236,28 @@ export default class BandejaComponent implements OnInit {
       },
       Analisis: {
         'En Análisis': {
-          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
           columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
         },
         Analizado: {
-          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
           columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
         },
         'Aprobar Analisis': {
-          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
           columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
         },
         Finalizado: {
-          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
           columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
         },
         Legajo: {
-          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
           columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
         }
       }
     }
+    if(this.autenticate.verificarPermisosAprobacion(this.usuario)) this.estadoColumnas['Proveedor']['Creado'].headers.unshift('Aprobar');
   }
 
   obtenerEstados(): void {
@@ -281,6 +284,7 @@ export default class BandejaComponent implements OnInit {
           this.modalInvisible();
         },
         error: (err) => {
+          this.errorModalInfo();
           console.error('Error al obtener datos:', err);
           this.modalInvisible();
         },
@@ -296,6 +300,7 @@ export default class BandejaComponent implements OnInit {
           this.reiniciarDatosDeTabla();
           this.actualizarPaginacion();
           this.modalInvisible();
+          console.log(value); // Mostrar el JSON recibido en la consola
         },
         error: (err) => {
           console.error('Error al obtener solicitudes de análisis:', err);
@@ -304,10 +309,26 @@ export default class BandejaComponent implements OnInit {
       });
   }
 
+  abrirModalSolicitudAnalisis(idSolicitudAnalisis: number): void {
+    this.solicitudAnalisisSeleccionada = this.solicitudesPaginadas.find(
+      (solicitud) => solicitud.idSolicitudAnalisis === idSolicitudAnalisis
+    );
+    if (!this.solicitudAnalisisSeleccionada) {
+        console.warn('No se encontró la solicitud de análisis con ID:', idSolicitudAnalisis);
+        return;
+    }
+    this.modalVerSolicitud = true; 
+}
+
+  cerrarModalSolicitudAnalisis(): void {
+    this.modalVerSolicitud = false; // Oculta el modal
+    this.solicitudSeleccionada = null; // Limpia la selección
+  }
+
   obtenerOpcionesPorEstado(estado: string): string[] {
     switch (estado) {
       case "En Análisis":
-        return ["Ver histórico", "Ver Solicitud", "Enviar a legajo solicitud de análisis"];
+        return ["Ver histórico", "Ver Solicitud"];
       case "Analizado":
         return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Agregar informe", "Finalizar solicitud de análisis", "Enviar a legajo solicitud de análisis"];
       case "Aprobar Analisis":
@@ -560,6 +581,22 @@ export default class BandejaComponent implements OnInit {
     }
   }
 
+  aprobarSolicitud(idSolicitudProveedor: number, estado: string) {
+    this.solicitudIdParaActualizar = idSolicitudProveedor;
+    this.nuevoEstado = estado;
+    this.confirmarCambioEstado();
+  }
+
+  errorModalInfo() {
+    this.alertatipo = "error";
+    this.alertaMensaje = "Hubo un error al momento de realizar la petición";
+    this.alertaVisible = true;
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000);
+
+  }
+
   confirmarCambioEstado() {
     if (this.solicitudIdParaActualizar) {
       this.solicitudProveedorService.actualizarEstado(
@@ -576,6 +613,8 @@ export default class BandejaComponent implements OnInit {
           this.obtenerSolicitudes();
         },
         error => {
+          this.cerrarModalCambioEstado();
+          this.errorModalInfo();
           console.error("Error al actualizar el estado:", error);
         }
       );
@@ -828,6 +867,12 @@ export default class BandejaComponent implements OnInit {
         this.obtenerSolicitudesAnalisis();
       },
       error: err => {
+        this.alertatipo = "error";
+        this.alertaMensaje = "Hubo un error al momento de realizar la petición";
+        this.alertaVisible = true;
+        setTimeout(() => {
+          this.alertaVisible = false;
+        }, 3000);
         console.error('Error al finalizar la solicitud de analisis:', err);
       }
     });
