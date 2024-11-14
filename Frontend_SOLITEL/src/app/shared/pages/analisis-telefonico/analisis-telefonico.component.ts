@@ -12,6 +12,8 @@ import {
   TipoDato,
 } from '../../services/analisis-telefonico.service';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
+
 
 interface Requerimiento {
   idRequerimientoAnalisis: number;
@@ -131,7 +133,8 @@ interface SubModalidad {
     FormsModule,
     NgMultiSelectDropDownModule,
     NgxMaskDirective,
-    AlertaComponent
+    AlertaComponent,
+    ModalConfirmacionComponent
   ],
   providers: [provideNgxMask()],
 })
@@ -637,7 +640,9 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       .agregarSolicitudAnalisis(this.solicitudCompletaAnalisis)
       .subscribe(
         (response) => {
-          this.mostrarExito = true;
+          this.alertaMensaje = 'Solicitud guardada con éxito.';
+          this.alertatipo = 'satisfaccion';
+          this.alertaVisible = true;
           this.limpiarFormulario();
         },
         (error) => console.error('Error al enviar la solicitud:', error.error) // MOSTRAR ERROR EN ALERTA
