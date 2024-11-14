@@ -5,13 +5,15 @@ import { EstadoService } from '../../services/estado.service';
 import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
 import { AuthenticacionService } from '../../services/authenticacion.service';
 import { Router } from '@angular/router';
+import { ModalProcesandoComponent } from '../../components/modal-procesando/modal-procesando.component';
 
 @Component({
   selector: 'app-bandeja-analista',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    ModalProcesandoComponent
   ],
   templateUrl: './bandeja-analista.component.html',
   styleUrl: './bandeja-analista.component.css'
@@ -29,6 +31,9 @@ export default class BandejaAnalistaComponent implements OnInit {
 
   numeroDePagina: number = 1;
   cantidadDeRegistros: number = 5;
+  inicioRegistros: number = 1;
+  finRegistros: number = 0;
+  maxPagina: number = 1;
   solicitudesAnalisisFiltradas: any[] = [];
   solicitudesAnalisisPaginadas: any[] = [];
 
@@ -77,7 +82,7 @@ export default class BandejaAnalistaComponent implements OnInit {
   }
 
   //obtener datos
-  obtenerDatosDeUsuario(): void{
+  obtenerDatosDeUsuario(): void {
     this.usuario = this.autenticate.getUsuario();
     this.usuarioId = this.autenticate.verificarPermisosVerDatosAnalistas(this.usuario);
     this.oficinaId = this.usuario.oficina.idOficina;
@@ -101,20 +106,20 @@ export default class BandejaAnalistaComponent implements OnInit {
   }
 
   obtenerSolicitudesAnalisis(): void {
-    this.analisisTelefonicoService.obtenerBandejaAnalista(this.estadoSeleccionado, 
+    this.modalVisible();
+    this.analisisTelefonicoService.obtenerBandejaAnalista(this.estadoSeleccionado,
       this.fechaInicioFiltro, this.fechaFinFiltro, this.numeroUnicoFiltro, this.oficinaId, this.usuarioId)
       .subscribe({
         next: (value) => {
           this.solicitudesAnalisis = value;
-          console.log(this.solicitudesAnalisis);
           this.reiniciarDatosDeTabla();
-          console.log(this.solicitudesAnalisisFiltradas);
           this.actualizarPaginacion();
-          console.log(this.solicitudesAnalisisPaginadas);
           this.modalInvisible();
         },
         error: (err) => {
-          console.error('Error al obtener solicitudes de análisis:', err);
+          this.solicitudesAnalisis = [];
+          this.reiniciarDatosDeTabla();
+          this.actualizarPaginacion();
           this.modalInvisible();
         },
       });
@@ -147,6 +152,21 @@ export default class BandejaAnalistaComponent implements OnInit {
     const inicio = (this.numeroDePagina - 1) * this.cantidadDeRegistros;
     const fin = inicio + this.cantidadDeRegistros;
     this.solicitudesAnalisisPaginadas = this.solicitudesAnalisisFiltradas.slice(inicio, fin);
+    // Calcula el número máximo de páginas
+    this.maxPagina = Math.ceil(this.solicitudesAnalisisFiltradas.length / this.cantidadDeRegistros);
+    // Actualiza los valores de inicio y fin para la vista
+    this.inicioRegistros = inicio + 1;
+    this.finRegistros = Math.min(fin, this.solicitudesAnalisisFiltradas.length);
+  }
+
+  irPrimeraPagina(): void {
+    this.numeroDePagina = 1;
+    this.actualizarPaginacion();
+  }
+
+  irUltimaPagina(): void {
+    this.numeroDePagina = this.maxPagina;
+    this.actualizarPaginacion();
   }
 
   limpiarFiltros() {
@@ -154,22 +174,17 @@ export default class BandejaAnalistaComponent implements OnInit {
     this.fechaInicioFiltro = '';
     this.fechaFinFiltro = '';
     this.filtroCaracter = '';
-    this.reiniciarDatosDeTabla();
-    console.log(this.solicitudesAnalisisFiltradas);
-    this.actualizarPaginacion();
-    console.log(this.solicitudesAnalisisPaginadas);
+    this.obtenerSolicitudesAnalisis();
   }
 
-
   filtrarSolicitudes() {
-    console.log(this.estadoSeleccionado);
     this.obtenerSolicitudesAnalisis();
   }
 
   aplicarFiltroCaracter() {
     if (this.filtroCaracter) {
       const filtro = this.filtroCaracter.toLowerCase();
-  
+
       // Helper function to format dates to dd/MM/yyyy
       const formatFecha = (fecha: string | null) => {
         if (!fecha) return '';
@@ -179,18 +194,16 @@ export default class BandejaAnalistaComponent implements OnInit {
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
       };
-  
+
       // Filtro principal basado en los criterios solicitados
       this.solicitudesAnalisisFiltradas = this.solicitudesAnalisis.filter(solicitud =>
-        solicitud.idSolicitudAnalisis?.toString().includes(filtro) || // Filtrado por idSolicitudAnalisis (si aplica)
-        solicitud.idSolicitudProveedor?.toString().includes(filtro) || // Filtrado por idSolicitudProveedor (si aplica)
         (solicitud.fechaCreacion && formatFecha(solicitud.fechaCreacion).includes(filtro)) || // Filtrado por fecha
         (solicitud.proveedor?.nombre?.toLowerCase().includes(filtro) || // Filtrado por proveedor
-         solicitud.operadoras?.some((prov: any) => prov.nombre?.toLowerCase().includes(filtro))) || // Filtrado por operadoras si aplica
+          solicitud.operadoras?.some((prov: any) => prov.nombre?.toLowerCase().includes(filtro))) || // Filtrado por operadoras si aplica
         (solicitud.usuarioCreador?.nombre?.toLowerCase().includes(filtro) || // Filtrado por nombre de usuario creador
-         solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
+          solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
       );
-  
+
       this.actualizarPaginacion();
     }
   }

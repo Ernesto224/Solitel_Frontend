@@ -12,7 +12,7 @@ import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/
 import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
 import { AlertaComponent } from '../../components/alerta/alerta.component';
 import { AuthenticacionService } from '../../services/authenticacion.service';
-
+import { ModalProcesandoComponent } from '../../components/modal-procesando/modal-procesando.component';
 
 @Component({
   selector: 'app-bandeja',
@@ -23,7 +23,8 @@ import { AuthenticacionService } from '../../services/authenticacion.service';
     TablaVisualizacionComponent,
     ModalInformacionComponent,
     ModalConfirmacionComponent,
-    AlertaComponent
+    AlertaComponent,
+    ModalProcesandoComponent
   ],
   providers: [
     DatePipe
@@ -39,7 +40,7 @@ export default class BandejaComponent implements OnInit {
   oficinaId: any = null;
 
   // Estados y seleccionados
-  estadoSeleccionado: any = {idEstado: 3, nombre: "Creado", tipo: "Proveedor"};
+  estadoSeleccionado: any = { idEstado: 3, nombre: "Creado", tipo: "Proveedor" };
   estadoTemporal: string = 'Creado';
   idEstadoSeleccionado: number = 3;
   estados: any[] = [];
@@ -53,6 +54,7 @@ export default class BandejaComponent implements OnInit {
   solicitudSeleccionada: any = null;
   solicitudIdParaActualizar: number | null = null;
   solicitudAnalisisSeleccionada: any = null;
+
   // Filtros
   numeroUnicoFiltro: string = '';
   fechaInicioFiltro: string = '';
@@ -81,6 +83,9 @@ export default class BandejaComponent implements OnInit {
   // Variables relacionadas con la paginación y visibilidad
   numeroDePagina: number = 1;
   cantidadDeRegistros: number = 5;
+  inicioRegistros: number = 1;
+  finRegistros: number = 0;
+  maxPagina: number = 1;
   columnasVisibles: { [key: string]: boolean } = {};
 
   // Variables para alertas
@@ -257,7 +262,7 @@ export default class BandejaComponent implements OnInit {
         }
       }
     }
-    if(this.autenticate.verificarPermisosAprobacion(this.usuario)) this.estadoColumnas['Proveedor']['Creado'].headers.unshift('Aprobar');
+    if (this.autenticate.verificarPermisosAprobacion(this.usuario)) this.estadoColumnas['Proveedor']['Creado'].headers.unshift('Aprobar');
   }
 
   obtenerEstados(): void {
@@ -314,11 +319,11 @@ export default class BandejaComponent implements OnInit {
       (solicitud) => solicitud.idSolicitudAnalisis === idSolicitudAnalisis
     );
     if (!this.solicitudAnalisisSeleccionada) {
-        console.warn('No se encontró la solicitud de análisis con ID:', idSolicitudAnalisis);
-        return;
+      console.warn('No se encontró la solicitud de análisis con ID:', idSolicitudAnalisis);
+      return;
     }
-    this.modalVerSolicitud = true; 
-}
+    this.modalVerSolicitud = true;
+  }
 
   cerrarModalSolicitudAnalisis(): void {
     this.modalVerSolicitud = false; // Oculta el modal
@@ -471,6 +476,16 @@ export default class BandejaComponent implements OnInit {
     this.actualizarPaginacion();
   }
 
+  irPrimeraPagina(): void {
+    this.numeroDePagina = 1;
+    this.actualizarPaginacion();
+  }
+
+  irUltimaPagina(): void {
+    this.numeroDePagina = this.maxPagina;
+    this.actualizarPaginacion();
+  }
+
   limpiarFiltros() {
     this.filtroCaracter = ''
     this.numeroUnicoFiltro = '';
@@ -483,6 +498,11 @@ export default class BandejaComponent implements OnInit {
     const inicio = (this.numeroDePagina - 1) * this.cantidadDeRegistros;
     const fin = inicio + this.cantidadDeRegistros;
     this.solicitudesPaginadas = this.solicitudesFiltradas.slice(inicio, fin);
+    // Calcula el número máximo de páginas
+    this.maxPagina = Math.ceil(this.solicitudesFiltradas.length / this.cantidadDeRegistros);
+    // Actualiza los valores de inicio y fin para la vista
+    this.inicioRegistros = inicio + 1;
+    this.finRegistros = Math.min(fin, this.solicitudesFiltradas.length);
   }
 
   onEstadoChange(event: Event): void {
@@ -516,7 +536,7 @@ export default class BandejaComponent implements OnInit {
   aplicarFiltroCaracter() {
     if (this.filtroCaracter) {
       const filtro = this.filtroCaracter.toLowerCase();
-  
+
       // Helper function to format dates to dd/MM/yyyy
       const formatFecha = (fecha: string | null) => {
         if (!fecha) return '';
@@ -526,22 +546,22 @@ export default class BandejaComponent implements OnInit {
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
       };
-  
+
       // Filtro principal basado en los criterios solicitados
       this.solicitudesFiltradas = this.solicitudes.filter(solicitud =>
         solicitud.idSolicitudAnalisis?.toString().includes(filtro) || // Filtrado por idSolicitudAnalisis (si aplica)
         solicitud.idSolicitudProveedor?.toString().includes(filtro) || // Filtrado por idSolicitudProveedor (si aplica)
         (solicitud.fechaCreacion && formatFecha(solicitud.fechaCreacion).includes(filtro)) || // Filtrado por fecha
         (solicitud.proveedor?.nombre?.toLowerCase().includes(filtro) || // Filtrado por proveedor
-         solicitud.operadoras?.some((prov: any) => prov.nombre?.toLowerCase().includes(filtro))) || // Filtrado por operadoras si aplica
+          solicitud.operadoras?.some((prov: any) => prov.nombre?.toLowerCase().includes(filtro))) || // Filtrado por operadoras si aplica
         (solicitud.usuarioCreador?.nombre?.toLowerCase().includes(filtro) || // Filtrado por nombre de usuario creador
-         solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
+          solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
       );
-  
+
       this.actualizarPaginacion();
     }
   }
-  
+
   cargarArchivos(idRequerimiento: number): void {
     this.archivoService.obtenerArchivosDeSolicitud(idRequerimiento).subscribe((archivos: any[]) => {
       this.archivos = archivos;
@@ -757,23 +777,23 @@ export default class BandejaComponent implements OnInit {
   }
 
   actualizarEstadoLegajoAnalisis() {
-    this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 
+    this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada,
       this.usuarioId, this.observacionLegajoAnalisis).subscribe({
-      next: response => {
-        this.alertatipo = "satisfaccion";
-        this.alertaMensaje = "Solicitud de Analisis Movida a Legajo";
-        this.alertaVisible = true;
-        setTimeout(() => {
-          this.alertaVisible = false;
-        }, 3000);
+        next: response => {
+          this.alertatipo = "satisfaccion";
+          this.alertaMensaje = "Solicitud de Analisis Movida a Legajo";
+          this.alertaVisible = true;
+          setTimeout(() => {
+            this.alertaVisible = false;
+          }, 3000);
 
-        this.observacionLegajoAnalisis = '';
-        this.obtenerSolicitudesAnalisis();
-      },
-      error: err => {
-        console.error('Error al mover a legajo la solicitud de analisis:', err);
-      }
-    });
+          this.observacionLegajoAnalisis = '';
+          this.obtenerSolicitudesAnalisis();
+        },
+        error: err => {
+          console.error('Error al mover a legajo la solicitud de analisis:', err);
+        }
+      });
     this.obtenerEstados();
     this.cerrarModalLegajoAnalisis();
   }
@@ -822,22 +842,22 @@ export default class BandejaComponent implements OnInit {
   }
 
   devolverAnalizadoSolicitudAnalisis() {
-    this.analisisTelefonicoService.devolverAnalizado(this.idSolicitudAnalisisSeleccionada, 
-        this.usuarioId, this.observacionDevolverAnalizado).subscribe({
-      next: response => {
-        this.alertatipo = "satisfaccion";
-        this.alertaMensaje = "Solicitud de Analisis devuelta a Analizado";
-        this.alertaVisible = true;
-        setTimeout(() => {
-          this.alertaVisible = false;
-        }, 3000);
-        this.observacionDevolverAnalizado = '';
-        this.aprobarSolicitudAnalisis();
-      },
-      error: err => {
-        console.error('Error al devolver la solicitud de analisis:', err);
-      }
-    });
+    this.analisisTelefonicoService.devolverAnalizado(this.idSolicitudAnalisisSeleccionada,
+      this.usuarioId, this.observacionDevolverAnalizado).subscribe({
+        next: response => {
+          this.alertatipo = "satisfaccion";
+          this.alertaMensaje = "Solicitud de Analisis devuelta a Analizado";
+          this.alertaVisible = true;
+          setTimeout(() => {
+            this.alertaVisible = false;
+          }, 3000);
+          this.observacionDevolverAnalizado = '';
+          this.aprobarSolicitudAnalisis();
+        },
+        error: err => {
+          console.error('Error al devolver la solicitud de analisis:', err);
+        }
+      });
     this.obtenerEstados();
     this.cerrarModalDevolverAnalizado();
   }

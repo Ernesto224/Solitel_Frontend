@@ -7,7 +7,7 @@
   width: 100%;
   max-width: 800px; /* Ampliar el ancho máximo */
   margin: 0 auto 30px; /* Ajustar el margen para separar la tabla */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Estilo para el encabezado del filtro */
@@ -120,20 +120,6 @@ select {
   line-height: 0; /* Asegurarse de que el icono esté alineado correctamente */
 }
 
-/* Espaciado entre el filtro y la tabla */
-.table {
-  margin-top: 20px; /* Separar la tabla del filtro */
-}
-
-#pageSize {
-  margin-bottom: 1em;
-  margin-top: 1em;
-  width: 5em;
-  height: 2em;
-  padding: 0;
-  background-color: #fff;
-}
-
 /* Estilos para el switch */
 .switch {
   position: relative;
@@ -180,65 +166,11 @@ input:checked + .slider:before {
   transform: translateX(14px);
 }
 
-/* Estilos generales del modal */
-.fixed {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Estilo para el contenedor del modal */
-.inline-block {
-  padding: 20px;
-}
-
-/* Encabezado del modal */
-.modal-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
 /* Estilos para los labels */
 .label {
   display: block;
   font-weight: bold;
   margin-bottom: 5px;
-}
-
-/* Estilos para los inputs */
-.input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 15px; /* Espaciado entre inputs */
-}
-
-/* Estilo para secciones de la cuadrícula */
-.grid-section {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px; /* Espaciado entre columnas */
-  margin-bottom: 20px; /* Espaciado entre secciones */
-}
-
-/* Estilos para la tabla */
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.table th,
-.table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-.table th {
-  background-color: #f2f2f2;
-  font-weight: bold;
 }
 
 /* Estilo para el botón de cerrar */
@@ -300,37 +232,11 @@ button:hover {
   margin-bottom: 5px;
 }
 
-.input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 15px;
-}
-
 .grid-section {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
   margin-bottom: 20px;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-.table th,
-.table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-.table th {
-  background-color: #f2f2f2;
-  font-weight: bold;
 }
 
 .bg-gray-50 {
@@ -359,35 +265,6 @@ button:hover {
   background-color: #c62828; /* Color de fondo más oscuro al pasar el mouse */
 }
 
-.modal-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.modal-item {
-  display: flex;
-  flex-direction: column;
-}
-
-.urgente-checkbox {
-  align-self: center;
-}
-
-.requerimientos-table {
-  grid-column: span 3; /* Hace que la tabla ocupe el ancho completo */
-}
-
-.operadoras,
-.usuario-creador {
-  grid-column: span 3;
-}
-
-.scrollable-section {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
 .modal {
   display: none;
 }
@@ -404,54 +281,12 @@ button:hover {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-.modal-content {
-  display: flex; /* Usar flexbox para centrar contenido */
-  flex-direction: column; /* Alinear contenido en columna */
-  align-items: center; /* Centrar horizontalmente */
-  justify-content: center; /* Centrar verticalmente */
-  background: white;
-  border-radius: 5px;
-  padding: 20px;
-}
-
-.loader {
-  border: 8px solid #f3f3f3; /* Light grey */
-  border-top: 8px solid #3498db; /* Blue */
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 2s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
 .bg-red-100 {
   background-color: #F8B4B4; /* Rojo más intenso */
 }
 
 .colspan {
   background-color: #b0bec5;
-}
-
-
-.input {
-  width: fit-content; /* Ancho flexible según el contenido */
-  min-width: 150px; /* Evitar que los campos sean demasiado pequeños */
-  max-width: 300px; /* Limitar el ancho máximo para evitar desbordes */
-  white-space: nowrap; /* Evita que el texto se divida en líneas */
-  overflow: hidden; /* Ocultar el texto que se desborda */
-  text-overflow: ellipsis; /* Muestra '...' si el texto es demasiado largo */
-  padding: 8px; /* Agrega espacio interno para mejorar la legibilidad */
-  border: 1px solid #ccc; /* Bordes simples para un aspecto limpio */
-  border-radius: 4px; /* Bordes redondeados */
-  box-sizing: border-box; /* Incluir el relleno en el ancho total */
 }
 
 .scrollable-content {
@@ -532,4 +367,87 @@ button:hover {
 
 .btn-secondary {
   background-color: #d32f2f;
+}
+
+/* Contenedor general de paginación */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px; /* Espacio entre los elementos */
+  margin-top: 10px;
+}
+
+/* Contenedor para el selector de cantidad de registros */
+.page-size-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.page-size-container .label {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.select {
+  padding: 2px 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 50px;
+  text-align: center;
+}
+
+/* Información de la paginación */
+.page-info {
+  font-size: 14px;
+  color: #555;
+}
+
+/* Controles de paginación */
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pagination-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  font-size: 16px;
+  padding: 5px;
+  transition: color 0.3s, background-color 0.3s;
+}
+
+.pagination-button[disabled] {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-button:hover:not([disabled]) {
+  color: #000;
+  background-color: #e0e0e0; /* Cambia a un gris claro al hacer hover */
+}
+
+.pagination-button .material-icons {
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+.input {
+  width: fit-content; /* Ancho flexible según el contenido */
+  min-width: 150px; /* Evitar que los campos sean demasiado pequeños */
+  max-width: 300px; /* Limitar el ancho máximo para evitar desbordes */
+  padding: 8px; /* Agrega espacio interno para mejorar la legibilidad */
+  border: 1px solid #ccc; /* Bordes simples para un aspecto limpio */
+  border-radius: 4px; /* Bordes redondeados */
+  margin-bottom: 15px; /* Espaciado entre inputs */
+  white-space: nowrap; /* Evita que el texto se divida en líneas */
+  overflow: hidden; /* Ocultar el texto que se desborda */
+  text-overflow: ellipsis; /* Muestra '...' si el texto es demasiado largo */
+  box-sizing: border-box; /* Incluir el relleno en el ancho total */
 }

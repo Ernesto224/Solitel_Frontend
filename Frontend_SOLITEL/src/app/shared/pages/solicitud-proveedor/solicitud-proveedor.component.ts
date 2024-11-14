@@ -17,6 +17,8 @@ import { AlertaComponent } from '../../components/alerta/alerta.component';
 import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
 import { AuthenticacionService } from '../../services/authenticacion.service';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { ModalProcesandoComponent } from '../../components/modal-procesando/modal-procesando.component';
+
 @Component({
   selector: 'app-solicitud-proveedor',
   standalone: true,
@@ -26,7 +28,8 @@ import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
     NgMultiSelectDropDownModule,
     AlertaComponent,
     NgxMaskDirective,
-    ModalConfirmacionComponent
+    ModalConfirmacionComponent,
+    ModalProcesandoComponent
   ],
   templateUrl: './solicitud-proveedor.component.html',
   styleUrls: ['./solicitud-proveedor.component.css'],
@@ -41,7 +44,7 @@ export default class SolicitudProveedorComponent {
   isFiscaliaDisabled: boolean = false;
 
   isDelitoDisabled: boolean = false;
-
+  isModalVisible: boolean = false;
   alertatipo: string = "error";
   alertaMensaje: string = "";
   alertaVisible: boolean = false;
@@ -380,6 +383,8 @@ export default class SolicitudProveedorComponent {
   }
 
   guardarSolicitud() {
+    this.cerrarModalConfirmacion();
+    this.modalVisible();
     if (
       (this.validarNumUnico(this.numeroUnico) == true || this.numeroCaso) &&
       this.validarNombrePersona(this.imputado) &&
@@ -485,7 +490,7 @@ export default class SolicitudProveedorComponent {
         next: response => {
           this.alertaMensaje = 'Solicitud guardada con éxito.';
           this.alertatipo = 'satisfaccion';
-          this.cerrarModalConfirmacion();
+          this.modalInvisible();
           this.mostrarAlerta();
           this.limpiarTodo();
           //Redireccionar a la bandeja
@@ -493,6 +498,7 @@ export default class SolicitudProveedorComponent {
         error: err => {
           this.alertaMensaje = `Error al guardar la solicitud: ${err}`;
           this.alertatipo = 'error';
+          this.modalInvisible();
           this.mostrarAlerta();
         }
       });
@@ -917,6 +923,14 @@ export default class SolicitudProveedorComponent {
 
   cerrarModalConfirmacion() {
     this.modalConfirmacionisible = false;
+  }
+
+  modalVisible(): void {
+    this.isModalVisible = true;
+  }
+
+  modalInvisible(): void {
+    this.isModalVisible = false;
   }
 
 }

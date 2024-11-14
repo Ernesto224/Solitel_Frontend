@@ -1,14 +1,4 @@
-<!-- Modal Carga-->
-<div class="modal" [ngClass]="{'is-active': isModalVisible}">
-  <div class="modal-background"></div>
-  <div class="modal-content">
-    <p class="is-size-4">Procesando...</p>
-    <div class="box has-text-centered">
-      <div class="loader"></div>
-    </div>
-  </div>
-  <button class="modal-close is-large" aria-label="close" (click)="closeModal()" *ngIf="isModalVisible"></button>
-</div>
+<app-modal-procesando [isModalVisible]="isModalVisible"></app-modal-procesando>
 
 <div class="flex flex-col mb-0 pb-0">
 
@@ -20,12 +10,6 @@
     <h2>Filtro de solicitudes telefónicas</h2>
 
     <div class="filter-form">
-      <!-- Filtrar por carácter - ocupa toda la fila -->
-      <div class="form-group filter-full-width">
-        <label for="filtro-caracter">Filtrar por carácter:</label>
-        <input type="text" id="filtro-caracter" class="w-full p-2 border rounded" placeholder="Ingrese carácter"
-          [(ngModel)]="filtroCaracter" (ngModelChange)="aplicarFiltroCaracter()">
-      </div>
 
       <!-- Estado -->
       <div class="form-group">
@@ -33,28 +17,25 @@
         <div class="badge-container">
           <select [(ngModel)]="estadoTemporal" (change)="onEstadoChange($event)">
             <optgroup label="Solicitud Proveedor">
-              <option *ngFor="let estado of estadosProveedor;  trackBy: trackByEstadoId" [value]="estado.nombre"
+              <option *ngFor="let estado of estadosProveedor; trackBy: trackByEstadoId" [value]="estado.nombre"
                 [attr.data-idEstado]="estado | json">
                 {{ estado.nombre }} ({{ estado.cantidadSolicitudes }})
               </option>
             </optgroup>
             <optgroup label="Solicitud Análisis">
-              <option *ngFor="let estado of estadosAnalisis;  trackBy: trackByEstadoId" [value]="estado.nombre"
+              <option *ngFor="let estado of estadosAnalisis; trackBy: trackByEstadoId" [value]="estado.nombre"
                 [attr.data-idEstado]="estado | json">
                 {{ estado.nombre }} ({{ estado.cantidadSolicitudes }})
               </option>
             </optgroup>
           </select>
-
         </div>
-
-
       </div>
 
       <!-- Número único -->
       <div class="form-group">
         <label for="numero-unico">Número único:</label>
-        <input type="text" id="numero-unico" class="w-full p-2 border rounded" placeholder="Número único"
+        <input type="text" id="numero-unico" class="w-full p-2 border rounded" placeholder="00-000000-0000-ab"
           [(ngModel)]="numeroUnicoFiltro">
       </div>
 
@@ -80,31 +61,22 @@
           <i class="material-icons">filter_alt</i> Filtrar
         </button>
       </div>
+
+    </div>
+  </div>
+
+  <!--Barra de busqueda-->
+  <div class="flex justify-end items-center mt-4 mb-4">
+    <!-- Buscador -->
+    <div class="relative w-full max-w-sm">
+      <input type="text" placeholder="Buscar" class="w-full p-2 border rounded pr-10" [(ngModel)]="filtroCaracter"
+        (ngModelChange)="aplicarFiltroCaracter()" />
+      <i class="material-icons absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">search</i>
     </div>
   </div>
 
   <!-- Contenedor con scroll horizontal y vertical si es necesario -->
-  <div class="overflow-x-auto overflow-y-auto max-h-screen">
-
-    <!-- Paginación y tamaño de filas alineados a los bordes -->
-    <div class="flex justify-between items-center mt-4 space-x-8">
-
-      <!-- Selector de tamaño de filas alineado a la izquierda -->
-      <div class="flex items-center">
-
-        <label for="pageSize" class="mr-2">
-          Mostrar:
-        </label>
-
-        <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="border border-gray-300 rounded">
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="15">15</option>
-        </select>
-
-      </div>
-
-    </div>
+  <div class="bg-gray-50 overflow-x-auto overflow-y-auto max-h-screen">
 
     <!-- Tabla con columnas ajustadas y paginación Proveedor -->
     <table *ngIf="mostrarTablaProveedor" class="min-w-full table-auto border-collapse">
@@ -350,46 +322,42 @@
         </ng-container>
       </tbody>
     </table>
-
   </div>
 
-  <!-- Paginación y tamaño de filas centrados -->
-  <div class="flex justify-between items-center mt-4 space-x-8">
-
-    <div class="flex items-center">
-
-      <label for="pageSize" class="mr-2">Mostrar registros del {{((this.numeroDePagina - 1) *
-        this.cantidadDeRegistros) + 1}}
-        al {{((this.numeroDePagina - 1) * this.cantidadDeRegistros) + this.cantidadDeRegistros}}
-        de un total de {{solicitudesPaginadas.length}} registros
-        (Filtrado de un total de {{solicitudesFiltradas.length}})</label>
-
+  <!--Paginacion y cantidad de datos-->
+  <div class="pagination-container">
+    <div class="page-size-container">
+      <label for="pageSize" class="label">Tamaño:</label>
+      <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="select">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+      </select>
     </div>
-
-    <!-- Paginación -->
-    <div class="flex items-center space-x-2">
-
-      <!-- Botón regresar -->
-      <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(-1)">
-
-        Anterior
-
-
-      </button>
-
-      <span>{{ numeroDePagina }}</span> <!-- Número de página -->
-
-      <!-- Botón siguiente -->
-      <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(1)">
-        Siguiente
-
-
-      </button>
-
+    <div class="page-info">
+      <span>{{ inicioRegistros }} - {{ finRegistros }} de {{ solicitudesFiltradas.length }}</span>
     </div>
-
+    <div class="pagination-controls">
+      <!-- Botón para ir a la primera página -->
+      <button class="pagination-button" (click)="irPrimeraPagina()" [disabled]="numeroDePagina === 1">
+        <i class="material-icons">first_page</i>
+      </button>
+      <!-- Botón para ir a la página anterior -->
+      <button class="pagination-button" (click)="cambiarPagina(-1)" [disabled]="numeroDePagina === 1">
+        <i class="material-icons">arrow_back_ios</i>
+      </button>
+      <!-- Botón para ir a la página siguiente -->
+      <button class="pagination-button" (click)="cambiarPagina(1)" [disabled]="numeroDePagina >= maxPagina">
+        <i class="material-icons">arrow_forward_ios</i>
+      </button>
+      <!-- Botón para ir a la última página -->
+      <button class="pagination-button" (click)="irUltimaPagina()" [disabled]="numeroDePagina >= maxPagina">
+        <i class="material-icons">last_page</i>
+      </button>
+    </div>
   </div>
-
 </div>
 
 <!-- Modal de historico -->
@@ -460,7 +428,8 @@
           </div>
           <div>
             <label class="label" for="modalidad">Modalidad:</label>
-            <input type="text" id="modalidad" class="input" [value]="solicitudSeleccionada.modalidad.nombre? solicitudSeleccionada.modalidad.nombre: 'N/A'" readonly>
+            <input type="text" id="modalidad" class="input"
+              [value]="solicitudSeleccionada.modalidad.nombre? solicitudSeleccionada.modalidad.nombre: 'N/A'" readonly>
           </div>
           <div>
             <label class="label" for="imputado">Imputado:</label>
@@ -475,7 +444,8 @@
           </div>
           <div>
             <label class="label" for="subModalidad">Sub modalidad:</label>
-            <input type="text" id="subModalidad" class="input" [value]="solicitudSeleccionada.subModalidad.nombre? solicitudSeleccionada.subModalidad.nombre :'N/A'"
+            <input type="text" id="subModalidad" class="input"
+              [value]="solicitudSeleccionada.subModalidad.nombre? solicitudSeleccionada.subModalidad.nombre :'N/A'"
               readonly>
           </div>
           <div>

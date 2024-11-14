@@ -1,0 +1,29 @@
+/* Ajusta el estilo del navbar según sea necesario */
+nav {
+    z-index: 50; /* Asegura que el navbar permanezca al frente */
+}
+.flex {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.flex-col {
+    flex-direction: column;
+    min-height: 100vh; /* Asegura que el contenedor ocupe la altura completa del viewport */
+}
+
+.flex-grow {
+    flex-grow: 1;
+}
+
+.mt-16 {
+    margin-top: 4rem; /* Ajusta según la altura de tu navbar */
+}
+
+.bg-custom-blue {
+    background-color: #1c355c; /* Color personalizado de fondo */
+}
+
+.text-gray-200 {
+    color: #e5e7eb; /* Color de texto gris claro */
+}
