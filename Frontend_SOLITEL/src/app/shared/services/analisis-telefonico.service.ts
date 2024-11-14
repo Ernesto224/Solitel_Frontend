@@ -25,13 +25,15 @@ export interface TipoDato {
   providedIn: 'root',
 })
 export class AnalisisTelefonicoService {
+
   private baseUrl: string = 'https://localhost:7211/api/';
+  private baseUrl2: string = 'https://localhost:7211/';
   private urlObtenerBandejaAnalista: string = 'SolicitudAnalisis/obtenerBandejaAnalista';
-  private urlObtenerSolicitudesAnalisis:  string = 'SolicitudAnalisis/consultar';
+  private urlObtenerSolicitudesAnalisis: string = 'SolicitudAnalisis/consultar';
   private urlInsertar: string = 'SolicitudAnalisis';
   private urlObtenerSolicitudesProveedor: string =
     'SolicitudProveedor/listarNumerosUnicosTramitados';
-  private urlObtenerOficinas: string = 'Oficina/consultarOficinas';
+  private urlObtenerOficinas: string = 'Oficina/ObtenerOficinas';
   private urlObtenerSolicitudesPorNumeroUnico: string =
     'SolicitudProveedor/consultarSolicitudesProveedorPorNumeroUnico';
   private urlObtenerObjetivoAnalisis: string =
@@ -43,6 +45,9 @@ export class AnalisisTelefonicoService {
     'obtenerArchivosDeSolicitudesProveedor';
   private readonly urlObtenerTipoDato: string = 'TipoDato';
   private readonly urlActualizarEstadoAnalizado: string = 'ActualizarEstadoAnalizadoSolicitudAnalisis'
+  private urlObtenerSolicitudPorId: string = 'SolicitudAnalisis/consultar'; // Nueva URL
+  private readonly urlAsignarUsuario: string = 'asignarUsuarioAnalista';
+
   constructor(private http: HttpClient) { }
 
   obtener(): Observable<any[]> {
@@ -74,34 +79,54 @@ export class AnalisisTelefonicoService {
     );
   }
 
-  obtenerSolicitudesAnalisis(): Observable<any[]> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      accept: 'application/json',
-    });
-    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerSolicitudesAnalisis}`, { headers });
-  }
-  
-  obtenerOficinasAnalisis(): Observable<any[]> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      accept: 'application/json',
-    });
-    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerOficinas}`, {
-      headers,
-    });
+  obtenerSolicitudesAnalisis(idEstado?: number, fechainicio?: string, fechaFin?: string, numeroUnico?: string, idOficina?: number, idUsuario?: number): Observable<any[]> {
+    let params = new HttpParams();
+
+    // Agregar los parámetros solo si tienen un valor definido
+    if (idEstado !== undefined) {
+      params = params.set('idEstado', idEstado.toString());
+    }
+    if (fechainicio) {
+      params = params.set('fechainicio', fechainicio);
+    }
+    if (fechaFin) {
+      params = params.set('fechaFin', fechaFin);
+    }
+    if (numeroUnico) {
+      params = params.set('numeroUnico', numeroUnico);
+    }
+    if (idOficina !== undefined) {
+      params = params.set('idOficina', idOficina.toString());
+    }
+    if (idUsuario !== undefined) {
+      params = params.set('idUsuario', idUsuario.toString());
+    }
+
+    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerSolicitudesAnalisis}`, { params });
   }
 
-  obtenerSolicitudesPorNumeroUnico(numeroUnico: string): Observable<any[]> {
+  obtenerOficinasAnalisis(): Observable<any[]> {
     const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
     });
-    return this.http.get<any[]>(
-      `${this.baseUrl}${this.urlObtenerSolicitudesPorNumeroUnico}?numeroUnico=${numeroUnico}`,
-      { headers }
-    );
-  }
+
+    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerOficinas}?tipo=Analisis`, {
+        headers,
+    });
+}
+
+
+obtenerSolicitudesPorNumeroUnico(numeroUnico: string, usuarioActual: any): Observable<any[]> {
+  const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+  });
+  const url = `${this.baseUrl}${this.urlObtenerSolicitudesPorNumeroUnico}?numeroUnico=${numeroUnico}&idUsuario=${usuarioActual.idUsuario}&idOficina=${usuarioActual.oficina.idOficina}`;
+
+  return this.http.get<any[]>(url, { headers });
+}
+
 
   obtenerObjetivosAnalisis(idObjetivo: number): Observable<any[]> {
     const headers = new HttpHeaders({
@@ -173,35 +198,35 @@ export class AnalisisTelefonicoService {
     );
   }
 
-  ActualizarEstadoAnalizadoSolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any>{
+  ActualizarEstadoAnalizadoSolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any> {
     const headers = new HttpHeaders({
       'accept': 'text/plain',
       'Content-Type': 'application/json'
     });
 
     const url = `${this.baseUrl}SolicitudAnalisis/ActualizarEstadoAnalizadoSolicitudAnalisis?idSolicitudAnalisis=${idSolicitudAnalisis}&idUsuario=${idUsuario}&observacion=${observacion}`;
-  
+
     return this.http.put<any>(url, {}, { headers });
   }
 
-  finalizarSolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any>{
+  finalizarSolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any> {
     const headers = new HttpHeaders({
       'accept': 'text/plain',
       'Content-Type': 'application/json'
     });
 
     const url = `${this.baseUrl}SolicitudAnalisis/actualizarEstadoFinalizado?id=${idSolicitudAnalisis}&idUsuario=${idUsuario}&observacion=${observacion}`;
-  
+
     return this.http.put<any>(url, {}, { headers });
   }
 
-  obtenerBandejaAnalista(estado: number, fechaInicio: string | null, fechaFin: string | null, numeroUnico: string | null): Observable<any[]> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      accept: 'application/json',
-    });
+  obtenerBandejaAnalista(estado: number, fechaInicio?: string, fechaFin?: string, numeroUnico?: string, idOficina?: number, idUsuario?: number): Observable<any[]> {
+    let params = new HttpParams();
 
-    let params = new HttpParams().set('estado', estado.toString());
+    // Adding parameters only if they are defined
+    if (estado !== undefined) {
+      params = params.set('idEstado', estado.toString());
+    }
     if (fechaInicio) {
       params = params.set('fechaInicio', fechaInicio);
     }
@@ -211,44 +236,69 @@ export class AnalisisTelefonicoService {
     if (numeroUnico) {
       params = params.set('numeroUnico', numeroUnico);
     }
+    if (idOficina !== undefined) {
+      params = params.set('idOficina', idOficina.toString());
+    }
+    if (idUsuario !== undefined) {
+      params = params.set('idUsuario', idUsuario.toString());
+    }
 
-    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerBandejaAnalista}`, {
-      headers,
-      params,
-    });
+    // No need for headers unless specific headers are necessary
+    return this.http.get<any[]>(`${this.baseUrl}${this.urlObtenerBandejaAnalista}`, { params });
   }
-  
-  ActualizarEstadoLegajoolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any>{
+
+  ActualizarEstadoLegajoolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any> {
     const headers = new HttpHeaders({
       'accept': 'text/plain',
       'Content-Type': 'application/json'
     });
 
     const url = `${this.baseUrl}SolicitudAnalisis/actualizarEstadoLegajo?id=${idSolicitudAnalisis}&idUsuario=${idUsuario}&observacion=${observacion}`;
-  
+
     return this.http.put<any>(url, {}, { headers });
   }
-  
-  aprobarSolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any>{
+
+  aprobarSolicitudAnalisis(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any> {
     const headers = new HttpHeaders({
       'accept': 'text/plain',
       'Content-Type': 'application/json'
     });
 
     const url = `${this.baseUrl}SolicitudAnalisis/AprobarSolicitudAnalisis?idSolicitudAnalisis=${idSolicitudAnalisis}&idUsuario=${idUsuario}&observacion=${observacion}`;
-  
+
     return this.http.put<any>(url, {}, { headers });
   }
 
-  devolverAnalizado(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any>{
+  devolverAnalizado(idSolicitudAnalisis: number, idUsuario: number, observacion: string | null): Observable<any> {
     const headers = new HttpHeaders({
       'accept': 'text/plain',
       'Content-Type': 'application/json'
     });
 
     const url = `${this.baseUrl}SolicitudAnalisis/devolverAnalizado?id=${idSolicitudAnalisis}&idUsuario=${idUsuario}&observacion=${observacion}`;
-  
+
     return this.http.put<any>(url, {}, { headers });
+  }
+
+  obtenerSolicitudPorId(idSolicitud: number): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+    });
+
+    const url = `${this.baseUrl}${this.urlObtenerSolicitudPorId}?idSolicitud=${idSolicitud}`;
+    return this.http.get<any>(url, { headers });
+
+
+  }
+
+  asignarUsuario(idSolicitudAnalisis: number, idUsuario: number): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      accept: 'text/plain',
+    });
+    return this.http.post(
+      `${this.baseUrl2}asignarUsuarioAnalista?idSolicitudAnalisis=${idSolicitudAnalisis}&idUsuario=${idUsuario}`, { headers });
   }
 
 }

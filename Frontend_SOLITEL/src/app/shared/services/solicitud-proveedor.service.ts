@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -19,8 +19,30 @@ export class SolicitudProveedorService {
 
   constructor(private http: HttpClient) { }
 
-  public obtener(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.urlServices}${this.urlObtener}`);
+  public obtener(idEstado?: number, fechaInicio?: string, fechaFin?: string, numeroUnico?: string, idOficina?: number, idUsuario?: number): Observable<any[]> {
+    let params = new HttpParams();
+
+    // Agregar los parámetros solo si tienen un valor definido
+    if (idEstado !== undefined) {
+      params = params.set('idEstado', idEstado.toString());
+    }
+    if (fechaInicio) {
+      params = params.set('fechainicio', fechaInicio);
+    }
+    if (fechaFin) {
+      params = params.set('fechaFin', fechaFin);
+    }
+    if (numeroUnico) {
+      params = params.set('numeroUnico', numeroUnico);
+    }
+    if (idOficina !== undefined) {
+      params = params.set('idOficina', idOficina.toString());
+    }
+    if (idUsuario !== undefined) {
+      params = params.set('idUsuario', idUsuario.toString());
+    }
+
+    return this.http.get<any[]>(`${this.urlServices}${this.urlObtener}`, { params });
   }
 
   public obtenerUna(idSolicitudProveedor: number): Observable<any> {
@@ -95,15 +117,15 @@ export class SolicitudProveedorService {
       'accept': 'text/plain',
       'Content-Type': 'application/json'
     });
-  
+
     // Construye la URL con los parámetros
     const url = `${this.urlServices}${this.urlMoverEstadoATramitado}?idSolicitudProveedor=${idSolicitudProveedor}&idUsuario=${idUsuario}&observacion=${observacion}`;
-  
+
     // Realiza la solicitud PUT a la URL construida
     return this.http.put<any>(url, {}, { headers });
   }
 
-  public consultarInfoNumeroUnico(numeroUnico: string):Observable<any> {
+  public consultarInfoNumeroUnico(numeroUnico: string): Observable<any> {
     return this.http.get<any>(`${this.urlServices}${this.urlConsultarInfoNumeroUnico}?numeroUnico=${numeroUnico}`);
   }
 

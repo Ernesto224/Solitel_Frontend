@@ -16,6 +16,8 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { AlertaComponent } from '../../components/alerta/alerta.component';
 import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
 import { AuthenticacionService } from '../../services/authenticacion.service';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { ModalProcesandoComponent } from '../../components/modal-procesando/modal-procesando.component';
 
 @Component({
   selector: 'app-solicitud-proveedor',
@@ -25,10 +27,13 @@ import { AuthenticacionService } from '../../services/authenticacion.service';
     FormsModule,
     NgMultiSelectDropDownModule,
     AlertaComponent,
-    ModalConfirmacionComponent
+    NgxMaskDirective,
+    ModalConfirmacionComponent,
+    ModalProcesandoComponent
   ],
   templateUrl: './solicitud-proveedor.component.html',
-  styleUrls: ['./solicitud-proveedor.component.css']
+  styleUrls: ['./solicitud-proveedor.component.css'],
+  providers: [provideNgxMask()]
 })
 export default class SolicitudProveedorComponent {
 
@@ -39,7 +44,7 @@ export default class SolicitudProveedorComponent {
   isFiscaliaDisabled: boolean = false;
 
   isDelitoDisabled: boolean = false;
-
+  isModalVisible: boolean = false;
   alertatipo: string = "error";
   alertaMensaje: string = "";
   alertaVisible: boolean = false;
@@ -47,6 +52,8 @@ export default class SolicitudProveedorComponent {
   selectedFile: File | null = null;
   fileId: number = 0;
 
+  //Variable para editar
+  editarRequerimiento: boolean = false;
   // Estados y modales
   isModalOpen = false;
   isUrgent = false;
@@ -121,6 +128,8 @@ export default class SolicitudProveedorComponent {
   usuario: any = {};
   nombreOficina: string = '';
 
+  //mascaras
+  maskPattern: string = '';
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
     private delitoService: DelitoService,
@@ -151,6 +160,7 @@ export default class SolicitudProveedorComponent {
     this.getTiposDato();
     this.getOperadoras();  // Cargar operadoras
     //this.getOficinas();    // Cargar oficinas
+    this.editarRequerimiento = false;
 
     // Configuración para el Multi-Select Dropdown
     this.dropdownSettings = {
@@ -248,6 +258,20 @@ export default class SolicitudProveedorComponent {
     });
   }
 
+  validarFechas() {
+    if (this.fechaInicio && this.fechaFinal) {
+      const fechaInicioDate = new Date(this.fechaInicio);
+      const fechaFinalDate = new Date(this.fechaFinal);
+
+      if (fechaFinalDate < fechaInicioDate) {
+        this.alertaMensaje = 'La fecha y hora final no pueden ser menores que la fecha y hora de inicio.';
+        this.alertatipo = 'error';
+        this.mostrarAlerta();
+        this.fechaFinal = '';
+      }
+    }
+  }
+
   onCategoriaDelitoChange(): void {
     if (this.idCategoriaDelitoSeleccionado) {
       this.delitoService.obtenerPorCategoria(this.idCategoriaDelitoSeleccionado)
@@ -322,6 +346,7 @@ export default class SolicitudProveedorComponent {
     this.fechaFinal = solicitud.tF_FechaFinal;                   // Cargar fecha final
     this.listaDatosRequeridos = solicitud.datosRequeridos;       // Cargar datos requeridos
     this.tipoDatoSeleccionadoBloqueado = true;
+    this.editarRequerimiento = true;
   }
 
   actualizarSolicitud() {
@@ -358,6 +383,8 @@ export default class SolicitudProveedorComponent {
   }
 
   guardarSolicitud() {
+    this.cerrarModalConfirmacion();
+    this.modalVisible();
     if (
       (this.validarNumUnico(this.numeroUnico) == true || this.numeroCaso) &&
       this.validarNombrePersona(this.imputado) &&
@@ -445,13 +472,13 @@ export default class SolicitudProveedorComponent {
         },
 
         modalidad: {
-          idModalidad: this.idModalidadSeleccionada != 0 ? this.idModalidadSeleccionada: 0,
+          idModalidad: this.idModalidadSeleccionada != 0 ? this.idModalidadSeleccionada : 0,
           nombre: "Modalidad X",
           descripcion: "Descripción de la modalidad"
         },
 
         subModalidad: {
-          idSubModalidad: this.idSubModalidadSeleccionada != 0 ? this.idSubModalidadSeleccionada: 0,
+          idSubModalidad: this.idSubModalidadSeleccionada != 0 ? this.idSubModalidadSeleccionada : 0,
           nombre: "Submodalidad X",
           descripcion: "Descripción de la submodalidad",
           idModalida: this.idModalidadSeleccionada
@@ -463,7 +490,7 @@ export default class SolicitudProveedorComponent {
         next: response => {
           this.alertaMensaje = 'Solicitud guardada con éxito.';
           this.alertatipo = 'satisfaccion';
-          this.cerrarModalConfirmacion();
+          this.modalInvisible();
           this.mostrarAlerta();
           this.limpiarTodo();
           //Redireccionar a la bandeja
@@ -471,6 +498,7 @@ export default class SolicitudProveedorComponent {
         error: err => {
           this.alertaMensaje = `Error al guardar la solicitud: ${err}`;
           this.alertatipo = 'error';
+          this.modalInvisible();
           this.mostrarAlerta();
         }
       });
@@ -592,6 +620,8 @@ export default class SolicitudProveedorComponent {
     this.requerimiento = '';
     this.listaDatosRequeridos = [];
 
+    //Condicion Editar
+    this.editarRequerimiento = false;
     this.resetForm();
   }
 
@@ -628,8 +658,6 @@ export default class SolicitudProveedorComponent {
 
   mostrarAlerta(): void {
     this.alertaVisible = true;
-
-    // Opcional: Cerrar la alerta después de unos segundos
     setTimeout(() => {
       this.alertaVisible = false;
     }, 3000); // 3 segundos
@@ -796,32 +824,49 @@ export default class SolicitudProveedorComponent {
     }
   }
 
-  onTipoDatoChange() {
+  onTipoDatoChange(): void {
+    if (!this.tipoDatoSeleccionadoBloqueado) {
+      switch (this.tipoDatoSeleccionado?.nombre) {
+        case 'Número Nacional':
+          this.maskPattern = '0000-0000'; // Ejemplo: 2222-2222
+          this.placeholderDatoRequerido = '2222-2222';
+          this.maxlengthDatoRequerido = 9;
+          break;
+        case 'Número Internacional':
+          this.maskPattern = '+000 0000-0000'; // Ejemplo: +502 1234-5678
+          this.placeholderDatoRequerido = '+502 1234-5678';
+          this.maxlengthDatoRequerido = 14; // Ajusta según sea necesario
+          break;
 
-    if (this.tipoDatoSeleccionadoBloqueado == false) {
-
-      if (this.tipoDatoSeleccionado?.nombre === 'IMEI') {
-        this.maxlengthDatoRequerido = 15;  // Límite para IMEI (15 dígitos)
-        this.placeholderDatoRequerido = '123456789087654'
-      } else if (this.tipoDatoSeleccionado?.nombre === 'Número Nacional') {
-        this.maxlengthDatoRequerido = 8;  // Límite para número de teléfono (10 dígitos)
-        this.placeholderDatoRequerido = '2222-2222'
-      } else if (this.tipoDatoSeleccionado?.nombre === 'IP') {
-        this.maxlengthDatoRequerido = 15;  // Límite para email
-        this.placeholderDatoRequerido = '192.168.111.111'
-      } else if (this.tipoDatoSeleccionado?.nombre === 'Número Internacional') {
-        this.maxlengthDatoRequerido = 14;  // Límite para email
-        this.placeholderDatoRequerido = '+1 305 123-4567'
-      } else {
-        this.maxlengthDatoRequerido = 100;  // Valor por defecto
-        this.placeholderDatoRequerido = 'Ingrese el dato requerido'
+        case 'IMEI':
+          this.maskPattern = '000000000000000'; // Ejemplo: 15 dígitos
+          this.placeholderDatoRequerido = '123456789087654';
+          this.maxlengthDatoRequerido = 15;
+          break;
+        case 'SIM':
+          this.maskPattern = '0000000000'; // Ejemplo: 10 dígitos
+          this.placeholderDatoRequerido = '1234567890';
+          this.maxlengthDatoRequerido = 10;
+          break;
+        case 'IP':
+          this.maskPattern = '099.099.099.099'; // Ejemplo: 192.168.111.111
+          this.placeholderDatoRequerido = '192.168.111.111';
+          this.maxlengthDatoRequerido = 15;
+          break;
+        case 'Radio Base':
+          this.maskPattern = '000-000-0000'; // Ejemplo: 000-000-0000
+          this.placeholderDatoRequerido = '000-000-0000';
+          this.maxlengthDatoRequerido = 12;
+          break;
+        default:
+          this.maskPattern = ''; // Sin máscara
+          this.placeholderDatoRequerido = 'Ingrese el dato requerido';
+          this.maxlengthDatoRequerido = 25;
+          break;
       }
-
-    } else {
-      this.errorMessage = 'No se pueden cambiar el tipo de dato.';
-
     }
   }
+
 
   toggleUrgente() {
     // Cambiar el estado de urgente (true/false)
@@ -837,13 +882,13 @@ export default class SolicitudProveedorComponent {
     this.isModalOpen = false;
   }
 
-  buscarInfoNumeroUnico(numeroUnico: string): void{
+  buscarInfoNumeroUnico(numeroUnico: string): void {
     this.solicitudProveedorService.consultarInfoNumeroUnico(numeroUnico).subscribe({
       next: (data: any) => {
 
-        this.idCategoriaDelitoSeleccionado = data.categoriaDelitoDTO.idCategoriaDelito;
-        this.idFiscaliaSeleccionada = data.fiscaliaDTO.idFiscalia;
-        this.idDelitoSeleccionado = data.delitoDTO.idDelito;
+        this.idCategoriaDelitoSeleccionado = data.categoriaDelito.idCategoriaDelito;
+        this.idFiscaliaSeleccionada = data.fiscalia.idFiscalia;
+        this.idDelitoSeleccionado = data.delito.idDelito;
         this.imputado = String(data.imputado);
         this.ofendido = String(data.ofendido);
         this.resennia = String(data.resennia);
@@ -851,7 +896,7 @@ export default class SolicitudProveedorComponent {
         this.isCategoriaDelitoDisabled = true;
         this.isDelitoDisabled = true;
         this.isFiscaliaDisabled = true;
-        
+
       },
       error: (err: any) => {
         this.alertaMensaje = 'No se encontro solicitud con ese numero unico';
@@ -872,12 +917,20 @@ export default class SolicitudProveedorComponent {
     });
   }
 
-  abrirModalConfirmacion(){
+  abrirModalConfirmacion() {
     this.modalConfirmacionisible = true;
   }
 
-  cerrarModalConfirmacion(){
+  cerrarModalConfirmacion() {
     this.modalConfirmacionisible = false;
+  }
+
+  modalVisible(): void {
+    this.isModalVisible = true;
+  }
+
+  modalInvisible(): void {
+    this.isModalVisible = false;
   }
 
 }

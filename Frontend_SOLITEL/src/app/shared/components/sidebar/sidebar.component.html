@@ -1,43 +1,72 @@
 <aside [class.translate-x-0]="isSidebarVisible" [class.-translate-x-full]="!isSidebarVisible"
-    class="fixed top-16 left-0 w-64 h-screen bg-custom-blue border-r transition-transform duration-300 ease-in-out z-40 transform">
+  class="fixed top-16 left-0 w-64 h-screen bg-custom-blue border-r transition-transform duration-300 ease-in-out z-40 transform">
+  <div class="flex flex-col justify-between flex-1 mt-6">
+    <nav class="space-y-6">
 
-    <div class="flex flex-col justify-between flex-1 mt-6">
-        <nav class="space-y-6">
-            <div class="flex justify-center">
-                <img src="https://sitiooij.poder-judicial.go.cr/images/placa-lg.png" alt="Placa OIJ" class="w-24 h-auto">
-            </div>
+      <!-- Logo del OIJ -->
+      <div class="flex justify-center">
+        <img src="https://sitiooij.poder-judicial.go.cr/images/placa-lg.png" alt="Placa OIJ" class="w-24 h-auto">
+      </div>
 
-            <div class="space-y-3">
-                <a *ngIf="authService.tienePermiso('Crear Solicitud Proveedor')" routerLink="bandeja"
-                    class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
-                    <span class="mx-2 text-sm font-medium">Bandeja</span>
-                </a>
+      <div class="space-y-3">
+        <ng-container *ngIf="authService.tienePermiso('Ver Solicitudes Proveedor Oficina') || 
+        authService.tienePermiso('Ver Solicitudes Analisis Oficina') ||
+        authService.tienePermiso('Ver Solicitudes Proveedor Propias') ||
+        authService.tienePermiso('Ver Solicitudes Analisis Propias')">
+          <a routerLink="bandeja"
+            class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
+            <i class="material-icons">inventory_2</i>
+            <span class="mx-2 text-sm font-medium">Bandeja</span>
+          </a>
+          <hr class="sidebar-separator">
+        </ng-container>
 
-                <a *ngIf="authService.tienePermiso('Ver solicitudes propias')" routerLink="bandeja-analista"
-                    class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
-                    <span class="mx-2 text-sm font-medium">Bandeja Analista</span>
-                </a>
+        <ng-container *ngIf="authService.tienePermiso('Ver Solicitudes Analisis Oficina Analisis') 
+          || authService.tienePermiso('Ver Solicitudes Analisis Propias Analisis')">
+          <a routerLink="bandeja-analista"
+            class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
+            <i class="material-icons">inventory_2</i>
+            <span class="mx-2 text-sm font-medium">Bandeja Analista</span>
+          </a>
+          <hr class="sidebar-separator">
+        </ng-container>
 
-                <a *ngIf="authService.tienePermiso('Crear Solicitud Proveedor')" routerLink="/solicitud-proveedor"
-                    class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
-                    <span class="mx-2 text-sm font-medium">Solicitud Proveedor</span>
-                </a>
+        <ng-container *ngIf="authService.tienePermiso('Crear Solicitud Proveedor') 
+        && !authService.tienePermiso('todos')">
+          <a routerLink="/solicitud-proveedor"
+            class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
+            <i class="material-icons">note_add</i>
+            <span class="mx-2 text-sm font-medium">Solicitud Proveedor</span>
+          </a>
+          <hr class="sidebar-separator">
+        </ng-container>
 
-                <a *ngIf="authService.tienePermiso('Crear solicitudes de analisis')" routerLink="/analisis-telefonico"
-                    class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
-                    <span class="mx-2 text-sm font-medium">Análisis Télefonico</span>
-                </a>
+        <ng-container *ngIf="authService.tienePermiso('Crear Solicitudes Analisis')
+        && !authService.tienePermiso('todos')">
+          <a routerLink="/analisis-telefonico"
+            class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
+            <i class="material-icons">query_stats</i>
+            <span class="mx-2 text-sm font-medium">Análisis Télefonico</span>
+          </a>
+          <hr class="sidebar-separator">
+        </ng-container>
 
-                <a *ngIf="authService.tienePermiso('todos')" routerLink="/catalogos"
-                    class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
-                    <span class="mx-2 text-sm font-medium">Catalogos</span>
-                </a>
+        <ng-container *ngIf="authService.tienePermiso('todos')">
+          <a routerLink="/catalogos"
+            class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
+            <i class="material-icons">note_add</i>
+            <span class="mx-2 text-sm font-medium">Catalogos</span>
+          </a>
+          <hr class="sidebar-separator">
+        </ng-container>
 
-                <a *ngIf="authService.tienePermiso('Ver solicitudes propias')" routerLink="/vista-proveedor"
-                    class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
-                    <span class="mx-2 text-sm font-medium">Vista Proveedor</span>
-                </a>
-            </div>
-        </nav>
-    </div>
+        <ng-container *ngIf="authService.tienePermiso('todos')">
+          <a routerLink="/vista-proveedor"
+            class="flex items-center px-3 py-2 text-[#92aa34] transition-colors duration-300 transform rounded-lg hover:bg-[#E8E8E8] hover:text-[#1C355C]">
+            <span class="mx-2 text-sm font-medium">Vista Proveedor</span>
+          </a>
+        </ng-container>
+      </div>
+    </nav>
+  </div>
 </aside>

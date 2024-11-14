@@ -1,14 +1,4 @@
-<!-- Modal Carga-->
-<div class="modal" [ngClass]="{'is-active': isModalVisible}">
-    <div class="modal-background"></div>
-    <div class="modal-content">
-        <p class="is-size-4">Procesando...</p>
-        <div class="box has-text-centered">
-            <div class="loader"></div>
-        </div>
-    </div>
-    <button class="modal-close is-large" aria-label="close" (click)="modalInvisible()" *ngIf="isModalVisible"></button>
-</div>
+<app-modal-procesando [isModalVisible]="isModalVisible"></app-modal-procesando>
 
 <div class="flex flex-col mb-0 pb-0">
     <!--Filtro de -->
@@ -18,13 +8,6 @@
 
         <div class="filter-form">
 
-            <!-- Filtrar por carácter - ocupa toda la fila -->
-            <div class="form-group filter-full-width">
-                <label for="filtro-caracter">Filtrar por carácter:</label>
-                <input type="text" id="filtro-caracter" class="w-full p-2 border rounded" placeholder="Ingrese carácter"
-                    [(ngModel)]="filtroCaracter" (ngModelChange)="aplicarFiltroCaracter()">
-            </div>            
-
             <!-- Estado -->
             <div class="form-group">
                 <label for="estado">Estado:</label>
@@ -32,7 +15,7 @@
                     <select [(ngModel)]="estadoSeleccionado"> <!-- Cambiado a onEstadoChange() -->
                         <optgroup label="Solicitud Análisis">
                             <option *ngFor="let estado of estados" [value]="estado.idEstado">
-                                {{ estado.nombre }}
+                                {{ estado.nombre }} ({{ estado.cantidadSolicitudes }})
                             </option>
                         </optgroup>
                     </select>
@@ -70,23 +53,18 @@
         </div>
     </div>
 
+    <!--Barra de busqueda-->
+    <div class="flex justify-end items-center mt-4 mb-4">
+        <!-- Buscador -->
+        <div class="relative w-full max-w-sm">
+            <input type="text" placeholder="Buscar" class="w-full p-2 border rounded pr-10" [(ngModel)]="filtroCaracter"
+                (ngModelChange)="aplicarFiltroCaracter()" />
+            <i class="material-icons absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">search</i>
+        </div>
+    </div>
+
     <!-- Contenedor con scroll horizontal y vertical si es necesario -->
     <div class="overflow-x-auto overflow-y-auto max-h-screen">
-
-        <!-- Paginación y tamaño de filas alineados a los bordes -->
-        <div class="flex justify-between items-center mt-4 space-x-8">
-            <!-- Selector de tamaño de filas alineado a la izquierda -->
-            <div class="flex items-center">
-                <label for="pageSize" class="mr-2">
-                    Mostrar:
-                </label>
-                <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="border border-gray-300 rounded">
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="15">15</option>
-                </select>
-            </div>
-        </div>
 
         <!-- Tabla -->
         <table class="min-w-full table-auto border-collapse">
@@ -101,7 +79,8 @@
                     <tr class="bg-gray-100">
                         <td colspan="12" class="colspan px-4 py-2 text-left">
                             <span>ID Solicitud de Análisis: {{ solicitud.idSolicitudAnalisis }}</span>
-                            <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver Solicitud')">
+                            <ng-container
+                                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver Solicitud')">
                                 <span> | </span>
                                 <button class="inline-flex items-center space-x-1" (click)="verDetalle(solicitud)">
                                     <span class="material-icons text-sm">info</span>
@@ -116,16 +95,20 @@
                         <tr class="bg-[#F3F4F6] border-b border-gray-300 hover:bg-gray-200">
                             <td class="border px-4 py-2 text-center">{{ solicitudProveedor.idSolicitudProveedor }}</td>
                             <td class="border px-4 py-2 text-center">{{ solicitudProveedor.numeroUnico }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.usuarioCreador.nombre }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.oficina }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.aprobador }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.fechaCrecion | date: 'dd/MM/yyyy' }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.fechaAprobacion | date: 'dd/MM/yyyy'}}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.asignado }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.fechaAsignacion | date: 'dd/MM/yyyy'}}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitud.nombreUsuarioCreador }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitud.nombreOficina }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitud.nombreUsuarioAprobador }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitud.fechaCreacion | date: 'dd/MM/yyyy' }}
+                            </td>
+                            <td class="border px-4 py-2 text-center">{{ solicitud.fechaDeAprobacion | date:
+                                'dd/MM/yyyy'}}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitud.nombreUsuarioAsignado }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitud.fechaDeAsignacion | date:
+                                'dd/MM/yyyy'}}</td>
                             <td class="border px-4 py-2 text-center">{{ solicitud.estado.nombre }}</td>
                             <td class="border px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitud.fechaAnalizado | date: 'dd/MM/yyyy' }}</td>
+                            <td class="border px-4 py-2 text-center">{{ solicitud.fechaDeAnalizado | date: 'dd/MM/yyyy'
+                                }}</td>
                         </tr>
                     </ng-container>
                 </ng-container>
@@ -133,27 +116,38 @@
         </table>
     </div>
 
-    <!-- Paginación y tamaño de filas centrados -->
-    <div class="flex justify-between items-center mt-4 space-x-8">
-        <div class="flex items-center">
-            <label for="pageSize" class="mr-2">Mostrar registros del {{((this.numeroDePagina - 1) *
-                this.cantidadDeRegistros) + 1}}
-                al {{((this.numeroDePagina - 1) * this.cantidadDeRegistros) + this.cantidadDeRegistros}}
-                de un total de {{solicitudesAnalisisPaginadas.length}} registros
-            </label>
+    <!--Paginacion y cantidad de datos-->
+    <div class="pagination-container">
+        <div class="page-size-container">
+            <label for="pageSize" class="label">Tamaño:</label>
+            <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="select">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+            </select>
         </div>
-        <!-- Paginación -->
-        <div class="flex items-center space-x-2">
-            <!-- Botón regresar -->
-            <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(-1)">
-                Anterior
+        <div class="page-info">
+            <span>{{ inicioRegistros }} - {{ finRegistros }} de {{ solicitudesAnalisisFiltradas.length }}</span>
+        </div>
+        <div class="pagination-controls">
+            <!-- Botón para ir a la primera página -->
+            <button class="pagination-button" (click)="irPrimeraPagina()" [disabled]="numeroDePagina === 1">
+                <i class="material-icons">first_page</i>
             </button>
-            <span>{{ numeroDePagina }}</span> <!-- Número de página -->
-            <!-- Botón siguiente -->
-            <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(1)">
-                Siguiente
+            <!-- Botón para ir a la página anterior -->
+            <button class="pagination-button" (click)="cambiarPagina(-1)" [disabled]="numeroDePagina === 1">
+                <i class="material-icons">arrow_back_ios</i>
+            </button>
+            <!-- Botón para ir a la página siguiente -->
+            <button class="pagination-button" (click)="cambiarPagina(1)" [disabled]="numeroDePagina >= maxPagina">
+                <i class="material-icons">arrow_forward_ios</i>
+            </button>
+            <!-- Botón para ir a la última página -->
+            <button class="pagination-button" (click)="irUltimaPagina()" [disabled]="numeroDePagina >= maxPagina">
+                <i class="material-icons">last_page</i>
             </button>
         </div>
     </div>
-
 </div>

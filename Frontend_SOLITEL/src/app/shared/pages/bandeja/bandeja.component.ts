@@ -1,4 +1,4 @@
-import { Component, OnInit , ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { SolicitudProveedorService } from '../../services/solicitud-proveedor.service';
 import { HistoricoService } from '../../services/historico.service';
@@ -11,7 +11,8 @@ import { ModalInformacionComponent } from '../../components/modal-informacion/mo
 import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
 import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
 import { AlertaComponent } from '../../components/alerta/alerta.component';
-
+import { AuthenticacionService } from '../../services/authenticacion.service';
+import { ModalProcesandoComponent } from '../../components/modal-procesando/modal-procesando.component';
 
 @Component({
   selector: 'app-bandeja',
@@ -22,7 +23,8 @@ import { AlertaComponent } from '../../components/alerta/alerta.component';
     TablaVisualizacionComponent,
     ModalInformacionComponent,
     ModalConfirmacionComponent,
-    AlertaComponent
+    AlertaComponent,
+    ModalProcesandoComponent
   ],
   providers: [
     DatePipe
@@ -32,98 +34,67 @@ import { AlertaComponent } from '../../components/alerta/alerta.component';
 })
 export default class BandejaComponent implements OnInit {
 
+  // Variables relacionadas con el usuario
+  usuario: any = {};
+  usuarioId: any = null;
+  oficinaId: any = null;
+
+  // Estados y seleccionados
+  estadoSeleccionado: any = { idEstado: 3, nombre: "Creado", tipo: "Proveedor" };
+  estadoTemporal: string = 'Creado';
+  idEstadoSeleccionado: number = 3;
   estados: any[] = [];
   estadosProveedor: any[] = [];
   estadosAnalisis: any[] = [];
 
-  encabezados: any[] = [];
+  // Variables para solicitudes
   solicitudes: any[] = [];
   solicitudesFiltradas: any[] = [];
   solicitudesPaginadas: any[] = [];
-  solicitudesAnalisis: any[] = [];
-  solicitudesAnalisisOriginales: any[] = []; // Nueva variable para mantener las solicitudes originales
-  mostrarTablaProveedor: boolean = true; // Controla cuál tabla mostrar
-  columnasVisibles: { [key: string]: boolean } = {};
-  numeroDePagina: number = 1;
-  cantidadDeRegistros: number = 5;
+  solicitudSeleccionada: any = null;
+  solicitudIdParaActualizar: number | null = null;
+  solicitudAnalisisSeleccionada: any = null;
 
-  cantidadPorEstadoProveedor: { idEstado: number, nombre: string, cantidad: number }[] = [];
-  cantidadPorEstadoAnalisis: { idEstado: number, nombre: string, cantidad: number }[] = [];
-
-  estadoColumnas: { [key: string]: { headers: string[], actions: string[], columnasVisibles: {} } } = {
-    Creado: {
-      headers: ['Aprobar', 'Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-      actions: ['aprobar', 'sinEfecto', 'historico', 'ver'],
-      columnasVisibles: { aprobar: true, sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-    },
-    Finalizado: {
-      headers: ['Devolver', 'Histórico', 'Sin efecto', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-      actions: ['devolver', 'historico', 'sinEfecto', 'requerimientos'],
-      columnasVisibles: { devolver: true, historico: true, sinEfecto: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-    },
-    'Sin Efecto': {
-      headers: ['Devolver', 'Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-      actions: ['devolver', 'historico', 'requerimientos', 'ver'],
-      columnasVisibles: { devolver: true, historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, creadoPor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true }
-    },
-    Pendiente: {
-      headers: ['Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Aprobación', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-      actions: ['sinEfecto', 'historico', 'ver'],
-      columnasVisibles: { sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, aprobacion: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-    },
-    Tramitado: {
-      headers: ['Finalizar', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-      actions: ['finalizar', 'historico', 'legajo', 'requerimientos'],
-      columnasVisibles: { finalizar: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-    },
-    Solicitado: {
-      headers: ['Aprobar', 'Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-      actions: ['aprobar', 'sinEfecto', 'historico', 'ver'],
-      columnasVisibles: { aprobar: true, sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-    },
-    Legajo: {
-      headers: ['Devolver', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-      actions: ['devolver', 'historico', 'legajo', 'requerimientos'],
-      columnasVisibles: { devolver: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-    },
-    'En Análisis': {
-      headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
-      actions: ['historico', 'ver', 'requerimientos'],
-      columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
-    },
-    Analizado: {
-      headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
-      actions: ['historico', 'ver', 'requerimientos'],
-      columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
-    },
-    'Aprobar Análisis': {
-      headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
-      actions: ['historico', 'ver', 'requerimientos'],
-      columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
-    }
-
-
-
-  };
-
-  estadoSeleccionado: string = 'Creado';
-  estadoTemporal: string = 'Creado';
-  idEstadoSeleccionado: number | null = null;
+  // Filtros
   numeroUnicoFiltro: string = '';
   fechaInicioFiltro: string = '';
   fechaFinFiltro: string = '';
   filtroCaracter: string = '';
-  isSwitchDisabled: boolean = false; // Variable para controlar si el switch está habilitado
 
-  solicitudSeleccionada: any = null;
-  solicitudIdParaActualizar: number | null = null;
+  // Variables de configuración y control de visualización
+  aprobar = false;
+  mostrarTablaProveedor: boolean = true;
+  isSwitchDisabled: boolean = false;
+  isModalVisible: boolean = false;
+  modalSolicitud = false;
+  modalEstadoVisible = false;
+  modalHistoricoVisible = false;
+  modalRequerimientosVisible: boolean = false;
+  modalArchivosUACVisible: boolean = false;
+  modalArchivosInformeFinalVisible: boolean = false;
+  modalHistoricoAnalisisVisible: boolean = false;
+  modalLegajorAnalisis: boolean = false;
+  modalAprobarAnalisis: boolean = false;
+  modalDevolverAnalizado: boolean = false;
+  modalFinalizarAnalisis: boolean = false;
+  modalVerSolicitud: boolean = false;
+  subirArchivosInformeFinalOpcion: boolean = false;
 
-  // Variables para la alerta component
+  // Variables relacionadas con la paginación y visibilidad
+  numeroDePagina: number = 1;
+  cantidadDeRegistros: number = 5;
+  inicioRegistros: number = 1;
+  finRegistros: number = 0;
+  maxPagina: number = 1;
+  columnasVisibles: { [key: string]: boolean } = {};
+
+  // Variables para alertas
   alertatipo: string = "error";
   alertaMensaje: string = "";
   alertaVisible: boolean = false;
 
-  modalVisible = false;
+  // Variables relacionadas con encabezados y columnas
+  encabezados: any[] = [];
   encabezadosRequerimientos: any[] = [
     { key: 'requerimiento', label: 'Requerimiento' },
     { key: 'tipoSolicitudes', label: 'Tipo Solicitud' },
@@ -131,14 +102,6 @@ export default class BandejaComponent implements OnInit {
     { key: 'fechaInicio', label: 'Fecha Inicio' },
     { key: 'fechaFinal', label: 'Fecha Final' }
   ];
-  requerimientosDeSolicitudSeleccionada: any[] = [];
-
-  isModalVisible: boolean = false;
-  modalEstadoVisible = false;
-  observacion: string = '';
-  nuevoEstado: string = '';
-
-  modalHistoricoVisible = false;
   encabezadosHistorico: any[] = [
     { key: 'idSolicitudProveedor', label: 'Solicitud' },
     { key: 'numeroUnico', label: 'Número Único' },
@@ -147,38 +110,54 @@ export default class BandejaComponent implements OnInit {
     { key: 'usuario', label: 'Usuario' },
     { key: 'observacion', label: 'Observación' }
   ];
-  historicoDeSolicitudSeleccionada: any[] = [];
-
-  modalRequerimientosVisible: boolean = false;
   encabezadosRequerimientosTramitados: any[] = [
     { key: 'requerimiento', label: 'Requerimiento' },
     { key: 'numRequerido', label: 'Núm. requerido' },
-    { key: 'rangoFechas', label: 'Rango de fechas' },
+    { key: 'rangoFechas', label: 'Rango de fechas' }
+  ];
+  encabezadosArchivosUAC: any[] = [
+    { key: 'nombre', label: 'Nombre Documento' }
+  ];
+  encabezadosAccionesArchivosUAC: any[] = [
+    'Descargar'
+  ];
+  encabezadosArchivosInforme: any[] = [
+    { key: 'nombre', label: 'Nombre Documento' }
+  ];
+  encabezadosAccionesArchivosInforme: any[] = [
+    'Descargar'
+  ];
+  encabezadosHistoricoAnalisis: any[] = [
+    { key: 'idSolicitudAnalisis', label: 'Solicitud' },
+    { key: 'estado', label: 'Estado' },
+    { key: 'fechaEstado', label: 'Fecha Estado' },
+    { key: 'usuario', label: 'Usuario' },
     { key: 'observacion', label: 'Observación' }
   ];
-  requerimientosRespondidos: any[] = [];
   encabezadosAccionesRequerimientosTramitados: any[] = [
     'Archivos'
   ];
 
 
+
+  // Objetos complejos
+  estadoColumnas: { [key: string]: { [key: string]: { headers: string[], columnasVisibles: {} } } } = {};
+
+  // Variables relacionadas con archivos
+  archivos: any[] = [];
+  archivosUAC: any[] = [];
+  archivosInformeFinal: any[] = [];
+  archivosInformeFinalDB: any[] = [];
+  idSolicitudAnalisisSeleccionada: number = 0;
+
+  // Variables relacionadas con acciones
   accionesrequerimientosRespondidos: any[] = [
     {
       style: "background-color: #1C355C;",
       class: "text-white px-4 py-2 rounded focus:outline-none focus:ring w-[55px]",
-      action: (requerimiento: any) => this.cargarArchivos(requerimiento.idRequerimientoProveedor), // Acción para cargar archivos
-      icon: 'folder' // Icono para el botón
-    },
-  ];
-
-  archivos: any[] = [];
-
-
-  // Variables necesarias para ver y descargar archivos UAC
-  archivosUAC: any[] = [];
-  modalArchivosUACVisible: boolean = false;
-  encabezadosArchivosUAC: any[] = [
-    { key: 'nombre', label: 'Nombre Documento' }
+      action: (requerimiento: any) => this.cargarArchivos(requerimiento.idRequerimientoProveedor),
+      icon: 'folder'
+    }
   ];
   accionesArchivosUAC: any[] = [
     {
@@ -188,19 +167,6 @@ export default class BandejaComponent implements OnInit {
       icon: 'download'
     }
   ];
-  encabezadosAccionesArchivosUAC: any[] = [
-    'Descargar'
-  ];
-
-
-  // Variables necesarias para agregar informe 
-  modalArchivosInformeFinalVisible: boolean = false;
-  archivosInformeFinal: any[] = [];
-  archivosInformeFinalDB: any[] = [];
-  idSolicitudAnalisisSeleccionada: number = 0;
-  encabezadosArchivosInforme: any[] = [
-    { key: 'nombre', label: 'Nombre Documento' }
-  ];
   accionesArchivosInforme: any[] = [
     {
       style: "background-color: #1C355C;",
@@ -209,43 +175,20 @@ export default class BandejaComponent implements OnInit {
       icon: 'download'
     }
   ];
-  encabezadosAccionesArchivosInforme: any[] = [
-    'Descargar'
-  ];
 
-
-  // Variables para el modal historico analisis
-  historicoDeSolicitudAnalisisSeleccionada: any[] = [];
-  modalHistoricoAnalisisVisible: boolean = false;
-  encabezadosHistoricoAnalisis: any[] = [
-    { key: 'idSolicitudAnalisis', label: 'Solicitud' },
-    { key: 'estado', label: 'Estado' },
-    { key: 'fechaEstado', label: 'Fecha Estado' },
-    { key: 'usuario', label: 'Usuario' },
-    { key: 'observacion', label: 'Observación' }
-  ];
-
-
-  // Variables para confirmar Legajo analisis
-  modalLegajorAnalisis: boolean = false;
+  // Variables relacionadas con observaciones y estados
+  observacion: string = '';
+  nuevoEstado: string = '';
   observacionLegajoAnalisis: string = '';
-
-
-  // Variables para aprobar analisis
-  modalAprobarAnalisis: boolean = false;
   observacionAprobarAnalisis: string = '';
-
-
-  // Variables para devolver Analizado
-  modalDevolverAnalizado: boolean = false;
   observacionDevolverAnalizado: string = '';
-
-
-  // Variables para finalizar una solicitud de analisis
-  modalFinalizarAnalisis: boolean = false;
   observacionFinalizarAnalisis: string = '';
 
-
+  // Variables relacionadas con historiales y requerimientos
+  historicoDeSolicitudSeleccionada: any[] = [];
+  historicoDeSolicitudAnalisisSeleccionada: any[] = [];
+  requerimientosDeSolicitudSeleccionada: any[] = [];
+  requerimientosRespondidos: any[] = [];
 
   constructor(
     private solicitudProveedorService: SolicitudProveedorService,
@@ -254,35 +197,76 @@ export default class BandejaComponent implements OnInit {
     private archivoService: ArchivoService,
     private historicoService: HistoricoService,
     private datePipe: DatePipe,
-    private cdr: ChangeDetectorRef
-
-    
+    private autenticate: AuthenticacionService
   ) { }
 
   ngOnInit(): void {
-    this.cargarDatosBandeja();
-  }
-
-  cargarDatosBandeja() {
-    this.isModalVisible = true; // Mostrar el modal al iniciar la operación
-
-    // Simulación de una operación asíncrona
-    setTimeout(() => {
-      this.obtenerEstados();
-      this.obtenerSolicitudes();
-      this.obtenerSolicitudesAnalisis();
-      this.contarSolicitudesPorEstado(); 
-    }, 3000); // Simular 3 segundos de procesamiento
-  }
-
-  vaciarDatosBandeja() {
-    this.solicitudes = [];
-    this.solicitudesAnalisis = [];
+    this.obtenerDatosDeUsuario();
+    this.obtenerEstados();
+    this.obtenerSolicitudes();
   }
 
   //obtener datos
+  obtenerDatosDeUsuario(): void {
+    this.usuario = this.autenticate.getUsuario();
+    this.usuarioId = this.autenticate.verificarPermisosVerDatos(this.usuario);
+    this.aprobar = this.autenticate.verificarPermisosAprobacion(this.usuario);
+    this.oficinaId = this.usuario.oficina.idOficina;
+    this.estadoColumnas = {
+      Proveedor: {
+        Creado: {
+          headers: ['Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { aprobar: this.autenticate.verificarPermisosAprobacion(this.usuario), sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        },
+        Finalizado: {
+          headers: ['Devolver', 'Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { devolver: true, historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        },
+        'Sin Efecto': {
+          headers: ['Devolver', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { devolver: true, historico: true, ver: true, solicitud: true, numeroUnico: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        },
+        Pendiente: {
+          headers: ['Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        },
+        Tramitado: {
+          headers: ['Finalizar', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { finalizar: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        },
+        Legajo: {
+          headers: ['Devolver', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { devolver: true, historico: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        }
+      },
+      Analisis: {
+        'En Análisis': {
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
+        },
+        Analizado: {
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
+        },
+        'Aprobar Analisis': {
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
+        },
+        Finalizado: {
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
+        },
+        Legajo: {
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
+        }
+      }
+    }
+    if (this.autenticate.verificarPermisosAprobacion(this.usuario)) this.estadoColumnas['Proveedor']['Creado'].headers.unshift('Aprobar');
+  }
+
   obtenerEstados(): void {
-    this.estadoService.obtenerEstados().subscribe({
+    this.estadoService.obtenerEstados(this.usuarioId, this.oficinaId).subscribe({
       next: (estados) => {
         this.estados = estados;
         this.estadosProveedor = estados.filter(estado => estado.tipo === 'Proveedor');
@@ -292,36 +276,58 @@ export default class BandejaComponent implements OnInit {
         console.error('Error al obtener datos:', err);
       }
     });
-
   }
 
   obtenerSolicitudes(): void {
-    this.solicitudProveedorService.obtener().subscribe({
-      next: (value) => {
-        this.solicitudes = value;
-        this.contarSolicitudesPorEstado();
-        this.filtrarSolicitudes();
-        this.isModalVisible = false; // Ocultar el modal después de la operación
-      },
-      error: (err) => {
-        console.error('Error al obtener datos:', err);
-      },
-    });
+    this.modalVisible();
+    this.solicitudProveedorService.obtener(this.idEstadoSeleccionado, this.fechaInicioFiltro,
+      this.fechaFinFiltro, this.numeroUnicoFiltro, this.oficinaId, this.usuarioId).subscribe({
+        next: (value) => {
+          this.solicitudes = value;
+          this.reiniciarDatosDeTabla();
+          this.actualizarPaginacion();
+          this.modalInvisible();
+        },
+        error: (err) => {
+          this.errorModalInfo();
+          console.error('Error al obtener datos:', err);
+          this.modalInvisible();
+        },
+      });
   }
 
   obtenerSolicitudesAnalisis(): void {
-    console.log("Método obtenerSolicitudesAnalisis llamado");
+    this.modalVisible();
+    this.analisisTelefonicoService.obtenerSolicitudesAnalisis(this.idEstadoSeleccionado, this.fechaInicioFiltro,
+      this.fechaFinFiltro, this.numeroUnicoFiltro, this.oficinaId, this.usuarioId).subscribe({
+        next: (value) => {
+          this.solicitudes = value;
+          this.reiniciarDatosDeTabla();
+          this.actualizarPaginacion();
+          this.modalInvisible();
+          console.log(value); // Mostrar el JSON recibido en la consola
+        },
+        error: (err) => {
+          console.error('Error al obtener solicitudes de análisis:', err);
+          this.modalInvisible();
+        }
+      });
+  }
 
-    this.analisisTelefonicoService.obtenerSolicitudesAnalisis().subscribe({
-      next: (value) => {
-        this.solicitudesAnalisis = value;
-        this.solicitudesAnalisisOriginales = value;
-        this.filtrarSolicitudes(); // Si deseas aplicar algún filtro
-      },
-      error: (err) => {
-        console.error('Error al obtener solicitudes de análisis:', err);
-      }
-    });
+  abrirModalSolicitudAnalisis(idSolicitudAnalisis: number): void {
+    this.solicitudAnalisisSeleccionada = this.solicitudesPaginadas.find(
+      (solicitud) => solicitud.idSolicitudAnalisis === idSolicitudAnalisis
+    );
+    if (!this.solicitudAnalisisSeleccionada) {
+      console.warn('No se encontró la solicitud de análisis con ID:', idSolicitudAnalisis);
+      return;
+    }
+    this.modalVerSolicitud = true;
+  }
+
+  cerrarModalSolicitudAnalisis(): void {
+    this.modalVerSolicitud = false; // Oculta el modal
+    this.solicitudSeleccionada = null; // Limpia la selección
   }
 
   obtenerOpcionesPorEstado(estado: string): string[] {
@@ -330,13 +336,12 @@ export default class BandejaComponent implements OnInit {
         return ["Ver histórico", "Ver Solicitud"];
       case "Analizado":
         return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Agregar informe", "Finalizar solicitud de análisis", "Enviar a legajo solicitud de análisis"];
-      case "Aprobar Análisis":
-        return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior", "Aprobar Solicitud"];
+      case "Aprobar Analisis":
+        return ["Ver histórico", "Ver Solicitud", "Aprobar Solicitud"];
       case "Finalizado":
         return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior"];
       case "Legajo":
         return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior"];
-
       default:
         return [];
     }
@@ -345,9 +350,9 @@ export default class BandejaComponent implements OnInit {
   //modales
   reiniciarDatosDeTabla(): void {
     this.numeroDePagina = 1;
-    this.estadoSeleccionado = this.estadoTemporal;
-    this.encabezados = this.estadoColumnas[this.estadoSeleccionado].headers;
-    this.columnasVisibles = this.estadoColumnas[this.estadoSeleccionado].columnasVisibles;
+    this.solicitudesFiltradas = this.solicitudes;
+    this.encabezados = this.estadoColumnas[this.estadoSeleccionado.tipo][this.estadoSeleccionado.nombre].headers;
+    this.columnasVisibles = this.estadoColumnas[this.estadoSeleccionado.tipo][this.estadoSeleccionado.nombre].columnasVisibles;
   }
 
   abrirModalDeDetalles(solicitud: any) {
@@ -362,19 +367,18 @@ export default class BandejaComponent implements OnInit {
           fechaInicio: this.datePipe.transform(requerimiento.fechaInicio, 'MM/dd/yyyy') || 'N/A', // Formatear la fecha de inicio
           fechaFinal: this.datePipe.transform(requerimiento.fechaFinal, 'MM/dd/yyyy') || 'N/A' // Formatear la fecha final
         }));
-        this.modalVisible = true;
+        this.modalSolicitud = true;
       }
     });
   }
 
   cerrarModalDeDetalles() {
-    this.modalVisible = false;
+    this.modalSolicitud = false;
     this.solicitudSeleccionada = null;
   }
 
   abrirModalHistorico(solicitud: any) {
     this.solicitudSeleccionada = solicitud;
-    console.log(this.solicitudSeleccionada);
     this.obtenerHistoricoSolicitud(this.solicitudSeleccionada.idSolicitudProveedor);
     this.modalHistoricoVisible = true;
   }
@@ -426,28 +430,6 @@ export default class BandejaComponent implements OnInit {
     this.isModalVisible = false; // Método para cerrar el modal
   }
 
-  contarSolicitudesPorEstado() {
-    // Reiniciar contadores
-    this.cantidadPorEstadoProveedor = [];
-    this.cantidadPorEstadoAnalisis = [];
-
-    // Filtrar y contar solicitudes agrupadas por tipo
-    this.estados.forEach(estado => {
-      const solicitudesFiltradas = estado.tipo === 'Proveedor'
-        ? this.solicitudes.filter(solicitud => solicitud.estado?.idEstado === estado.idEstado)
-        : this.solicitudesAnalisis.filter(solicitud => solicitud.estado?.idEstado === estado.idEstado);
-
-      const contador = { idEstado: estado.idEstado, nombre: estado.nombre, cantidad: solicitudesFiltradas.length };
-
-      if (estado.tipo === 'Proveedor') {
-        this.cantidadPorEstadoProveedor.push(contador);
-      } else {
-        this.cantidadPorEstadoAnalisis.push(contador);
-      }
-    });
-  }
-
-
   obtenerHistoricoSolicitud(idSolicitudProveedor: number): void {
     this.historicoService.obtener(idSolicitudProveedor).subscribe({
       next: (data: any) => {
@@ -462,9 +444,8 @@ export default class BandejaComponent implements OnInit {
         }));
       },
       error: (err) => {
-        console.log('')
         if (err.status === 0) {
-          console.log('');
+          console.log('Error');
         }
       }
     })
@@ -495,8 +476,18 @@ export default class BandejaComponent implements OnInit {
     this.actualizarPaginacion();
   }
 
+  irPrimeraPagina(): void {
+    this.numeroDePagina = 1;
+    this.actualizarPaginacion();
+  }
+
+  irUltimaPagina(): void {
+    this.numeroDePagina = this.maxPagina;
+    this.actualizarPaginacion();
+  }
+
   limpiarFiltros() {
-    this.estadoSeleccionado = this.estadoTemporal;
+    this.filtroCaracter = ''
     this.numeroUnicoFiltro = '';
     this.fechaInicioFiltro = '';
     this.fechaFinFiltro = '';
@@ -507,124 +498,67 @@ export default class BandejaComponent implements OnInit {
     const inicio = (this.numeroDePagina - 1) * this.cantidadDeRegistros;
     const fin = inicio + this.cantidadDeRegistros;
     this.solicitudesPaginadas = this.solicitudesFiltradas.slice(inicio, fin);
+    // Calcula el número máximo de páginas
+    this.maxPagina = Math.ceil(this.solicitudesFiltradas.length / this.cantidadDeRegistros);
+    // Actualiza los valores de inicio y fin para la vista
+    this.inicioRegistros = inicio + 1;
+    this.finRegistros = Math.min(fin, this.solicitudesFiltradas.length);
   }
-
-  filtrarSolicitudesAnalisis(): void {
-    this.solicitudesAnalisis = this.solicitudesAnalisisOriginales.filter(solicitud =>
-      solicitud.estado?.nombre === this.estadoTemporal &&
-      ["En Análisis", "Analizado", "Aprobar Análisis", "Finalizado", "Legajo"].includes(solicitud.estado?.nombre)
-    );
-  
-  }
-  
-
 
   onEstadoChange(event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
     const selectedOption = selectElement.selectedOptions[0];
-  
     if (selectedOption) {
-      const idEstado = selectedOption.getAttribute('data-idEstado');
-      const nombreEstado = selectedOption.value;
-  
-      if (idEstado && nombreEstado) {
-        this.idEstadoSeleccionado = parseInt(idEstado, 10);
-        this.estadoTemporal = nombreEstado; 
-        
-
-        this.cdr.detectChanges();
-
-      }
+      const estadoString: string = selectedOption.getAttribute('data-idEstado') ?? '';
+      this.estadoSeleccionado = JSON.parse(estadoString);
+      this.idEstadoSeleccionado = this.estadoSeleccionado.idEstado;
+      this.estadoTemporal = this.estadoSeleccionado.nombre;
     }
   }
-  
+
   trackByEstadoId(index: number, estado: any): number {
     return estado.idEstado; // Usa el ID del estado como clave única
   }
-  
-
-
-
 
   filtrarSolicitudes() {
-    if (this.idEstadoSeleccionado) {
+    if (this.estadoSeleccionado) {
       // Determinar si mostrar la tabla de Proveedor o de Análisis
-      if (this.idEstadoSeleccionado >= 1 && this.idEstadoSeleccionado <= 7) {
-        this.mostrarTablaProveedor = true;
-        console.log('Mostrando tabla de Proveedor');
-      } else if (this.idEstadoSeleccionado >= 9 && this.idEstadoSeleccionado <= 13) {
-        this.mostrarTablaProveedor = false;
-        console.log('Mostrando tabla de Análisis');
-      } else {
-        console.warn('ID de estado desconocido:', this.idEstadoSeleccionado);
-      }
+      this.mostrarTablaProveedor = this.estadoSeleccionado.tipo === 'Proveedor' ? true : false;
     }
-    this.reiniciarDatosDeTabla();
-    this.solicitudesFiltradas = this.solicitudes;
-
-    this.aplicarFiltroEstado();
-    this.aplicarFiltroNumeroUnico();
-    this.aplicarFiltroFecha();
-    this.aplicarFiltroCaracter();
-
-    this.actualizarPaginacion();
-    this.contarSolicitudesPorEstado();
-
-    if (!this.mostrarTablaProveedor) {
-      // Si es de análisis, aplica el filtro de solicitudes de análisis
-      this.filtrarSolicitudesAnalisis();
-
-    }
+    if (this.mostrarTablaProveedor) this.obtenerSolicitudes();
+    if (!this.mostrarTablaProveedor) this.obtenerSolicitudesAnalisis();
   }
 
   jsonEstado(tipo: string, nombre: string): string {
     return JSON.stringify({ tipo, nombre });
   }
 
-
-  aplicarFiltroEstado() {
-    if (this.estadoSeleccionado) {
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
-        solicitud.estado?.nombre === this.estadoSeleccionado
-      );
-    }
-  }
-
-  aplicarFiltroNumeroUnico() {
-    if (this.numeroUnicoFiltro) {
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
-        solicitud.numeroUnico?.includes(this.numeroUnicoFiltro)
-      );
-    }
-  }
-
-  aplicarFiltroFecha() {
-    if (this.fechaInicioFiltro) {
-      const fechaInicio = new Date(this.fechaInicioFiltro);
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
-        new Date(solicitud.fechaCrecion) >= fechaInicio
-      );
-    }
-    if (this.fechaFinFiltro) {
-      const fechaFin = new Date(this.fechaFinFiltro);
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
-        new Date(solicitud.fechaCrecion) <= fechaFin
-      );
-    }
-  }
-
   aplicarFiltroCaracter() {
     if (this.filtroCaracter) {
       const filtro = this.filtroCaracter.toLowerCase();
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
-        solicitud.numeroCaso?.toLowerCase().includes(filtro) ||
-        solicitud.imputado?.toLowerCase().includes(filtro) ||
-        solicitud.ofendido?.toLowerCase().includes(filtro) ||
-        solicitud.usuarioCreador?.nombre.toLowerCase().includes(filtro) ||
-        solicitud.usuarioCreador?.apellido?.toLowerCase().includes(filtro) ||
-        solicitud.delito?.nombre.toLowerCase().includes(filtro) ||
-        solicitud.operadoras[0]?.nombre.toLowerCase().includes(filtro)
+
+      // Helper function to format dates to dd/MM/yyyy
+      const formatFecha = (fecha: string | null) => {
+        if (!fecha) return '';
+        const date = new Date(fecha);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+
+      // Filtro principal basado en los criterios solicitados
+      this.solicitudesFiltradas = this.solicitudes.filter(solicitud =>
+        solicitud.idSolicitudAnalisis?.toString().includes(filtro) || // Filtrado por idSolicitudAnalisis (si aplica)
+        solicitud.idSolicitudProveedor?.toString().includes(filtro) || // Filtrado por idSolicitudProveedor (si aplica)
+        (solicitud.fechaCreacion && formatFecha(solicitud.fechaCreacion).includes(filtro)) || // Filtrado por fecha
+        (solicitud.proveedor?.nombre?.toLowerCase().includes(filtro) || // Filtrado por proveedor
+          solicitud.operadoras?.some((prov: any) => prov.nombre?.toLowerCase().includes(filtro))) || // Filtrado por operadoras si aplica
+        (solicitud.usuarioCreador?.nombre?.toLowerCase().includes(filtro) || // Filtrado por nombre de usuario creador
+          solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
       );
+
+      this.actualizarPaginacion();
     }
   }
 
@@ -635,8 +569,6 @@ export default class BandejaComponent implements OnInit {
   }
 
   descargarArchivo(archivo: any): void {
-    console.log('Descargando archivo:', archivo.nombre);
-
     // Decodificar el contenido en Base64 y convertirlo a un array de bytes
     const byteCharacters = atob(archivo.contenido);
     const byteNumbers = new Array(byteCharacters.length);
@@ -659,9 +591,12 @@ export default class BandejaComponent implements OnInit {
     window.URL.revokeObjectURL(url); // Liberar la URL
   }
 
-  onSwitchChange(idSolicitudProveedor: number, aprobado: boolean) {
+  onSwitchClick(event: Event, idSolicitudProveedor: number, aprobado: boolean) {
+
+    event.preventDefault();
+
+    this.abrirModalCambioEstado(idSolicitudProveedor, 'Aprobar');
     if (aprobado) {
-      this.aprobarSolicitud(idSolicitudProveedor, 'Aprobar');
       this.isSwitchDisabled = true; // Bloquear el switch después de aprobar
     }
   }
@@ -672,33 +607,39 @@ export default class BandejaComponent implements OnInit {
     this.confirmarCambioEstado();
   }
 
+  errorModalInfo() {
+    this.alertatipo = "error";
+    this.alertaMensaje = "Hubo un error al momento de realizar la petición";
+    this.alertaVisible = true;
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000);
+
+  }
+
   confirmarCambioEstado() {
     if (this.solicitudIdParaActualizar) {
-      const idUsuario = 1;
       this.solicitudProveedorService.actualizarEstado(
         this.solicitudIdParaActualizar,
         this.nuevoEstado,
-        idUsuario,
+        this.usuario.idUsuario,
         this.observacion
       ).subscribe(
         response => {
-          console.log(`Estado actualizado a '${this.nuevoEstado}' para la solicitud con ID:`, this.solicitudIdParaActualizar);
-
-          // Eliminar la solicitud de la lista de solicitudes filtradas
+          // Eliminar la solicitud de la lista de solicitudes filtradas // NO HACE FALTA PORQUE LA TABLA SE RECARGA
           this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud => solicitud.idSolicitudProveedor !== this.solicitudIdParaActualizar);
-
+          this.obtenerEstados();
           this.cerrarModalCambioEstado();
           this.obtenerSolicitudes();
-
         },
         error => {
+          this.cerrarModalCambioEstado();
+          this.errorModalInfo();
           console.error("Error al actualizar el estado:", error);
         }
       );
     }
-    this.contarSolicitudesPorEstado();
   }
-
 
   // Metodos para funciones de archivos UAC
   abrirModalArchivosUAC(idSolicitudAnalisis: number) {
@@ -722,9 +663,13 @@ export default class BandejaComponent implements OnInit {
     });
   }
 
-
   // Metodos para funciones de archivos Informe Final
-  abrirModalArchivosInformeFinal(idSolicitudAnalisis: number) {
+  abrirModalArchivosInformeFinal(idSolicitudAnalisis: number, estadoSolicitud: string) {
+    if (estadoSolicitud == "Finalizado") {
+      this.subirArchivosInformeFinalOpcion = false;
+    } else {
+      this.subirArchivosInformeFinalOpcion = true;
+    }
     this.idSolicitudAnalisisSeleccionada = idSolicitudAnalisis;
     this.cargarArchivosInformeFinal(idSolicitudAnalisis);
     this.modalArchivosInformeFinalVisible = true;
@@ -733,6 +678,8 @@ export default class BandejaComponent implements OnInit {
   cerrarModalArchivosInformeFinal() {
     this.idSolicitudAnalisisSeleccionada = 0;
     this.modalArchivosInformeFinalVisible = false;
+    this.archivosInformeFinal = [];
+    this.archivosInformeFinalDB = [];
   }
 
   seleccionarArchivosInformeFinal(event: any) {
@@ -762,7 +709,9 @@ export default class BandejaComponent implements OnInit {
             this.alertatipo = "satisfaccion";
             this.alertaMensaje = "Archivos Subidos con Exito";
             this.alertaVisible = true;
-
+            setTimeout(() => {
+              this.alertaVisible = false;
+            }, 3000);
             this.cargarArchivosInformeFinal(this.idSolicitudAnalisisSeleccionada);
           },
           error: err => {
@@ -770,10 +719,6 @@ export default class BandejaComponent implements OnInit {
           }
         });
       });
-
-
-
-
     } else {
       console.log('No hay archivos que subir');
     }
@@ -783,14 +728,12 @@ export default class BandejaComponent implements OnInit {
     this.archivoService.obtenerArchivosInformeFinalSolicitudAnalisis(idSolicitudAnalisis).subscribe({
       next: (archivos: any[]) => {
         this.archivosInformeFinalDB = archivos;
-
       },
       error: (err) => {
         console.error('Error al cargar archivos:', err);
       }
     });
   }
-
 
   // Metodos para modal historico Analisis
   abrirModalHistoricoAnalisis(idSolicitudAnalisis: number) {
@@ -815,15 +758,12 @@ export default class BandejaComponent implements OnInit {
         }));
       },
       error: (err) => {
-        console.log('')
         if (err.status === 0) {
-          console.log('');
+          console.log('error');
         }
       }
     })
   }
-
-
 
   // Metodos para mover a Legajo Analisis
   abrirModalLegajoAnalisis(idSolicitudAnalisis: number) {
@@ -837,18 +777,25 @@ export default class BandejaComponent implements OnInit {
   }
 
   actualizarEstadoLegajoAnalisis() {
-    this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
-      next: response => {
-        this.alertatipo = "satisfaccion";
-        this.alertaMensaje = "Solicitud de Analisis Movida a Legajo";
-        this.alertaVisible = true;
-        this.vaciarDatosBandeja();
-        this.cargarDatosBandeja();
-      },
-      error: err => {
-        console.error('Error al mover a legajo la solicitud de analisis:', err);
-      }
-    });
+    this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada,
+      this.usuarioId, this.observacionLegajoAnalisis).subscribe({
+        next: response => {
+          this.alertatipo = "satisfaccion";
+          this.alertaMensaje = "Solicitud de Analisis Movida a Legajo";
+          this.alertaVisible = true;
+          setTimeout(() => {
+            this.alertaVisible = false;
+          }, 3000);
+
+          this.observacionLegajoAnalisis = '';
+          this.obtenerSolicitudesAnalisis();
+        },
+        error: err => {
+          console.error('Error al mover a legajo la solicitud de analisis:', err);
+        }
+      });
+    this.obtenerEstados();
+    this.cerrarModalLegajoAnalisis();
   }
 
 
@@ -864,20 +811,24 @@ export default class BandejaComponent implements OnInit {
   }
 
   aprobarSolicitudAnalisis() {
-    this.analisisTelefonicoService.aprobarSolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
+    this.analisisTelefonicoService.aprobarSolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionAprobarAnalisis).subscribe({
       next: response => {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis Aprobada";
         this.alertaVisible = true;
-        this.vaciarDatosBandeja();
-        this.cargarDatosBandeja();
+        setTimeout(() => {
+          this.alertaVisible = false;
+        }, 3000);
+        this.observacionAprobarAnalisis = '';
+        this.obtenerSolicitudesAnalisis();
       },
       error: err => {
         console.error('Error al aprobar la solicitud de analisis:', err);
       }
     });
+    this.obtenerEstados();
+    this.cerrarModalAprobarAnalisis();
   }
-
 
   // Metodos para devolver a Analizado
   abrirModalDevolverAnalizado(idSolicitudAnalisis: number) {
@@ -891,22 +842,28 @@ export default class BandejaComponent implements OnInit {
   }
 
   devolverAnalizadoSolicitudAnalisis() {
-    this.analisisTelefonicoService.devolverAnalizado(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
-      next: response => {
-        this.alertatipo = "satisfaccion";
-        this.alertaMensaje = "Solicitud de Analisis devuelta a Analizado";
-        this.alertaVisible = true;
-        this.vaciarDatosBandeja();
-        this.cargarDatosBandeja();
-      },
-      error: err => {
-        console.error('Error al devolver la solicitud de analisis:', err);
-      }
-    });
+    this.analisisTelefonicoService.devolverAnalizado(this.idSolicitudAnalisisSeleccionada,
+      this.usuarioId, this.observacionDevolverAnalizado).subscribe({
+        next: response => {
+          this.alertatipo = "satisfaccion";
+          this.alertaMensaje = "Solicitud de Analisis devuelta a Analizado";
+          this.alertaVisible = true;
+          setTimeout(() => {
+            this.alertaVisible = false;
+          }, 3000);
+          this.observacionDevolverAnalizado = '';
+          this.aprobarSolicitudAnalisis();
+        },
+        error: err => {
+          console.error('Error al devolver la solicitud de analisis:', err);
+        }
+      });
+    this.obtenerEstados();
+    this.cerrarModalDevolverAnalizado();
   }
 
 
- // Metodos para finalizar solicitud Analisis
+  // Metodos para finalizar solicitud Analisis
   abrirModalFinalizarAnalisis(idSolicitudAnalisis: number) {
     this.idSolicitudAnalisisSeleccionada = idSolicitudAnalisis;
     this.modalFinalizarAnalisis = true;
@@ -923,13 +880,33 @@ export default class BandejaComponent implements OnInit {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis Correctamente Finalizada";
         this.alertaVisible = true;
-        this.vaciarDatosBandeja();
-        this.cargarDatosBandeja();
+        setTimeout(() => {
+          this.alertaVisible = false;
+        }, 3000);
+        this.observacionFinalizarAnalisis = '';
+        this.obtenerSolicitudesAnalisis();
       },
       error: err => {
+        this.alertatipo = "error";
+        this.alertaMensaje = "Hubo un error al momento de realizar la petición";
+        this.alertaVisible = true;
+        setTimeout(() => {
+          this.alertaVisible = false;
+        }, 3000);
         console.error('Error al finalizar la solicitud de analisis:', err);
       }
     });
+    this.obtenerEstados();
+    this.cerrarModalFinalizarAnalisis();
+  }
+
+  modalVisible(): void {
+    this.obtenerEstados();
+    this.isModalVisible = true;
+  }
+
+  modalInvisible(): void {
+    this.isModalVisible = false;
   }
 
 }

@@ -1,82 +1,104 @@
 <div class="form-container">
 
-    <div class="row">
-      
-      <!-- Columna izquierda -->
-      <div class="col-md-6">
-        <div class="form-group">
-          <label for="campo1">Numero Unico:</label>
-          <input type="text" id="campo1" name="campo1" [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].numeroUnico" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="campo2">Aprobado por:</label>
-          <input type="text" id="campo2" name="campo2" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="campo3">Imputado:</label>
-          <input type="text" id="campo3" name="campo3" [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].imputado" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="campo4">Delito:</label>
-          <input type="text" id="campo4" name="campo4" [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].delito.nombre" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="campo5">Estado Solicitud:</label>
-          <input type="text" id="campo5" name="campo5" [(ngModel)]="solicitudAnalisisSeleccionada.estado.nombre" class="form-control" />
-        </div>
-      </div>
-  
-      
-      <!-- Columna derecha -->
-      <div class="col-md-6">
-        <div class="form-group">
-          <label for="campo6">Solicitudes Telefonicas:</label>
-          <input type="text" id="campo6" name="campo6" [(ngModel)]="solicitudesProveedorAsociadas" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="campo7">Solicitante:</label>
-          <input type="text" id="campo7" name="campo7" ngModel class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="campo8">Ofendido:</label>
-          <input type="text" id="campo8" name="campo8" [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].ofendido" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="campo9">Oficina solicitante:</label>
-          <input type="text" id="campo9" name="campo9" [(ngModel)]="oficinaSolicitante" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label for="campo10">Tipo Analisis:</label>
-          <input type="text" id="campo10" name="campo10" [(ngModel)]="solicitudAnalisisSeleccionada.tiposAnalisis[0].nombre" class="form-control" />
-        </div>
-      </div>
+  <div class="row">
 
+    <app-alerta [tipo]="alertatipo1" [mensaje]="alertaMensaje1" [visible]="alertaVisible1"></app-alerta>
+
+    <!-- Columna izquierda -->
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="campo1">Numero Unico:</label>
+        <input type="text" id="campo1" name="campo1" disabled
+          [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].numeroUnico" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="campo2">Aprobado por:</label>
+        <input type="text" id="campo2" name="campo2" disabled
+          [(ngModel)]="solicitudAnalisisSeleccionada.nombreUsuarioAprobador" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="campo3">Imputado:</label>
+        <input type="text" id="campo3" name="campo3" disabled
+          [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].imputado" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="campo4">Delito:</label>
+        <input type="text" id="campo4" name="campo4" disabled
+          [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].delito.nombre" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="campo5">Estado Solicitud:</label>
+        <input type="text" id="campo5" name="campo5" disabled [(ngModel)]="solicitudAnalisisSeleccionada.estado.nombre"
+          class="form-control" />
+      </div>
     </div>
-  
-    
+
+
+    <!-- Columna derecha -->
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="campo6">Solicitudes Telefonicas:</label>
+        <input type="text" id="campo6" name="campo6" disabled [(ngModel)]="solicitudesProveedorAsociadas"
+          class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="campo7">Solicitante:</label>
+        <input type="text" id="campo7" name="campo7" disabled
+          [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].ofendido" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="campo8">Ofendido:</label>
+        <input type="text" id="campo8" name="campo8" disabled
+          [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].ofendido" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="campo9">Oficina solicitante:</label>
+        <input type="text" id="campo9" name="campo9" disabled [(ngModel)]="solicitudAnalisisSeleccionada.nombreOficina"
+          class="form-control" />
+      </div>
+      <div class="form-group">
+        <label for="campo10">Tipo Analisis:</label>
+        <input type="text" id="campo10" name="campo10" disabled
+          [(ngModel)]="solicitudAnalisisSeleccionada.tiposAnalisis[0].nombre" class="form-control" />
+      </div>
+    </div>
+
+  </div>
+
+
   <!-- Campos debajo -->
   <div class="row">
-    <div class="col-6">
+    <div *ngIf="asignarDatos" class="col-6">
       <div class="form-group">
         <label for="campo11">Asignar a:</label>
+        <select class="required-field" [(ngModel)]="idUsuarioAsignadoSeleccionado" name="idCategoriaDelitoSeleccionado" required>
+          <option value="">Seleccione</option>
+          <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario ? usuario.idUsuario : 0">
+            {{ usuario.nombre ? usuario.nombre : 'N/A' }}
+          </option>
+        </select>
+        <button (click)="asignarUsuario()">Asignar</button>
       </div>
-    </div>
+    </div>    
     <div class="col-6">
       <div class="form-group">
         <label for="campo12">Fecha del Hecho:</label>
-        <input type="text" id="campo12" name="campo12" [(ngModel)]="solicitudAnalisisSeleccionada.fechaDelHecho" class="form-control" />
+        <input type="text" id="campo12" name="campo12" disabled
+          [(ngModel)]="solicitudAnalisisSeleccionada.fechaDelHecho" class="form-control" />
       </div>
     </div>
     <div class="col-6">
       <div class="form-group">
         <label for="campo13">Reseña:</label>
-        <input type="text" id="campo13" name="campo13" [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].resennia" class="form-control" />
+        <input type="text" id="campo13" name="campo13" disabled
+          [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].resennia" class="form-control" />
       </div>
     </div>
     <div class="col-6">
       <div class="form-group">
         <label for="campo14">Detalle solicitud analisis:</label>
-        <input type="text" id="campo14" name="campo14" [(ngModel)]="solicitudAnalisisSeleccionada.otrosDetalles" class="form-control" />
+        <input type="text" id="campo14" name="campo14" disabled
+          [(ngModel)]="solicitudAnalisisSeleccionada.otrosDetalles" class="form-control" />
       </div>
     </div>
   </div>
@@ -86,48 +108,50 @@
 
 <!-- Botones para mostrar las tablas -->
 <div class="buttons-container">
-    <div class="button-group">
-      <button (click)="mostrarTabla(1)">Detalle</button>
-      <button (click)="mostrarTabla(2)">Objetivos</button>
-      <button (click)="mostrarTabla(3)">Archivos</button>
-      <button (click)="abrirModalArchivosRespuesta()">Informe</button>
-    </div>
+  <div class="button-group">
+    <button (click)="mostrarTabla(1)">Detalle</button>
+    <button (click)="mostrarTabla(2)">Objetivos</button>
+    <button (click)="mostrarTabla(3)">Archivos</button>
+    <button [disabled]="botonArchivosDeshabilitado" (click)="abrirModalArchivosRespuesta()">Informe</button>
+  </div>
 </div>
-  
-  <!-- Tabla Requerimientos   -->
-  <div *ngIf="tablaVisible === 1">
-    <app-tabla-visualizacion
-      [headers]="encabezadosRequerimientos"
-      [data]="requerimientos">
-    </app-tabla-visualizacion>
-  </div>
 
-  
-  <!-- Tabla Objetivos   -->
-  <div *ngIf="tablaVisible === 2">
-    <app-tabla-visualizacion [headers]="encabezadosObjetivos" [data]="objetivos"></app-tabla-visualizacion>
-  </div>
+<!-- Tabla Requerimientos   -->
+<div *ngIf="tablaVisible === 1">
+  <app-tabla-visualizacion [headers]="encabezadosRequerimientos" [data]="requerimientos">
+  </app-tabla-visualizacion>
+</div>
 
 
-  <!-- Tabla Archivos -->
-  <div *ngIf="tablaVisible === 3">
-    <app-tabla-visualizacion 
-      [headers]="encabezadosArchivos" 
-      [data]="archivos" 
-      [actions]="accionesArchivos" 
-      [actionsheaders]="encabezadosAccionesArchivos">
-    </app-tabla-visualizacion>
-  </div>
+<!-- Tabla Objetivos   -->
+<div *ngIf="tablaVisible === 2">
+  <app-tabla-visualizacion [headers]="encabezadosObjetivos" [data]="objetivos"></app-tabla-visualizacion>
+</div>
 
-  
-<button (click)="abriModalConfirmarTramitado()">Cerrar (Tramitar)</button>
 
- <!-- Modal Confirmacion -->
+<!-- Tabla Archivos -->
+<div *ngIf="tablaVisible === 3">
+  <app-tabla-visualizacion [headers]="encabezadosArchivos" [data]="archivos" [actions]="accionesArchivos"
+    [actionsheaders]="encabezadosAccionesArchivos">
+  </app-tabla-visualizacion>
+</div>
+
+
+<div class="centered-button-container">
+  <button (click)="abriModalConfirmarTramitado()" [disabled]="botonTramitarDeshabilitado">Cerrar (Tramitar)</button>
+</div>
+
+
+<!-- Modal Confirmacion -->
 <app-modal-confirmacion [modalEstadoVisible]="modalTramitadoVisible" (confirmar)="tramitarSolicitudAnalisis()"
   (cancelar)="cerrarModalConfirmarTramiado()">
   <div modal-header>
     <h2 class="text-xl font-semibold mb-4">Confirmacion Tramitación</h2>
-    <p>¿Estás seguro de que deseas tramitar la solicitud de análisis {{ idSolicitudAnalisisSeleccionada }}?</p>
+    <p>¿Estás seguro de que deseas tramitar la solicitud de análisis #{{ idSolicitudAnalisisSeleccionada }}?</p>
+    <div *ngIf="archivosRespuesta && archivosRespuesta.length > 0" style="background-color: #f2bebd; padding: 2%;">
+      <p>Se enviaran los siguientes archivos</p>
+      <li *ngFor="let archivoRespuesta of archivosRespuesta">{{ archivoRespuesta.nombre }}</li>
+    </div>
   </div>
   <div class="mt-4" modal-content>
     <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
@@ -137,20 +161,32 @@
 </app-modal-confirmacion>
 
 
-  <!-- Modal Archivos Respuesta -->
+<!-- Modal Archivos Respuesta -->
 <app-modal-informacion [isModalOpen]="modalArchivosVisible">
-    <div class="modal-contenido">
-      <span class="cerrar" (click)="cerrarModalArchivosRespuesta()">&times;</span>
-      <h2>Subir Archivos</h2>
+  <div modal-header>
+    <h3 class="text-lg font-medium">Subir Archivos de Respuesta</h3>
+  </div>
 
-      <input type="file" (change)="seleccionarArchivos($event)" multiple />
+  <div class="modal-contenido">
 
-      <ul>
-        <li *ngFor="let archivoRespuesta of archivosRespuesta">{{ archivoRespuesta.nombre }}</li>
-      </ul>
+    <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
+
+    <label>FORMATOS PERMITIDOS: WORD OFFICE +2007, PDF y TXT</label>
+
+    <div class="file-custom" style="border: 2px solid #ccc; border-radius: 3px;">
+      <label for="file-input" class="btn-custom-file">Buscar</label>
+      <input type="file" id="file-input" (change)="seleccionarArchivosRespuesta($event)" multiple style="display: none;" />
     </div>
-    <button (click)="cerrarModalArchivosRespuesta()">Guardar</button>
-    <button (click)="quitarArchivos()">Cancelar</button>
+
+    <div *ngIf="archivosRespuesta && archivosRespuesta.length > 0">
+      <app-tabla-visualizacion [headers]="encabezadosArchivosRespuesta" [data]="archivosRespuesta"
+        [actions]="accionesArchivosRespuesta" [actionsheaders]="encabezadosAccionesArchivosRespuesta">
+      </app-tabla-visualizacion>
+    </div>
+
+
+  </div>
+  <div style="text-align: right; margin-top: 2%;">
+    <button (click)="cerrarModalArchivosRespuesta()">Cerrar</button>
+  </div>
 </app-modal-informacion>
-
-

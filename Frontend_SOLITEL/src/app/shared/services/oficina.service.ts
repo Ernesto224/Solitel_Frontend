@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class OficinaService {
 
   private urlServices: string = "https://localhost:7211/api/Oficina/";
-  private urlObtener: string = "consultarOficinas";
+  private urlObtener: string = "ObtenerOficinas";
   private urlinsertar: string = "insertarOficina";
   private urleliminar: string = "eliminarOficina";
 

@@ -553,3 +553,24 @@ textarea {
   background-color: #0056b3; /* Azul más oscuro al pasar el mouse */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+h3 {
+  font-weight: bold; /* Hace que el texto sea negrita */
+  font-size: 1.5em; /* Ajusta el tamaño de fuente para que sea más visible */
+  margin: 0.5em 0; /* Espaciado superior e inferior */
+  color: #333; /* Ajusta el color a un gris oscuro que es fácil de leer */
+  line-height: 1.2; /* Controla el espacio entre líneas */
+  text-align: left; /* Alinea el texto a la izquierda, puedes cambiarlo si deseas */
+}
+
+
+.general-div {
+  background-color: #fff; /* Fondo blanco para el elemento */
+  padding: 20px; /* Espacio interno */
+  box-shadow: 0 0 12px 10px rgba(0, 0, 0, 0.1); /* Sombra suave y difusa */
+  border-radius: 5px; /* Bordes redondeados */
+  padding: 20px; /* Espaciado interno (aumentado) */
+}

@@ -1,0 +1,74 @@
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000; /* Asegúrate de que este valor sea más alto que otros elementos */
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+}
+
+.modal.is-active {
+  display: flex;
+}
+
+/* Contenido del modal */
+.modal-content {
+  display: flex; /* Usar flexbox para centrar contenido */
+  flex-direction: column; /* Alinear contenido en columna */
+  align-items: center; /* Centrar horizontalmente */
+  justify-content: center; /* Centrar verticalmente */
+  background: white;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+/* Fondo del modal */
+.modal-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* Fondo oscuro para el fondo del modal */
+}
+
+/* Botón de cierre del modal */
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Loader */
+.loader {
+  border: 8px solid #f3f3f3; /* Gris claro */
+  border-top: 8px solid #3498db; /* Azul */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+}
+
+/* Animación del loader */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

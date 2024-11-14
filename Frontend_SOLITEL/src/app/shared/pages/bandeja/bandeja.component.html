@@ -1,14 +1,4 @@
-<!-- Modal Carga-->
-<div class="modal" [ngClass]="{'is-active': isModalVisible}">
-  <div class="modal-background"></div>
-  <div class="modal-content">
-    <p class="is-size-4">Procesando...</p>
-    <div class="box has-text-centered">
-      <div class="loader"></div>
-    </div>
-  </div>
-  <button class="modal-close is-large" aria-label="close" (click)="closeModal()" *ngIf="isModalVisible"></button>
-</div>
+<app-modal-procesando [isModalVisible]="isModalVisible"></app-modal-procesando>
 
 <div class="flex flex-col mb-0 pb-0">
 
@@ -16,15 +6,10 @@
 
   <!--Filtro de -->
   <div class="filter-container">
+
     <h2>Filtro de solicitudes telefónicas</h2>
 
     <div class="filter-form">
-      <!-- Filtrar por carácter - ocupa toda la fila -->
-      <div class="form-group filter-full-width">
-        <label for="filtro-caracter">Filtrar por carácter:</label>
-        <input type="text" id="filtro-caracter" class="w-full p-2 border rounded" placeholder="Ingrese carácter"
-          [(ngModel)]="filtroCaracter">
-      </div>
 
       <!-- Estado -->
       <div class="form-group">
@@ -32,30 +17,25 @@
         <div class="badge-container">
           <select [(ngModel)]="estadoTemporal" (change)="onEstadoChange($event)">
             <optgroup label="Solicitud Proveedor">
-              <option *ngFor="let estado of cantidadPorEstadoProveedor;  trackBy: trackByEstadoId" 
-                      [value]="estado.nombre" 
-                      [attr.data-idEstado]="estado.idEstado">
-                {{ estado.nombre }} ({{ estado.cantidad }})
+              <option *ngFor="let estado of estadosProveedor; trackBy: trackByEstadoId" [value]="estado.nombre"
+                [attr.data-idEstado]="estado | json">
+                {{ estado.nombre }} ({{ estado.cantidadSolicitudes }})
               </option>
             </optgroup>
             <optgroup label="Solicitud Análisis">
-              <option *ngFor="let estado of cantidadPorEstadoAnalisis;  trackBy: trackByEstadoId" 
-                      [value]="estado.nombre" 
-                      [attr.data-idEstado]="estado.idEstado">
-                {{ estado.nombre }} ({{ estado.cantidad }})
+              <option *ngFor="let estado of estadosAnalisis; trackBy: trackByEstadoId" [value]="estado.nombre"
+                [attr.data-idEstado]="estado | json">
+                {{ estado.nombre }} ({{ estado.cantidadSolicitudes }})
               </option>
             </optgroup>
           </select>
-          
         </div>
-
-
       </div>
 
       <!-- Número único -->
       <div class="form-group">
         <label for="numero-unico">Número único:</label>
-        <input type="text" id="numero-unico" class="w-full p-2 border rounded" placeholder="Número único"
+        <input type="text" id="numero-unico" class="w-full p-2 border rounded" placeholder="00-000000-0000-ab"
           [(ngModel)]="numeroUnicoFiltro">
       </div>
 
@@ -81,34 +61,22 @@
           <i class="material-icons">filter_alt</i> Filtrar
         </button>
       </div>
+
     </div>
   </div>
 
-
+  <!--Barra de busqueda-->
+  <div class="flex justify-end items-center mt-4 mb-4">
+    <!-- Buscador -->
+    <div class="relative w-full max-w-sm">
+      <input type="text" placeholder="Buscar" class="w-full p-2 border rounded pr-10" [(ngModel)]="filtroCaracter"
+        (ngModelChange)="aplicarFiltroCaracter()" />
+      <i class="material-icons absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">search</i>
+    </div>
+  </div>
 
   <!-- Contenedor con scroll horizontal y vertical si es necesario -->
-  <div class="overflow-x-auto overflow-y-auto max-h-screen">
-
-
-    <!-- Paginación y tamaño de filas alineados a los bordes -->
-    <div class="flex justify-between items-center mt-4 space-x-8">
-
-      <!-- Selector de tamaño de filas alineado a la izquierda -->
-      <div class="flex items-center">
-
-        <label for="pageSize" class="mr-2">
-          Mostrar:
-        </label>
-
-        <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="border border-gray-300 rounded">
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="15">15</option>
-        </select>
-
-      </div>
-
-    </div>
+  <div class="bg-gray-50 overflow-x-auto overflow-y-auto max-h-screen">
 
     <!-- Tabla con columnas ajustadas y paginación Proveedor -->
     <table *ngIf="mostrarTablaProveedor" class="min-w-full table-auto border-collapse">
@@ -122,144 +90,114 @@
       <tbody class="bg-[#F3F4F6] text-black">
         <tr *ngFor="let solicitud of solicitudesPaginadas" [ngClass]="{ 'bg-red-100': solicitud.urgente }"
           class="hover:bg-gray-200">
-
-
           <td *ngIf="columnasVisibles['finalizar']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Finalizar')" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
               <i class="material-icons">redo</i>
             </button>
           </td>
-
           <td *ngIf="columnasVisibles['devolver']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Devolver')" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
               <i class="material-icons">redo</i>
             </button>
           </td>
-
           <td *ngIf="columnasVisibles['aprobar']" class="border px-4 py-2 text-center">
+            <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Aprobar');" class="text-white px-4 py-2 
+              rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
+              <i class="material-icons">library_add_check</i>
+            </button>
             <!-- Switch para aprobar -->
-            <label class="switch">
-              <input type="checkbox" [(ngModel)]="solicitud.aprobado"
-                (change)="onSwitchChange(solicitud.idSolicitudProveedor, solicitud.aprobado)"
+            <!--label class="switch">
+              <input type="checkbox" [checked]="solicitud.aprobado"
+                (click)="onSwitchClick($event, solicitud.idSolicitudProveedor, solicitud.aprobado)"
                 [disabled]="isSwitchDisabled">
               <span class="slider round"></span>
-            </label>
+            </label-->
           </td>
-
           <td *ngIf="columnasVisibles['sinEfecto']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Sin Efecto')" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[56px]" style="background-color: #1C355C;">
               <i class="material-icons">file_copy_off</i>
             </button>
           </td>
-
           <td *ngIf="columnasVisibles['historico']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalHistorico(solicitud)" class="text-white px-4 py-2 
-              rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
+            rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
               <i class="material-icons">sports_score</i>
             </button>
           </td>
-
           <td *ngIf="columnasVisibles['legajo']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalCambioEstado(solicitud.idSolicitudProveedor, 'Legajo')" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
               <i class="material-icons">do_not_disturb_on_total_silence</i>
             </button>
           </td>
-
           <td *ngIf="columnasVisibles['requerimientos']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalRequerimientos(solicitud)" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
               <i class="material-icons">description</i>
             </button>
           </td>
-
           <td *ngIf="columnasVisibles['ver']" class="border px-4 py-2 text-center">
             <button (click)="abrirModalDeDetalles(solicitud)" class="text-white px-4 py-2 
               rounded focus:outline-none focus:ring w-[55px]" style="background-color: #1C355C;">
               <i class="material-icons">info</i>
             </button>
           </td>
-
           <td *ngIf="columnasVisibles['solicitud']" class="border px-4 py-2 text-center">
             {{solicitud.idSolicitudProveedor }}
           </td>
-
           <td *ngIf="columnasVisibles['consecutivo']" class="border px-4 py-2 text-center">
             {{ solicitud.consecutivo }}
           </td>
-
           <td *ngIf="columnasVisibles['numeroUnico']" class="border px-4 py-2 text-center">
             {{ solicitud.numeroUnico }}
           </td>
-
-          <td *ngIf="columnasVisibles['proveedor']" class="border px-4 py-2 text-center">
+          <td *ngIf="columnasVisibles['operador']" class="border px-4 py-2 text-center">
             {{solicitud.operadoras[0].nombre }}
           </td>
-
           <td *ngIf="columnasVisibles['enviadoPor']" class="border px-4 py-2 text-center">
             {{ solicitud.enviadoPor }}
           </td>
-
           <td *ngIf="columnasVisibles['aprobacion']" class="border px-4 py-2 text-center">
-            {{ solicitud.aprobacion }}
+            {{ solicitud.aprobacion? 'Si':'No' }}
           </td>
-
           <td *ngIf="columnasVisibles['fechaCreacion']" class="border px-4 py-2 text-center">
             {{solicitud.fechaCreacion | date: 'dd/MM/yyyy' }}
           </td>
-
           <td *ngIf="columnasVisibles['diasTranscurridos']" class="border px-4 py-2 text-center">
             {{calcularDiasTranscurridos(solicitud.fechaCreacion) }}
           </td>
-
           <td *ngIf="columnasVisibles['estado']" class="border px-4 py-2 text-center">
             {{ solicitud.estado?.nombre }}
           </td>
-
           <td *ngIf="columnasVisibles['urgente']" class="border px-4 py-2 text-center">
             {{ solicitud.urgente ? 'Sí' :'No' }}
           </td>
-
           <td *ngIf="columnasVisibles['creadoPor']" class="border px-4 py-2 text-center">
             {{solicitud.usuarioCreador?.nombre }} {{ solicitud.usuarioCreador?.apellido || '' }}
           </td>
-
-
         </tr>
-
-
-
       </tbody>
     </table>
 
-
-
-    <!-- Tabla 2 -->
+    <!-- Tabla Analisis -->
     <table *ngIf="!mostrarTablaProveedor" class="min-w-full table-auto border-collapse">
       <thead>
         <tr class="bg-[#1C355C] text-white">
-          <th class="border px-4 py-2 text-center">Histórico</th>
-          <th class="border px-4 py-2 text-center">Requerimientos</th>
-          <th class="border px-4 py-2 text-center">Ver</th>
-          <th class="border px-4 py-2 text-center">Solicitud</th>
-          <th class="border px-4 py-2 text-center">Número único</th>
-          <th class="border px-4 py-2 text-center">Proveedor</th>
-          <th class="border px-4 py-2 text-center">Enviado por</th>
-          <th class="border px-4 py-2 text-center">Fecha sol. telef.</th>
-          <th class="border px-4 py-2 text-center">Fecha sol. análisis</th>
-          <th class="border px-4 py-2 text-center">Urgente</th>
+          <th *ngFor="let header of encabezados" class="border px-4 py-2 text-center">
+            {{header}}
+          </th>
         </tr>
       </thead>
       <tbody class="text-black">
-        <ng-container *ngFor="let solicitud of solicitudesAnalisis">
+        <ng-container *ngFor="let solicitud of solicitudesPaginadas">
           <!-- Opciones de línea gris (una sola fila para cada solicitudAnalisis) -->
           <tr class="bg-gray-100">
             <td colspan="10" class="colspan px-4 py-2 text-left">
               <span>ID Solicitud de Análisis: {{ solicitud.idSolicitudAnalisis }}</span>
-              <span> | </span>q
+              <span> | </span>
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver histórico')">
                 <button (click)="abrirModalHistoricoAnalisis(solicitud.idSolicitudAnalisis)"
                   class="inline-flex items-center space-x-1">
@@ -270,10 +208,12 @@
               </ng-container>
 
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver Solicitud')">
-                <button class="inline-flex items-center space-x-1">
+                <button class="inline-flex items-center space-x-1"
+                  (click)="abrirModalSolicitudAnalisis(solicitud.idSolicitudAnalisis)">
                   <span class="material-icons text-sm">info</span>
                   <span>Ver Solicitud</span>
                 </button>
+
                 <span> | </span>
               </ng-container>
 
@@ -288,7 +228,8 @@
 
               <ng-container
                 *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Descargar informe de Investigador')">
-                <button class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalArchivosInformeFinal(solicitud.idSolicitudAnalisis, 'Finalizado')"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">download</span>
                   <span>Descargar informe de Investigador</span>
                 </button>
@@ -296,7 +237,7 @@
               </ng-container>
 
               <ng-container *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Agregar informe')">
-                <button (click)="abrirModalArchivosInformeFinal(solicitud.idSolicitudAnalisis)"
+                <button (click)="abrirModalArchivosInformeFinal(solicitud.idSolicitudAnalisis, 'Analizado')"
                   class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">upload</span>
                   <span>Agregar informe</span>
@@ -316,7 +257,8 @@
 
               <ng-container
                 *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Enviar a legajo solicitud de análisis')">
-                <button (click)="abrirModalLegajoAnalisis(solicitud.idSolicitudAnalisis)" class="inline-flex items-center space-x-1">
+                <button (click)="abrirModalLegajoAnalisis(solicitud.idSolicitudAnalisis)"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">do_not_disturb_on_total_silence</span>
                   <span>Enviar a legajo solicitud de análisis</span>
                 </button>
@@ -324,8 +266,9 @@
               </ng-container>
 
               <ng-container
-                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Aprobar Solicitud')">
-                <button class="inline-flex items-center space-x-1" (click)="aprobarSolicitudAnalisis()">
+                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Aprobar Solicitud') && aprobar">
+                <button (click)="abrirModalAprobarAnalisis(solicitud.idSolicitudAnalisis)"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">do_not_disturb_on_total_silence</span>
                   <span>Aprobar Solicitud</span>
                 </button>
@@ -334,13 +277,13 @@
 
               <ng-container
                 *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Devolver al estado anterior')">
-                <button class="inline-flex items-center space-x-1" (click)="abrirModalDevolverAnalizado(solicitud.idSolicitudAnalisis)">
+                <button (click)="abrirModalDevolverAnalizado(solicitud.idSolicitudAnalisis)"
+                  class="inline-flex items-center space-x-1">
                   <span class="material-icons text-sm">download</span>
                   <span>Devolver al estado anterior</span>
                 </button>
               </ng-container>
             </td>
-
           </tr>
           <!-- Iterar sobre cada solicitudProveedor dentro de una solicitud de análisis -->
           <ng-container *ngFor="let solicitudProveedor of solicitud.solicitudesProveedor">
@@ -371,7 +314,7 @@
               <td class="px-4 py-2 text-center">{{ solicitudProveedor.proveedor.nombre }}</td>
               <td class="px-4 py-2 text-center">{{ solicitudProveedor.usuarioCreador.nombre }}</td>
               <td class="px-4 py-2 text-center">{{ solicitudProveedor.fechaCrecion | date: 'dd/MM/yyyy' }}</td>
-              <td class="px-4 py-2 text-center">{{ solicitud.fechaCrecion | date: 'dd/MM/yyyy' }}</td>
+              <td class="px-4 py-2 text-center">{{ solicitud.fechaCreacion | date: 'dd/MM/yyyy' }}</td>
               <td class="px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
 
             </tr>
@@ -379,52 +322,42 @@
         </ng-container>
       </tbody>
     </table>
-
-
-
-
-
-
-
   </div>
 
-  <!-- Paginación y tamaño de filas centrados -->
-  <div class="flex justify-between items-center mt-4 space-x-8">
-
-    <div class="flex items-center">
-
-      <label for="pageSize" class="mr-2">Mostrar registros del {{((this.numeroDePagina - 1) *
-        this.cantidadDeRegistros) + 1}}
-        al {{((this.numeroDePagina - 1) * this.cantidadDeRegistros) + this.cantidadDeRegistros}}
-        de un total de {{solicitudesPaginadas.length}} registros
-        (Filtrado de un total de {{solicitudesFiltradas.length}})</label>
-
+  <!--Paginacion y cantidad de datos-->
+  <div class="pagination-container">
+    <div class="page-size-container">
+      <label for="pageSize" class="label">Tamaño:</label>
+      <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="select">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+        <option value="30">30</option>
+      </select>
     </div>
-
-    <!-- Paginación -->
-    <div class="flex items-center space-x-2">
-
-      <!-- Botón regresar -->
-      <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(-1)">
-
-        Anterior
-
-
-      </button>
-
-      <span>{{ numeroDePagina }}</span> <!-- Número de página -->
-
-      <!-- Botón siguiente -->
-      <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(1)">
-        Siguiente
-
-
-      </button>
-
+    <div class="page-info">
+      <span>{{ inicioRegistros }} - {{ finRegistros }} de {{ solicitudesFiltradas.length }}</span>
     </div>
-
+    <div class="pagination-controls">
+      <!-- Botón para ir a la primera página -->
+      <button class="pagination-button" (click)="irPrimeraPagina()" [disabled]="numeroDePagina === 1">
+        <i class="material-icons">first_page</i>
+      </button>
+      <!-- Botón para ir a la página anterior -->
+      <button class="pagination-button" (click)="cambiarPagina(-1)" [disabled]="numeroDePagina === 1">
+        <i class="material-icons">arrow_back_ios</i>
+      </button>
+      <!-- Botón para ir a la página siguiente -->
+      <button class="pagination-button" (click)="cambiarPagina(1)" [disabled]="numeroDePagina >= maxPagina">
+        <i class="material-icons">arrow_forward_ios</i>
+      </button>
+      <!-- Botón para ir a la última página -->
+      <button class="pagination-button" (click)="irUltimaPagina()" [disabled]="numeroDePagina >= maxPagina">
+        <i class="material-icons">last_page</i>
+      </button>
+    </div>
   </div>
-
 </div>
 
 <!-- Modal de historico -->
@@ -458,7 +391,7 @@
 </app-modal-informacion>
 
 <!-- Modal de solicitud -->
-<app-modal-informacion [isModalOpen]="modalVisible">
+<app-modal-informacion [isModalOpen]="modalSolicitud">
   <!-- Encabezado personalizado del Modal -->
   <div modal-header>
     <h3 *ngIf="solicitudSeleccionada" class="text-lg font-medium">Solicitud #{{
@@ -495,11 +428,12 @@
           </div>
           <div>
             <label class="label" for="modalidad">Modalidad:</label>
-            <input type="text" id="modalidad" class="input" [value]="solicitudSeleccionada.modalidad.nombre" readonly>
+            <input type="text" id="modalidad" class="input"
+              [value]="solicitudSeleccionada.modalidad.nombre? solicitudSeleccionada.modalidad.nombre: 'N/A'" readonly>
           </div>
           <div>
             <label class="label" for="imputado">Imputado:</label>
-            <input type="text" id="imputado" class="input" [value]="solicitudSeleccionada.imputado" readonly>
+            <input type="text" id="imputado" class="input" [value]="solicitudSeleccionada.imputado " readonly>
           </div>
         </div>
         <!-- Información sobre Delito y Sub Modalidad -->
@@ -510,7 +444,8 @@
           </div>
           <div>
             <label class="label" for="subModalidad">Sub modalidad:</label>
-            <input type="text" id="subModalidad" class="input" [value]="solicitudSeleccionada.subModalidad.nombre"
+            <input type="text" id="subModalidad" class="input"
+              [value]="solicitudSeleccionada.subModalidad.nombre? solicitudSeleccionada.subModalidad.nombre :'N/A'"
               readonly>
           </div>
           <div>
@@ -529,13 +464,14 @@
           </div>
           <div>
             <label class="label" for="oficina">Oficina:</label>
-            <input type="text" id="oficina" class="input" readonly>
+            <input type="text" id="oficina" class="input"
+              [value]="solicitudSeleccionada.oficina? solicitudSeleccionada.oficina.nombre : 'N/A'" readonly>
           </div>
           <div>
             <label class="label" for="operadora">Operadora:</label>
-            
-            <input type="text" id="operadora" class="input" [value]="solicitudSeleccionada.operadoras? solicitudSeleccionada.operadoras[0].nombre: 'N/A' "
-              readonly>
+
+            <input type="text" id="operadora" class="input"
+              [value]="solicitudSeleccionada.operadoras? solicitudSeleccionada.operadoras[0].nombre: 'N/A' " readonly>
           </div>
         </div>
         <!-- Sección de "Registros de requerimientos" -->
@@ -620,32 +556,49 @@
 
 <!-- Modal Archivos UAC -->
 <app-modal-informacion [isModalOpen]="modalArchivosUACVisible">
-  <div *ngIf="archivosUAC.length > 0; else noArchivosTemplate">
-    <app-tabla-visualizacion [headers]="encabezadosArchivosUAC" [data]="archivosUAC" [actions]="accionesArchivosUAC"
-      [actionsheaders]="encabezadosAccionesArchivosUAC">
-    </app-tabla-visualizacion>
+  <!-- Contenido principal -->
+  <div class="modal-contenido">
+    <div *ngIf="archivosUAC.length > 0; else noArchivosTemplate">
+      <app-tabla-visualizacion [headers]="encabezadosArchivosUAC" [data]="archivosUAC" [actions]="accionesArchivosUAC"
+        [actionsheaders]="encabezadosAccionesArchivosUAC">
+      </app-tabla-visualizacion>
+    </div>
+
+    <ng-template #noArchivosTemplate>
+      <p>No hay archivos disponibles.</p>
+    </ng-template>
+
+    <!-- Botón de cierre -->
+    <div class="mt-6 flex justify-end space-x-3">
+      <button (click)="cerrarModalArchivosUAC()"
+        class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2"
+        style="background-color: #D32F2F;">
+        <i class="material-icons">cancel</i><span>Cancelar</span>
+      </button>
+    </div>
   </div>
-
-  <ng-template #noArchivosTemplate>
-    <p>No hay archivos disponibles.</p>
-  </ng-template>
-
-  <button (click)="cerrarModalArchivosUAC()" class="modal-close is-large">Cerrar</button>
 </app-modal-informacion>
 
 <!-- Modal Archivos Informe Final -->
 <app-modal-informacion [isModalOpen]="modalArchivosInformeFinalVisible">
   <div class="modal-contenido">
-    <span class="cerrar" (click)="cerrarModalArchivosInformeFinal()">&times;</span>
-    <h2>Subir Archivos</h2>
 
-    <input type="file" (change)="seleccionarArchivosInformeFinal($event)" multiple />
+    <div *ngIf="subirArchivosInformeFinalOpcion">
 
-    <button (click)="subirArchivosInformeFinal()">Guardar</button>
+      <label>FORMATOS PERMITIDOS: WORD OFFICE +2007, PDF y TXT</label>
 
-    <ul>
-      <li *ngFor="let archivoInforme of archivosInformeFinal">{{ archivoInforme.nombre }}</li>
-    </ul>
+      <div class="file-custom" style="border: 2px solid #ccc; border-radius: 3px;">
+        <label for="file-input" class="btn-custom-file">Buscar</label>
+        <input type="file" id="file-input" (change)="seleccionarArchivosInformeFinal($event)" multiple
+          style="display: none;" />
+      </div>
+
+
+
+      <ul>
+        <li *ngFor="let archivoInforme of archivosInformeFinal">{{ archivoInforme.nombre }}</li>
+      </ul>
+    </div>
 
     <h2>Archivos Informe:</h2>
     <div *ngIf="archivosInformeFinalDB.length > 0; else noArchivosTemplate">
@@ -655,12 +608,22 @@
     </div>
 
     <ng-template #noArchivosTemplate>
-      <p>No hay archivos disponibles.</p>
+      <p>No hay guardados en el servidor</p>
     </ng-template>
 
   </div>
 
-  <button (click)="cerrarModalArchivosInformeFinal()">Cerrar</button>
+  <div class="mt-6 flex justify-end space-x-3">
+      <button (click)="subirArchivosInformeFinal()"
+        class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2"
+        style="background-color: #1c355c;">
+        <i class="material-icons">save</i><span>Guardar</span></button>
+    <button (click)="cerrarModalArchivosInformeFinal()"
+      class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2"
+      style="background-color: #D32F2F;">
+      <i class="material-icons">cancel</i><span>Cancelar</span>
+    </button>
+  </div>
 </app-modal-informacion>
 
 <!-- Modal de historico Analisis -->
@@ -673,7 +636,8 @@
 
   <div>
     <div *ngIf="historicoDeSolicitudAnalisisSeleccionada">
-      <app-tabla-visualizacion [headers]="encabezadosHistoricoAnalisis" [data]="historicoDeSolicitudAnalisisSeleccionada">
+      <app-tabla-visualizacion [headers]="encabezadosHistoricoAnalisis"
+        [data]="historicoDeSolicitudAnalisisSeleccionada">
       </app-tabla-visualizacion>
     </div>
   </div>
@@ -742,7 +706,132 @@
   </div>
   <div class="mt-4" modal-content>
     <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
-    <textarea id="observacion" rows="3" [(ngModel)]="observacionAprobarAnalisis"
+    <textarea id="observacion" rows="3" [(ngModel)]="observacionDevolverAnalizado"
       class="w-full p-2 border rounded-md focus:outline-none focus:ring"></textarea>
   </div>
 </app-modal-confirmacion>
+
+<app-modal-informacion [isModalOpen]="modalVerSolicitud">
+  <!-- Encabezado personalizado del Modal -->
+  <div modal-header>
+    <h3 class="text-lg font-medium">
+      Solicitud #{{ solicitudAnalisisSeleccionada?.idSolicitudAnalisis || 'N/A' }}
+    </h3>
+    <h3 class="text-lg font-medium">Detalle de la Solicitud de Análisis Telefónico</h3>
+  </div>
+
+  <!-- Cuerpo del Modal -->
+  <div>
+    <div *ngIf="solicitudAnalisisSeleccionada">
+      <!-- Contenedor desplazable -->
+      <div class="scrollable-content">
+        <!-- Información General -->
+        <section class="form-container">
+          <h3>Información General</h3>
+          <hr />
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fechaDelHecho">Fecha del Hecho:</label>
+              <input type="text" id="fechaDelHecho" class="input"
+                [value]="solicitudAnalisisSeleccionada?.fechaDelHecho | date: 'dd/MM/yyyy'" readonly />
+            </div>
+            <div class="form-group">
+              <label for="estado">Estado:</label>
+              <input type="text" id="estado" class="input"
+                [value]="solicitudAnalisisSeleccionada?.estado?.nombre || 'N/A'" readonly />
+            </div>
+          </div>
+        </section>
+
+        <!-- Requerimientos -->
+        <section class="form-container">
+          <h3>Requerimientos</h3>
+          <hr />
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Objetivo</th>
+                <th>Utilizado Por</th>
+                <th>Tipo de Dato</th>
+                <th>Condición</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let req of solicitudAnalisisSeleccionada?.requerimentos || []">
+                <td>{{ req?.objetivo || 'N/A' }}</td>
+                <td>{{ req?.utilizadoPor || 'N/A' }}</td>
+                <td>{{ req?.tipoDato?.nombre || 'N/A' }}</td>
+                <td>{{ req?.condicion?.nombre || 'N/A' }}</td>
+              </tr>
+              <tr *ngIf="!(solicitudAnalisisSeleccionada?.requerimentos?.length)">
+                <td colspan="4">No hay requerimientos registrados.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Objetivos de Análisis -->
+        <section class="form-container">
+          <h3>Objetivos de Análisis</h3>
+          <hr />
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let objetivo of solicitudAnalisisSeleccionada?.objetivosAnalisis || []">
+                <td>{{ objetivo?.nombre || 'N/A' }}</td>
+                <td>{{ objetivo?.descripcion || 'N/A' }}</td>
+              </tr>
+              <tr *ngIf="!(solicitudAnalisisSeleccionada?.objetivosAnalisis?.length)">
+                <td colspan="2">No hay objetivos de análisis registrados.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Solicitudes de Proveedor -->
+        <section class="form-container">
+          <h3>Solicitudes de Proveedor</h3>
+          <hr />
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Proveedor</th>
+                <th>Número Único</th>
+                <th>Imputado</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let proveedor of solicitudAnalisisSeleccionada?.solicitudesProveedor || []">
+                <td>{{ proveedor?.proveedor?.nombre || 'N/A' }}</td>
+                <td>{{ proveedor?.numeroUnico || 'N/A' }}</td>
+                <td>{{ proveedor?.imputado || 'N/A' }}</td>
+                <td>{{ proveedor?.estado?.nombre || 'N/A' }}</td>
+              </tr>
+              <tr *ngIf="!(solicitudAnalisisSeleccionada?.solicitudesProveedor?.length)">
+                <td colspan="4">No hay solicitudes de proveedor registradas.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer personalizado del Modal -->
+  <div modal-footer>
+    <div class="buttons-row space-x-4">
+      <button type="button" class="bg-[#D32F2F] text-[#FFFFFF] 
+        px-4 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+        (click)="cerrarModalSolicitudAnalisis()">
+        <i class="material-icons">cancel</i>
+        <span>Cerrar</span>
+      </button>
+    </div>
+  </div>
+</app-modal-informacion>
