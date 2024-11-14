@@ -556,17 +556,27 @@
 
 <!-- Modal Archivos UAC -->
 <app-modal-informacion [isModalOpen]="modalArchivosUACVisible">
-  <div *ngIf="archivosUAC.length > 0; else noArchivosTemplate">
-    <app-tabla-visualizacion [headers]="encabezadosArchivosUAC" [data]="archivosUAC" [actions]="accionesArchivosUAC"
-      [actionsheaders]="encabezadosAccionesArchivosUAC">
-    </app-tabla-visualizacion>
-  </div>
-
-  <ng-template #noArchivosTemplate>
-    <p>No hay archivos disponibles.</p>
-  </ng-template>
-
-  <button (click)="cerrarModalArchivosUAC()" class="modal-close is-large">Cerrar</button>
+      <!-- Contenido principal -->
+      <div class="modal-contenido">
+        <div *ngIf="archivosUAC.length > 0; else noArchivosTemplate">
+          <app-tabla-visualizacion [headers]="encabezadosArchivosUAC" [data]="archivosUAC" [actions]="accionesArchivosUAC"
+            [actionsheaders]="encabezadosAccionesArchivosUAC">
+          </app-tabla-visualizacion>
+        </div>
+      
+        <ng-template #noArchivosTemplate>
+          <p>No hay archivos disponibles.</p>
+        </ng-template>
+      
+        <!-- Botón de cierre -->
+        <div class="mt-6 flex justify-end space-x-3">
+          <button (click)="cerrarModalArchivosUAC()" 
+                  class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2" 
+                  style="background-color: #D32F2F;">
+            <i class="material-icons">cancel</i><span>Cancelar</span>
+          </button>
+        </div>
+      </div>
 </app-modal-informacion>
 
 <!-- Modal Archivos Informe Final -->
@@ -598,8 +608,13 @@
     </ng-template>
 
   </div>
-
-  <button (click)="cerrarModalArchivosInformeFinal()">Cerrar</button>
+  <div class="mt-6 flex justify-end space-x-3">
+    <button (click)="cerrarModalArchivosInformeFinal()"
+            class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2" 
+            style="background-color: #D32F2F;">
+      <i class="material-icons">cancel</i><span>Cancelar</span>
+    </button>
+  </div>
 </app-modal-informacion>
 
 <!-- Modal de historico Analisis -->
