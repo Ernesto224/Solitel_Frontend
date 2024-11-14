@@ -52,7 +52,7 @@ export default class BandejaComponent implements OnInit {
   solicitudesPaginadas: any[] = [];
   solicitudSeleccionada: any = null;
   solicitudIdParaActualizar: number | null = null;
-
+  solicitudAnalisisSeleccionada: any = null;
   // Filtros
   numeroUnicoFiltro: string = '';
   fechaInicioFiltro: string = '';
@@ -74,6 +74,7 @@ export default class BandejaComponent implements OnInit {
   modalAprobarAnalisis: boolean = false;
   modalDevolverAnalizado: boolean = false;
   modalFinalizarAnalisis: boolean = false;
+  modalVerSolicitud: boolean = false;
   subirArchivosInformeFinalOpcion: boolean = false;
 
   // Variables relacionadas con la paginación y visibilidad
@@ -131,6 +132,8 @@ export default class BandejaComponent implements OnInit {
   encabezadosAccionesRequerimientosTramitados: any[] = [
     'Archivos'
   ];
+
+
 
   // Objetos complejos
   estadoColumnas: { [key: string]: { [key: string]: { headers: string[], columnasVisibles: {} } } } = {
@@ -299,12 +302,29 @@ export default class BandejaComponent implements OnInit {
           this.reiniciarDatosDeTabla();
           this.actualizarPaginacion();
           this.modalInvisible();
+          console.log(value); // Mostrar el JSON recibido en la consola
         },
         error: (err) => {
           console.error('Error al obtener solicitudes de análisis:', err);
           this.modalInvisible();
         }
       });
+  }
+
+  abrirModalSolicitudAnalisis(idSolicitudAnalisis: number): void {
+    this.solicitudAnalisisSeleccionada = this.solicitudesPaginadas.find(
+      (solicitud) => solicitud.idSolicitudAnalisis === idSolicitudAnalisis
+    );
+    if (!this.solicitudAnalisisSeleccionada) {
+        console.warn('No se encontró la solicitud de análisis con ID:', idSolicitudAnalisis);
+        return;
+    }
+    this.modalVerSolicitud = true; 
+}
+
+  cerrarModalSolicitudAnalisis(): void {
+    this.modalVerSolicitud = false; // Oculta el modal
+    this.solicitudSeleccionada = null; // Limpia la selección
   }
 
   obtenerOpcionesPorEstado(estado: string): string[] {
