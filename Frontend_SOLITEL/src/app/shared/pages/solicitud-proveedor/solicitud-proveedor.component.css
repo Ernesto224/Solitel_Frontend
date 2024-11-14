@@ -7,7 +7,7 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
+  background-color: #DEE7F5;
   margin: 0;
   padding: 20px;
   padding-top: 200px; /* El valor necesario para el espacio bajo el header */
@@ -508,4 +508,24 @@ textarea {
   border-radius: 4px;
   width: 100%;
   box-sizing: border-box;
+}
+
+.general-div {
+  background-color: #fff; /* Fondo blanco para el elemento */
+  padding: 20px; /* Espacio interno */
+  box-shadow: 0 0 12px 10px rgba(0, 0, 0, 0.1); /* Sombra suave y difusa */
+  border-radius: 5px; /* Bordes redondeados */
+  padding: 20px; /* Espaciado interno (aumentado) */
+}
+
+.margin-div{
+  margin-bottom: 20px; /* Espacio hacia abajo de 20px */
+  padding: 20px; /* Espaciado interno (aumentado) */
+  border-color: #010102;
+  border-radius: 5px;
+}
+
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

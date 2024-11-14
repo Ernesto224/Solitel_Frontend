@@ -11,6 +11,7 @@ import { TablaVisualizacionComponent } from '../../components/tabla-visualizacio
 import { ModalInformacionComponent } from '../../components/modal-informacion/modal-informacion.component';
 import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
 import { AlertaComponent } from '../../components/alerta/alerta.component';
+import { AuthenticacionService } from '../../services/authenticacion.service';
 
 interface Archivo {
   nombre: string;
@@ -44,10 +45,19 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
 
   archivosRespuesta: any[] = [];
 
+  asignarDatos = false;
+
   modalArchivosVisible = false;
 
   botonArchivosDeshabilitado: boolean = false;
+
   botonTramitarDeshabilitado: boolean = false;
+
+  usuariosDisponibles: any[] = [];
+
+  idUsuarioAsignadoSeleccionado: string = '';
+
+  existeAsignacion: boolean = false;
 
   // Variables para alertas
   alertatipo: string = "error";
@@ -98,17 +108,38 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
     'Descargar'
   ];
 
+  //Variables para la tabla de Archivos de Respuesta
+  encabezadosArchivosRespuesta: any[] = [
+    { key: 'nombre', label: 'Nombre Documento' },
+  ];
+
+  accionesArchivosRespuesta: any[] = [
+    {
+      style: "border: none; background-color: #007BFF; padding: 6px 12px;",
+      class: "btn btn-primary text-[#FFFFFF] px-4 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2", 
+      action: (archivo: any) => this.quitarArchivoRespuesta(archivo),
+      icon: 'delete'
+    }
+  ];
+
+  encabezadosAccionesArchivosRespuesta: any[] = [
+    'Quitar'
+  ];
+
   //Variables para el modal de confirmacion
   modalTramitadoVisible = false;
 
   observacion: string = '';
 
+  // Variable para obtener el usuario en sesion
+  usuario: any = [];
+
   constructor(private route: ActivatedRoute,
-    private location: Location,
-    private oficinaService: OficinaService,
     private archivoService: ArchivoService,
     private analisisTelefonicoService: AnalisisTelefonicoService,
-    private router: Router) { }
+    private router: Router,
+    private authenticationService: AuthenticacionService
+  ) { }
 
   ngOnInit(): void {
 
@@ -129,12 +160,49 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
         utilizadoPor: req.utilizadoPor,
         objetivo: req.objetivo
       }));
-
-      //this.consultarOficina(this.solicitudAnalisisSeleccionada.idOficina);
+      if(this.solicitudAnalisisSeleccionada.nombreUsuarioAsignado ){
+        this.idUsuarioAsignadoSeleccionado = this.solicitudAnalisisSeleccionada.nombreUsuarioAsignado;
+      }
+      this.usuario = this.authenticationService.getUsuario();
+      this.asignarDatos = this.authenticationService.verificarPermisosAsignacion(this.usuario);
       this.cargarArchivos(this.idSolicitudAnalisisSeleccionada);
+      this.obtenerUsuariosDisponibles();
     }
 
 
+  }
+
+  asignarUsuario() {
+    this.analisisTelefonicoService.asignarUsuario(this.idSolicitudAnalisisSeleccionada, parseInt(this.idUsuarioAsignadoSeleccionado)).subscribe(response => {
+      if (response.success) {
+        this.alertatipo1 = "satisfaccion";
+        this.alertaMensaje1 = response.message; // Mostrar el mensaje del backend
+        this.alertaVisible1 = true;
+        setTimeout(() => {
+          this.alertaVisible1 = false;
+        }, 3000);
+      } else {
+        this.alertatipo1 = "error";
+        this.alertaMensaje1 = response.message; // Mostrar el mensaje de error del backend
+        this.alertaVisible1 = true;
+        setTimeout(() => {
+          this.alertaVisible1 = false;
+        }, 3000);
+      }
+    }, error => {
+      // Manejo de errores en caso de problemas con la conexión o el servidor
+      this.alertatipo1 = "error";
+      this.alertaMensaje1 = "Hubo un problema de conexión con el servidor.";
+      this.alertaVisible1 = true;
+      setTimeout(() => {
+        this.alertaVisible1 = false;
+      }, 3000);
+    });
+  }
+
+  obtenerUsuariosDisponibles(){
+    this.usuariosDisponibles.push(this.authenticationService.usuarios[1]);
+    console.log(this.usuariosDisponibles);
   }
 
   mostrarTabla(tablaId: number) {
@@ -149,11 +217,11 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
     this.modalArchivosVisible = false;
   }
 
-  seleccionarArchivos(event: any) {
+  seleccionarArchivosRespuesta(event: any) {
     const seleccionados = event.target.files as FileList;
     const tiposPermitidos = ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf', 'text/plain'];
     const maxSizeInBytes = 5 * 1024 * 1024;
-    const archivosValidos: Archivo[] = []; 
+    const archivosValidos: Archivo[] = [];
 
     Array.from(seleccionados).forEach((file: File) => {
       const esTipoPermitido = tiposPermitidos.includes(file.type);
@@ -241,21 +309,18 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
     window.URL.revokeObjectURL(url);
   }
 
-  quitarArchivos() {
-    this.archivosRespuesta = [];
-    this.cerrarModalArchivosRespuesta();
-  }
+  quitarArchivoRespuesta(archivo: any) {
+    const index = this.archivosRespuesta.indexOf(archivo);
 
-  consultarOficina(idOficina: number) {
-    this.oficinaService.obtenerUna(idOficina).subscribe(data => {
-      this.oficinaSolicitante = data.nombre;
-    });
+    if (index > -1) {
+      this.archivosRespuesta.splice(index, 1);
+    }
   }
 
   actualizarEstadoAnalizado(): void {
     this.analisisTelefonicoService.ActualizarEstadoAnalizadoSolicitudAnalisis(
       this.idSolicitudAnalisisSeleccionada,
-      1, // Usuario Quemado en DB
+      this.usuario.idUsuario,
       this.observacion || null
     ).subscribe(response => {
       console.log('Estado actualizado:', response);
@@ -280,7 +345,7 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
   tramitarSolicitudAnalisis() {
     this.actualizarEstadoAnalizado();
     this.subirArchivosRespuesta();
-    
+
     this.alertatipo1 = "satisfaccion";
     this.alertaMensaje1 = "Se respondio correctamente la solicitud de analisis";
     this.alertaVisible1 = true;

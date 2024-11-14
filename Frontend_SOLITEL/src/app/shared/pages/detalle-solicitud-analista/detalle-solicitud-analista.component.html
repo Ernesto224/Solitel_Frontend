@@ -68,17 +68,23 @@
 
   <!-- Campos debajo -->
   <div class="row">
-    <div class="col-6">
+    <div *ngIf="asignarDatos" class="col-6">
       <div class="form-group">
         <label for="campo11">Asignar a:</label>
+        <select class="required-field" [(ngModel)]="idUsuarioAsignadoSeleccionado" name="idCategoriaDelitoSeleccionado" required>
+          <option value="">Seleccione</option>
+          <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario ? usuario.idUsuario : 0">
+            {{ usuario.nombre ? usuario.nombre : 'N/A' }}
+          </option>
+        </select>
+        <button (click)="asignarUsuario()">Asignar</button>
       </div>
-    </div>
+    </div>    
     <div class="col-6">
       <div class="form-group">
         <label for="campo12">Fecha del Hecho:</label>
         <input type="text" id="campo12" name="campo12" disabled
-        [(ngModel)]="solicitudAnalisisSeleccionada.fechaDelHecho"
-          class="form-control" />
+          [(ngModel)]="solicitudAnalisisSeleccionada.fechaDelHecho" class="form-control" />
       </div>
     </div>
     <div class="col-6">
@@ -92,8 +98,7 @@
       <div class="form-group">
         <label for="campo14">Detalle solicitud analisis:</label>
         <input type="text" id="campo14" name="campo14" disabled
-        [(ngModel)]="solicitudAnalisisSeleccionada.otrosDetalles"
-          class="form-control" />
+          [(ngModel)]="solicitudAnalisisSeleccionada.otrosDetalles" class="form-control" />
       </div>
     </div>
   </div>
@@ -132,14 +137,21 @@
 </div>
 
 
-<button (click)="abriModalConfirmarTramitado()" [disabled]="botonTramitarDeshabilitado">Cerrar (Tramitar)</button>
+<div class="centered-button-container">
+  <button (click)="abriModalConfirmarTramitado()" [disabled]="botonTramitarDeshabilitado">Cerrar (Tramitar)</button>
+</div>
+
 
 <!-- Modal Confirmacion -->
 <app-modal-confirmacion [modalEstadoVisible]="modalTramitadoVisible" (confirmar)="tramitarSolicitudAnalisis()"
   (cancelar)="cerrarModalConfirmarTramiado()">
   <div modal-header>
     <h2 class="text-xl font-semibold mb-4">Confirmacion Tramitación</h2>
-    <p>¿Estás seguro de que deseas tramitar la solicitud de análisis {{ idSolicitudAnalisisSeleccionada }}?</p>
+    <p>¿Estás seguro de que deseas tramitar la solicitud de análisis #{{ idSolicitudAnalisisSeleccionada }}?</p>
+    <div *ngIf="archivosRespuesta && archivosRespuesta.length > 0" style="background-color: #f2bebd; padding: 2%;">
+      <p>Se enviaran los siguientes archivos</p>
+      <li *ngFor="let archivoRespuesta of archivosRespuesta">{{ archivoRespuesta.nombre }}</li>
+    </div>
   </div>
   <div class="mt-4" modal-content>
     <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
@@ -151,18 +163,30 @@
 
 <!-- Modal Archivos Respuesta -->
 <app-modal-informacion [isModalOpen]="modalArchivosVisible">
+  <div modal-header>
+    <h3 class="text-lg font-medium">Subir Archivos de Respuesta</h3>
+  </div>
+
   <div class="modal-contenido">
 
     <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
 
-    <label >SOLO SE PERMITEN ARCHIVOS WORD OFFICE +2007, PDF y TXT</label>
-    <label for="file-input" class="custom-file-upload">Seleccionar Archivos</label>
-    <input type="file" id="file-input" (change)="seleccionarArchivos($event)" multiple />
+    <label>FORMATOS PERMITIDOS: WORD OFFICE +2007, PDF y TXT</label>
 
-    <ul class="file-list">
-      <li *ngFor="let archivoRespuesta of archivosRespuesta">{{ archivoRespuesta.nombre }}</li>
-    </ul>
+    <div class="file-custom" style="border: 2px solid #ccc; border-radius: 3px;">
+      <label for="file-input" class="btn-custom-file">Buscar</label>
+      <input type="file" id="file-input" (change)="seleccionarArchivosRespuesta($event)" multiple style="display: none;" />
+    </div>
+
+    <div *ngIf="archivosRespuesta && archivosRespuesta.length > 0">
+      <app-tabla-visualizacion [headers]="encabezadosArchivosRespuesta" [data]="archivosRespuesta"
+        [actions]="accionesArchivosRespuesta" [actionsheaders]="encabezadosAccionesArchivosRespuesta">
+      </app-tabla-visualizacion>
+    </div>
+
+
   </div>
-  <button (click)="cerrarModalArchivosRespuesta()">Guardar</button>
-  <button (click)="quitarArchivos()">Cancelar</button>
+  <div style="text-align: right; margin-top: 2%;">
+    <button (click)="cerrarModalArchivosRespuesta()">Cerrar</button>
+  </div>
 </app-modal-informacion>

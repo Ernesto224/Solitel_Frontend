@@ -5,13 +5,15 @@ import { EstadoService } from '../../services/estado.service';
 import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
 import { AuthenticacionService } from '../../services/authenticacion.service';
 import { Router } from '@angular/router';
+import { ModalProcesandoComponent } from '../../components/modal-procesando/modal-procesando.component';
 
 @Component({
   selector: 'app-bandeja-analista',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    ModalProcesandoComponent
   ],
   templateUrl: './bandeja-analista.component.html',
   styleUrl: './bandeja-analista.component.css'
@@ -29,6 +31,9 @@ export default class BandejaAnalistaComponent implements OnInit {
 
   numeroDePagina: number = 1;
   cantidadDeRegistros: number = 5;
+  inicioRegistros: number = 1;
+  finRegistros: number = 0;
+  maxPagina: number = 1;
   solicitudesAnalisisFiltradas: any[] = [];
   solicitudesAnalisisPaginadas: any[] = [];
 
@@ -77,9 +82,9 @@ export default class BandejaAnalistaComponent implements OnInit {
   }
 
   //obtener datos
-  obtenerDatosDeUsuario(): void{
+  obtenerDatosDeUsuario(): void {
     this.usuario = this.autenticate.getUsuario();
-    this.usuarioId = this.usuario.idUsuario;
+    this.usuarioId = this.autenticate.verificarPermisosVerDatosAnalistas(this.usuario);
     this.oficinaId = this.usuario.oficina.idOficina;
   }
 
@@ -101,19 +106,20 @@ export default class BandejaAnalistaComponent implements OnInit {
   }
 
   obtenerSolicitudesAnalisis(): void {
-    this.analisisTelefonicoService.obtenerBandejaAnalista(this.estadoSeleccionado, this.fechaInicioFiltro, this.fechaFinFiltro, this.numeroUnicoFiltro)
+    this.modalVisible();
+    this.analisisTelefonicoService.obtenerBandejaAnalista(this.estadoSeleccionado,
+      this.fechaInicioFiltro, this.fechaFinFiltro, this.numeroUnicoFiltro, this.oficinaId, this.usuarioId)
       .subscribe({
         next: (value) => {
           this.solicitudesAnalisis = value;
-          console.log(this.solicitudesAnalisis);
           this.reiniciarDatosDeTabla();
-          console.log(this.solicitudesAnalisisFiltradas);
           this.actualizarPaginacion();
-          console.log(this.solicitudesAnalisisPaginadas);
           this.modalInvisible();
         },
         error: (err) => {
-          console.error('Error al obtener solicitudes de análisis:', err);
+          this.solicitudesAnalisis = [];
+          this.reiniciarDatosDeTabla();
+          this.actualizarPaginacion();
           this.modalInvisible();
         },
       });
@@ -146,6 +152,21 @@ export default class BandejaAnalistaComponent implements OnInit {
     const inicio = (this.numeroDePagina - 1) * this.cantidadDeRegistros;
     const fin = inicio + this.cantidadDeRegistros;
     this.solicitudesAnalisisPaginadas = this.solicitudesAnalisisFiltradas.slice(inicio, fin);
+    // Calcula el número máximo de páginas
+    this.maxPagina = Math.ceil(this.solicitudesAnalisisFiltradas.length / this.cantidadDeRegistros);
+    // Actualiza los valores de inicio y fin para la vista
+    this.inicioRegistros = inicio + 1;
+    this.finRegistros = Math.min(fin, this.solicitudesAnalisisFiltradas.length);
+  }
+
+  irPrimeraPagina(): void {
+    this.numeroDePagina = 1;
+    this.actualizarPaginacion();
+  }
+
+  irUltimaPagina(): void {
+    this.numeroDePagina = this.maxPagina;
+    this.actualizarPaginacion();
   }
 
   limpiarFiltros() {
@@ -153,53 +174,37 @@ export default class BandejaAnalistaComponent implements OnInit {
     this.fechaInicioFiltro = '';
     this.fechaFinFiltro = '';
     this.filtroCaracter = '';
-    this.reiniciarDatosDeTabla();
-    console.log(this.solicitudesAnalisisFiltradas);
-    this.actualizarPaginacion();
-    console.log(this.solicitudesAnalisisPaginadas);
+    this.obtenerSolicitudesAnalisis();
   }
 
-
   filtrarSolicitudes() {
-    console.log(this.estadoSeleccionado);
     this.obtenerSolicitudesAnalisis();
   }
 
   aplicarFiltroCaracter() {
     if (this.filtroCaracter) {
       const filtro = this.filtroCaracter.toLowerCase();
-      console.log(this.filtroCaracter);
-      // Filtro principal sobre el objeto
+
+      // Helper function to format dates to dd/MM/yyyy
+      const formatFecha = (fecha: string | null) => {
+        if (!fecha) return '';
+        const date = new Date(fecha);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+
+      // Filtro principal basado en los criterios solicitados
       this.solicitudesAnalisisFiltradas = this.solicitudesAnalisis.filter(solicitud =>
-        solicitud.idSolicitudAnalisis.toString().includes(filtro) ||
-        solicitud.fechaDelHecho?.toLowerCase().includes(filtro) || // Si el filtro incluye formato de fecha
-        solicitud.fechaCrecion?.toLowerCase().includes(filtro) ||
-        solicitud.requerimentos.some((req: any) =>
-          req.objetivo?.toLowerCase().includes(filtro) ||
-          req.utilizadoPor?.toLowerCase().includes(filtro) ||
-          req.tipoDato?.nombre?.toLowerCase().includes(filtro) ||
-          req.condicion?.nombre?.toLowerCase().includes(filtro)
-        ) ||
-        solicitud.objetivosAnalisis.some((obj: any) =>
-          obj.nombre?.toLowerCase().includes(filtro) ||
-          obj.descripcion?.toLowerCase().includes(filtro)
-        ) ||
-        solicitud.solicitudesProveedor.some((prov: any) =>
-          prov.numeroUnico?.toLowerCase().includes(filtro) ||
-          prov.imputado?.toLowerCase().includes(filtro) ||
-          prov.ofendido?.toLowerCase().includes(filtro) ||
-          prov.usuarioCreador?.nombre?.toLowerCase().includes(filtro) ||
-          prov.delito?.nombre?.toLowerCase().includes(filtro) ||
-          prov.categoriaDelito?.nombre?.toLowerCase().includes(filtro) ||
-          prov.estado?.nombre?.toLowerCase().includes(filtro) ||
-          prov.fiscalia?.nombre?.toLowerCase().includes(filtro) ||
-          prov.modalidad?.nombre?.toLowerCase().includes(filtro) ||
-          prov.subModalidad?.nombre?.toLowerCase().includes(filtro) ||
-          prov.proveedor?.nombre?.toLowerCase().includes(filtro)
-        )
+        (solicitud.fechaCreacion && formatFecha(solicitud.fechaCreacion).includes(filtro)) || // Filtrado por fecha
+        (solicitud.proveedor?.nombre?.toLowerCase().includes(filtro) || // Filtrado por proveedor
+          solicitud.operadoras?.some((prov: any) => prov.nombre?.toLowerCase().includes(filtro))) || // Filtrado por operadoras si aplica
+        (solicitud.usuarioCreador?.nombre?.toLowerCase().includes(filtro) || // Filtrado por nombre de usuario creador
+          solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
       );
+
       this.actualizarPaginacion();
-      console.log(this.solicitudesAnalisisPaginadas);
     }
   }
 

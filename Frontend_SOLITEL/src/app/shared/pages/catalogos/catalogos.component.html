@@ -103,14 +103,13 @@
             <tr *ngFor="let row of contenidoPaginado" class="hover:bg-gray-200">
 
                 <td class="border px-4 py-2 text-center">
+                    
+                    <div class="flex justify-center space-x-2 btn btn-primary">
 
-                    <div class="flex justify-center space-x-2">
-
-                        <button (click)="abrirModalCambioEstado(row)"
-                            class="bg-red-500 text-white px-4 py-2 rounded focus:outline-none focus:ring">
-
+                        <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
+                        py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+                            (click)="abrirModalCambioEstado(row)">
                             <i class="material-icons">delete</i>
-
                         </button>
 
                     </div>
@@ -171,9 +170,9 @@
 
 <!-- Modal de confirmación -->
 <app-modal-confirmacion [modalEstadoVisible]="modalEstadoVisible" (confirmar)="confirmarCambioEstado()"
-  (cancelar)="cerrarModalCambioEstado()">
-  <div modal-header>
-    <h2 class="text-xl font-semibold mb-4">Confirmar Eliminacion</h2>
-    <p>¿Está seguro de que deseas eliminar "{{ datoSeleccionado }}"?</p>
-  </div>
+    (cancelar)="cerrarModalCambioEstado()">
+    <div modal-header>
+        <h2 class="text-xl font-semibold mb-4">Confirmar Eliminacion</h2>
+        <p>¿Está seguro de que deseas eliminar "{{ datoSeleccionado }}"?</p>
+    </div>
 </app-modal-confirmacion>

@@ -12,7 +12,7 @@ import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/
 import { AnalisisTelefonicoService } from '../../services/analisis-telefonico.service';
 import { AlertaComponent } from '../../components/alerta/alerta.component';
 import { AuthenticacionService } from '../../services/authenticacion.service';
-
+import { ModalProcesandoComponent } from '../../components/modal-procesando/modal-procesando.component';
 
 @Component({
   selector: 'app-bandeja',
@@ -23,7 +23,8 @@ import { AuthenticacionService } from '../../services/authenticacion.service';
     TablaVisualizacionComponent,
     ModalInformacionComponent,
     ModalConfirmacionComponent,
-    AlertaComponent
+    AlertaComponent,
+    ModalProcesandoComponent
   ],
   providers: [
     DatePipe
@@ -39,7 +40,7 @@ export default class BandejaComponent implements OnInit {
   oficinaId: any = null;
 
   // Estados y seleccionados
-  estadoSeleccionado: any = {};
+  estadoSeleccionado: any = { idEstado: 3, nombre: "Creado", tipo: "Proveedor" };
   estadoTemporal: string = 'Creado';
   idEstadoSeleccionado: number = 3;
   estados: any[] = [];
@@ -52,6 +53,7 @@ export default class BandejaComponent implements OnInit {
   solicitudesPaginadas: any[] = [];
   solicitudSeleccionada: any = null;
   solicitudIdParaActualizar: number | null = null;
+  solicitudAnalisisSeleccionada: any = null;
 
   // Filtros
   numeroUnicoFiltro: string = '';
@@ -60,6 +62,7 @@ export default class BandejaComponent implements OnInit {
   filtroCaracter: string = '';
 
   // Variables de configuración y control de visualización
+  aprobar = false;
   mostrarTablaProveedor: boolean = true;
   isSwitchDisabled: boolean = false;
   isModalVisible: boolean = false;
@@ -74,11 +77,15 @@ export default class BandejaComponent implements OnInit {
   modalAprobarAnalisis: boolean = false;
   modalDevolverAnalizado: boolean = false;
   modalFinalizarAnalisis: boolean = false;
+  modalVerSolicitud: boolean = false;
   subirArchivosInformeFinalOpcion: boolean = false;
 
   // Variables relacionadas con la paginación y visibilidad
   numeroDePagina: number = 1;
   cantidadDeRegistros: number = 5;
+  inicioRegistros: number = 1;
+  finRegistros: number = 0;
+  maxPagina: number = 1;
   columnasVisibles: { [key: string]: boolean } = {};
 
   // Variables para alertas
@@ -106,8 +113,7 @@ export default class BandejaComponent implements OnInit {
   encabezadosRequerimientosTramitados: any[] = [
     { key: 'requerimiento', label: 'Requerimiento' },
     { key: 'numRequerido', label: 'Núm. requerido' },
-    { key: 'rangoFechas', label: 'Rango de fechas' },
-    { key: 'observacion', label: 'Observación' }
+    { key: 'rangoFechas', label: 'Rango de fechas' }
   ];
   encabezadosArchivosUAC: any[] = [
     { key: 'nombre', label: 'Nombre Documento' }
@@ -132,61 +138,10 @@ export default class BandejaComponent implements OnInit {
     'Archivos'
   ];
 
+
+
   // Objetos complejos
-  estadoColumnas: { [key: string]: { [key: string]: { headers: string[], columnasVisibles: {} } } } = {
-    Proveedor: {
-      Creado: {
-        headers: ['Aprobar', 'Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-        columnasVisibles: { aprobar: true, sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-      },
-      Finalizado: {
-        headers: ['Devolver', 'Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-        columnasVisibles: { devolver: true, historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-      },
-      'Sin Efecto': {
-        headers: ['Devolver', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-        columnasVisibles: { devolver: true, historico: true, ver: true, solicitud: true, numeroUnico: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-      },
-      Pendiente: {
-        headers: ['Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Aprobación', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-        columnasVisibles: { sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, aprobacion: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-      },
-      Tramitado: {
-        headers: ['Finalizar', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-        columnasVisibles: { finalizar: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-      },
-      Solicitado: {
-        headers: ['Aprobar', 'Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-        columnasVisibles: { aprobar: true, sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-      },
-      Legajo: {
-        headers: ['Devolver', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
-        columnasVisibles: { devolver: true, historico: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
-      }
-    },
-    Analisis: {
-      'En Análisis': {
-        headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
-        columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
-      },
-      Analizado: {
-        headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
-        columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
-      },
-      'Aprobar Analisis': {
-        headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
-        columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
-      },
-      Finalizado: {
-        headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
-        columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
-      },
-      Legajo: {
-        headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
-        columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
-      }
-    }
-  };
+  estadoColumnas: { [key: string]: { [key: string]: { headers: string[], columnasVisibles: {} } } } = {};
 
   // Variables relacionadas con archivos
   archivos: any[] = [];
@@ -254,8 +209,60 @@ export default class BandejaComponent implements OnInit {
   //obtener datos
   obtenerDatosDeUsuario(): void {
     this.usuario = this.autenticate.getUsuario();
-    this.usuarioId = this.usuario.idUsuario;
+    this.usuarioId = this.autenticate.verificarPermisosVerDatos(this.usuario);
+    this.aprobar = this.autenticate.verificarPermisosAprobacion(this.usuario);
     this.oficinaId = this.usuario.oficina.idOficina;
+    this.estadoColumnas = {
+      Proveedor: {
+        Creado: {
+          headers: ['Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { aprobar: this.autenticate.verificarPermisosAprobacion(this.usuario), sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        },
+        Finalizado: {
+          headers: ['Devolver', 'Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { devolver: true, historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        },
+        'Sin Efecto': {
+          headers: ['Devolver', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { devolver: true, historico: true, ver: true, solicitud: true, numeroUnico: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        },
+        Pendiente: {
+          headers: ['Sin efecto', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { sinEfecto: true, historico: true, ver: true, solicitud: true, numeroUnico: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        },
+        Tramitado: {
+          headers: ['Finalizar', 'Histórico', 'Legajo', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { finalizar: true, historico: true, legajo: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        },
+        Legajo: {
+          headers: ['Devolver', 'Histórico', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Fecha creación', 'Días transcurridos', 'Estado', 'Urgente', 'Creado por'],
+          columnasVisibles: { devolver: true, historico: true, ver: true, solicitud: true, numeroUnico: true, operador: true, fechaCreacion: true, diasTranscurridos: true, estado: true, urgente: true, creadoPor: true }
+        }
+      },
+      Analisis: {
+        'En Análisis': {
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
+        },
+        Analizado: {
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
+        },
+        'Aprobar Analisis': {
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
+        },
+        Finalizado: {
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
+        },
+        Legajo: {
+          headers: ['Histórico', 'Requerimientos', 'Ver', 'Solicitud', 'Número único', 'Proveedor', 'Enviado por', 'Fecha sol. telef.', 'Fecha sol. análisis', 'Urgente'],
+          columnasVisibles: { historico: true, requerimientos: true, ver: true, solicitud: true, numeroUnico: true, proveedor: true, FechaSolTelef: true, FechaSolAanálisis: true, urgente: true }
+        }
+      }
+    }
+    if (this.autenticate.verificarPermisosAprobacion(this.usuario)) this.estadoColumnas['Proveedor']['Creado'].headers.unshift('Aprobar');
   }
 
   obtenerEstados(): void {
@@ -264,7 +271,6 @@ export default class BandejaComponent implements OnInit {
         this.estados = estados;
         this.estadosProveedor = estados.filter(estado => estado.tipo === 'Proveedor');
         this.estadosAnalisis = estados.filter(estado => estado.tipo === 'Analisis');
-        this.estadoSeleccionado = this.estados[0];
       },
       error: (err) => {
         console.error('Error al obtener datos:', err);
@@ -283,6 +289,7 @@ export default class BandejaComponent implements OnInit {
           this.modalInvisible();
         },
         error: (err) => {
+          this.errorModalInfo();
           console.error('Error al obtener datos:', err);
           this.modalInvisible();
         },
@@ -298,12 +305,29 @@ export default class BandejaComponent implements OnInit {
           this.reiniciarDatosDeTabla();
           this.actualizarPaginacion();
           this.modalInvisible();
+          console.log(value); // Mostrar el JSON recibido en la consola
         },
         error: (err) => {
           console.error('Error al obtener solicitudes de análisis:', err);
           this.modalInvisible();
         }
       });
+  }
+
+  abrirModalSolicitudAnalisis(idSolicitudAnalisis: number): void {
+    this.solicitudAnalisisSeleccionada = this.solicitudesPaginadas.find(
+      (solicitud) => solicitud.idSolicitudAnalisis === idSolicitudAnalisis
+    );
+    if (!this.solicitudAnalisisSeleccionada) {
+      console.warn('No se encontró la solicitud de análisis con ID:', idSolicitudAnalisis);
+      return;
+    }
+    this.modalVerSolicitud = true;
+  }
+
+  cerrarModalSolicitudAnalisis(): void {
+    this.modalVerSolicitud = false; // Oculta el modal
+    this.solicitudSeleccionada = null; // Limpia la selección
   }
 
   obtenerOpcionesPorEstado(estado: string): string[] {
@@ -313,7 +337,7 @@ export default class BandejaComponent implements OnInit {
       case "Analizado":
         return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Agregar informe", "Finalizar solicitud de análisis", "Enviar a legajo solicitud de análisis"];
       case "Aprobar Analisis":
-        return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior", "Aprobar Solicitud"];
+        return ["Ver histórico", "Ver Solicitud", "Aprobar Solicitud"];
       case "Finalizado":
         return ["Ver histórico", "Ver Solicitud", "Descargar informe UAC", "Descargar informe de Investigador", "Devolver al estado anterior"];
       case "Legajo":
@@ -420,9 +444,8 @@ export default class BandejaComponent implements OnInit {
         }));
       },
       error: (err) => {
-        console.log('')
         if (err.status === 0) {
-          console.log('');
+          console.log('Error');
         }
       }
     })
@@ -453,17 +476,33 @@ export default class BandejaComponent implements OnInit {
     this.actualizarPaginacion();
   }
 
+  irPrimeraPagina(): void {
+    this.numeroDePagina = 1;
+    this.actualizarPaginacion();
+  }
+
+  irUltimaPagina(): void {
+    this.numeroDePagina = this.maxPagina;
+    this.actualizarPaginacion();
+  }
+
   limpiarFiltros() {
     this.filtroCaracter = ''
     this.numeroUnicoFiltro = '';
     this.fechaInicioFiltro = '';
     this.fechaFinFiltro = '';
+    this.filtrarSolicitudes();
   }
 
   actualizarPaginacion() {
     const inicio = (this.numeroDePagina - 1) * this.cantidadDeRegistros;
     const fin = inicio + this.cantidadDeRegistros;
     this.solicitudesPaginadas = this.solicitudesFiltradas.slice(inicio, fin);
+    // Calcula el número máximo de páginas
+    this.maxPagina = Math.ceil(this.solicitudesFiltradas.length / this.cantidadDeRegistros);
+    // Actualiza los valores de inicio y fin para la vista
+    this.inicioRegistros = inicio + 1;
+    this.finRegistros = Math.min(fin, this.solicitudesFiltradas.length);
   }
 
   onEstadoChange(event: Event): void {
@@ -497,15 +536,29 @@ export default class BandejaComponent implements OnInit {
   aplicarFiltroCaracter() {
     if (this.filtroCaracter) {
       const filtro = this.filtroCaracter.toLowerCase();
-      this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud =>
-        solicitud.numeroCaso?.toLowerCase().includes(filtro) ||
-        solicitud.imputado?.toLowerCase().includes(filtro) ||
-        solicitud.ofendido?.toLowerCase().includes(filtro) ||
-        solicitud.usuarioCreador?.nombre.toLowerCase().includes(filtro) ||
-        solicitud.usuarioCreador?.apellido?.toLowerCase().includes(filtro) ||
-        solicitud.delito?.nombre.toLowerCase().includes(filtro) ||
-        solicitud.operadoras[0]?.nombre.toLowerCase().includes(filtro)
+
+      // Helper function to format dates to dd/MM/yyyy
+      const formatFecha = (fecha: string | null) => {
+        if (!fecha) return '';
+        const date = new Date(fecha);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+
+      // Filtro principal basado en los criterios solicitados
+      this.solicitudesFiltradas = this.solicitudes.filter(solicitud =>
+        solicitud.idSolicitudAnalisis?.toString().includes(filtro) || // Filtrado por idSolicitudAnalisis (si aplica)
+        solicitud.idSolicitudProveedor?.toString().includes(filtro) || // Filtrado por idSolicitudProveedor (si aplica)
+        (solicitud.fechaCreacion && formatFecha(solicitud.fechaCreacion).includes(filtro)) || // Filtrado por fecha
+        (solicitud.proveedor?.nombre?.toLowerCase().includes(filtro) || // Filtrado por proveedor
+          solicitud.operadoras?.some((prov: any) => prov.nombre?.toLowerCase().includes(filtro))) || // Filtrado por operadoras si aplica
+        (solicitud.usuarioCreador?.nombre?.toLowerCase().includes(filtro) || // Filtrado por nombre de usuario creador
+          solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
       );
+
+      this.actualizarPaginacion();
     }
   }
 
@@ -516,8 +569,6 @@ export default class BandejaComponent implements OnInit {
   }
 
   descargarArchivo(archivo: any): void {
-    console.log('Descargando archivo:', archivo.nombre);
-
     // Decodificar el contenido en Base64 y convertirlo a un array de bytes
     const byteCharacters = atob(archivo.contenido);
     const byteNumbers = new Array(byteCharacters.length);
@@ -550,28 +601,45 @@ export default class BandejaComponent implements OnInit {
     }
   }
 
+  aprobarSolicitud(idSolicitudProveedor: number, estado: string) {
+    this.solicitudIdParaActualizar = idSolicitudProveedor;
+    this.nuevoEstado = estado;
+    this.confirmarCambioEstado();
+  }
+
+  errorModalInfo() {
+    this.alertatipo = "error";
+    this.alertaMensaje = "Hubo un error al momento de realizar la petición";
+    this.alertaVisible = true;
+    setTimeout(() => {
+      this.alertaVisible = false;
+    }, 3000);
+
+  }
+
   confirmarCambioEstado() {
     if (this.solicitudIdParaActualizar) {
-      const usuario = this.autenticate.getUsuario();
       this.solicitudProveedorService.actualizarEstado(
         this.solicitudIdParaActualizar,
         this.nuevoEstado,
-        usuario.idUsuario,
+        this.usuario.idUsuario,
         this.observacion
       ).subscribe(
         response => {
           // Eliminar la solicitud de la lista de solicitudes filtradas // NO HACE FALTA PORQUE LA TABLA SE RECARGA
           this.solicitudesFiltradas = this.solicitudesFiltradas.filter(solicitud => solicitud.idSolicitudProveedor !== this.solicitudIdParaActualizar);
+          this.obtenerEstados();
           this.cerrarModalCambioEstado();
           this.obtenerSolicitudes();
         },
         error => {
+          this.cerrarModalCambioEstado();
+          this.errorModalInfo();
           console.error("Error al actualizar el estado:", error);
         }
       );
     }
   }
-
 
   // Metodos para funciones de archivos UAC
   abrirModalArchivosUAC(idSolicitudAnalisis: number) {
@@ -594,7 +662,6 @@ export default class BandejaComponent implements OnInit {
       }
     });
   }
-
 
   // Metodos para funciones de archivos Informe Final
   abrirModalArchivosInformeFinal(idSolicitudAnalisis: number, estadoSolicitud: string) {
@@ -691,9 +758,8 @@ export default class BandejaComponent implements OnInit {
         }));
       },
       error: (err) => {
-        console.log('')
         if (err.status === 0) {
-          console.log('');
+          console.log('error');
         }
       }
     })
@@ -711,22 +777,24 @@ export default class BandejaComponent implements OnInit {
   }
 
   actualizarEstadoLegajoAnalisis() {
-    this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionLegajoAnalisis).subscribe({
-      next: response => {
-        this.alertatipo = "satisfaccion";
-        this.alertaMensaje = "Solicitud de Analisis Movida a Legajo";
-        this.alertaVisible = true;
-        setTimeout(() => {
-          this.alertaVisible = false;
-        }, 3000);
+    this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada,
+      this.usuarioId, this.observacionLegajoAnalisis).subscribe({
+        next: response => {
+          this.alertatipo = "satisfaccion";
+          this.alertaMensaje = "Solicitud de Analisis Movida a Legajo";
+          this.alertaVisible = true;
+          setTimeout(() => {
+            this.alertaVisible = false;
+          }, 3000);
 
-        this.observacionLegajoAnalisis = '';
-        this.obtenerSolicitudesAnalisis();
-      },
-      error: err => {
-        console.error('Error al mover a legajo la solicitud de analisis:', err);
-      }
-    });
+          this.observacionLegajoAnalisis = '';
+          this.obtenerSolicitudesAnalisis();
+        },
+        error: err => {
+          console.error('Error al mover a legajo la solicitud de analisis:', err);
+        }
+      });
+    this.obtenerEstados();
     this.cerrarModalLegajoAnalisis();
   }
 
@@ -758,6 +826,7 @@ export default class BandejaComponent implements OnInit {
         console.error('Error al aprobar la solicitud de analisis:', err);
       }
     });
+    this.obtenerEstados();
     this.cerrarModalAprobarAnalisis();
   }
 
@@ -773,21 +842,23 @@ export default class BandejaComponent implements OnInit {
   }
 
   devolverAnalizadoSolicitudAnalisis() {
-    this.analisisTelefonicoService.devolverAnalizado(this.idSolicitudAnalisisSeleccionada, 1, this.observacionDevolverAnalizado).subscribe({
-      next: response => {
-        this.alertatipo = "satisfaccion";
-        this.alertaMensaje = "Solicitud de Analisis devuelta a Analizado";
-        this.alertaVisible = true;
-        setTimeout(() => {
-          this.alertaVisible = false;
-        }, 3000);
-        this.observacionDevolverAnalizado = '';
-        this.aprobarSolicitudAnalisis();
-      },
-      error: err => {
-        console.error('Error al devolver la solicitud de analisis:', err);
-      }
-    });
+    this.analisisTelefonicoService.devolverAnalizado(this.idSolicitudAnalisisSeleccionada,
+      this.usuarioId, this.observacionDevolverAnalizado).subscribe({
+        next: response => {
+          this.alertatipo = "satisfaccion";
+          this.alertaMensaje = "Solicitud de Analisis devuelta a Analizado";
+          this.alertaVisible = true;
+          setTimeout(() => {
+            this.alertaVisible = false;
+          }, 3000);
+          this.observacionDevolverAnalizado = '';
+          this.aprobarSolicitudAnalisis();
+        },
+        error: err => {
+          console.error('Error al devolver la solicitud de analisis:', err);
+        }
+      });
+    this.obtenerEstados();
     this.cerrarModalDevolverAnalizado();
   }
 
@@ -816,13 +887,21 @@ export default class BandejaComponent implements OnInit {
         this.obtenerSolicitudesAnalisis();
       },
       error: err => {
+        this.alertatipo = "error";
+        this.alertaMensaje = "Hubo un error al momento de realizar la petición";
+        this.alertaVisible = true;
+        setTimeout(() => {
+          this.alertaVisible = false;
+        }, 3000);
         console.error('Error al finalizar la solicitud de analisis:', err);
       }
     });
+    this.obtenerEstados();
     this.cerrarModalFinalizarAnalisis();
   }
 
   modalVisible(): void {
+    this.obtenerEstados();
     this.isModalVisible = true;
   }
 

@@ -1,0 +1,58 @@
+aside {
+  position: fixed;
+  top: 4rem; /* Ajusta según la altura del navbar */
+  left: 0;
+  height: calc(100vh - 4rem); /* Ajusta para considerar la altura del navbar */
+  transition: transform 0.3s ease-in-out;
+  z-index: 40;
+  overflow-y: auto; /* Asegura que el contenido sea desplazable */
+  width: 16rem; /* Tamaño fijo del sidebar */
+  background-color: #1c355c;
+}
+
+aside.translate-x-0 {
+  transform: translateX(0);
+}
+
+aside.-translate-x-full {
+  transform: translateX(-100%);
+}
+
+@media (max-width: 768px) {
+  aside {
+    position: fixed;
+    top: 0;
+    height: 100vh;
+    width: 16rem;
+  }
+
+  /* Ajuste para mostrar u ocultar el sidebar en pantallas pequeñas */
+  aside.translate-x-0 {
+    transform: translateX(0);
+  }
+
+  aside.-translate-x-full {
+    transform: translateX(-100%);
+  }
+}
+
+/* Espacio para contenido cuando el sidebar está visible */
+.content-with-sidebar {
+  margin-left: 16rem; /* Ajusta según el ancho del sidebar */
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.content-full {
+  margin-left: 0;
+}
+footer {
+  width: 100%;
+}
+
+.sidebar-separator {
+  border: 0;
+  height: 1px;
+  background-color: #6c7a89; /* Ajusta el color según tu diseño */
+  margin: 0.75rem 0; /* Margen superior e inferior */
+  opacity: 0.6; /* Ajusta la opacidad para que no sea demasiado llamativo */
+}

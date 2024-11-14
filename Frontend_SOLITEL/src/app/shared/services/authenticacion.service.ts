@@ -4,9 +4,6 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class AuthenticacionService {
-  private usuarioKey = 'usuario';
-  private oficeKey = 'ofices';
-
   // Usuarios quemados para pruebas
   private usuarioPrueba = {
     idUsuario: 1,
@@ -14,62 +11,99 @@ export class AuthenticacionService {
     apellido: 'Melgara',
     correoElectronico: 'eliecermelgara1680@gmail.com',
     usuario: 'eliecer.melgara',
-    contrasennia: 'Melgara1212!',
+    contrasennia: 'asdfg123!',
     oficina: [
       {
         idOficina: 2,
-        nombre: '0059-DELEGACION REGIONAL DE HEREDIA',
+        nombre: 'DELEGACION REGIONAL DE HEREDIA',
         tipo: 'Investigacion',
         rol: {
           nombre: 'Administrador',
           permisos: [{ nombre: 'todos' }],
         },
       },
-    ],
-  };
-
-  private usuarioPrueba2 = {
-    idUsuario: 2,
-    nombre: 'Jesner',
-    apellido: 'Melgara',
-    correoElectronico: 'eliecermelgara1680@gmail.com',
-    usuario: 'eliecer.melgara',
-    contrasennia: 'Melgara1212!!',
-    oficina: [
       {
-        idOficina: 1,
+        idOficina: 3,
         nombre:
-          '1101-CENTRO JUDICIAL DE INTERVENCION DE LAS COMUNICACIONES (CJIC)',
+          'DELEGACION REGIONAL DE LIBERIA',
         tipo: 'Investigacion',
         rol: {
-          nombre: 'Jefatura de Investigador',
+          nombre: 'Jefatura Investigador',
           permisos: [
             { nombre: 'Crear Solicitud Proveedor' },
-            { nombre: 'Ver solicitudes propias' },
-            { nombre: 'Crear solicitudes de analisis' },
-            { nombre: 'Aprobar Solicitudes' },
+            { nombre: 'Ver Solicitudes Proveedor Oficina' },
+            { nombre: 'Crear Solicitudes Analisis' },
+            { nombre: 'Ver Solicitudes Analisis Oficina' },
+            { nombre: 'Aprobar Solicitudes Proveedor' },
+            { nombre: 'Aprobar Solicitudes Analisis' },
+            { nombre: 'Aprobación Automatica' },
           ],
         },
       },
       {
-        idOficina: 2,
-        nombre: '0059-DELEGACION REGIONAL DE HEREDIA',
+        idOficina: 11,
+        nombre: 'UNIDAD DE ANALISIS CRIMINAL',
+        tipo: 'Analisis',
+        rol: {
+          nombre: 'Jefatura Analista',
+          permisos: [
+            { nombre: 'Ver Solicitudes Analisis Oficina Analisis' },
+            { nombre: 'Asignar Solicitudes Analisis' },
+            { nombre: 'Responder Solicitudes Analisis' }
+          ],
+        },
+      },
+    ],
+  };
+  private usuarioPrueba2 = {
+    idUsuario: 3,
+    nombre: 'Daniel',
+    apellido: 'Borges',
+    correoElectronico: 'danielborges2514@gmail.com',
+    usuario: 'daniel.borges',
+    contrasennia: 'asdfg123!',
+    oficina: [
+      {
+        idOficina: 3,
+        nombre:
+          'DELEGACION REGIONAL DE LIBERIA',
         tipo: 'Investigacion',
         rol: {
           nombre: 'Investigador',
           permisos: [
             { nombre: 'Crear Solicitud Proveedor' },
-            { nombre: 'Ver solicitudes propias' },
-            { nombre: 'Crear solicitudes de analisis' },
+            { nombre: 'Ver Solicitudes Proveedor Propias' },
+            { nombre: 'Crear Solicitudes Analisis' },
+            { nombre: 'Ver Solicitudes Analisis Propias' },
+          ],
+        },
+      },
+      {
+        idOficina: 11,
+        nombre: 'UNIDAD DE ANALISIS CRIMINAL',
+        tipo: 'Analisis',
+        rol: {
+          nombre: 'Analista',
+          permisos: [
+            { nombre: 'Ver Solicitudes Analisis Propias Analisis' },
+            { nombre: 'Responder Solicitudes Analisis' }
           ],
         },
       },
     ],
   };
-
   usuarios = [this.usuarioPrueba, this.usuarioPrueba2];
 
-  constructor() {}
+  //Atributos de prueba
+  private usuarioKey = 'usuario';
+  private oficeKey = 'ofices';
+
+  private gestionarPermisosAsignacion = {
+    "todos": { valor: true },
+    "Asignar Solicitudes Analisis": { valor: (usuario: any) => { return usuario.oficina.rol.nombre.includes('Jefatura') } },
+  };
+
+  constructor() { }
 
   private isSessionStorageAvailable(): boolean {
     return (
@@ -77,7 +111,7 @@ export class AuthenticacionService {
     );
   }
 
-  login(username: string, password: string): any {
+  public login(username: string, password: string): any {
     if (this.isSessionStorageAvailable()) {
       const usuario = this.usuarios.find(
         (user) => user.usuario === username && user.contrasennia === password
@@ -94,19 +128,23 @@ export class AuthenticacionService {
     return null;
   }
 
-  logout(): void {
+  public logout(): void {
     if (this.isSessionStorageAvailable()) {
       sessionStorage.removeItem(this.usuarioKey);
     }
   }
 
-  deleteOfice(): void {
+  public isAuthenticated(): boolean {
+    return this.getUsuario() !== null;
+  }
+
+  public deleteOfice(): void {
     if (this.isSessionStorageAvailable()) {
       sessionStorage.removeItem(this.oficeKey);
     }
   }
 
-  getUsuario(): any {
+  public getUsuario(): any {
     if (this.isSessionStorageAvailable()) {
       const usuario = sessionStorage.getItem(this.usuarioKey);
       return usuario ? JSON.parse(usuario) : null;
@@ -114,7 +152,7 @@ export class AuthenticacionService {
     return null;
   }
 
-  getOficinas(): any {
+  public getOficinas(): any {
     if (this.isSessionStorageAvailable()) {
       const oficina = sessionStorage.getItem(this.oficeKey);
       return oficina ? JSON.parse(oficina) : null;
@@ -122,28 +160,118 @@ export class AuthenticacionService {
     return null;
   }
 
-  tienePermiso(permiso: string): boolean {
-    const usuario = this.getUsuario();
-    if (!usuario || !usuario.oficina || !usuario.oficina.rol || !Array.isArray(usuario.oficina.rol.permisos)) {
-      return false;
-    }
-    return usuario.oficina.rol.permisos.some((p: { nombre: string }) => p.nombre === permiso || p.nombre === 'todos');
-  }
-
-  agregarUsuario(usuario: any) {
+  public agregarUsuario(usuario: any): void {
     if (this.isSessionStorageAvailable()) {
       sessionStorage.setItem(this.usuarioKey, JSON.stringify(usuario));
     }
   }
 
-  agregarOficinas(oficinas: any) {
+  public agregarOficinas(oficinas: any): void {
     if (this.isSessionStorageAvailable()) {
       sessionStorage.setItem(this.oficeKey, JSON.stringify(oficinas));
     }
   }
 
-  isAuthenticated(): boolean {
-    return this.getUsuario() !== null;
+  public tienePermiso(permiso: string): boolean {
+    const usuario: any = this.getUsuario();
+
+    // Verificación de la existencia de propiedades requeridas
+    if (!usuario || !usuario.oficina || !usuario.oficina.rol || !Array.isArray(usuario.oficina.rol.permisos)) {
+      return false;
+    }
+
+    // Verificación de permisos
+    return usuario.oficina.rol.permisos.some((p: any) => p.nombre === permiso || p.nombre === 'todos');
+  }
+
+  private evaluarPermisos(usuario: any, permisos: any): any {
+    // Recorre las claves del objeto permisos
+    for (const permiso of usuario.oficina.rol.permisos) {
+      console.log(permisos[permiso.nombre])
+      if (permisos[permiso.nombre]) return typeof permiso.valor === 'function' ? permiso.valor(usuario) : permiso.valor;
+    }
+  }
+
+  public verificarPermisosVerDatos(usuario: any) {
+    // Si el usuario tiene el permiso para ver todas las solicitudes
+    if (usuario.oficina.rol.permisos.some((permiso: any) =>
+      permiso.nombre === 'Ver Solicitudes Proveedor Oficina' ||
+      permiso.nombre === 'Ver Solicitudes Analisis Oficina'
+      || permiso.nombre === 'todos')) {
+      return undefined; // Permitir ver todas las solicitudes (sin filtrar por idUsuario)
+    }
+
+    // Si el usuario puede ver solo sus propias solicitudes (incluyendo los permisos adicionales)
+    if (usuario.oficina.rol.permisos.some((permiso: any) =>
+      permiso.nombre === 'Ver Solicitudes Proveedor Propias' ||
+      permiso.nombre === 'Ver Solicitudes Analisis Propias')) {
+      return usuario.idUsuario; // Retorna su propio idUsuario
+    }
+
+    // Valor predeterminado si no hay coincidencia de permisos
+    return undefined;
+  }
+
+  public verificarPermisosVerDatosAnalistas(usuario: any) {
+
+    // Si el usuario tiene el permiso para ver todas las solicitudes
+    if (usuario.oficina.rol.permisos.some((permiso: any) =>
+      (permiso.nombre === 'Ver Solicitudes Analisis Oficina Analisis')
+      || permiso.nombre === 'todos')
+      && usuario.oficina.rol.nombre.includes('Analista')) {
+      return undefined; // Permitir ver todas las solicitudes (sin filtrar por idUsuario)
+    }
+
+    // Si el usuario puede ver solo sus propias solicitudes (incluyendo los permisos adicionales)
+    if (usuario.oficina.rol.permisos.some((permiso: any) =>
+      permiso.nombre === 'Ver Solicitudes Analisis Propias Analisis')
+      && usuario.oficina.rol.nombre.includes('Analista')) {
+      return usuario.idUsuario; // Retorna su propio idUsuario
+    }
+
+    // Valor predeterminado si no hay coincidencia de permisos
+    return undefined;
+  }
+
+  public verificarPermisosAprobacion(usuario: any) {
+
+    // Verificar si el usuario tiene permisos específicos de aprobación
+    if (usuario.oficina.rol.permisos.some((permiso: any) =>
+      permiso.nombre === 'Aprobar Solicitudes Proveedor'
+      || permiso.nombre === 'todos')) {
+      return true;
+    }
+
+    if (usuario.oficina.rol.permisos.some((permiso: any) =>
+      permiso.nombre === 'Aprobar Solicitudes Analisis'
+      || permiso.nombre === 'todos')) {
+      return true;
+    }
+
+    // No tiene permisos de aprobación
+    return false;
+  }
+
+  public verificarPermisosAprobacionAutomatica(usuario: any) {
+
+    if (usuario.oficina.rol.permisos.some((permiso: any) =>
+      permiso.nombre === 'Aprobación Automatica')) {
+      return true;
+    }
+
+    // No tiene permisos de aprobación
+    return false;
+  }
+
+  public verificarPermisosAsignacion(usuario: any) {
+    // Verificar si el usuario tiene permisos específicos de asignación
+    if (usuario.oficina.rol.permisos.some((permiso: any) =>
+      permiso.nombre === 'Asignar Solicitudes Analisis')) {
+      return true;
+    }
+
+    // No tiene permisos de asignación
+    return false;
   }
 
 }

@@ -1,0 +1,9 @@
+.footer {
+    margin-top: auto; /* Asegura que el footer se mantenga en la parte inferior cuando hay poco contenido */
+    background-color: #1c355c; /* Color personalizado de fondo */
+    color: #ffffff; /* Color del texto */
+}
+
+.footer-center {
+    text-align: center;
+}
