@@ -260,25 +260,6 @@
 
 </div>
 
-<!-- Modal de Confirmación -->
-<section *ngIf="mostrarConfirmacion" class="modal-container">
-  <div class="modal-content">
-    <header class="modal-header">
-      <h3>Confirmación</h3>
-      <button (click)="cerrarModal()">✕</button>
-    </header>
-    <p>¿Está seguro que desea registrar la solicitud?</p>
-    <section class="custom-modal-buttons buttons-row">
-      <button class="modal-btn modal-btn-cancel" (click)="cerrarModal()">
-        Cancelar
-      </button>
-      <button class="modal-btn modal-btn-confirmation" (click)="confirmarGuardado()">
-        Aceptar
-      </button>
-    </section>
-  </div>
-</section>
-
 <!-- Modal Confirmacion -->
 <app-modal-confirmacion [modalEstadoVisible]="mostrarConfirmacion" (confirmar)="confirmarGuardado()"
   (cancelar)="cerrarModal()">
