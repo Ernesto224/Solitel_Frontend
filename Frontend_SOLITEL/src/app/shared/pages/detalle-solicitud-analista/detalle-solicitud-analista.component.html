@@ -72,14 +72,13 @@
       <div class="form-group">
         <label for="campo11">Asignar a:</label>
         <select class="required-field" [(ngModel)]="idUsuarioAsignadoSeleccionado"
-        [disabled]="existeAsignacion"
           required>
-          <option [value]="idUsuarioAsignadoSeleccionado">{{ idUsuarioAsignadoSeleccionado }}</option>
+          <option *ngIf="existeAsignacion">{{ solicitudAnalisisSeleccionada.nombreUsuarioAsignado }}</option>
           <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario.idUsuario? usuario.idUsuario: 'N/A'">
             {{ usuario.nombre? usuario.nombre: 'N/A' }}
           </option>
         </select>
-        <button (click)="asignarUsuario()" [disabled]="existeAsignacion">Asignar</button>
+        <button (click)="asignarUsuario()">Asignar</button>
       </div>
     </div>
     <div class="col-6">

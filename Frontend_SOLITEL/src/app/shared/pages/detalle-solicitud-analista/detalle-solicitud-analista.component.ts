@@ -53,9 +53,9 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
 
   usuariosDisponibles: any[] = [];
 
-  idUsuarioAsignadoSeleccionado: number = 0;
+  idUsuarioAsignadoSeleccionado: string = '';
 
-  existeAsignacion: boolean = true;
+  existeAsignacion: boolean = false;
 
   // Variables para alertas
   alertatipo: string = "error";
@@ -158,8 +158,8 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
         utilizadoPor: req.utilizadoPor,
         objetivo: req.objetivo
       }));
-      if(this.solicitudAnalisisSeleccionada.nombreUsuarioAsignado){
-        this.existeAsignacion = true;
+      if(this.solicitudAnalisisSeleccionada.nombreUsuarioAsignado ){
+        this.idUsuarioAsignadoSeleccionado = this.solicitudAnalisisSeleccionada.nombreUsuarioAsignado;
       }
       this.usuario = this.authenticationService.getUsuario();
       this.cargarArchivos(this.idSolicitudAnalisisSeleccionada);
@@ -170,8 +170,7 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
   }
 
   asignarUsuario() {
-    console.log(this.idSolicitudAnalisisSeleccionada, this.idUsuarioAsignadoSeleccionado);
-    this.analisisTelefonicoService.asignarUsuario(this.idSolicitudAnalisisSeleccionada, this.idUsuarioAsignadoSeleccionado).subscribe(response => {
+    this.analisisTelefonicoService.asignarUsuario(this.idSolicitudAnalisisSeleccionada, parseInt(this.idUsuarioAsignadoSeleccionado)).subscribe(response => {
       if (response.success) {
         this.alertatipo1 = "satisfaccion";
         this.alertaMensaje1 = response.message; // Mostrar el mensaje del backend
@@ -199,7 +198,6 @@ export default class DetalleSolicitudAnalistaComponent implements OnInit {
   }
 
   obtenerUsuariosDisponibles(){
-
     this.usuariosDisponibles.push(this.authenticationService.usuarios[1]);
     console.log(this.usuariosDisponibles);
   }
