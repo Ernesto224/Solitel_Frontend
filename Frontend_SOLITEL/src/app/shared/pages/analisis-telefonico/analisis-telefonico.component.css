@@ -565,3 +565,12 @@ h3 {
   line-height: 1.2; /* Controla el espacio entre líneas */
   text-align: left; /* Alinea el texto a la izquierda, puedes cambiarlo si deseas */
 }
+
+
+.general-div {
+  background-color: #fff; /* Fondo blanco para el elemento */
+  padding: 20px; /* Espacio interno */
+  box-shadow: 0 0 12px 10px rgba(0, 0, 0, 0.1); /* Sombra suave y difusa */
+  border-radius: 5px; /* Bordes redondeados */
+  padding: 20px; /* Espaciado interno (aumentado) */
+}

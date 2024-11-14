@@ -556,27 +556,27 @@
 
 <!-- Modal Archivos UAC -->
 <app-modal-informacion [isModalOpen]="modalArchivosUACVisible">
-      <!-- Contenido principal -->
-      <div class="modal-contenido">
-        <div *ngIf="archivosUAC.length > 0; else noArchivosTemplate">
-          <app-tabla-visualizacion [headers]="encabezadosArchivosUAC" [data]="archivosUAC" [actions]="accionesArchivosUAC"
-            [actionsheaders]="encabezadosAccionesArchivosUAC">
-          </app-tabla-visualizacion>
-        </div>
-      
-        <ng-template #noArchivosTemplate>
-          <p>No hay archivos disponibles.</p>
-        </ng-template>
-      
-        <!-- Botón de cierre -->
-        <div class="mt-6 flex justify-end space-x-3">
-          <button (click)="cerrarModalArchivosUAC()" 
-                  class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2" 
-                  style="background-color: #D32F2F;">
-            <i class="material-icons">cancel</i><span>Cancelar</span>
-          </button>
-        </div>
-      </div>
+  <!-- Contenido principal -->
+  <div class="modal-contenido">
+    <div *ngIf="archivosUAC.length > 0; else noArchivosTemplate">
+      <app-tabla-visualizacion [headers]="encabezadosArchivosUAC" [data]="archivosUAC" [actions]="accionesArchivosUAC"
+        [actionsheaders]="encabezadosAccionesArchivosUAC">
+      </app-tabla-visualizacion>
+    </div>
+
+    <ng-template #noArchivosTemplate>
+      <p>No hay archivos disponibles.</p>
+    </ng-template>
+
+    <!-- Botón de cierre -->
+    <div class="mt-6 flex justify-end space-x-3">
+      <button (click)="cerrarModalArchivosUAC()"
+        class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2"
+        style="background-color: #D32F2F;">
+        <i class="material-icons">cancel</i><span>Cancelar</span>
+      </button>
+    </div>
+  </div>
 </app-modal-informacion>
 
 <!-- Modal Archivos Informe Final -->
@@ -585,11 +585,15 @@
 
     <div *ngIf="subirArchivosInformeFinalOpcion">
 
-      <h2>Subir Archivos</h2>
+      <label>FORMATOS PERMITIDOS: WORD OFFICE +2007, PDF y TXT</label>
 
-      <input type="file" (change)="seleccionarArchivosInformeFinal($event)" multiple /> <!-- Soporta Varios Archivos-->
+      <div class="file-custom" style="border: 2px solid #ccc; border-radius: 3px;">
+        <label for="file-input" class="btn-custom-file">Buscar</label>
+        <input type="file" id="file-input" (change)="seleccionarArchivosInformeFinal($event)" multiple
+          style="display: none;" />
+      </div>
 
-      <button (click)="subirArchivosInformeFinal()">Guardar</button>
+
 
       <ul>
         <li *ngFor="let archivoInforme of archivosInformeFinal">{{ archivoInforme.nombre }}</li>
@@ -604,14 +608,19 @@
     </div>
 
     <ng-template #noArchivosTemplate>
-      <p>No hay archivos disponibles.</p>
+      <p>No hay guardados en el servidor</p>
     </ng-template>
 
   </div>
+
   <div class="mt-6 flex justify-end space-x-3">
+      <button (click)="subirArchivosInformeFinal()"
+        class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2"
+        style="background-color: #1c355c;">
+        <i class="material-icons">save</i><span>Guardar</span></button>
     <button (click)="cerrarModalArchivosInformeFinal()"
-            class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2" 
-            style="background-color: #D32F2F;">
+      class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2"
+      style="background-color: #D32F2F;">
       <i class="material-icons">cancel</i><span>Cancelar</span>
     </button>
   </div>

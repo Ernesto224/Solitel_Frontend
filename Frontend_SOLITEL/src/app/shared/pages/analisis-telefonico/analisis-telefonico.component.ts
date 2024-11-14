@@ -13,6 +13,8 @@ import {
 } from '../../services/analisis-telefonico.service';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
+import { ModalProcesandoComponent } from '../../components/modal-procesando/modal-procesando.component';
+
 
 
 interface Requerimiento {
@@ -134,7 +136,8 @@ interface SubModalidad {
     NgMultiSelectDropDownModule,
     NgxMaskDirective,
     AlertaComponent,
-    ModalConfirmacionComponent
+    ModalConfirmacionComponent,
+    ModalProcesandoComponent
   ],
   providers: [provideNgxMask()],
 })
@@ -179,6 +182,8 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   alertaVisible: boolean = false;
   editarRequerimiento: boolean = false;
   private subscription = new Subscription();
+
+  isModalVisible:boolean = false;
 
   // Control de modales
   mostrarConfirmacion = false;
@@ -640,16 +645,21 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
   }
 
   guardarSolicitudAnalisis() {
+    this.isModalVisible = true;
     this.analisisService
       .agregarSolicitudAnalisis(this.solicitudCompletaAnalisis)
       .subscribe(
         (response) => {
+          this.isModalVisible = false;
           this.alertaMensaje = 'Solicitud guardada con éxito.';
           this.alertatipo = 'satisfaccion';
           this.alertaVisible = true;
           this.limpiarFormulario();
         },
-        (error) => console.error('Error al enviar la solicitud:', error.error) // MOSTRAR ERROR EN ALERTA
+        (error) => { 
+          console.error('Error al enviar la solicitud:', error.error) 
+          this.isModalVisible = false;
+        } // MOSTRAR ERROR EN ALERTA
       );
   }
   errorModalInfo() {
