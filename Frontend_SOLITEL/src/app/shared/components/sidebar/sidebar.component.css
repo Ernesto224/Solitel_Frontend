@@ -8,6 +8,7 @@ aside {
   overflow-y: auto; /* Asegura que el contenido sea desplazable */
   width: 16rem; /* Tamaño fijo del sidebar */
   background-color: #1c355c;
+  border-right:  1px solid #294D86;
 }
 
 aside.translate-x-0 {
@@ -44,10 +45,6 @@ aside.-translate-x-full {
 
 .content-full {
   margin-left: 0;
-}
-
-footer {
-  width: 100%;
 }
 
 .sidebar-separator {

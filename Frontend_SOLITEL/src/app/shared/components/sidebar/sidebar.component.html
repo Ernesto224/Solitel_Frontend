@@ -1,5 +1,5 @@
 <aside [class.translate-x-0]="isSidebarVisible" [class.-translate-x-full]="!isSidebarVisible"
-  class="fixed top-16 left-0 w-64 h-screen bg-custom-blue border-r transition-transform duration-300 ease-in-out z-40 transform">
+  class="fixed top-16 left-0 w-64 h-screen bg-custom-blue transition-transform duration-300 ease-in-out z-40 transform">
   <div class="flex flex-col justify-between flex-1 mt-6">
     <nav class="space-y-6">
 
@@ -9,6 +9,10 @@
       </div>
 
       <div class="space-y-3">
+        <ng-container>
+          <hr class="sidebar-separator">
+        </ng-container>
+
         <ng-container *ngIf="authService.tienePermiso('Ver Solicitudes Proveedor Oficina') || 
         authService.tienePermiso('Ver Solicitudes Analisis Oficina') ||
         authService.tienePermiso('Ver Solicitudes Proveedor Propias') ||

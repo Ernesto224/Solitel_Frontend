@@ -1,9 +1,9 @@
 <app-modal-procesando [isModalVisible]="isModalVisible"></app-modal-procesando>
+<app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
 
 <!-- Contenido principal -->
 <div class="flex flex-col">
-  <main class="flex-grow ml-64 p-4">
-    <app-alerta [tipo]="alertatipo" [mensaje]="alertaMensaje" [visible]="alertaVisible"></app-alerta>
+  <main class="flex-grow ml-64 p-4">   
     <div class="mt-12">
       <div class="space-y-8">
         <!-- Formulario de solicitudes -->
@@ -134,7 +134,6 @@
                 <textarea id="resena" [(ngModel)]="resennia" name="resennia" class="required-field" required></textarea>
               </div>
             </div>
-
 
             <section class="mt-8 margin-div">
               <h2>Registros de requerimientos</h2>
@@ -273,9 +272,6 @@
             </table>
             <hr>
           </section>
-
-
-
         </section>
 
         <!-- Botones -->

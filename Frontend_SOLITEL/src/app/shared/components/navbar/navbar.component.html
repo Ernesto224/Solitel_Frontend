@@ -3,7 +3,7 @@
     <!-- Navbar -->
     <nav class="flex items-center justify-between bg-custom-blue px-5 py-4 w-full fixed top-0 left-0 z-50">
         <div class="flex items-center space-x-4">
-            
+
             <!-- Hamburger Menu (Always visible, triggers sidebar toggle) -->
             <button (click)="toggleSidebar()" type="button"
                 class="text-2xl text-[#92aa34] hover:text-[#92aa34] border border-[#92aa34] p-1 rounded">
@@ -28,7 +28,7 @@
         <!-- Profile Dropdown Menu (Moved to the right) -->
         <div class="relative inline-block text-left">
             <div class="flex items-center space-x-2 cursor-pointer" (click)="toggleProfileDropdown()">
-                
+
                 <!-- Texto de perfil a la izquierda -->
                 <span class="text-[#92aa34] text-end">{{ usuarioOficina }} <br> {{ usuarioNombre }}:
                     {{usuarioRol}}</span>
@@ -40,7 +40,7 @@
                         d="M15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 18.75a7.5 7.5 0 0115 0v.75H4.5v-.75z" />
                 </svg>
             </div>
-            
+
             <!-- Dropdown menu -->
             <div *ngIf="isProfileDropdownVisible"
                 class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-gray-700 ring-1 ring-black ring-opacity-5">
@@ -55,19 +55,21 @@
         </div>
     </nav>
 
-    <!-- Sidebar -->
-    <app-sidebar [isSidebarVisible]="isSidebarVisible"></app-sidebar>
-
     <!-- Content -->
-    <div [class.ml-64]="isSidebarVisible" class="flex flex-col flex-grow transition-all duration-300 ease-in-out">
+    <div [class.ml-64]="isSidebarVisible"
+        class="bg-[#D9D9D9] flex flex-col flex-grow transition-all duration-300 ease-in-out">
+        <!-- Sidebar -->
+        <app-sidebar [isSidebarVisible]="isSidebarVisible"></app-sidebar>
 
-        <!-- Spacer para empujar el footer al fondo -->
         <div class="bg-[#D9D9D9] p-8 mt-20">
-            <ng-content></ng-content> <!-- Dynamic content -->
+            <!-- Spacer para empujar el footer al fondo -->
+            <div class="min-h-[90vh]">
+                <ng-content></ng-content> <!-- Dynamic content -->
+            </div>
         </div>
-        <div class="flex-grow">
+        <div class="bg-[#D9D9D9] flex-grow">
             <!-- Footer as a component -->
-            <app-footer></app-footer>  
+            <app-footer></app-footer>
         </div>
     </div>
 </div>
