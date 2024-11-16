@@ -22,7 +22,8 @@
   flex-direction: column; /* Alinear contenido en columna */
   align-items: center; /* Centrar horizontalmente */
   justify-content: center; /* Centrar verticalmente */
-  background: white;
+  background-color: #ffffff;
+  z-index: 1001;
   border-radius: 5px;
   padding: 20px;
 }
@@ -55,7 +56,7 @@
 
 /* Loader */
 .loader {
-  border: 8px solid #f3f3f3; /* Gris claro */
+  border: 8px solid #ffffff; /* Gris claro */
   border-top: 8px solid #3498db; /* Azul */
   border-radius: 50%;
   width: 40px;

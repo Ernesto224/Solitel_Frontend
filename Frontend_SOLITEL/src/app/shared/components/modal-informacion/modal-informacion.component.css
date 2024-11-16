@@ -114,6 +114,7 @@
   display: flex;
   justify-content: flex-end;
   border-top: 1px solid #ddd;
+  background-color: #1c355c;
 }
 
 .modal-footer button {

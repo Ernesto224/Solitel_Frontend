@@ -19,6 +19,7 @@ import { ObjetivoAnalisisService } from '../../services/objetivo-analisis.servic
 import { CommonModule } from '@angular/common';
 import { AlertaComponent } from '../../components/alerta/alerta.component';
 import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/modal-confirmacion.component';
+import { TablaVisualizacionComponent } from '../../components/tabla-visualizacion/tabla-visualizacion.component';
 
 @Component({
   selector: 'app-catalogos',
@@ -31,7 +32,8 @@ import { ModalConfirmacionComponent } from '../../components/modal-confirmacion/
     ReactiveFormsModule,
     CommonModule,
     AlertaComponent,
-    ModalConfirmacionComponent
+    ModalConfirmacionComponent,
+    TablaVisualizacionComponent
   ],
   templateUrl: './catalogos.component.html',
   styleUrls: ['./catalogos.component.css']
@@ -49,7 +51,24 @@ export default class CatalogosComponent implements OnInit {
   dependencias: { id: string, nombre: string }[] = [];
   formulario!: FormGroup;
   contenido: any[] = [];
-  encabezados: any[] = [];
+  encabezados = [
+    { key: 'nombre', label: 'Nombre' },
+    { key: 'descripcion', label: 'Descripción' },
+    { key: 'tipo', label: 'Tipo' },
+    { key: 'idCategoriaDelito', label: 'Idetificador de Categoria' },
+    { key: 'idModalida', label: 'Idetificador de Modalidad' }
+  ];
+  
+  accionesTabla = [
+    {
+      label: '',
+      icon: 'delete',
+      class: 'btn btn-primary text-[#FFFFFF] px-4 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2',
+      style: '',
+      action: (row: any) => this.abrirModalCambioEstado(row) // Asigna una función de acción
+    }
+  ];
+  
   contenidoPaginado: any[] = [];
   catalogos: { value: string, nombre: string }[] = [
     { value: 'CategoriaDelito', nombre: 'Categoría Delito' },
@@ -68,6 +87,7 @@ export default class CatalogosComponent implements OnInit {
   pageNumber: number = 1;
   pageSize: number = 5;
   catalogoSeleccionado!: string;
+  
 
   constructor(
     private delitoService: DelitoService,
@@ -131,7 +151,7 @@ export default class CatalogosComponent implements OnInit {
 
   onReset(): void {
     this.formulario.reset();
-    this.encabezados = [];
+    //this.encabezados = [];
     this.contenido = [];
     this.contenidoPaginado = [];
     this.pageNumber = 1;
@@ -145,12 +165,12 @@ export default class CatalogosComponent implements OnInit {
     servicio.obtener().subscribe(
       (response: any) => {
         this.contenido = response;
-        this.encabezados = this.keys;
+        //this.encabezados = this.keys;
         this.pageNumber = 1;
         this.actualizarContenidoPaginado();
       },
       (error: any) => {
-        this.encabezados = [];
+        //this.encabezados = [];
         this.contenido = [];
         alert(error.error);
       }

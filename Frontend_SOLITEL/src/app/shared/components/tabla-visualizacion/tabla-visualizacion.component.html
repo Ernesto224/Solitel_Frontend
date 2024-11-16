@@ -1,15 +1,3 @@
-<div class="flex justify-between items-center mt-4 space-x-8">
-    <!-- Selector de tamaño de filas alineado a la izquierda -->
-    <div class="flex items-center">
-        <label for="pageSize" class="mr-2">Mostrar:</label>
-        <select id="pageSize" (change)="changePageSize($event)" class="border border-gray-300 rounded">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="15">15</option>
-        </select>
-    </div>
-</div>
-
 <div class="table-responsive">
     <table class="min-w-full table-auto border-collapse">
         <thead>
@@ -37,20 +25,36 @@
     </table>
 </div>
 
-<div class="flex justify-between items-center mt-4 space-x-8" *ngIf="showPagination()">
-    <div class="flex items-center">
-        <label for="pageSize" class="mr-2">Mostrando registros del {{((pageNumber - 1) * pageSize) + 1}}
-            al {{((pageNumber - 1) * pageSize) + pageSize}}
-            de un total de {{data.length}} registros
-        </label>
+<div class="pagination-container bg-[#FFFFFF] rounded-lg shadow-lg p-2">
+    <div class="page-size-container">
+        <label for="pageSize" class="label">Tamaño:</label>
+        <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="select">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+        </select>
     </div>
-    <div class="flex items-center space-x-2">
-        <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="changePageNumber(-1)">
-            Anterior
+    <div class="page-info">
+        <span>{{ inicioRegistros }} - {{ finRegistros }} de {{ data.length }}</span>
+    </div>
+    <div *ngIf="showPagination()" class="pagination-controls">
+        <!-- Botón para ir a la primera página -->
+        <button class="pagination-button" (click)="irPrimeraPagina()" [disabled]="numeroDePagina === 1">
+            <i class="material-icons">first_page</i>
         </button>
-        <span>{{ pageNumber }}</span>
-        <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="changePageNumber(1)">
-            Siguiente
+        <!-- Botón para ir a la página anterior -->
+        <button class="pagination-button" (click)="cambiarPagina(-1)" [disabled]="numeroDePagina === 1">
+            <i class="material-icons">arrow_back_ios</i>
+        </button>
+        <!-- Botón para ir a la página siguiente -->
+        <button class="pagination-button" (click)="cambiarPagina(1)" [disabled]="numeroDePagina >= maxPagina">
+            <i class="material-icons">arrow_forward_ios</i>
+        </button>
+        <!-- Botón para ir a la última página -->
+        <button class="pagination-button" (click)="irUltimaPagina()" [disabled]="numeroDePagina >= maxPagina">
+            <i class="material-icons">last_page</i>
         </button>
     </div>
 </div>

@@ -66,7 +66,7 @@
   </div>
 
   <!--Div tablas y paginacion-->
-  <div class="bg-[#FFFFFF] rounded-lg shadow-lg p-10">
+  <div>
     <!--Barra de busqueda-->
     <div class="flex justify-end items-center mt-4 mb-4">
       <!-- Buscador -->
@@ -166,7 +166,7 @@
               {{ solicitud.aprobacion? 'Si':'No' }}
             </td>
             <td *ngIf="columnasVisibles['fechaCreacion']" class="border px-4 py-2 text-center">
-              {{solicitud.fechaCreacion | date: 'dd/MM/yyyy' }}
+              {{solicitud.fechaCreacion | date: 'MM/dd/yyyy HH:mm' }}
             </td>
             <td *ngIf="columnasVisibles['diasTranscurridos']" class="border px-4 py-2 text-center">
               {{calcularDiasTranscurridos(solicitud.fechaCreacion) }}
@@ -317,8 +317,9 @@
                 <td class="border px-4 py-2 text-center">{{ solicitudProveedor.proveedor.nombre }}</td>
                 <td class="border px-4 py-2 text-center">{{ solicitud.usuarioCreador.nombre }}
                   {{solicitud.usuarioCreador.apellido}}</td>
-                <td class="border px-4 py-2 text-center">{{ solicitudProveedor.fechaCrecion | date: 'dd/MM/yyyy' }}</td>
-                <td class="border px-4 py-2 text-center">{{ solicitud.fechaCreacion | date: 'dd/MM/yyyy' }}</td>
+                <td class="border px-4 py-2 text-center">{{ solicitudProveedor.fechaCrecion | date: 'MM/dd/yyyy HH:mm'
+                  }}</td>
+                <td class="border px-4 py-2 text-center">{{ solicitud.fechaCreacion | date: 'MM/dd/yyyy HH:mm' }}</td>
                 <td class="border px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
 
               </tr>
@@ -329,7 +330,7 @@
     </div>
 
     <!--Paginacion y cantidad de datos-->
-    <div class="pagination-container">
+    <div class="pagination-container bg-[#FFFFFF] rounded-lg shadow-lg p-2">
       <div class="page-size-container">
         <label for="pageSize" class="label">Tamaño:</label>
         <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="select">
@@ -369,9 +370,7 @@
 <app-modal-informacion [isModalOpen]="modalHistoricoVisible">
   <!-- Encabezado personalizado del Modal -->
   <div modal-header>
-    <h3 *ngIf="solicitudSeleccionada" class="text-lg font-medium">Solicitud #{{
-      solicitudSeleccionada.idSolicitudProveedor }}</h3>
-    <h3 class="text-lg font-medium">Histórico</h3>
+    <h3 class="text-lg font-medium">Histórico Solicitud de Proveedor</h3>
   </div>
 
   <!-- Cuerpo del Modal -->
@@ -399,9 +398,7 @@
 <app-modal-informacion [isModalOpen]="modalSolicitud">
   <!-- Encabezado personalizado del Modal -->
   <div modal-header>
-    <h3 *ngIf="solicitudSeleccionada" class="text-lg font-medium">Solicitud #{{
-      solicitudSeleccionada.idSolicitudProveedor }}</h3>
-    <h3 class="text-lg font-medium">Solicitud archivos telefónicos a proveedor</h3>
+    <h3 class="text-lg font-medium">Informacion de Solicitud de Proveedor</h3>
   </div>
 
   <!-- Cuerpo del Modal -->
@@ -510,9 +507,7 @@
 <app-modal-informacion [isModalOpen]="modalRequerimientosVisible">
   <!-- Encabezado personalizado del Modal -->
   <div modal-header>
-    <h3 *ngIf="solicitudSeleccionada" class="text-lg font-medium">Solicitud #{{
-      solicitudSeleccionada.idSolicitudProveedor }}</h3>
-    <h3 class="text-lg font-medium">Histórico</h3>
+    <h3 class="text-lg font-medium">Requerimientos de Solicitud de Proveedor</h3>
   </div>
 
   <!-- Cuerpo del Modal -->
@@ -561,6 +556,10 @@
 
 <!-- Modal Archivos UAC -->
 <app-modal-informacion [isModalOpen]="modalArchivosUACVisible">
+  <div modal-header>
+    <h3 class="text-lg font-medium">Archivos UAC de Solicitud de Proveedor</h3>
+  </div>
+
   <!-- Contenido principal -->
   <div class="modal-contenido">
     <div *ngIf="archivosUAC.length > 0; else noArchivosTemplate">
@@ -572,13 +571,15 @@
     <ng-template #noArchivosTemplate>
       <p>No hay archivos disponibles.</p>
     </ng-template>
+  </div>
 
-    <!-- Botón de cierre -->
-    <div class="mt-6 flex justify-end space-x-3">
-      <button (click)="cerrarModalArchivosUAC()"
-        class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2"
-        style="background-color: #D32F2F;">
-        <i class="material-icons">cancel</i><span>Cancelar</span>
+  <div modal-footer>
+    <div class="buttons-row space-x-4">
+      <button type="button" class="bg-[#D32F2F] text-[#FFFFFF] 
+        px-4 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+        (click)="cerrarModalArchivosUAC()">
+        <i class="material-icons">cancel</i>
+        <span>Cerrar</span>
       </button>
     </div>
   </div>
@@ -586,24 +587,26 @@
 
 <!-- Modal Archivos Informe Final -->
 <app-modal-informacion [isModalOpen]="modalArchivosInformeFinalVisible">
+  <div modal-header>
+    <h3 class="text-lg font-medium">Subir Informe del Investigador</h3>
+  </div>
   <div class="modal-contenido">
 
     <div *ngIf="subirArchivosInformeFinalOpcion">
-
-      <label>FORMATOS PERMITIDOS: WORD OFFICE +2007, PDF y TXT</label>
-
-      <div class="file-custom" style="border: 2px solid #ccc; border-radius: 3px;">
-        <label for="file-input" class="btn-custom-file">Buscar</label>
-        <input type="file" id="file-input" (change)="seleccionarArchivosInformeFinal($event)" multiple
-          style="display: none;" />
+      <label class="text-black mb-2 block">FORMATOS PERMITIDOS: WORD OFFICE +2007, PDF y TXT</label>
+      
+      <div class="file-custom border border-black rounded p-2 flex items-center justify-center">
+        <label for="file-input" class="text-black cursor-pointer hover:text-gray-700 transition-colors duration-300">
+          Buscar
+        </label>
+        <input type="file" id="file-input" (change)="seleccionarArchivosInformeFinal($event)" multiple class="hidden" />
       </div>
-
-
-
-      <ul>
+    
+      <ul class="mt-2">
         <li *ngFor="let archivoInforme of archivosInformeFinal">{{ archivoInforme.nombre }}</li>
       </ul>
     </div>
+    
 
     <h2>Archivos Informe:</h2>
     <div *ngIf="archivosInformeFinalDB.length > 0; else noArchivosTemplate">
@@ -617,17 +620,21 @@
     </ng-template>
 
   </div>
-
-  <div class="mt-6 flex justify-end space-x-3">
-    <button (click)="subirArchivosInformeFinal()"
-      class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2"
-      style="background-color: #1c355c;">
-      <i class="material-icons">save</i><span>Guardar</span></button>
-    <button (click)="cerrarModalArchivosInformeFinal()"
-      class="px-4 py-2 text-white rounded-md focus:outline-none flex items-center space-x-2"
-      style="background-color: #D32F2F;">
-      <i class="material-icons">cancel</i><span>Cancelar</span>
-    </button>
+  <div modal-footer>
+    <div class="buttons-row space-x-4">
+      <button *ngIf="subirArchivosInformeFinalOpcion" type="button" class="bg-[#1976d2] text-[#FFFFFF] 
+        px-4 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+        (click)="subirArchivosInformeFinal()">
+        <i class="material-icons">cancel</i>
+        <span>Guardar</span>
+      </button>
+      <button type="button" class="bg-[#D32F2F] text-[#FFFFFF] 
+        px-4 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+        (click)="cerrarModalArchivosInformeFinal()">
+        <i class="material-icons">cancel</i>
+        <span>{{subirArchivosInformeFinalOpcion? 'Cancelar':'Cerrar'}}</span>
+      </button>
+    </div>
   </div>
 </app-modal-informacion>
 
@@ -635,8 +642,7 @@
 <app-modal-informacion [isModalOpen]="modalHistoricoAnalisisVisible">
 
   <div modal-header>
-    <h3 class="text-lg font-medium">Solicitud Analisis</h3>
-    <h3 class="text-lg font-medium">Histórico</h3>
+    <h3 class="text-lg font-medium">Histórico Solicitud de Analisis</h3>
   </div>
 
   <div>
@@ -707,7 +713,7 @@
   (cancelar)="cerrarModalDevolverAnalizado()">
   <div modal-header>
     <h2 class="text-xl font-semibold mb-4">Confirmar Cambio de Estado</h2>
-    <p>¿Estás seguro de que deseas aprobar la solicitud de analisis?</p>
+    <p>¿Estás seguro de que deseas devolver la solicitud de analisis a analizado?</p>
   </div>
   <div class="mt-4" modal-content>
     <label for="observacion" class="block text-sm font-medium text-gray-700">Observación (opcional)</label>
@@ -719,10 +725,7 @@
 <app-modal-informacion [isModalOpen]="modalVerSolicitud">
   <!-- Encabezado personalizado del Modal -->
   <div modal-header>
-    <h3 class="text-lg font-medium">
-      Solicitud #{{ solicitudAnalisisSeleccionada?.idSolicitudAnalisis || 'N/A' }}
-    </h3>
-    <h3 class="text-lg font-medium">Detalle de la Solicitud de Análisis Telefónico</h3>
+    <h3 class="text-lg font-medium">Informacion de Solicitud de Análisis Telefónico</h3>
   </div>
 
   <!-- Cuerpo del Modal -->

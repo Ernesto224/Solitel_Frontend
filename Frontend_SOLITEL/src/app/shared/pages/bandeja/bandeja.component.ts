@@ -543,7 +543,7 @@ export default class BandejaComponent implements OnInit {
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+        return `${month}/${day}/${year}`;
       };
 
       // Filtro principal basado en los criterios solicitados
@@ -775,7 +775,7 @@ export default class BandejaComponent implements OnInit {
 
   actualizarEstadoLegajoAnalisis() {
     this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada,
-      this.usuarioId, this.observacionLegajoAnalisis).subscribe({
+      this.usuario.idUsuario, this.observacionLegajoAnalisis).subscribe({
         next: response => {
           this.alertatipo = "satisfaccion";
           this.alertaMensaje = "Solicitud de Analisis Movida a Legajo";
@@ -872,7 +872,7 @@ export default class BandejaComponent implements OnInit {
   }
 
   finalizarSolicitudAnalisis() {
-    this.analisisTelefonicoService.finalizarSolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
+    this.analisisTelefonicoService.finalizarSolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, this.usuario.idUsuario, this.observacionFinalizarAnalisis).subscribe({
       next: response => {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis Correctamente Finalizada";

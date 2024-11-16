@@ -63,110 +63,11 @@
 
     </div>
 
-    <!-- Paginación y tamaño de filas alineados a los bordes -->
-    <div class="flex justify-between items-center mt-4 space-x-8">
-
-        <!-- Selector de tamaño de filas alineado a la izquierda -->
-        <div class="flex items-center">
-
-            <label for="pageSize" class="mr-2">
-                Mostrar:
-            </label>
-
-            <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="border border-gray-300 rounded">
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-            </select>
-
-        </div>
-
-    </div>
-
-    <!-- Tabla de Catálogos -->
-    <table class="min-w-full table-auto border-collapse">
-
-        <thead>
-
-            <tr class="bg-[#1C355C] text-white">
-
-                <th class="border px-4 py-2 text-center">Acciones</th>
-
-                <th *ngFor="let header of encabezados" class="border px-4 py-2 text-center">{{ header }}</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody class="bg-[#F3F4F6] text-black">
-
-            <tr *ngFor="let row of contenidoPaginado" class="hover:bg-gray-200">
-
-                <td class="border px-4 py-2 text-center">
-                    
-                    <div class="flex justify-center space-x-2 btn btn-primary">
-
-                        <button type="button" class="btn btn-primary text-[#FFFFFF] px-4 
-                        py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
-                            (click)="abrirModalCambioEstado(row)">
-                            <i class="material-icons">delete</i>
-                        </button>
-
-                    </div>
-
-                </td>
-
-                <td *ngFor="let key of keys" class="border px-4 py-2 text-center">{{ row[key] }}</td>
-
-            </tr>
-
-        </tbody>
-
-    </table>
-
-    <!-- Paginación y tamaño de filas centrados -->
-    <div class="flex justify-between items-center mt-4 space-x-8">
-
-        <!-- Selector de tamaño de filas -->
-        <div class="flex items-center">
-
-            <label for="pageSize" class="mr-2">Mostrar registros del {{((this.pageNumber - 1) * this.pageSize) + 1}}
-                al {{((this.pageNumber - 1) * this.pageSize) + this.pageSize}}
-                de un total de {{contenidoPaginado.length}} registros
-                (Filtrado de un total de {{contenido.length}})</label>
-
-        </div>
-
-        <!-- Paginación -->
-        <div class="flex items-center space-x-2">
-
-            <!-- Botón regresar -->
-            <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(-1)">
-
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-
-            </button>
-
-            <span>{{ pageNumber }}</span> <!-- Número de página -->
-
-            <!-- Botón siguiente -->
-            <button class="p-2 rounded bg-gray-200 hover:bg-gray-300" (click)="cambiarPagina(1)">
-
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    class="w-4 h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-
-            </button>
-
-        </div>
-
-    </div>
-
 </div>
+<app-tabla-visualizacion [headers]="encabezados" [data]="contenido" [actionsheaders]="['Acciones']"
+    [actions]="accionesTabla">
+</app-tabla-visualizacion>
+
 
 <!-- Modal de confirmación -->
 <app-modal-confirmacion [modalEstadoVisible]="modalEstadoVisible" (confirmar)="confirmarCambioEstado()"

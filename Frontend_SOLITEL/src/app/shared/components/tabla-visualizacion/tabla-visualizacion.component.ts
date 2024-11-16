@@ -21,35 +21,61 @@ export class TablaVisualizacionComponent implements OnChanges {
     style: string; action: (row: any) => void
   }[] = []; // Configuración de botones
 
-  pageNumber: number = 1;
-  pageSize: number = 5;
+  numeroDePagina: number = 1;
+  cantidadDeRegistros: number = 5;
+  inicioRegistros: number = 1;
+  finRegistros: number = 0;
+  maxPagina: number = 1;
 
   ngOnChanges(): void {
-    this.pageNumber = 1;
+    this.numeroDePagina = 1;
+    this.actualizarPaginacion();
   }
 
-  changePageSize(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    this.pageSize = +target.value;
-    this.pageNumber = 1;
+  actualizarPaginacion() {
+    // Calcular el índice de inicio y fin de la página actual
+    const inicio = (this.numeroDePagina - 1) * this.cantidadDeRegistros;
+    const fin = inicio + this.cantidadDeRegistros;
+
+    // Calcular los datos paginados, sin modificar this.data
+    this.finRegistros = Math.min(fin, this.data.length);
+    this.maxPagina = Math.ceil(this.data.length / this.cantidadDeRegistros);
   }
 
-  changePageNumber(offset: number) {
-    const maxPage = Math.ceil(this.data.length / this.pageSize);
-    const newPage = this.pageNumber + offset;
+  cambiarPagina(incremento: number): void {
+    const maxPage = Math.ceil(this.data.length / this.cantidadDeRegistros);
+    const newPage = this.numeroDePagina + incremento;
 
     if (newPage >= 1 && newPage <= maxPage) {
-      this.pageNumber = newPage;
+      this.numeroDePagina = newPage;
+      this.actualizarPaginacion(); // Actualizar los datos mostrados en la página actual
     }
   }
 
+  cambiarTamanoPagina(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.cantidadDeRegistros = +value;
+    this.numeroDePagina = 1; // Reinicia la página a la primera cuando cambias el tamaño de página
+    this.actualizarPaginacion();
+  }
+
+  irPrimeraPagina(): void {
+    this.numeroDePagina = 1;
+    this.actualizarPaginacion();
+  }
+
+  irUltimaPagina(): void {
+    this.numeroDePagina = this.maxPagina;
+    this.actualizarPaginacion();
+  }
+
   showPagination(): boolean {
-    return this.data.length > this.pageSize;
+    return this.data.length > this.cantidadDeRegistros;
   }
 
   get paginatedData() {
-    const startIndex = (this.pageNumber - 1) * this.pageSize;
-    return this.data.slice(startIndex, startIndex + this.pageSize);
+    const startIndex = (this.numeroDePagina - 1) * this.cantidadDeRegistros;
+    return this.data.slice(startIndex, startIndex + this.cantidadDeRegistros);
   }
 
   getValueByKey(item: any, key: string): any {

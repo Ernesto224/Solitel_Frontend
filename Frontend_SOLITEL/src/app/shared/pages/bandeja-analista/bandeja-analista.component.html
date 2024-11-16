@@ -53,101 +53,107 @@
         </div>
     </div>
 
-    <!--Barra de busqueda-->
-    <div class="flex justify-end items-center mt-4 mb-4">
-        <!-- Buscador -->
-        <div class="relative w-full max-w-sm">
-            <input type="text" placeholder="Buscar" class="w-full p-2 border rounded pr-10" [(ngModel)]="filtroCaracter"
-                (ngModelChange)="aplicarFiltroCaracter()" />
-            <i class="material-icons absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">search</i>
+    <div>
+        <!--Barra de busqueda-->
+        <div class="flex justify-end items-center mt-4 mb-4">
+            <!-- Buscador -->
+            <div class="relative w-full max-w-sm">
+                <input type="text" placeholder="Buscar" class="w-full p-2 border rounded pr-10"
+                    [(ngModel)]="filtroCaracter" (ngModelChange)="aplicarFiltroCaracter()" />
+                <i class="material-icons absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">search</i>
+            </div>
         </div>
-    </div>
 
-    <!-- Contenedor con scroll horizontal y vertical si es necesario -->
-    <div class="overflow-x-auto overflow-y-auto max-h-screen">
+        <!-- Contenedor con scroll horizontal y vertical si es necesario -->
+        <div class="overflow-x-auto overflow-y-auto max-h-screen">
 
-        <!-- Tabla -->
-        <table class="min-w-full table-auto border-collapse">
-            <thead>
-                <tr class="bg-[#1C355C] text-white">
-                    <th *ngFor="let encabezado of encabezados" class="border px-4 py-2 text-center">{{encabezado}}</th>
-                </tr>
-            </thead>
-            <tbody class="text-black">
-                <ng-container *ngFor="let solicitud of solicitudesAnalisisPaginadas">
-                    <!-- Opciones de línea gris (una sola fila para cada solicitudAnalisis) -->
-                    <tr class="bg-gray-100">
-                        <td colspan="12" class="colspan px-4 py-2 text-left">
-                            <span>ID Solicitud de Análisis: {{ solicitud.idSolicitudAnalisis }}</span>
-                            <ng-container
-                                *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver Solicitud')">
-                                <span> | </span>
-                                <button class="inline-flex items-center space-x-1" (click)="verDetalle(solicitud)">
-                                    <span class="material-icons text-sm">info</span>
-                                    <span>Ver Solicitud</span>
-                                </button>
-                                <span> | </span>
-                            </ng-container>
-                        </td>
+            <!-- Tabla -->
+            <table class="min-w-full table-auto border-collapse">
+                <thead>
+                    <tr class="bg-[#1C355C] text-white">
+                        <th *ngFor="let encabezado of encabezados" class="border px-4 py-2 text-center">{{encabezado}}
+                        </th>
                     </tr>
-                    <!-- Iterar sobre cada solicitudProveedor dentro de una solicitud de análisis -->
-                    <ng-container *ngFor="let solicitudProveedor of solicitud.solicitudesProveedor">
-                        <tr class="bg-[#F3F4F6] border-b border-gray-300 hover:bg-gray-200">
-                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.idSolicitudProveedor }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitudProveedor.numeroUnico }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitud.nombreUsuarioCreador }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitud.nombreOficina }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitud.nombreUsuarioAprobador }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitud.fechaCreacion | date: 'dd/MM/yyyy' }}
+                </thead>
+                <tbody class="text-black">
+                    <ng-container *ngFor="let solicitud of solicitudesAnalisisPaginadas">
+                        <!-- Opciones de línea gris (una sola fila para cada solicitudAnalisis) -->
+                        <tr class="bg-gray-100">
+                            <td colspan="12" class="colspan px-4 py-2 text-left">
+                                <span>ID Solicitud de Análisis: {{ solicitud.idSolicitudAnalisis }}</span>
+                                <ng-container
+                                    *ngIf="obtenerOpcionesPorEstado(solicitud.estado.nombre).includes('Ver Solicitud')">
+                                    <span> | </span>
+                                    <button class="inline-flex items-center space-x-1" (click)="verDetalle(solicitud)">
+                                        <span class="material-icons text-sm">info</span>
+                                        <span>Ver Solicitud</span>
+                                    </button>
+                                    <span> | </span>
+                                </ng-container>
                             </td>
-                            <td class="border px-4 py-2 text-center">{{ solicitud.fechaDeAprobacion | date:
-                                'dd/MM/yyyy'}}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitud.nombreUsuarioAsignado }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitud.fechaDeAsignacion | date:
-                                'dd/MM/yyyy'}}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitud.estado.nombre }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
-                            <td class="border px-4 py-2 text-center">{{ solicitud.fechaDeAnalizado | date: 'dd/MM/yyyy'
-                                }}</td>
                         </tr>
+                        <!-- Iterar sobre cada solicitudProveedor dentro de una solicitud de análisis -->
+                        <ng-container *ngFor="let solicitudProveedor of solicitud.solicitudesProveedor">
+                            <tr class="bg-[#F3F4F6] border-b border-gray-300 hover:bg-gray-200">
+                                <td class="border px-4 py-2 text-center">{{ solicitudProveedor.idSolicitudProveedor }}
+                                </td>
+                                <td class="border px-4 py-2 text-center">{{ solicitudProveedor.numeroUnico }}</td>
+                                <td class="border px-4 py-2 text-center">{{ solicitud.nombreUsuarioCreador }}</td>
+                                <td class="border px-4 py-2 text-center">{{ solicitud.nombreOficina }}</td>
+                                <td class="border px-4 py-2 text-center">{{ solicitud.nombreUsuarioAprobador }}</td>
+                                <td class="border px-4 py-2 text-center">{{ solicitud.fechaCreacion | date: 'MM/dd/yyyy HH:mm'
+                                    }}
+                                </td>
+                                <td class="border px-4 py-2 text-center">{{ solicitud.fechaDeAprobacion | date:
+                                    'MM/dd/yyyy HH:mm'}}</td>
+                                <td class="border px-4 py-2 text-center">{{ solicitud.nombreUsuarioAsignado }}</td>
+                                <td class="border px-4 py-2 text-center">{{ solicitud.fechaDeAsignacion | date:
+                                    'MM/dd/yyyy HH:mm'}}</td>
+                                <td class="border px-4 py-2 text-center">{{ solicitud.estado.nombre }}</td>
+                                <td class="border px-4 py-2 text-center">{{ solicitud.urgente ? 'Sí' : 'No' }}</td>
+                                <td class="border px-4 py-2 text-center">{{ solicitud.fechaDeAnalizado | date:
+                                    'MM/dd/yyyy HH:mm'
+                                    }}</td>
+                            </tr>
+                        </ng-container>
                     </ng-container>
-                </ng-container>
-            </tbody>
-        </table>
-    </div>
+                </tbody>
+            </table>
+        </div>
 
-    <!--Paginacion y cantidad de datos-->
-    <div class="pagination-container">
-        <div class="page-size-container">
-            <label for="pageSize" class="label">Tamaño:</label>
-            <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="select">
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-            </select>
-        </div>
-        <div class="page-info">
-            <span>{{ inicioRegistros }} - {{ finRegistros }} de {{ solicitudesAnalisisFiltradas.length }}</span>
-        </div>
-        <div class="pagination-controls">
-            <!-- Botón para ir a la primera página -->
-            <button class="pagination-button" (click)="irPrimeraPagina()" [disabled]="numeroDePagina === 1">
-                <i class="material-icons">first_page</i>
-            </button>
-            <!-- Botón para ir a la página anterior -->
-            <button class="pagination-button" (click)="cambiarPagina(-1)" [disabled]="numeroDePagina === 1">
-                <i class="material-icons">arrow_back_ios</i>
-            </button>
-            <!-- Botón para ir a la página siguiente -->
-            <button class="pagination-button" (click)="cambiarPagina(1)" [disabled]="numeroDePagina >= maxPagina">
-                <i class="material-icons">arrow_forward_ios</i>
-            </button>
-            <!-- Botón para ir a la última página -->
-            <button class="pagination-button" (click)="irUltimaPagina()" [disabled]="numeroDePagina >= maxPagina">
-                <i class="material-icons">last_page</i>
-            </button>
+        <!--Paginacion y cantidad de datos-->
+        <div class="pagination-container bg-[#FFFFFF] rounded-lg shadow-lg p-2">
+            <div class="page-size-container">
+                <label for="pageSize" class="label">Tamaño:</label>
+                <select id="pageSize" (change)="cambiarTamanoPagina($event)" class="select">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                </select>
+            </div>
+            <div class="page-info">
+                <span>{{ inicioRegistros }} - {{ finRegistros }} de {{ solicitudesAnalisisFiltradas.length }}</span>
+            </div>
+            <div class="pagination-controls">
+                <!-- Botón para ir a la primera página -->
+                <button class="pagination-button" (click)="irPrimeraPagina()" [disabled]="numeroDePagina === 1">
+                    <i class="material-icons">first_page</i>
+                </button>
+                <!-- Botón para ir a la página anterior -->
+                <button class="pagination-button" (click)="cambiarPagina(-1)" [disabled]="numeroDePagina === 1">
+                    <i class="material-icons">arrow_back_ios</i>
+                </button>
+                <!-- Botón para ir a la página siguiente -->
+                <button class="pagination-button" (click)="cambiarPagina(1)" [disabled]="numeroDePagina >= maxPagina">
+                    <i class="material-icons">arrow_forward_ios</i>
+                </button>
+                <!-- Botón para ir a la última página -->
+                <button class="pagination-button" (click)="irUltimaPagina()" [disabled]="numeroDePagina >= maxPagina">
+                    <i class="material-icons">last_page</i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
