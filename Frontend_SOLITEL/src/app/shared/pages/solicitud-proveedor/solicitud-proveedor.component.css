@@ -438,13 +438,11 @@ textarea {
   border-color: red;
 }
 
-
 /* Ajuste adicional para los dropdowns */
 ::ng-deep .custom-multiselect-dropdown .dropdown-btn:invalid {
   border-color: red;
 
 }
-
 
 ::ng-deep .custom-multiselect-dropdown .dropdown-btn {
   padding: 15px; /* Más grande para un aspecto más prominente */
@@ -471,7 +469,6 @@ textarea {
   background-color: transparent !important;
   color: inherit !important;
 }
-
 
 /* Clase para ocultar el modal */
 .hidden {

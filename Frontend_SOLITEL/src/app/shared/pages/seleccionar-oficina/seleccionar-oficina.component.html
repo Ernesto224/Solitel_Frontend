@@ -1,10 +1,10 @@
 <app-navbar-simple></app-navbar-simple>
-
-<div class="flex justify-center items-center min-h-[87vh] bg-gray-100">
-    <div class="office-selection-container">
+<div class="flex justify-center items-top bg-[#D9D9D9] w-[100%] h-[85vh]">
+    <div class="office-selection-container rounded-lg shadow-lg w-[80%] h-[14vh]">
         <div class="office-selection-input-container">
-            <label for="office-select" class="office-selection-label">
-                Favor seleccione la oficina en la que desea trabajar:
+            <label for="office-select" class="flex justify-lefth">
+                <i class="material-icons icon">apartment</i>
+                <span>Favor seleccione la oficina en la que desea trabajar:</span>
             </label>
             <select [(ngModel)]="idOficinaSeleccionada" id="office-select" name="office" class="office-selection-select"
                 (change)="guardarUsuarioOficina()">
@@ -16,5 +16,4 @@
         </div>
     </div>
 </div>
-
 <app-footer></app-footer>

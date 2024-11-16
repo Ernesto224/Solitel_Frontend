@@ -1,4 +1,4 @@
-<div class="flex flex-col h-screen">
+<div class="flex flex-col h-screen bg-[#D9D9D9]">
 
     <!-- Navbar -->
     <nav class="flex items-center justify-between bg-custom-blue px-5 py-4 w-full fixed top-0 left-0 z-50">
@@ -62,13 +62,12 @@
     <div [class.ml-64]="isSidebarVisible" class="flex flex-col flex-grow transition-all duration-300 ease-in-out">
 
         <!-- Spacer para empujar el footer al fondo -->
-        <div class="p-8 mt-20 mb-20">
+        <div class="bg-[#D9D9D9] p-8 mt-20">
             <ng-content></ng-content> <!-- Dynamic content -->
         </div>
         <div class="flex-grow">
-
             <!-- Footer as a component -->
-            <app-footer></app-footer>
+            <app-footer></app-footer>  
         </div>
     </div>
 </div>
