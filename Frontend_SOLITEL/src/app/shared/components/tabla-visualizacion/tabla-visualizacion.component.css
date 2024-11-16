@@ -30,6 +30,31 @@ select {
   align-items: center;
 }
 
+button:hover {
+  background-color: #c62828; /* Color de fondo más oscuro al pasar el mouse */
+}
+
+.btn {
+  background-color: #1e73be;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #007bff;
+  opacity: 0.9;
+}
+
 .badge {
   background-color: red;
   color: white;
@@ -66,4 +91,73 @@ select {
   overflow-y: auto; /* Scroll vertical */
   overflow-x: auto; /* Scroll horizontal */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling en iOS */
+}
+
+/* Contenedor general de paginación */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px; /* Espacio entre los elementos */
+  margin-top: 10px;
+}
+
+/* Contenedor para el selector de cantidad de registros */
+.page-size-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.page-size-container .label {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.select {
+  padding: 2px 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 50px;
+  text-align: center;
+}
+
+/* Información de la paginación */
+.page-info {
+  font-size: 14px;
+  color: #555;
+}
+
+/* Controles de paginación */
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pagination-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  font-size: 16px;
+  padding: 5px;
+  transition: color 0.3s, background-color 0.3s;
+}
+
+.pagination-button[disabled] {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-button:hover:not([disabled]) {
+  color: #000;
+  background-color: #e0e0e0; /* Cambia a un gris claro al hacer hover */
+}
+
+.pagination-button .material-icons {
+  font-size: 20px;
+  vertical-align: middle;
 }

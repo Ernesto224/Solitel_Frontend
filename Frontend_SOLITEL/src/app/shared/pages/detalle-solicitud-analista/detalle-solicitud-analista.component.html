@@ -31,6 +31,26 @@
         <input type="text" id="campo5" name="campo5" disabled [(ngModel)]="solicitudAnalisisSeleccionada.estado.nombre"
           class="form-control" />
       </div>
+      <div class="col-6">
+        <div class="form-group">
+          <label for="campo12">Fecha del Hecho:</label>
+          <input type="text" id="campo12" name="campo12" disabled
+            [(ngModel)]="solicitudAnalisisSeleccionada.fechaDelHecho" class="form-control" />
+        </div>
+      </div>
+      <div *ngIf="asignarDatos" class="col-6">
+        <div class="form-group">
+          <label for="campo11">Asignar a:</label>
+          <select class="required-field" [(ngModel)]="idUsuarioAsignadoSeleccionado" name="idCategoriaDelitoSeleccionado"
+            required>
+            <option value="">Seleccione</option>
+            <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario ? usuario.idUsuario : 0">
+              {{ usuario.nombre ? usuario.nombre : 'N/A' }}
+            </option>
+          </select>
+          <button class="bg-[#1976d2]" (click)="asignarUsuario()">Asignar</button>
+        </div>
+      </div>
     </div>
 
 
@@ -61,58 +81,33 @@
         <input type="text" id="campo10" name="campo10" disabled
           [(ngModel)]="solicitudAnalisisSeleccionada.tiposAnalisis[0].nombre" class="form-control" />
       </div>
+      <div class="col-6">
+        <div class="form-group">
+          <label for="campo13">Reseña:</label>
+          <input type="text" id="campo13" name="campo13" disabled
+            [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].resennia" class="form-control" />
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="form-group">
+          <label for="campo14">Detalle solicitud analisis:</label>
+          <input type="text" id="campo14" name="campo14" disabled
+            [(ngModel)]="solicitudAnalisisSeleccionada.otrosDetalles" class="form-control" />
+        </div>
+      </div>
     </div>
 
   </div>
-
-
-  <!-- Campos debajo -->
-  <div class="row">
-    <div *ngIf="asignarDatos" class="col-6">
-      <div class="form-group">
-        <label for="campo11">Asignar a:</label>
-        <select class="required-field" [(ngModel)]="idUsuarioAsignadoSeleccionado" name="idCategoriaDelitoSeleccionado" required>
-          <option value="">Seleccione</option>
-          <option *ngFor="let usuario of usuariosDisponibles" [value]="usuario ? usuario.idUsuario : 0">
-            {{ usuario.nombre ? usuario.nombre : 'N/A' }}
-          </option>
-        </select>
-        <button (click)="asignarUsuario()">Asignar</button>
-      </div>
-    </div>    
-    <div class="col-6">
-      <div class="form-group">
-        <label for="campo12">Fecha del Hecho:</label>
-        <input type="text" id="campo12" name="campo12" disabled
-          [(ngModel)]="solicitudAnalisisSeleccionada.fechaDelHecho" class="form-control" />
-      </div>
-    </div>
-    <div class="col-6">
-      <div class="form-group">
-        <label for="campo13">Reseña:</label>
-        <input type="text" id="campo13" name="campo13" disabled
-          [(ngModel)]="solicitudAnalisisSeleccionada.solicitudesProveedor[0].resennia" class="form-control" />
-      </div>
-    </div>
-    <div class="col-6">
-      <div class="form-group">
-        <label for="campo14">Detalle solicitud analisis:</label>
-        <input type="text" id="campo14" name="campo14" disabled
-          [(ngModel)]="solicitudAnalisisSeleccionada.otrosDetalles" class="form-control" />
-      </div>
-    </div>
-  </div>
-
 </div>
-
 
 <!-- Botones para mostrar las tablas -->
 <div class="buttons-container">
   <div class="button-group">
-    <button (click)="mostrarTabla(1)">Detalle</button>
-    <button (click)="mostrarTabla(2)">Objetivos</button>
-    <button (click)="mostrarTabla(3)">Archivos</button>
-    <button [disabled]="botonArchivosDeshabilitado" (click)="abrirModalArchivosRespuesta()">Informe</button>
+    <button class="bg-[#1976d2]" (click)="mostrarTabla(1)">Detalle</button>
+    <button class="bg-[#1976d2]" (click)="mostrarTabla(2)">Objetivos</button>
+    <button class="bg-[#1976d2]" (click)="mostrarTabla(3)">Archivos</button>
+    <button class="bg-[#1976d2]" [disabled]="botonArchivosDeshabilitado"
+      (click)="abrirModalArchivosRespuesta()">Informe</button>
   </div>
 </div>
 
@@ -122,12 +117,10 @@
   </app-tabla-visualizacion>
 </div>
 
-
 <!-- Tabla Objetivos   -->
 <div *ngIf="tablaVisible === 2">
   <app-tabla-visualizacion [headers]="encabezadosObjetivos" [data]="objetivos"></app-tabla-visualizacion>
 </div>
-
 
 <!-- Tabla Archivos -->
 <div *ngIf="tablaVisible === 3">
@@ -136,11 +129,15 @@
   </app-tabla-visualizacion>
 </div>
 
-
 <div class="centered-button-container">
-  <button (click)="abriModalConfirmarTramitado()" [disabled]="botonTramitarDeshabilitado">Cerrar (Tramitar)</button>
+  <button type="button" class="btn btn-secondary text-[#FFFFFF] px-4 
+                    py-2 rounded
+                    focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+    (click)="abriModalConfirmarTramitado()" [disabled]="botonTramitarDeshabilitado">
+    <i class="material-icons">save</i>
+    <span>Cerrar (Tramitar)</span>
+  </button>
 </div>
-
 
 <!-- Modal Confirmacion -->
 <app-modal-confirmacion [modalEstadoVisible]="modalTramitadoVisible" (confirmar)="tramitarSolicitudAnalisis()"
@@ -173,20 +170,30 @@
 
     <label>FORMATOS PERMITIDOS: WORD OFFICE +2007, PDF y TXT</label>
 
-    <div class="file-custom" style="border: 2px solid #ccc; border-radius: 3px;">
-      <label for="file-input" class="btn-custom-file">Buscar</label>
-      <input type="file" id="file-input" (change)="seleccionarArchivosRespuesta($event)" multiple style="display: none;" />
+    <div class="file-custom border border-black rounded p-2 flex items-center justify-center">
+      <label for="file-input" class="text-black cursor-pointer hover:text-gray-700 transition-colors duration-300">
+        Buscar
+      </label>
+      <input type="file" id="file-input" (change)="seleccionarArchivosRespuesta($event)" multiple class="hidden" />
     </div>
-
+    
     <div *ngIf="archivosRespuesta && archivosRespuesta.length > 0">
       <app-tabla-visualizacion [headers]="encabezadosArchivosRespuesta" [data]="archivosRespuesta"
         [actions]="accionesArchivosRespuesta" [actionsheaders]="encabezadosAccionesArchivosRespuesta">
       </app-tabla-visualizacion>
     </div>
 
+  </div>
 
+  <div modal-footer>
+    <div class="buttons-row space-x-4">
+      <button type="button" class="bg-[#D32F2F] text-[#FFFFFF] 
+        px-4 py-2 rounded focus:outline-none focus:ring focus:ring-blue-300 flex items-center space-x-2"
+        (click)="cerrarModalArchivosRespuesta()">
+        <i class="material-icons">cancel</i>
+        <span>Cerrar</span>
+      </button>
+    </div>
   </div>
-  <div style="text-align: right; margin-top: 2%;">
-    <button (click)="cerrarModalArchivosRespuesta()">Cerrar</button>
-  </div>
+
 </app-modal-informacion>

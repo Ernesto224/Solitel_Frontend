@@ -574,3 +574,10 @@ h3 {
   border-radius: 5px; /* Bordes redondeados */
   padding: 20px; /* Espaciado interno (aumentado) */
 }
+
+.margin-div{
+  margin-bottom: 20px; /* Espacio hacia abajo de 20px */
+  padding: 20px; /* Espaciado interno (aumentado) */
+  border-color: #010102;
+  border-radius: 5px;
+}

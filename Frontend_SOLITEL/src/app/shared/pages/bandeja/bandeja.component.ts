@@ -305,7 +305,6 @@ export default class BandejaComponent implements OnInit {
           this.reiniciarDatosDeTabla();
           this.actualizarPaginacion();
           this.modalInvisible();
-          console.log(value); // Mostrar el JSON recibido en la consola
         },
         error: (err) => {
           console.error('Error al obtener solicitudes de análisis:', err);
@@ -544,18 +543,16 @@ export default class BandejaComponent implements OnInit {
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+        return `${month}/${day}/${year}`;
       };
 
       // Filtro principal basado en los criterios solicitados
       this.solicitudesFiltradas = this.solicitudes.filter(solicitud =>
-        solicitud.idSolicitudAnalisis?.toString().includes(filtro) || // Filtrado por idSolicitudAnalisis (si aplica)
-        solicitud.idSolicitudProveedor?.toString().includes(filtro) || // Filtrado por idSolicitudProveedor (si aplica)
+        (solicitud.idSolicitudAnalisis?.toString().includes(filtro) || // Filtrado por idSolicitudAnalisis (si aplica)
+          solicitud.idSolicitudProveedor?.toString().includes(filtro)) || // Filtrado por idSolicitudProveedor (si aplica)
         (solicitud.fechaCreacion && formatFecha(solicitud.fechaCreacion).includes(filtro)) || // Filtrado por fecha
-        (solicitud.proveedor?.nombre?.toLowerCase().includes(filtro) || // Filtrado por proveedor
-          solicitud.operadoras?.some((prov: any) => prov.nombre?.toLowerCase().includes(filtro))) || // Filtrado por operadoras si aplica
-        (solicitud.usuarioCreador?.nombre?.toLowerCase().includes(filtro) || // Filtrado por nombre de usuario creador
-          solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
+        (solicitud.usuarioCreador?.nombre?.toLowerCase().includes(filtro)) || // Filtrado por nombre de usuario creador
+        (solicitud.usuarioCreador?.apellido?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
       );
 
       this.actualizarPaginacion();
@@ -778,7 +775,7 @@ export default class BandejaComponent implements OnInit {
 
   actualizarEstadoLegajoAnalisis() {
     this.analisisTelefonicoService.ActualizarEstadoLegajoolicitudAnalisis(this.idSolicitudAnalisisSeleccionada,
-      this.usuarioId, this.observacionLegajoAnalisis).subscribe({
+      this.usuario.idUsuario, this.observacionLegajoAnalisis).subscribe({
         next: response => {
           this.alertatipo = "satisfaccion";
           this.alertaMensaje = "Solicitud de Analisis Movida a Legajo";
@@ -875,7 +872,7 @@ export default class BandejaComponent implements OnInit {
   }
 
   finalizarSolicitudAnalisis() {
-    this.analisisTelefonicoService.finalizarSolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, 1, this.observacionFinalizarAnalisis).subscribe({
+    this.analisisTelefonicoService.finalizarSolicitudAnalisis(this.idSolicitudAnalisisSeleccionada, this.usuario.idUsuario, this.observacionFinalizarAnalisis).subscribe({
       next: response => {
         this.alertatipo = "satisfaccion";
         this.alertaMensaje = "Solicitud de Analisis Correctamente Finalizada";

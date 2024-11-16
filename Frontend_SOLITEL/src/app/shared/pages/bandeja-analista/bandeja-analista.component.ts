@@ -192,16 +192,14 @@ export default class BandejaAnalistaComponent implements OnInit {
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+        return `${month}/${day}/${year}`;
       };
 
       // Filtro principal basado en los criterios solicitados
       this.solicitudesAnalisisFiltradas = this.solicitudesAnalisis.filter(solicitud =>
-        (solicitud.fechaCreacion && formatFecha(solicitud.fechaCreacion).includes(filtro)) || // Filtrado por fecha
-        (solicitud.proveedor?.nombre?.toLowerCase().includes(filtro) || // Filtrado por proveedor
-          solicitud.operadoras?.some((prov: any) => prov.nombre?.toLowerCase().includes(filtro))) || // Filtrado por operadoras si aplica
-        (solicitud.usuarioCreador?.nombre?.toLowerCase().includes(filtro) || // Filtrado por nombre de usuario creador
-          solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
+        (solicitud.idSolicitudAnalisis?.toString().includes(filtro)) || 
+        (solicitud.fechaCreacion && formatFecha(solicitud.fechaCreacion).includes(filtro)) || // Filtrado por operadoras si aplica
+        (solicitud.nombreUsuarioCreador?.toLowerCase().includes(filtro)) // Filtrado por nombre de usuario creador directamente si existe
       );
 
       this.actualizarPaginacion();

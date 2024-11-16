@@ -1,50 +1,76 @@
-/* Estilos para el contenedor de selección de oficina */
-.office-selection-container {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  /* Estilos para el contenedor de entrada */
-  .office-selection-input-container {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
-  }
-  
-  /* Estilos para la etiqueta */
-  .office-selection-label {
-    margin-bottom: 5px;
-    font-weight: bold;
-    background-color: #ffeb3b; /* Color de fondo amarillo tipo alerta */
-    padding: 5px;
-    border-radius: 3px;
-  }
-  
-  /* Estilos para el select */
-  .office-selection-select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
-  }
-  
-  /* Estilos para el botón de guardar */
-  .office-selection-btn-guardar {
-    padding: 10px 20px;
-    background-color: #007bff; /* Color de fondo azul */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  .office-selection-btn-guardar:hover {
-    background-color: #0056b3; /* Color de fondo azul más oscuro al pasar el cursor */
-  }
-  
+.div-border {
+  border: 1px solid #5f89a3;
+  border-radius: 4px;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+input,
+select,
+textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.buttons-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.buttons-row .btn {
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #1976d2;
+  color: #ffffff;
+  border: none;
+}
+
+.required-field {
+  border: 1px solid #ddd; /* Borde normal */
+  padding: 10px;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.required-field:invalid {
+  border-color: red; /* Borde rojo para campos inválidos */
+}
+
+.required-field:focus:invalid {
+  border-color: red; /* Borde rojo cuando el campo inválido tiene el foco */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon .icon {
+  position: absolute;
+  left: 10px; /* Ajusta según sea necesario */
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* Hace que el ícono no sea seleccionable */
+}
+
+.input-with-icon input {
+  padding-left: 35px; /* Espacio suficiente para el icono */
+}
