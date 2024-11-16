@@ -462,7 +462,9 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
       !this.numeroUnico ||
       !this.oficinaAnalisis ||
       !this.fechaHecho ||
-      this.requerimientos.length === 0
+      this.requerimientos.length === 0 ||
+      this.solicitudesProveedorSeleccionadas.length === 0 ||
+      this.objetivosAnalisisSeleccionados.length === 0
     ) {
       this.alertatipo = "error";
       this.alertaMensaje = "Hay campos vacios";
@@ -655,6 +657,9 @@ export default class AnalisisTelefonicoComponent implements OnInit, OnDestroy {
           this.alertatipo = 'satisfaccion';
           this.alertaVisible = true;
           this.limpiarFormulario();
+          setTimeout(() => {
+            this.alertaVisible = false;
+          }, 3000);
         },
         (error) => { 
           console.error('Error al enviar la solicitud:', error.error) 
